@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { CharacterSprite } from "./sprites/CharacterSprite";
 import { CharacterTab } from "./CharacterTab";
 import { InventoryTab } from "./InventoryTab";
 import { DungeonsTab } from "./DungeonsTab";
@@ -49,6 +50,14 @@ export function Hub({
     <div className="screen hub-screen">
       <div className="hub-layout">
         <div className="hub-sidebar">
+          <div className="hub-sprite">
+            <CharacterSprite
+                classId={character.classId}
+                size={90}
+                state="idle"
+                isUnique={equipment.weapon?.rarity === "unique"}
+              />
+          </div>
           <div className="gold-display">{character.gold} gold</div>
 
           <nav className="tab-bar">

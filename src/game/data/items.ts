@@ -1,4 +1,4 @@
-import type { EquipmentSlot, Item, ItemAffix, ItemRarity } from "../types";
+import type { ClassId, EquipmentSlot, Item, ItemAffix, ItemRarity } from "../types";
 
 interface ItemBase {
   name: string;
@@ -6,14 +6,14 @@ interface ItemBase {
   baseDamage?: [number, number];
   baseDefense?: number;
   twoHanded?: boolean;
+  allowedClasses?: ClassId[];
 }
 
 const WEAPON_BASES: ItemBase[] = [
-  { name: "Sword", slot: "weapon", baseDamage: [2, 5], twoHanded: false },
-  { name: "Axe", slot: "weapon", baseDamage: [2, 6], twoHanded: false },
-  { name: "Mace", slot: "weapon", baseDamage: [3, 4], twoHanded: false },
-  { name: "War Staff", slot: "weapon", baseDamage: [2, 8], twoHanded: true },
-  { name: "Bow", slot: "weapon", baseDamage: [3, 7], twoHanded: true },
+  { name: "Axe",      slot: "weapon", baseDamage: [2, 6], twoHanded: false, allowedClasses: ["barbarian"] },
+  { name: "War Staff",slot: "weapon", baseDamage: [2, 8], twoHanded: true,  allowedClasses: ["necromancer", "sorceress"] },
+  { name: "Bow",      slot: "weapon", baseDamage: [3, 7], twoHanded: true,  allowedClasses: ["amazon"] },
+  { name: "Mace",     slot: "weapon", baseDamage: [3, 4], twoHanded: false, allowedClasses: ["paladin"] },
 ];
 
 const ARMOR_BASES: ItemBase[] = [
@@ -73,8 +73,11 @@ function rollAffixes(count: number, itemLevel: number): ItemAffix[] {
 
 let itemCounter = 0;
 
-export function generateRandomItem(itemLevel: number): Item {
-  const bag = [...WEAPON_BASES, ...ARMOR_BASES, ...JEWELRY_BASES];
+export function generateRandomItem(itemLevel: number, classId?: ClassId): Item {
+  const weapons = classId
+    ? WEAPON_BASES.filter((w) => !w.allowedClasses || w.allowedClasses.includes(classId))
+    : WEAPON_BASES;
+  const bag = [...weapons, ...ARMOR_BASES, ...JEWELRY_BASES];
   const base = bag[Math.floor(Math.random() * bag.length)];
   const rarityEntry = rollRarity();
   const slot: EquipmentSlot =
@@ -123,10 +126,10 @@ export function buyValue(item: Item): number {
   return sellValue(item) * 4;
 }
 
-export function generateShopStock(characterLevel: number, count = 4): Item[] {
+export function generateShopStock(characterLevel: number, classId?: ClassId, count = 4): Item[] {
   const items: Item[] = [];
   for (let i = 0; i < count; i++) {
-    items.push(generateRandomItem(Math.max(1, characterLevel)));
+    items.push(generateRandomItem(Math.max(1, characterLevel), classId));
   }
   return items;
 }

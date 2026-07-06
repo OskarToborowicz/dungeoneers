@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ClassIcon } from "./ClassIcon";
+import { CharacterSprite } from "./sprites/CharacterSprite";
 import { CLASS_LIST } from "../game/data/classes";
 import type { ClassId } from "../game/types";
 
@@ -33,6 +34,9 @@ export function CharacterCreation({ onCreate }: Props) {
         </div>
 
         <div className="class-detail">
+          <div className="class-sprite-preview">
+            <CharacterSprite classId={selected.id} size={56} state="idle" />
+          </div>
           <h2 className="class-detail-title">
             <ClassIcon classId={selected.id} size={30} />
             {selected.name}

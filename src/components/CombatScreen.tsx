@@ -13,11 +13,14 @@ import {
   type CombatResult,
   type PlayerActionKind,
 } from "../game/combat";
-import type { Character, ConsumableId, MonsterDefinition } from "../game/types";
+import type { Character, ConsumableId, EquipmentSlot, Item, MonsterDefinition } from "../game/types";
+import { CharacterSprite, type SpriteState } from "./sprites/CharacterSprite";
+import { MonsterSprite } from "./sprites/MonsterSprite";
 
 interface Props {
   character: Character;
   derived: DerivedStats;
+  equipment: Partial<Record<EquipmentSlot, Item>>;
   monster: MonsterDefinition;
   startingLife: number;
   startingMana: number;
@@ -30,6 +33,7 @@ interface Props {
 export function CombatScreen({
   character,
   derived,
+  equipment,
   monster,
   startingLife,
   startingMana,
@@ -48,6 +52,8 @@ export function CombatScreen({
   const [status, setStatus] = useState<BattleStatus>("ongoing");
   const [reward, setReward] = useState<{ xp: number; gold: number } | null>(null);
   const [totalDamageDealt, setTotalDamageDealt] = useState(0);
+  const [playerAnim, setPlayerAnim] = useState<SpriteState>("idle");
+  const [monsterAnim, setMonsterAnim] = useState<SpriteState>("idle");
 
   useEffect(() => {
     if (logRef.current) {
@@ -64,9 +70,24 @@ export function CombatScreen({
     setLog((prev) => [...prev, ...result.log]);
     setStatus(result.status);
     setTotalDamageDealt((d) => d + result.damageDealt);
+
     if (result.status === "victory") {
       setReward({ xp: monster.xpReward, gold: rollGoldReward(monster) });
+      setMonsterAnim("dead");
+    } else if (result.status === "defeat") {
+      setPlayerAnim("dead");
+    } else {
+      setPlayerAnim("attack");
+      setTimeout(() => setPlayerAnim("idle"), 550);
+      const monsterAttacked = result.log.some((e) => e.actor === "monster");
+      if (monsterAttacked) {
+        setTimeout(() => {
+          setMonsterAnim("attack");
+          setTimeout(() => setMonsterAnim("idle"), 550);
+        }, 280);
+      }
     }
+
     if (action === "healthPotion" || action === "manaPotion") {
       onUsePotion(action);
     }
@@ -89,6 +110,20 @@ export function CombatScreen({
   return (
     <div className="screen combat-screen">
       <h2>{monster.name}</h2>
+
+      <div className="battle-arena">
+        <div className="battle-side player-side">
+          <CharacterSprite
+              classId={character.classId}
+              size={80}
+              state={playerAnim}
+              isUnique={equipment.weapon?.rarity === "unique"}
+            />
+        </div>
+        <div className="battle-side monster-side">
+          <MonsterSprite name={monster.name} size={80} state={monsterAnim} />
+        </div>
+      </div>
 
       <div className="combat-bars">
         <div className="combat-bar-block">

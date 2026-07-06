@@ -53,7 +53,7 @@ function App() {
       setInventory(save.inventory);
       setClearedDungeons(save.clearedDungeons);
       setConsumables(save.consumables ?? EMPTY_CONSUMABLES);
-      setShopStock(save.shopStock ?? generateShopStock(save.character.level));
+      setShopStock(save.shopStock ?? generateShopStock(save.character.level, save.character.classId));
     }
     setLoaded(true);
   }, []);
@@ -79,7 +79,7 @@ function App() {
           setInventory([]);
           setClearedDungeons([]);
           setConsumables(EMPTY_CONSUMABLES);
-          setShopStock(generateShopStock(1));
+          setShopStock(generateShopStock(1, classId));
         }}
       />
     );
@@ -186,7 +186,7 @@ function App() {
     if (!character) return;
     if (character.gold < RESTOCK_FEE) return;
     setCharacter({ ...character, gold: character.gold - RESTOCK_FEE });
-    setShopStock(generateShopStock(character.level));
+    setShopStock(generateShopStock(character.level, character.classId));
   }
 
   function handleStartDungeon(dungeonId: string) {
@@ -254,7 +254,7 @@ function App() {
     const isBoss = dungeonRun.index === dungeonRun.queue.length - 1;
     const dropChance = isBoss ? 1 : 0.35;
     if (Math.random() < dropChance) {
-      const item = generateRandomItem(monster.level);
+      const item = generateRandomItem(monster.level, character.classId);
       setInventory((prev) => [...prev, item]);
     }
 
@@ -281,6 +281,7 @@ function App() {
         key={`${dungeonRun.dungeonId}-${dungeonRun.index}`}
         character={character}
         derived={derived}
+        equipment={equipment}
         monster={monster}
         startingLife={dungeonRun.currentLife}
         startingMana={dungeonRun.currentMana}

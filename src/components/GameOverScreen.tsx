@@ -1,5 +1,6 @@
 import { CLASSES } from "../game/data/classes";
 import type { DeathSummary } from "../game/types";
+import { CharacterSprite } from "./sprites/CharacterSprite";
 
 interface Props {
   summary: DeathSummary;
@@ -12,6 +13,9 @@ export function GameOverScreen({ summary, onContinue }: Props) {
   return (
     <div className="screen game-over-screen">
       <h1 className="death-title">You Have Died</h1>
+      <div className="death-sprite">
+        <CharacterSprite classId={summary.classId} size={90} state="dead" />
+      </div>
       <p className="subtitle">
         {summary.characterName} the {def.name} has fallen. Their legend ends here.
       </p>

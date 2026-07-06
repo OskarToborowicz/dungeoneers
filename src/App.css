@@ -1,5 +1,5 @@
 .screen {
-  padding: 24px 20px 48px;
+  padding: 20px 20px 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -30,7 +30,7 @@
   gap: 20px;
   width: 100%;
   max-width: 640px;
-  height: 400px;
+  height: 460px;
   background: var(--bg-panel);
   border: 1px solid var(--border-gold);
   border-radius: 6px;
@@ -629,6 +629,47 @@
   color: var(--text-dim);
   font-size: 12px;
   margin-bottom: 8px;
+}
+
+/* ---------- Sprites ---------- */
+
+.hub-sprite {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0 4px;
+}
+
+.class-sprite-preview {
+  display: flex;
+  justify-content: center;
+  padding: 6px 0 4px;
+}
+
+.death-sprite {
+  display: flex;
+  justify-content: center;
+  padding: 12px 0;
+}
+
+.battle-arena {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 560px;
+  height: 148px;
+  background: linear-gradient(to bottom, #1a0d08, #0d0605);
+  border: 1px solid var(--border-gold);
+  border-radius: 6px;
+  padding: 12px 28px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.battle-side {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 /* ---------- Combat Screen ---------- */
