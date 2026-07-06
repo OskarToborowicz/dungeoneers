@@ -41,9 +41,9 @@ export interface RoundResult {
   damageDealt: number;
 }
 
-const ALWAYS_MISS_CHANCE = 0.05;
+const ALWAYS_MISS_CHANCE = 0.02;
 const MONSTER_CRIT_CHANCE = 0.1;
-const DEFAULT_CRIT_MULTIPLIER = 1.75;
+const DEFAULT_CRIT_MULTIPLIER = 1.50;
 const MANA_REGEN_RATE = 0.08;
 
 // Passives
@@ -51,7 +51,7 @@ const BARBARIAN_BONUS_CRIT_CHANCE = 0.15;
 const BARBARIAN_CRIT_MULTIPLIER = 1.25;
 const SORCERESS_ATTACK_MANA_REGEN_RATE = 0.2;
 const PALADIN_DAMAGE_TAKEN_HEAL = 0.15;
-const NECROMANCER_POISON_LIFESTEAL = 0.2;
+const NECROMANCER_POISON_LIFESTEAL = .8;
 
 function rollHitChance(attackRating: number, defense: number): number {
   const chance = attackRating / (attackRating + defense * 2);
