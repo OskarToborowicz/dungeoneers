@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { CSSProperties } from "react";
 import { CharacterSprite, CLASS_COLORS } from "./sprites/CharacterSprite";
+import { CoinIcon } from "./CoinIcon";
 import { CharacterTab } from "./CharacterTab";
 import { InventoryTab } from "./InventoryTab";
 import { DungeonsTab } from "./DungeonsTab";
@@ -61,7 +62,7 @@ export function Hub({
                 isUnique={equipment.weapon?.rarity === "unique"}
               />
           </div>
-          <div className="gold-display">{character.gold} gold</div>
+          <div className="gold-display"><CoinIcon size={15} /> {character.gold}</div>
 
           <nav className="tab-bar">
             <button className={tab === "character" ? "active" : ""} onClick={() => setTab("character")}>

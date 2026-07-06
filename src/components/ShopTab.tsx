@@ -4,6 +4,7 @@ import { CONSUMABLE_LIST } from "../game/data/consumables";
 import { buyValue, RARITY_COLORS, sellValue } from "../game/data/items";
 import { ItemIcon } from "./ItemIcon";
 import { ItemTooltip } from "./ItemTooltip";
+import { CoinIcon } from "./CoinIcon";
 import type { Character, ConsumableId, Item } from "../game/types";
 
 interface Props {
@@ -74,7 +75,7 @@ export function ShopTab({
               <ItemIcon item={item} />
               <ItemTooltip item={item} />
               <button className="buy-button" disabled={character.gold < price} onClick={() => onBuyItem(item)}>
-                {price}g
+                <CoinIcon size={9} /> {price}
               </button>
             </div>
           );
@@ -116,7 +117,7 @@ export function ShopTab({
               <ItemIcon item={item} />
               <ItemTooltip item={item} />
               <button className="sell-button" onClick={() => onSell(item)}>
-                {sellValue(item)}g
+                <CoinIcon size={9} /> {sellValue(item)}
               </button>
             </div>
           ))}

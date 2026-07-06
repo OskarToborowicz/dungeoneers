@@ -16,6 +16,7 @@ import {
 import type { Character, ConsumableId, EquipmentSlot, Item, MonsterDefinition } from "../game/types";
 import { CharacterSprite, type SpriteState } from "./sprites/CharacterSprite";
 import { MonsterSprite } from "./sprites/MonsterSprite";
+import { AbilityEffect } from "./AbilityEffect";
 
 interface Props {
   character: Character;
@@ -58,6 +59,7 @@ export function CombatScreen({
   const [totalDamageDealt, setTotalDamageDealt] = useState(0);
   const [playerAnim, setPlayerAnim] = useState<SpriteState>("idle");
   const [monsterAnim, setMonsterAnim] = useState<SpriteState>("idle");
+  const [abilityEffect, setAbilityEffect] = useState(false);
 
   useEffect(() => {
     if (logRef.current) {
@@ -70,7 +72,9 @@ export function CombatScreen({
     if (action === "healthPotion" && (consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0)) return;
     if (action === "manaPotion" && (consumables.manaPotion <= 0 || battle.manaPotionCooldown > 0)) return;
 
+    const wasAbility = action === "ability" && canUseAbility(character, battle);
     const result = resolveRound(character, derived, monster, battle, action);
+    if (wasAbility) setAbilityEffect(true);
     setBattle(result.state);
     setLog((prev) => [...prev, ...result.log]);
     setStatus(result.status);
@@ -117,6 +121,9 @@ export function CombatScreen({
       <h2>{monster.name}</h2>
 
       <div className="battle-arena">
+        {abilityEffect && (
+          <AbilityEffect classId={character.classId} onDone={() => setAbilityEffect(false)} />
+        )}
         <div className="battle-side player-side">
           <CharacterSprite
               classId={character.classId}
