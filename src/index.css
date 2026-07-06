@@ -1,0 +1,76 @@
+@font-face {
+  font-family: "Diablo";
+  src: url("./assets/diablo.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --bg-darkest: #0b0908;
+  --bg-panel: #1a1512;
+  --bg-panel-light: #241d18;
+  --border-gold: #7a5a2c;
+  --border-gold-bright: #c9a24b;
+  --text: #c9bfae;
+  --text-dim: #8a7f6d;
+  --text-heading: #d8b463;
+  --accent-red: #8c1a1a;
+  --accent-red-bright: #c2321f;
+  --hp-color: #7a1414;
+  --hp-color-bright: #c92b2b;
+  --mana-color: #1c3f7a;
+
+  --serif: Georgia, "Times New Roman", serif;
+  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading-font: "Diablo", Georgia, "Times New Roman", serif;
+
+  font: 17px/145% var(--sans);
+  color-scheme: dark;
+  color: var(--text);
+  background: var(--bg-darkest);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  background: radial-gradient(ellipse at top, #201814 0%, #0b0908 70%);
+}
+
+#root {
+  width: 100%;
+  max-width: 960px;
+  margin: 0 auto;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3 {
+  font-family: var(--heading-font);
+  color: var(--text-heading);
+  margin: 0 0 8px;
+  letter-spacing: 0.5px;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font-family: var(--sans);
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}

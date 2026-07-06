@@ -1,0 +1,127 @@
+import { CLASSES } from "./data/classes";
+import type { BaseStats, Character, EquipmentSlot, Item } from "./types";
+
+export const FURY_MAX = 100;
+export const FURY_START = 20;
+export const FURY_PER_ATTACK = 10;
+export const MANA_MAX = 100;
+export const STARTING_STAT_POINTS = 10;
+
+export function xpToNextLevel(level: number): number {
+  return Math.round(40 * Math.pow(level, 1.55));
+}
+
+export function createCharacter(name: string, classId: Character["classId"]): Character {
+  return {
+    name,
+    classId,
+    level: 1,
+    xp: 0,
+    gold: 50,
+    unspentStatPoints: STARTING_STAT_POINTS,
+    allocatedStats: { strength: 0, dexterity: 0, vitality: 0, energy: 0 },
+    abilityCooldown: 0,
+    runStats: { damageDealt: 0, goldEarned: 0, kills: 0 },
+  };
+}
+
+export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, Item>>): {
+  stats: BaseStats;
+  damageBonus: number;
+  defenseBonus: number;
+  lifeBonus: number;
+  manaBonus: number;
+  weaponDamage?: [number, number];
+} {
+  const stats: BaseStats = { strength: 0, dexterity: 0, vitality: 0, energy: 0 };
+  let damageBonus = 0;
+  let defenseBonus = 0;
+  let lifeBonus = 0;
+  let manaBonus = 0;
+  let weaponDamage: [number, number] | undefined;
+
+  for (const item of Object.values(equipment)) {
+    if (!item) continue;
+    if (item.baseDefense) defenseBonus += item.baseDefense;
+    if (item.slot === "weapon" && item.baseDamage) {
+      weaponDamage = item.baseDamage;
+    } else if (item.slot === "shield" && item.baseDamage) {
+      // Off-hand weapon (dual-wield): grants bonus flat damage instead of replacing the main hand.
+      damageBonus += Math.round(((item.baseDamage[0] + item.baseDamage[1]) / 2) * 0.5);
+    }
+    for (const affix of item.affixes) {
+      if (affix.stat === "damage") damageBonus += affix.value;
+      else if (affix.stat === "defense") defenseBonus += affix.value;
+      else if (affix.stat === "life") lifeBonus += affix.value;
+      else if (affix.stat === "mana") manaBonus += affix.value;
+      else stats[affix.stat] += affix.value;
+    }
+  }
+
+  return { stats, damageBonus, defenseBonus, lifeBonus, manaBonus, weaponDamage };
+}
+
+export interface DerivedStats {
+  stats: BaseStats;
+  maxLife: number;
+  maxMana: number;
+  damage: [number, number];
+  defense: number;
+  critChance: number;
+  magicDamageMultiplier: number;
+}
+
+export function getDerivedStats(
+  character: Character,
+  equipment: Partial<Record<EquipmentSlot, Item>>
+): DerivedStats {
+  const def = CLASSES[character.classId];
+  const base = def.baseStats;
+  const equip = getEquipmentStatBonus(equipment);
+
+  const stats: BaseStats = {
+    strength: base.strength + character.allocatedStats.strength + equip.stats.strength,
+    dexterity: base.dexterity + character.allocatedStats.dexterity + equip.stats.dexterity,
+    vitality: base.vitality + character.allocatedStats.vitality + equip.stats.vitality,
+    energy: base.energy + character.allocatedStats.energy + equip.stats.energy,
+  };
+
+  const maxLife = Math.round(30 + stats.vitality * 3 + character.level * 5 + equip.lifeBonus);
+  const maxMana = def.resourceType === "fury" ? FURY_MAX : MANA_MAX + equip.manaBonus;
+
+  const weaponDamage = equip.weaponDamage ?? [1, 3];
+  const flatStrengthDamage = stats.strength / 5;
+  const damage: [number, number] = [
+    Math.round(weaponDamage[0] + flatStrengthDamage + equip.damageBonus),
+    Math.round(weaponDamage[1] + flatStrengthDamage + equip.damageBonus),
+  ];
+
+  const defense = Math.round(equip.defenseBonus + stats.dexterity / 4);
+  const critChance = Math.min(0.6, 0.05 + stats.dexterity * 0.001);
+  const magicDamageMultiplier = 1 + stats.energy * 0.001;
+
+  return { stats, maxLife, maxMana, damage, defense, critChance, magicDamageMultiplier };
+}
+
+export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {
+  const def = CLASSES[character.classId];
+  if (def.resourceType === "fury") return FURY_START;
+  return previousEnding ?? derived.maxMana;
+}
+
+export function grantXp(
+  character: Character,
+  xp: number
+): { character: Character; leveledUp: boolean; levelsGained: number } {
+  let updated = { ...character, xp: character.xp + xp };
+  let levelsGained = 0;
+
+  while (updated.xp >= xpToNextLevel(updated.level)) {
+    updated.xp -= xpToNextLevel(updated.level);
+    updated.level += 1;
+    updated.unspentStatPoints += 5;
+    levelsGained += 1;
+  }
+
+  return { character: updated, leveledUp: levelsGained > 0, levelsGained };
+}

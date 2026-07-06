@@ -1,0 +1,112 @@
+import type { ClassDefinition, ClassId } from "../types";
+
+export const CLASSES: Record<ClassId, ClassDefinition> = {
+  barbarian: {
+    id: "barbarian",
+    name: "Barbarian",
+    description: "A relentless melee warrior who overpowers foes with raw strength.",
+    baseStats: { strength: 10, dexterity: 10, vitality: 10, energy: 10 },
+    resourceName: "Fury",
+    resourceType: "fury",
+    passive: {
+      name: "Berserker's Edge",
+      description: "+15% chance to land a critical strike, dealing 25% bonus damage on crit.",
+    },
+    ability: {
+      name: "Whirlwind",
+      description: "A spinning strike that deals heavy bonus damage.",
+      manaCost: 15,
+      cooldown: 3,
+      kind: "burst",
+      power: 2.2,
+      magic: false,
+    },
+  },
+  necromancer: {
+    id: "necromancer",
+    name: "Necromancer",
+    description: "A summoner of dark magic who withers enemies with poison and curses.",
+    baseStats: { strength: 10, dexterity: 10, vitality: 10, energy: 10 },
+    resourceName: "Mana",
+    resourceType: "mana",
+    passive: {
+      name: "Soul Siphon",
+      description: "Poison damage you deal also heals you for 20% of the damage.",
+    },
+    ability: {
+      name: "Poison Dagger",
+      description: "A cursed blade that poisons the enemy, dealing damage over time.",
+      manaCost: 20,
+      cooldown: 2,
+      kind: "dot",
+      power: 1.4,
+      magic: true,
+    },
+  },
+  sorceress: {
+    id: "sorceress",
+    name: "Sorceress",
+    description: "A master of the elements who blasts enemies with devastating spells.",
+    baseStats: { strength: 10, dexterity: 10, vitality: 10, energy: 10 },
+    resourceName: "Mana",
+    resourceType: "mana",
+    passive: {
+      name: "Arcane Flow",
+      description: "Regenerates 20% of your maximum mana whenever you land a basic attack.",
+    },
+    ability: {
+      name: "Fireball",
+      description: "A searing bolt of fire that deals massive burst damage.",
+      manaCost: 25,
+      cooldown: 3,
+      kind: "burst",
+      power: 2.6,
+      magic: true,
+    },
+  },
+  amazon: {
+    id: "amazon",
+    name: "Amazon",
+    description: "A skilled ranger who strikes swiftly from range with bow and spear.",
+    baseStats: { strength: 10, dexterity: 10, vitality: 10, energy: 10 },
+    resourceName: "Mana",
+    resourceType: "mana",
+    passive: {
+      name: "Precise Strikes",
+      description: "Multishot's two arrows each roll their own critical chance independently.",
+    },
+    ability: {
+      name: "Multishot",
+      description: "Fires two arrows, each dealing 55% damage and each able to land a critical hit.",
+      manaCost: 18,
+      cooldown: 2,
+      kind: "multi",
+      power: 0.55,
+      magic: false,
+      hits: 2,
+    },
+  },
+  paladin: {
+    id: "paladin",
+    name: "Paladin",
+    description: "A holy knight who blends righteous combat with divine healing.",
+    baseStats: { strength: 10, dexterity: 10, vitality: 10, energy: 10 },
+    resourceName: "Mana",
+    resourceType: "mana",
+    passive: {
+      name: "Divine Retribution",
+      description: "Converts 15% of damage taken into life.",
+    },
+    ability: {
+      name: "Holy Bolt",
+      description: "A bolt of holy light that smites the enemy and mends your wounds.",
+      manaCost: 20,
+      cooldown: 3,
+      kind: "heal",
+      power: 1.6,
+      magic: true,
+    },
+  },
+};
+
+export const CLASS_LIST = Object.values(CLASSES);
