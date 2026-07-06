@@ -53,7 +53,7 @@ const BARBARIAN_BONUS_CRIT_CHANCE = 0.10;
 const BARBARIAN_CRIT_MULTIPLIER = 1.25;
 const SORCERESS_ATTACK_MANA_REGEN_RATE = 0.2;
 const PALADIN_DAMAGE_TAKEN_HEAL = 0.15;
-const NECROMANCER_POISON_LIFESTEAL = .8;
+const NECROMANCER_POISON_LIFESTEAL = 0.1;
 
 function rollHitChance(attackRating: number, defense: number): number {
   const chance = attackRating / (attackRating + defense * 2);
@@ -119,24 +119,6 @@ export function resolveRound(
 
   let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage } = state;
   let damageDealt = 0;
-
-  if (poisonRounds > 0) {
-    monsterLife -= poisonDamage;
-    damageDealt += poisonDamage;
-    poisonRounds -= 1;
-    if (character.classId === "necromancer") {
-      playerLife = Math.min(
-        stats.maxLife,
-        playerLife + Math.round(poisonDamage * NECROMANCER_POISON_LIFESTEAL)
-      );
-    }
-    log.push({
-      actor: "player",
-      message: `${monster.name} suffers ${poisonDamage} poison damage.`,
-      playerLife: Math.max(0, playerLife),
-      monsterLife: Math.max(0, monsterLife),
-    });
-  }
 
   if (monsterLife > 0) {
     const useAbility = action === "ability" && playerMana >= def.ability.manaCost && abilityCooldown <= 0;
@@ -296,6 +278,40 @@ export function resolveRound(
       status: "victory",
       damageDealt,
     };
+  }
+
+  // Poison ticks at the start of the monster's turn
+  if (poisonRounds > 0) {
+    monsterLife -= poisonDamage;
+    damageDealt += poisonDamage;
+    poisonRounds -= 1;
+    const necroHeal = character.classId === "necromancer"
+      ? Math.round(poisonDamage * NECROMANCER_POISON_LIFESTEAL)
+      : 0;
+    if (necroHeal > 0) playerLife = Math.min(stats.maxLife, playerLife + necroHeal);
+    log.push({
+      actor: "player",
+      message: `${monster.name} suffers ${poisonDamage} poison damage.${necroHeal > 0 ? ` Soul Siphon heals you for ${necroHeal}.` : ""}`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+    if (monsterLife <= 0) {
+      return {
+        state: {
+          playerLife: Math.max(0, playerLife),
+          playerMana: Math.max(0, Math.round(playerMana)),
+          monsterLife: 0,
+          abilityCooldown,
+          healthPotionCooldown,
+          manaPotionCooldown,
+          poisonRounds,
+          poisonDamage,
+        },
+        log,
+        status: "victory",
+        damageDealt,
+      };
+    }
   }
 
   const monsterHitChance = rollHitChance(monster.attackRating, stats.defense);

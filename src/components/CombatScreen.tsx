@@ -17,6 +17,7 @@ import type { Character, ConsumableId, EquipmentSlot, Item, MonsterDefinition } 
 import { CharacterSprite, type SpriteState } from "./sprites/CharacterSprite";
 import { MonsterSprite } from "./sprites/MonsterSprite";
 import { AbilityEffect } from "./AbilityEffect";
+import { PotionIcon } from "./PotionIcon";
 
 interface Props {
   character: Character;
@@ -161,6 +162,11 @@ export function CombatScreen({
             />
           </div>
           <div className="hp-value">{battle.monsterLife} / {monster.life}</div>
+          {battle.poisonRounds > 0 && (
+            <div className="status-effects">
+              <span className="status-pill poison">☠ Poison {battle.poisonRounds}</span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -196,7 +202,7 @@ export function CombatScreen({
             onClick={() => handleAction("healthPotion")}
             title={CONSUMABLES.healthPotion.description}
           >
-            {CONSUMABLES.healthPotion.name}
+            <PotionIcon type="health" size={16} /> {CONSUMABLES.healthPotion.name}
             <span className="action-cost">
               {battle.healthPotionCooldown > 0
                 ? `Cooldown: ${battle.healthPotionCooldown}`
@@ -210,7 +216,7 @@ export function CombatScreen({
               onClick={() => handleAction("manaPotion")}
               title={CONSUMABLES.manaPotion.description}
             >
-              {CONSUMABLES.manaPotion.name}
+              <PotionIcon type="mana" size={16} /> {CONSUMABLES.manaPotion.name}
               <span className="action-cost">
                 {battle.manaPotionCooldown > 0
                   ? `Cooldown: ${battle.manaPotionCooldown}`

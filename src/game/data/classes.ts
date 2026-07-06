@@ -31,7 +31,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     resourceType: "mana",
     passive: {
       name: "Soul Siphon",
-      description: "Poison damage you deal also heals you for 20% of the damage.",
+      description: "Poison damage you deal also heals you for 10% of the damage.",
     },
     ability: {
       name: "Poison Dagger",

@@ -2,10 +2,12 @@ import { useState } from "react";
 import type { CSSProperties } from "react";
 import { CharacterSprite, CLASS_COLORS } from "./sprites/CharacterSprite";
 import { CoinIcon } from "./CoinIcon";
+import { PotionIcon } from "./PotionIcon";
 import { CharacterTab } from "./CharacterTab";
 import { InventoryTab } from "./InventoryTab";
 import { DungeonsTab } from "./DungeonsTab";
 import { ShopTab } from "./ShopTab";
+import { CLASSES } from "../game/data/classes";
 import type { DerivedStats } from "../game/character";
 import type { BaseStats, Character, ConsumableId, EquipmentSlot, Item } from "../game/types";
 
@@ -65,6 +67,12 @@ export function Hub({
               />
           </div>
           <div className="gold-display"><CoinIcon size={15} /> {character.gold}</div>
+          <div className="potions-display">
+            <span><PotionIcon type="health" size={18} /> {consumables.healthPotion}</span>
+            {CLASSES[character.classId].resourceType === "mana" && (
+              <span><PotionIcon type="mana" size={18} /> {consumables.manaPotion}</span>
+            )}
+          </div>
 
           <nav className="tab-bar">
             <button className={tab === "character" ? "active" : ""} onClick={() => setTab("character")}>

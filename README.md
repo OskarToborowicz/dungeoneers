@@ -36,9 +36,13 @@ Six classes are available, each with a unique resource type, active ability, and
 | Paladin | Mana | Mace | Tank/sustain, converts damage to life |
 | Druid | Mana | Totem | Dex-scaling melee with lifesteal and damage reduction |
 
-All classes start with **10 in every base stat** (Strength, Dexterity, Vitality, Energy).
+All classes start with **10 in every base stat** (Strength, Dexterity, Vitality, Energy) and **10 free stat points** to allocate.
 
 **Weapons are class-locked.** Each class can only equip their designated weapon type. Unique weapons display a golden glow on the character sprite.
+
+**Starting equipment.** Every new character begins with a Normal-quality version of their class weapon (item level 1, no affixes). This weapon occupies the main-hand slot immediately on character creation.
+
+**Shield restrictions.** Only the Paladin can equip shields. The Barbarian can equip a second Axe in the off-hand slot (see Dual-Wield below). All other classes leave the shield slot empty.
 
 ---
 
@@ -59,7 +63,7 @@ Increases defense and critical strike chance, and powers the Druid's passive and
 defense      += dexterity / 4
 critChance    = min(0.60, 0.05 + dexterity × 0.001)
 ```
-Base crit chance is 5% and scales to a soft cap of 60%. The Barbarian's passive adds 15% on top (recapped at 90%).
+Base crit chance is 5% and scales to a soft cap of 60%. The Barbarian's passive adds 10% on top (recapped at 90%).
 
 - Druid passive (Thick Hide): `reduction = min(0.40, dexterity × 0.002)` — caps at 40% damage reduction at 200 Dexterity.
 - Druid ability (Werewolf Bite): deals `dexterity × 1.5` flat bonus damage on top of weapon damage.
@@ -109,7 +113,7 @@ defense = round(gear defense bonuses + dexterity / 4)
 ```
 critChance = min(0.60, 0.05 + dexterity × 0.001)
 ```
-Barbarian adds +15% after this calculation; combined value is re-capped at 90%.
+Barbarian adds +10% after this calculation; combined value is re-capped at 90%.
 
 ### Magic Damage Bonus
 ```
@@ -136,7 +140,7 @@ xpToNextLevel(level) = round(40 × level^1.55)
 
 **On level-up**: +5 stat points to spend freely, and Max Life gains +5 from the level term.
 
-New characters start with **10 stat points** to allocate.
+New characters start with **10 stat points** to allocate and a Normal-quality starting weapon.
 
 ---
 
@@ -203,7 +207,7 @@ Monsters always have at least a 15% chance to hit regardless of the player's def
 | | Crit Chance | Crit Multiplier |
 |---|---|---|
 | Player (base) | 5% + dex×0.001 (cap 60%) | ×1.50 |
-| Barbarian passive | +15% (combined cap 90%) | ×1.75 |
+| Barbarian passive | +10% (combined cap 90%) | ×1.75 |
 | Monster | 10% | ×1.75 |
 
 ### Mana Regeneration
@@ -222,11 +226,32 @@ Potions share an individual cooldown per type. After drinking a Health or Mana P
 
 ### Poison (Necromancer)
 
-When Poison Dagger hits, the target is poisoned for 3 rounds. Each round the monster takes `poisonDamage` before the player acts. Poison damage is fixed at cast time:
+When Poison Dagger hits, the target is poisoned for 3 rounds. Each round the poison ticks at the **start of the monster's turn** (after the player acts, before the monster attacks). Poison damage is fixed at cast time:
 ```
 poisonDamage = round(randomInRange(damage) × ability.power × 0.4) + magicDamageBonus
 ```
-The Necromancer's Soul Siphon passive heals 80% of every poison tick.
+The Necromancer's Soul Siphon passive heals 10% of every poison tick. The heal amount is shown in the combat log.
+
+### Status Effects
+
+Active status effects are displayed as colored pills beneath the monster's HP bar during combat.
+
+| Effect | Trigger | Display |
+|---|---|---|
+| ☠ Poison N | Necromancer Poison Dagger | Shows remaining tick count |
+
+### Ability Animations
+
+Each class ability triggers a short SVG overlay animation (≈800 ms) over the battle arena when used:
+
+| Class | Animation |
+|---|---|
+| Barbarian | Red spinning whirlwind |
+| Necromancer | Dagger thrust + green/purple poison clouds |
+| Sorceress | Expanding fireball with rays |
+| Amazon | Two arrows flying toward the enemy |
+| Paladin | Golden holy cross with radiant pulse |
+| Druid | Three green claw slashes |
 
 ### Escape Tokens
 
@@ -271,9 +296,9 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 ### Druid — Werewolf Bite
 - **Kind**: bite (physical — no magic bonus)
 - **Mana Cost**: 18
-- **Cooldown**: 2 turns
+- **Cooldown**: 3 turns
 - **Damage**: `randomInRange(weaponDamage) + round(dexterity × 1.5)` — bypasses the power multiplier entirely
-- **Lifesteal**: heals the player for **50% of damage dealt**
+- **Lifesteal**: heals the player for **15% of damage dealt**
 
 ### General Ability Damage Formula
 
@@ -291,11 +316,11 @@ result = magic ? base + magicDamageBonus : base
 Passives are always active — no activation required.
 
 ### Barbarian — Berserker's Edge
-- +15% crit chance (stacks on top of the Dexterity formula; combined value capped at 90%).
+- +10% crit chance (stacks on top of the Dexterity formula; combined value capped at 90%).
 - Crit multiplier becomes ×1.75 instead of ×1.50.
 
 ### Necromancer — Soul Siphon
-- Each poison tick heals the Necromancer for **80% of that tick's damage**.
+- Each poison tick heals the Necromancer for **10% of that tick's damage**.
 
 ### Sorceress — Arcane Flow
 - On a basic attack, regenerates **20% of max mana** (replaces the standard 5% regen for that round).
@@ -407,6 +432,20 @@ buyValue  = sellValue × 6
 Gold rarity multipliers: Normal ×1, Magic ×2, Rare ×4, Unique ×8.
 
 Items can be sold individually from the Shop tab or all at once using **Sell All** (shows total value with a confirmation prompt before executing).
+
+### Shop Restock
+
+The merchant's inventory can be refreshed for a gold fee that scales with character level:
+```
+restockFee = round(10 + (level − 1) × 8)
+```
+
+| Level | Restock Cost |
+|---|---|
+| 1 | 10 gold |
+| 5 | 42 gold |
+| 10 | 82 gold |
+| 20 | 162 gold |
 
 ---
 

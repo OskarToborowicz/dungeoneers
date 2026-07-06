@@ -45,14 +45,27 @@ function WhirlwindFx() {
 function PoisonFx() {
   return (
     <g>
-      {/* Expanding poison rings */}
-      <circle className="ae-poison-ring-1" cx="130" cy="60" r="5" fill="none" stroke="#55ee44" strokeWidth="2.5"/>
-      <circle className="ae-poison-ring-2" cx="130" cy="60" r="5" fill="none" stroke="#44cc55" strokeWidth="2"/>
-      <circle className="ae-poison-ring-3" cx="130" cy="60" r="5" fill="none" stroke="#aa55ee" strokeWidth="1.5"/>
-      {/* Dagger */}
-      <g className="ae-dagger-group" style={{ transformOrigin: "130px 60px" }}>
-        <path d="M130 30 L133 65 L130 78 L127 65 Z" fill="#aa55ee" stroke="#cc77ff" strokeWidth="1"/>
-        <rect x="122" y="62" width="16" height="4" rx="1" fill="#aa55ee"/>
+      {/* Dagger rotated 90° pointing right toward enemy */}
+      <g className="ae-dagger-group" style={{ transformOrigin: "135px 60px" }}>
+        <polygon points="168,60 124,56 124,64" fill="#aa55ee" stroke="#cc77ff" strokeWidth="0.8"/>
+        <rect x="119" y="52" width="5" height="16" rx="1" fill="#aa55ee"/>
+        <rect x="103" y="57" width="16" height="6" rx="2" fill="#7a3aaa"/>
+      </g>
+      {/* Poison cloud puffs */}
+      <g className="ae-cloud-1" style={{ transformOrigin: "148px 52px" }}>
+        <circle cx="148" cy="52" r="11" fill="#44cc33" opacity="0.72"/>
+        <circle cx="140" cy="47" r="8"  fill="#55dd44" opacity="0.6"/>
+        <circle cx="156" cy="46" r="7"  fill="#33aa22" opacity="0.55"/>
+      </g>
+      <g className="ae-cloud-2" style={{ transformOrigin: "163px 63px" }}>
+        <circle cx="163" cy="63" r="9"  fill="#aa55ee" opacity="0.65"/>
+        <circle cx="155" cy="59" r="6"  fill="#bb66ff" opacity="0.5"/>
+        <circle cx="169" cy="57" r="6"  fill="#8833cc" opacity="0.5"/>
+      </g>
+      <g className="ae-cloud-3" style={{ transformOrigin: "150px 74px" }}>
+        <circle cx="150" cy="74" r="10" fill="#44cc33" opacity="0.68"/>
+        <circle cx="142" cy="70" r="7"  fill="#55dd44" opacity="0.55"/>
+        <circle cx="158" cy="71" r="6"  fill="#33aa22" opacity="0.5"/>
       </g>
     </g>
   );
