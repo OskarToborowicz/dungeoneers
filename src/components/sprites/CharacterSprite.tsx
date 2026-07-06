@@ -18,6 +18,7 @@ const CLASS_COLORS: Record<ClassId, string> = {
   sorceress: "#4488ff",
   amazon: "#44bb55",
   paladin: "#ddaa22",
+  druid: "#88aa22",
 };
 
 const UNIQUE_COLOR = "#ffa040";
@@ -99,6 +100,28 @@ const BODY_AND_ARMS: Record<ClassId, ReactNode> = {
       <path d="M54 32 L62 52 L56 56 L46 38 Z" />
     </>
   ),
+  druid: (
+    <>
+      {/* Left antler */}
+      <path d="M20 22 L12 4 L14 4 L22 20 Z" />
+      <path d="M14 12 L6 10 L8 8 L16 10 Z" />
+      {/* Right antler */}
+      <path d="M44 22 L52 4 L54 4 L46 20 Z" />
+      <path d="M50 12 L58 10 L56 8 L48 10 Z" />
+      {/* Hood */}
+      <path d="M18 28 C18 14 46 14 46 28 L46 30 L18 30 Z" />
+      {/* Head */}
+      <ellipse cx="32" cy="24" rx="9" ry="10" />
+      {/* Robe */}
+      <path d="M20 32 L44 32 L46 62 L18 62 Z" />
+      {/* Skirt */}
+      <path d="M18 62 L8 94 L56 94 L46 62 Z" />
+      {/* Left arm */}
+      <path d="M20 36 L8 54 L14 58 L24 40 Z" />
+      {/* Right arm */}
+      <path d="M44 36 L54 52 L50 56 L40 40 Z" />
+    </>
+  ),
 };
 
 // Base weapon — rendered in the class color
@@ -134,6 +157,14 @@ const WEAPON_BASE: Record<ClassId, (c: string) => ReactNode> = {
   ),
   paladin: () => (
     <circle cx="57" cy="54" r="7" />
+  ),
+  druid: () => (
+    <>
+      {/* Totem pole */}
+      <rect x="54" y="2" width="4" height="56" rx="2" />
+      {/* Leaf at top */}
+      <path d="M56 4 C48 -4 48 -14 56 -12 C64 -14 64 -4 56 4 Z" />
+    </>
   ),
 };
 
@@ -189,6 +220,19 @@ const WEAPON_UNIQUE: Record<ClassId, (c: string) => ReactNode> = {
       <rect x="53" y="46" width="8" height="20" rx="2" />
       <rect x="46" y="51" width="22" height="8" rx="2" />
       <circle cx="57" cy="55" r="4" fill={c} fillOpacity="0.5" stroke="none" />
+    </>
+  ),
+  druid: (c) => (
+    <>
+      {/* Totem pole */}
+      <rect x="54" y="2" width="4" height="56" rx="2" />
+      {/* Large central leaf */}
+      <path d="M56 4 C46 -6 46 -18 56 -14 C66 -18 66 -6 56 4 Z" />
+      {/* Side leaves */}
+      <path d="M54 6 C46 0 44 -8 50 -8 C54 -2 54 2 54 6 Z" />
+      <path d="M58 6 C66 0 68 -8 62 -8 C58 -2 58 2 58 6 Z" />
+      {/* Inner glow */}
+      <path d="M56 0 C52 -6 52 -12 56 -10 C60 -12 60 -6 56 0 Z" fill={c} fillOpacity="0.5" stroke="none" />
     </>
   ),
 };

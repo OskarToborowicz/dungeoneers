@@ -3,7 +3,8 @@ export type ClassId =
   | "necromancer"
   | "sorceress"
   | "amazon"
-  | "paladin";
+  | "paladin"
+  | "druid";
 
 export interface BaseStats {
   strength: number;
@@ -32,7 +33,7 @@ export interface ClassDefinition {
     description: string;
     manaCost: number;
     cooldown: number;
-    kind: "burst" | "dot" | "multi" | "heal";
+    kind: "burst" | "dot" | "multi" | "heal" | "bite";
     power: number;
     magic: boolean;
     hits?: number;

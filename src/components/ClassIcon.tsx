@@ -57,4 +57,14 @@ const ICONS: Record<ClassId, ReactNode> = {
       <rect x="13" y="14" width="14" height="8" rx="1" />
     </g>
   ),
+  druid: (
+    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      {/* Staff */}
+      <line x1="20" y1="18" x2="20" y2="33" />
+      {/* Leaf */}
+      <path d="M20 18 C12 12 12 4 20 6 C28 4 28 12 20 18 Z" />
+      {/* Leaf vein */}
+      <line x1="20" y1="18" x2="20" y2="7" />
+    </g>
+  ),
 };

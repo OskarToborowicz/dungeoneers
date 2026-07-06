@@ -21,7 +21,7 @@ interface Props {
   onMoveItem: (itemId: string, from: EquipmentSlot | "inventory", to: EquipmentSlot | "inventory") => void;
   onSell: (item: Item) => void;
   onStartDungeon: (dungeonId: string) => void;
-  onResetSave: () => void;
+  onQuitToMenu: () => void;
   onBuyConsumable: (id: ConsumableId) => void;
   onBuyItem: (item: Item) => void;
   onRestockShop: () => void;
@@ -39,7 +39,7 @@ export function Hub({
   onMoveItem,
   onSell,
   onStartDungeon,
-  onResetSave,
+  onQuitToMenu,
   onBuyConsumable,
   onBuyItem,
   onRestockShop,
@@ -75,8 +75,8 @@ export function Hub({
             </button>
           </nav>
 
-          <button className="reset-button" onClick={onResetSave}>
-            Reset Save
+          <button className="reset-button" onClick={onQuitToMenu}>
+            Return to Menu
           </button>
         </div>
 

@@ -1,21 +1,72 @@
 import type { SaveGame } from "./types";
 
-const SAVE_KEY = "diabolo-save";
+const SAVES_KEY = "diabolo-saves";
+const LEGACY_KEY = "diabolo-save";
 
-export function loadSave(): SaveGame | null {
-  const raw = localStorage.getItem(SAVE_KEY);
-  if (!raw) return null;
+export interface SaveSlot {
+  id: string;
+  lastPlayedAt: number;
+  save: SaveGame;
+}
+
+export const MAX_SAVE_SLOTS = 6;
+
+function generateId(): string {
+  return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
+}
+
+function readSlots(): SaveSlot[] {
+  const legacy = localStorage.getItem(LEGACY_KEY);
+  if (legacy) {
+    try {
+      const legacySave = JSON.parse(legacy) as SaveGame;
+      const slots: SaveSlot[] = [{ id: generateId(), lastPlayedAt: Date.now(), save: legacySave }];
+      localStorage.setItem(SAVES_KEY, JSON.stringify(slots));
+      localStorage.removeItem(LEGACY_KEY);
+      return slots;
+    } catch { /* ignore corrupt legacy */ }
+  }
+
+  const raw = localStorage.getItem(SAVES_KEY);
+  if (!raw) return [];
   try {
-    return JSON.parse(raw) as SaveGame;
+    return JSON.parse(raw) as SaveSlot[];
   } catch {
-    return null;
+    return [];
   }
 }
 
-export function writeSave(save: SaveGame): void {
-  localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+function writeSlots(slots: SaveSlot[]): void {
+  localStorage.setItem(SAVES_KEY, JSON.stringify(slots));
 }
 
-export function clearSave(): void {
-  localStorage.removeItem(SAVE_KEY);
+export function getAllSaves(): SaveSlot[] {
+  return readSlots().sort((a, b) => b.lastPlayedAt - a.lastPlayedAt);
+}
+
+export function getSave(id: string): SaveGame | null {
+  return readSlots().find((s) => s.id === id)?.save ?? null;
+}
+
+export function writeSave(id: string, save: SaveGame): void {
+  const slots = readSlots();
+  const idx = slots.findIndex((s) => s.id === id);
+  if (idx >= 0) {
+    slots[idx] = { ...slots[idx], save, lastPlayedAt: Date.now() };
+  } else {
+    slots.push({ id, lastPlayedAt: Date.now(), save });
+  }
+  writeSlots(slots);
+}
+
+export function createSave(save: SaveGame): string {
+  const id = generateId();
+  const slots = readSlots();
+  slots.push({ id, lastPlayedAt: Date.now(), save });
+  writeSlots(slots);
+  return id;
+}
+
+export function deleteSave(id: string): void {
+  writeSlots(readSlots().filter((s) => s.id !== id));
 }

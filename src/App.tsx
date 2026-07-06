@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { CharacterCreation } from "./components/CharacterCreation";
+import { CharacterSelect } from "./components/CharacterSelect";
 import { Hub } from "./components/Hub";
 import { CombatScreen } from "./components/CombatScreen";
 import { GameOverScreen } from "./components/GameOverScreen";
@@ -7,7 +8,8 @@ import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "
 import { CONSUMABLES, EMPTY_CONSUMABLES } from "./game/data/consumables";
 import { DUNGEONS } from "./game/data/dungeons";
 import { buyValue, generateRandomItem, generateShopStock, sellValue } from "./game/data/items";
-import { loadSave, writeSave, clearSave } from "./game/storage";
+import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
+import type { SaveSlot } from "./game/storage";
 import type { CombatResult } from "./game/combat";
 import type {
   BaseStats,
@@ -35,6 +37,9 @@ interface DungeonRunState {
 }
 
 function App() {
+  const [slots, setSlots] = useState<SaveSlot[]>([]);
+  const [activeSlotId, setActiveSlotId] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
   const [character, setCharacter] = useState<Character | null>(null);
   const [equipment, setEquipment] = useState<Partial<Record<EquipmentSlot, Item>>>({});
   const [inventory, setInventory] = useState<Item[]>([]);
@@ -46,46 +51,86 @@ function App() {
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    const save = loadSave();
-    if (save) {
-      setCharacter(save.character);
-      setEquipment(save.equipment);
-      setInventory(save.inventory);
-      setClearedDungeons(save.clearedDungeons);
-      setConsumables(save.consumables ?? EMPTY_CONSUMABLES);
-      setShopStock(save.shopStock ?? generateShopStock(save.character.level, save.character.classId));
-    }
+    setSlots(getAllSaves());
     setLoaded(true);
   }, []);
 
   useEffect(() => {
-    if (!loaded || !character) return;
+    if (!loaded || !activeSlotId || !character) return;
     const save: SaveGame = { character, equipment, inventory, clearedDungeons, consumables, shopStock };
-    writeSave(save);
-  }, [loaded, character, equipment, inventory, clearedDungeons, consumables, shopStock]);
+    writeSave(activeSlotId, save);
+  }, [loaded, activeSlotId, character, equipment, inventory, clearedDungeons, consumables, shopStock]);
 
   if (!loaded) return null;
 
   if (deathSummary) {
-    return <GameOverScreen summary={deathSummary} onContinue={() => setDeathSummary(null)} />;
+    return (
+      <GameOverScreen
+        summary={deathSummary}
+        onContinue={() => setDeathSummary(null)}
+      />
+    );
+  }
+
+  if (!activeSlotId && !creating) {
+    return (
+      <CharacterSelect
+        slots={slots}
+        onSelect={handleSelectSlot}
+        onDelete={handleDeleteSlot}
+        onNew={() => setCreating(true)}
+      />
+    );
   }
 
   if (!character) {
     return (
       <CharacterCreation
         onCreate={(name: string, classId: ClassId) => {
-          setCharacter(createCharacter(name, classId));
+          const newCharacter = createCharacter(name, classId);
+          const newShopStock = generateShopStock(1, classId);
+          const save: SaveGame = {
+            character: newCharacter,
+            equipment: {},
+            inventory: [],
+            clearedDungeons: [],
+            consumables: EMPTY_CONSUMABLES,
+            shopStock: newShopStock,
+          };
+          const id = createSave(save);
+          setSlots(getAllSaves());
+          setActiveSlotId(id);
+          setCharacter(newCharacter);
           setEquipment({});
           setInventory([]);
           setClearedDungeons([]);
           setConsumables(EMPTY_CONSUMABLES);
-          setShopStock(generateShopStock(1, classId));
+          setShopStock(newShopStock);
+          setCreating(false);
         }}
       />
     );
   }
 
   const derived = getDerivedStats(character, equipment);
+
+  function handleSelectSlot(slotId: string) {
+    const save = getSave(slotId);
+    if (!save) return;
+    setActiveSlotId(slotId);
+    setCharacter(save.character);
+    setEquipment(save.equipment);
+    setInventory(save.inventory);
+    setClearedDungeons(save.clearedDungeons);
+    setConsumables(save.consumables ?? EMPTY_CONSUMABLES);
+    setShopStock(save.shopStock ?? generateShopStock(save.character.level, save.character.classId));
+    setDungeonRun(null);
+  }
+
+  function handleDeleteSlot(slotId: string) {
+    deleteSave(slotId);
+    setSlots(getAllSaves());
+  }
 
   function handleAllocate(stat: keyof BaseStats) {
     setCharacter((prev) => {
@@ -203,8 +248,8 @@ function App() {
     });
   }
 
-  function handleResetSave() {
-    clearSave();
+  function handleQuitToMenu() {
+    setActiveSlotId(null);
     setCharacter(null);
     setEquipment({});
     setInventory([]);
@@ -212,6 +257,7 @@ function App() {
     setConsumables(EMPTY_CONSUMABLES);
     setShopStock([]);
     setDungeonRun(null);
+    setSlots(getAllSaves());
   }
 
   function handleFightFinished(result: CombatResult) {
@@ -225,6 +271,7 @@ function App() {
     };
 
     if (!result.victory) {
+      if (activeSlotId) deleteSave(activeSlotId);
       setDeathSummary({
         characterName: character.name,
         classId: character.classId,
@@ -233,7 +280,7 @@ function App() {
         goldEarned: updatedRunStats.goldEarned,
         kills: updatedRunStats.kills,
       });
-      clearSave();
+      setActiveSlotId(null);
       setCharacter(null);
       setEquipment({});
       setInventory([]);
@@ -241,6 +288,7 @@ function App() {
       setConsumables(EMPTY_CONSUMABLES);
       setShopStock([]);
       setDungeonRun(null);
+      setSlots(getAllSaves());
       return;
     }
 
@@ -306,7 +354,7 @@ function App() {
       onMoveItem={handleMoveItem}
       onSell={handleSell}
       onStartDungeon={handleStartDungeon}
-      onResetSave={handleResetSave}
+      onQuitToMenu={handleQuitToMenu}
       onBuyConsumable={handleBuyConsumable}
       onBuyItem={handleBuyItem}
       onRestockShop={handleRestockShop}

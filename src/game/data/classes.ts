@@ -107,6 +107,27 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       magic: true,
     },
   },
+  druid: {
+    id: "druid",
+    name: "Druid",
+    description: "A shapeshifting guardian of nature who blends ferocity with primal healing.",
+    baseStats: { strength: 10, dexterity: 10, vitality: 10, energy: 10 },
+    resourceName: "Mana",
+    resourceType: "mana",
+    passive: {
+      name: "Thick Hide",
+      description: "Your bestial resilience reduces damage taken by 20% of your Dexterity.",
+    },
+    ability: {
+      name: "Werewolf Bite",
+      description: "Savage jaws tear into the enemy for weapon damage + 1.5× Dexterity. Heals 50% of damage dealt.",
+      manaCost: 18,
+      cooldown: 2,
+      kind: "bite",
+      power: 1.0,
+      magic: false,
+    },
+  },
 };
 
 export const CLASS_LIST = Object.values(CLASSES);

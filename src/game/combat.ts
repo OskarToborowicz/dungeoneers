@@ -206,6 +206,20 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+      } else if (def.ability.kind === "bite") {
+        const baseDmg = randomInRange(stats.damage);
+        const dexBonus = Math.round(stats.stats.dexterity * 1.5);
+        const dmg = baseDmg + dexBonus;
+        const healAmt = Math.round(dmg * 0.5);
+        monsterLife -= dmg;
+        damageDealt += dmg;
+        playerLife = Math.min(stats.maxLife, playerLife + healAmt);
+        log.push({
+          actor: "player",
+          message: `${def.ability.name} tears for ${dmg} damage (${baseDmg} + ${dexBonus} dex) and heals ${healAmt} life!`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
       }
     } else if (action === "healthPotion") {
       const before = playerLife;
@@ -284,9 +298,19 @@ export function resolveRound(
     if (isMonsterCrit) dmg = Math.round(dmg * 1.75);
     playerLife -= dmg;
 
+    if (character.classId === "druid") {
+      const reduction = Math.min(0.40, stats.stats.dexterity * 0.002);
+      dmg = Math.max(1, Math.round(dmg * (1 - reduction)));
+    }
+
     let message = isMonsterCrit
       ? `Critical hit! ${monster.name} deals ${dmg} damage.`
       : `${monster.name} hits you for ${dmg} damage.`;
+
+    if (character.classId === "druid") {
+      const reductionPct = Math.round(Math.min(40, stats.stats.dexterity * 0.2));
+      message += ` Thick Hide absorbs ${reductionPct}%.`;
+    }
 
     if (character.classId === "paladin") {
       const healBack = Math.round(dmg * PALADIN_DAMAGE_TAKEN_HEAL);
