@@ -28,6 +28,7 @@ interface Props {
   onBuyConsumable: (id: ConsumableId) => void;
   onBuyItem: (item: Item) => void;
   onRestockShop: () => void;
+  restockFee: number;
 }
 
 export function Hub({
@@ -47,6 +48,7 @@ export function Hub({
   onBuyConsumable,
   onBuyItem,
   onRestockShop,
+  restockFee,
 }: Props) {
   const [tab, setTab] = useState<TabId>("character");
 
@@ -98,6 +100,7 @@ export function Hub({
               onBuyConsumable={onBuyConsumable}
               onBuyItem={onBuyItem}
               onRestock={onRestockShop}
+              restockFee={restockFee}
               onSell={onSell}
               onSellAll={onSellAll}
             />

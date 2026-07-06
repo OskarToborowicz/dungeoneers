@@ -25,7 +25,9 @@ import type {
 } from "./game/types";
 import "./App.css";
 
-const RESTOCK_FEE = 10;
+function restockFee(level: number) {
+  return Math.round(10 + (level - 1) * 8);
+}
 
 interface DungeonRunState {
   dungeonId: string;
@@ -151,9 +153,10 @@ function App() {
     if (!character) return false;
     if (targetSlot === "weapon") return item.slot === "weapon";
     if (targetSlot === "shield") {
-      if (character.classId !== "paladin") return false;
       if (equipment.weapon?.twoHanded) return false;
-      return item.slot === "shield";
+      if (character.classId === "paladin") return item.slot === "shield";
+      if (character.classId === "barbarian") return item.slot === "weapon" && !item.twoHanded;
+      return false;
     }
     return slotCategory(item.slot) === slotCategory(targetSlot);
   }
@@ -234,8 +237,9 @@ function App() {
 
   function handleRestockShop() {
     if (!character) return;
-    if (character.gold < RESTOCK_FEE) return;
-    setCharacter({ ...character, gold: character.gold - RESTOCK_FEE });
+    const fee = restockFee(character.level);
+    if (character.gold < fee) return;
+    setCharacter({ ...character, gold: character.gold - fee });
     setShopStock(generateShopStock(character.level, character.classId));
   }
 
@@ -348,6 +352,7 @@ function App() {
         startingCooldown={dungeonRun.currentCooldown}
         consumables={consumables}
         escapeTokens={character.escapeTokens ?? 0}
+        xpCapped={character.level >= getXpCapLevel(clearedDungeons)}
         onUsePotion={handleUsePotion}
         onFinished={handleFightFinished}
         onEscape={handleEscape}
@@ -373,6 +378,7 @@ function App() {
       onBuyConsumable={handleBuyConsumable}
       onBuyItem={handleBuyItem}
       onRestockShop={handleRestockShop}
+      restockFee={restockFee(character.level)}
     />
   );
 }

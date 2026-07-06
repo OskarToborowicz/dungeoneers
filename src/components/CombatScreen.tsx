@@ -28,6 +28,7 @@ interface Props {
   startingCooldown: number;
   consumables: Record<ConsumableId, number>;
   escapeTokens: number;
+  xpCapped: boolean;
   onUsePotion: (id: ConsumableId) => void;
   onFinished: (result: CombatResult) => void;
   onEscape: () => void;
@@ -43,6 +44,7 @@ export function CombatScreen({
   startingCooldown,
   consumables,
   escapeTokens,
+  xpCapped,
   onUsePotion,
   onFinished,
   onEscape,
@@ -235,7 +237,7 @@ export function CombatScreen({
           </h3>
           {status === "victory" && reward && (
             <p>
-              +{reward.xp} XP &middot; +{reward.gold} gold
+              {!xpCapped && <>+{reward.xp} XP &middot; </>}+{reward.gold} gold
             </p>
           )}
           {status === "defeat" && <p>Your journey ends here. All progress will be lost.</p>}

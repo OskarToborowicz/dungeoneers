@@ -49,7 +49,7 @@ const DEFAULT_CRIT_MULTIPLIER = 1.50;
 const MANA_REGEN_RATE = 0.05;
 
 // Passives
-const BARBARIAN_BONUS_CRIT_CHANCE = 0.15;
+const BARBARIAN_BONUS_CRIT_CHANCE = 0.10;
 const BARBARIAN_CRIT_MULTIPLIER = 1.25;
 const SORCERESS_ATTACK_MANA_REGEN_RATE = 0.2;
 const PALADIN_DAMAGE_TAKEN_HEAL = 0.15;
@@ -211,7 +211,7 @@ export function resolveRound(
         const baseDmg = randomInRange(stats.damage);
         const dexBonus = Math.round(stats.stats.dexterity * 1.5);
         const dmg = baseDmg + dexBonus;
-        const healAmt = Math.round(dmg * 0.5);
+        const healAmt = Math.round(dmg * 0.15);
         monsterLife -= dmg;
         damageDealt += dmg;
         playerLife = Math.min(stats.maxLife, playerLife + healAmt);

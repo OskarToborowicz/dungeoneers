@@ -15,11 +15,10 @@ interface Props {
   onBuyConsumable: (id: ConsumableId) => void;
   onBuyItem: (item: Item) => void;
   onRestock: () => void;
+  restockFee: number;
   onSell: (item: Item) => void;
   onSellAll: () => void;
 }
-
-const RESTOCK_FEE = 10;
 
 export function ShopTab({
   character,
@@ -29,6 +28,7 @@ export function ShopTab({
   onBuyConsumable,
   onBuyItem,
   onRestock,
+  restockFee,
   onSell,
   onSellAll,
 }: Props) {
@@ -63,8 +63,8 @@ export function ShopTab({
 
       <div className="shop-header-row">
         <h3>Merchant's Wares</h3>
-        <button className="restock-button" disabled={character.gold < RESTOCK_FEE} onClick={onRestock}>
-          Restock ({RESTOCK_FEE}g)
+        <button className="restock-button" disabled={character.gold < restockFee} onClick={onRestock}>
+          Restock ({restockFee}g)
         </button>
       </div>
       <div className="shop-grid">

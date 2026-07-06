@@ -10,7 +10,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     resourceType: "fury",
     passive: {
       name: "Berserker's Edge",
-      description: "+15% chance to land a critical strike, dealing 25% bonus damage on crit.",
+      description: "+10% chance to land a critical strike, dealing 25% bonus damage on crit.",
     },
     ability: {
       name: "Whirlwind",
@@ -120,7 +120,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     },
     ability: {
       name: "Werewolf Bite",
-      description: "Savage jaws tear into the enemy for weapon damage + 1.5× Dexterity. Heals 50% of damage dealt.",
+      description: "Savage jaws tear into the enemy for weapon damage + 1.5× Dexterity. Heals 15% of damage dealt.",
       manaCost: 18,
       cooldown: 3,
       kind: "bite",

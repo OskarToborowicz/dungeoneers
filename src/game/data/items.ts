@@ -86,7 +86,10 @@ export function generateRandomItem(itemLevel: number, classId?: ClassId, maxRari
   const weapons = classId
     ? WEAPON_BASES.filter((w) => !w.allowedClasses || w.allowedClasses.includes(classId))
     : WEAPON_BASES;
-  const bag = [...weapons, ...ARMOR_BASES, ...JEWELRY_BASES];
+  const armor = classId && classId !== "paladin"
+    ? ARMOR_BASES.filter((a) => a.slot !== "shield")
+    : ARMOR_BASES;
+  const bag = [...weapons, ...armor, ...JEWELRY_BASES];
   const base = bag[Math.floor(Math.random() * bag.length)];
   const rarityEntry = rollRarity(maxRarity);
   const slot: EquipmentSlot =
