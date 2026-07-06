@@ -36,7 +36,7 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
         <div>{def.resourceName}: {derived.maxMana}</div>
         <div>Damage: {derived.damage[0]}-{derived.damage[1]}</div>
         <div>Defense: {derived.defense}</div>
-        <div>Skill Damage: +{Math.round((derived.magicDamageMultiplier - 1) * 100)}%</div>
+        <div>Spell Bonus: +{derived.magicDamageBonus} dmg</div>
         <div>Crit Chance: {Math.round(critChance * 100)}%</div>
       </div>
 

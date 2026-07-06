@@ -1,5 +1,5 @@
 import { CLASSES } from "./data/classes";
-import { CONSUMABLES, POTION_COOLDOWN, POTION_RESTORE_RATE } from "./data/consumables";
+import { POTION_COOLDOWN, POTION_RESTORE_RATE } from "./data/consumables";
 import { FURY_PER_ATTACK } from "./character";
 import type { DerivedStats } from "./character";
 import type { Character, MonsterDefinition } from "./types";
@@ -138,13 +138,10 @@ export function resolveRound(
     });
   }
 
-  let usedAbilityThisRound = false;
-
   if (monsterLife > 0) {
     const useAbility = action === "ability" && playerMana >= def.ability.manaCost && abilityCooldown <= 0;
 
     if (useAbility) {
-      usedAbilityThisRound = true;
       playerMana -= def.ability.manaCost;
       abilityCooldown = def.ability.cooldown;
 
