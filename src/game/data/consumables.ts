@@ -1,19 +1,22 @@
 import type { ConsumableDefinition, ConsumableId } from "../types";
 
+export const POTION_RESTORE_RATE = 0.35;
+export const POTION_COOLDOWN = 3;
+
 export const CONSUMABLES: Record<ConsumableId, ConsumableDefinition> = {
   healthPotion: {
     id: "healthPotion",
     name: "Health Potion",
-    description: "Restores 60 life instantly.",
+    description: `Restores 35% of max life instantly. ${POTION_COOLDOWN}-turn cooldown.`,
     cost: 12,
-    restoreAmount: 60,
+    restoreAmount: 0,
   },
   manaPotion: {
     id: "manaPotion",
     name: "Mana Potion",
-    description: "Restores 45 mana instantly.",
+    description: `Restores 35% of max mana instantly. ${POTION_COOLDOWN}-turn cooldown.`,
     cost: 12,
-    restoreAmount: 45,
+    restoreAmount: 0,
   },
 };
 

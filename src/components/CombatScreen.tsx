@@ -26,8 +26,10 @@ interface Props {
   startingMana: number;
   startingCooldown: number;
   consumables: Record<ConsumableId, number>;
+  escapeTokens: number;
   onUsePotion: (id: ConsumableId) => void;
   onFinished: (result: CombatResult) => void;
+  onEscape: () => void;
 }
 
 export function CombatScreen({
@@ -39,8 +41,10 @@ export function CombatScreen({
   startingMana,
   startingCooldown,
   consumables,
+  escapeTokens,
   onUsePotion,
   onFinished,
+  onEscape,
 }: Props) {
   const def = CLASSES[character.classId];
   const logRef = useRef<HTMLDivElement | null>(null);
@@ -63,7 +67,8 @@ export function CombatScreen({
 
   function handleAction(action: PlayerActionKind) {
     if (status !== "ongoing") return;
-    if ((action === "healthPotion" || action === "manaPotion") && consumables[action] <= 0) return;
+    if (action === "healthPotion" && (consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0)) return;
+    if (action === "manaPotion" && (consumables.manaPotion <= 0 || battle.manaPotionCooldown > 0)) return;
 
     const result = resolveRound(character, derived, monster, battle, action);
     setBattle(result.state);
@@ -135,7 +140,7 @@ export function CombatScreen({
             />
           </div>
           <div className="hp-value">{battle.playerLife} / {derived.maxLife}</div>
-          <div className="mana-value">{battle.playerMana} / {derived.maxMana} {def.resourceName.toLowerCase()}</div>
+          <div className={def.resourceType === "fury" ? "fury-value" : "mana-value"}>{battle.playerMana} / {derived.maxMana} {def.resourceName.toLowerCase()}</div>
         </div>
 
         <div className="combat-bar-block">
@@ -178,24 +183,41 @@ export function CombatScreen({
           </button>
           <button
             className="action-button potion health"
-            disabled={consumables.healthPotion <= 0}
+            disabled={consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0}
             onClick={() => handleAction("healthPotion")}
             title={CONSUMABLES.healthPotion.description}
           >
             {CONSUMABLES.healthPotion.name}
-            <span className="action-cost">Owned: {consumables.healthPotion}</span>
+            <span className="action-cost">
+              {battle.healthPotionCooldown > 0
+                ? `Cooldown: ${battle.healthPotionCooldown}`
+                : `Owned: ${consumables.healthPotion}`}
+            </span>
           </button>
           {def.resourceType === "mana" && (
             <button
               className="action-button potion mana"
-              disabled={consumables.manaPotion <= 0}
+              disabled={consumables.manaPotion <= 0 || battle.manaPotionCooldown > 0}
               onClick={() => handleAction("manaPotion")}
               title={CONSUMABLES.manaPotion.description}
             >
               {CONSUMABLES.manaPotion.name}
-              <span className="action-cost">Owned: {consumables.manaPotion}</span>
+              <span className="action-cost">
+                {battle.manaPotionCooldown > 0
+                  ? `Cooldown: ${battle.manaPotionCooldown}`
+                  : `Owned: ${consumables.manaPotion}`}
+              </span>
             </button>
           )}
+          <button
+            className="action-button run"
+            disabled={escapeTokens <= 0}
+            onClick={onEscape}
+            title="Flee the battle. Ends the dungeon run. One use per character."
+          >
+            Flee
+            <span className="action-cost">{escapeTokens > 0 ? `${escapeTokens} token` : "No tokens"}</span>
+          </button>
         </div>
       )}
 

@@ -12,7 +12,7 @@ interface Props {
   isUnique?: boolean;
 }
 
-const CLASS_COLORS: Record<ClassId, string> = {
+export const CLASS_COLORS: Record<ClassId, string> = {
   barbarian: "#e04020",
   necromancer: "#aa55ee",
   sorceress: "#4488ff",

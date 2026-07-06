@@ -87,6 +87,7 @@ export interface Character {
   unspentStatPoints: number;
   allocatedStats: BaseStats;
   abilityCooldown: number;
+  escapeTokens: number;
   runStats: RunStats;
 }
 
@@ -107,6 +108,7 @@ export interface DungeonDefinition {
   description: string;
   waves: MonsterDefinition[];
   boss: MonsterDefinition;
+  endgame?: boolean;
 }
 
 export type ConsumableId = "healthPotion" | "manaPotion";

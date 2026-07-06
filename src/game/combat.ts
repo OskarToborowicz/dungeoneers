@@ -1,5 +1,5 @@
 import { CLASSES } from "./data/classes";
-import { CONSUMABLES } from "./data/consumables";
+import { CONSUMABLES, POTION_COOLDOWN, POTION_RESTORE_RATE } from "./data/consumables";
 import { FURY_PER_ATTACK } from "./character";
 import type { DerivedStats } from "./character";
 import type { Character, MonsterDefinition } from "./types";
@@ -16,6 +16,8 @@ export interface BattleState {
   playerMana: number;
   monsterLife: number;
   abilityCooldown: number;
+  healthPotionCooldown: number;
+  manaPotionCooldown: number;
   poisonRounds: number;
   poisonDamage: number;
 }
@@ -44,7 +46,7 @@ export interface RoundResult {
 const ALWAYS_MISS_CHANCE = 0.02;
 const MONSTER_CRIT_CHANCE = 0.1;
 const DEFAULT_CRIT_MULTIPLIER = 1.50;
-const MANA_REGEN_RATE = 0.08;
+const MANA_REGEN_RATE = 0.05;
 
 // Passives
 const BARBARIAN_BONUS_CRIT_CHANCE = 0.15;
@@ -63,8 +65,8 @@ function randomInRange([min, max]: [number, number]): number {
 }
 
 function rollAbilityDamage(stats: DerivedStats, power: number, magic: boolean): number {
-  const base = randomInRange(stats.damage) * power;
-  return Math.round(magic ? base * stats.magicDamageMultiplier : base);
+  const base = Math.round(randomInRange(stats.damage) * power);
+  return magic ? base + stats.magicDamageBonus : base;
 }
 
 export function createBattleState(
@@ -78,6 +80,8 @@ export function createBattleState(
     playerMana: startingMana,
     monsterLife: monster.life,
     abilityCooldown: startingCooldown,
+    healthPotionCooldown: 0,
+    manaPotionCooldown: 0,
     poisonRounds: 0,
     poisonDamage: 0,
   };
@@ -113,7 +117,7 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, poisonRounds, poisonDamage } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage } = state;
   let damageDealt = 0;
 
   if (poisonRounds > 0) {
@@ -221,21 +225,23 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
       }
-    } else if (action === "healthPotion") {
+    } else if (action === "healthPotion" && healthPotionCooldown <= 0) {
       const before = playerLife;
-      playerLife = Math.min(stats.maxLife, playerLife + CONSUMABLES.healthPotion.restoreAmount);
+      playerLife = Math.min(stats.maxLife, playerLife + Math.round(stats.maxLife * POTION_RESTORE_RATE));
+      healthPotionCooldown = POTION_COOLDOWN;
       log.push({
         actor: "player",
         message: `You drink a Health Potion, restoring ${playerLife - before} life.`,
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });
-    } else if (action === "manaPotion") {
+    } else if (action === "manaPotion" && manaPotionCooldown <= 0) {
       const before = playerMana;
-      playerMana = Math.min(stats.maxMana, playerMana + CONSUMABLES.manaPotion.restoreAmount);
+      playerMana = Math.min(stats.maxMana, playerMana + Math.round(stats.maxMana * POTION_RESTORE_RATE));
+      manaPotionCooldown = POTION_COOLDOWN;
       log.push({
         actor: "player",
-        message: `You drink a Mana Potion, restoring ${playerMana - before} ${def.resourceName.toLowerCase()}.`,
+        message: `You drink a Mana Potion, restoring ${Math.round(playerMana - before)} ${def.resourceName.toLowerCase()}.`,
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });
@@ -269,7 +275,9 @@ export function resolveRound(
   }
 
   if (abilityCooldown > 0) abilityCooldown -= 1;
-  if (def.resourceType === "mana" && !usedAbilityThisRound && playerMana < stats.maxMana) {
+  if (healthPotionCooldown > 0) healthPotionCooldown -= 1;
+  if (manaPotionCooldown > 0) manaPotionCooldown -= 1;
+  if (def.resourceType === "mana" && playerMana < stats.maxMana) {
     const isSorceressAttackRegen = character.classId === "sorceress" && action === "attack";
     const regenRate = isSorceressAttackRegen ? SORCERESS_ATTACK_MANA_REGEN_RATE : MANA_REGEN_RATE;
     playerMana = Math.min(stats.maxMana, playerMana + stats.maxMana * regenRate);
@@ -282,6 +290,8 @@ export function resolveRound(
         playerMana: Math.max(0, Math.round(playerMana)),
         monsterLife: 0,
         abilityCooldown,
+        healthPotionCooldown,
+        manaPotionCooldown,
         poisonRounds,
         poisonDamage,
       },
@@ -341,6 +351,8 @@ export function resolveRound(
       playerMana: Math.max(0, Math.round(playerMana)),
       monsterLife: Math.max(0, monsterLife),
       abilityCooldown,
+      healthPotionCooldown,
+      manaPotionCooldown,
       poisonRounds,
       poisonDamage,
     },

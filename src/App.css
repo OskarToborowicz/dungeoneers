@@ -258,6 +258,31 @@
 
 /* ---------- Hub ---------- */
 
+/* ---------- Class-tinted Hub ---------- */
+
+.hub-screen {
+  --class-color: var(--border-gold);
+}
+
+.hub-sidebar {
+  border-right-color: var(--class-color) !important;
+}
+
+.hub-screen .tab-panel {
+  border-color: var(--class-color);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--class-color) 18%, transparent);
+}
+
+.hub-screen .tab-bar button.active {
+  border-left-color: var(--class-color);
+  color: var(--class-color);
+}
+
+.hub-screen .tab-bar button:hover:not(.active) {
+  color: var(--class-color);
+  opacity: 0.8;
+}
+
 .hub-layout {
   display: flex;
   gap: 24px;
@@ -553,6 +578,71 @@
   color: #8fd18f;
 }
 
+.inventory-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.inventory-header h3 {
+  margin: 0;
+}
+
+.sell-all-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.sell-all-button {
+  background: none;
+  border: 1px solid var(--border-gold);
+  color: var(--text-dim);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.sell-all-button:hover {
+  border-color: var(--border-gold-bright);
+  color: var(--text-heading);
+}
+
+.sell-all-warning {
+  color: var(--accent-red-bright);
+  font-size: 12px;
+}
+
+.sell-all-confirm {
+  background: none;
+  border: 1px solid var(--accent-red-bright);
+  color: var(--accent-red-bright);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.sell-all-confirm:hover {
+  background: rgba(194, 50, 31, 0.15);
+}
+
+.sell-all-cancel {
+  background: none;
+  border: 1px solid var(--border-gold);
+  color: var(--text-dim);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.sell-all-cancel:hover {
+  border-color: var(--border-gold-bright);
+  color: var(--text-heading);
+}
+
 .inventory-dropzone {
   border: 1px dashed transparent;
   border-radius: 6px;
@@ -710,6 +800,23 @@
   opacity: 0.5;
 }
 
+.dungeon-card.dungeon-endgame {
+  border-color: var(--accent-red-bright);
+  box-shadow: 0 0 14px rgba(194, 50, 31, 0.25);
+}
+
+.dungeon-card.endgame-locked-hint {
+  border-style: dashed;
+  opacity: 0.55;
+}
+
+.primary-button.endgame-button {
+  background: linear-gradient(180deg, #8a1a10, #5a0e08);
+  border-color: var(--accent-red-bright);
+  font-size: 12px;
+  padding: 8px 14px;
+}
+
 .dungeon-name {
   font-family: var(--heading-font);
   color: var(--text-heading);
@@ -821,7 +928,7 @@
 }
 
 .hp-bar-fill.monster {
-  background: linear-gradient(90deg, #1c3f7a, #3a6fc2);
+  background: linear-gradient(90deg, #7a1c1c, #c23a3a);
 }
 
 .hp-value {
@@ -833,6 +940,12 @@
 .mana-value {
   font-size: 11px;
   color: #6f8fff;
+  margin-top: 2px;
+}
+
+.fury-value {
+  font-size: 11px;
+  color: var(--accent-red-bright);
   margin-top: 2px;
 }
 
@@ -914,6 +1027,17 @@
 
 .action-button.potion.mana:hover:not(:disabled) {
   border-color: #6f9fe0;
+}
+
+.action-button.run {
+  background: linear-gradient(180deg, #2a1f14, #1a1410);
+  border-color: #6b5a3e;
+  color: var(--text-dim);
+}
+
+.action-button.run:hover:not(:disabled) {
+  border-color: #c8a96e;
+  color: var(--text-heading);
 }
 
 .action-cost {

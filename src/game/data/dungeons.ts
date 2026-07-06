@@ -13,6 +13,16 @@ function monster(
   return { name, level, life, damage, defense, attackRating, xpReward, goldReward };
 }
 
+export const REGULAR_DUNGEON_COUNT = 5;
+
+export function getXpCapLevel(clearedDungeons: string[]): number {
+  const maxBossLevel = DUNGEONS
+    .filter((d) => clearedDungeons.includes(d.id))
+    .reduce((max, d) => Math.max(max, d.boss.level), 0);
+  const baseLevel = maxBossLevel === 0 ? DUNGEONS[0].boss.level : maxBossLevel;
+  return baseLevel + 5;
+}
+
 export const DUNGEONS: DungeonDefinition[] = [
   {
     id: "blood-moor",
@@ -68,5 +78,17 @@ export const DUNGEONS: DungeonDefinition[] = [
       monster("Horror Archer", 16, 165, [30, 42], 32, 74, 125, [27, 45]),
     ],
     boss: monster("The Countess", 18, 520, [36, 52], 44, 84, 650, [160, 260]),
+  },
+  {
+    id: "diablo",
+    name: "Chaos Sanctuary",
+    description: "The Prime Evil himself awaits beyond the seals. Death is certain for the unprepared.",
+    endgame: true,
+    waves: [
+      monster("Doom Knight", 22, 420, [48, 68], 52, 100, 350, [80, 130]),
+      monster("Venom Lord", 24, 480, [55, 78], 58, 108, 420, [95, 155]),
+      monster("Chaos Knight", 26, 540, [62, 88], 64, 116, 500, [110, 180]),
+    ],
+    boss: monster("Diablo", 30, 3500, [80, 120], 80, 150, 12000, [800, 1500]),
   },
 ];

@@ -21,6 +21,7 @@ export function createCharacter(name: string, classId: Character["classId"]): Ch
     unspentStatPoints: STARTING_STAT_POINTS,
     allocatedStats: { strength: 0, dexterity: 0, vitality: 0, energy: 0 },
     abilityCooldown: 0,
+    escapeTokens: 1,
     runStats: { damageDealt: 0, goldEarned: 0, kills: 0 },
   };
 }
@@ -68,7 +69,7 @@ export interface DerivedStats {
   damage: [number, number];
   defense: number;
   critChance: number;
-  magicDamageMultiplier: number;
+  magicDamageBonus: number;
 }
 
 export function getDerivedStats(
@@ -98,9 +99,9 @@ export function getDerivedStats(
 
   const defense = Math.round(equip.defenseBonus + stats.dexterity / 4);
   const critChance = Math.min(0.6, 0.05 + stats.dexterity * 0.001);
-  const magicDamageMultiplier = 1 + stats.energy * 0.001;
+  const magicDamageBonus = Math.floor(stats.energy / 5);
 
-  return { stats, maxLife, maxMana, damage, defense, critChance, magicDamageMultiplier };
+  return { stats, maxLife, maxMana, damage, defense, critChance, magicDamageBonus };
 }
 
 export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {

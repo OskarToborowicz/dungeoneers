@@ -122,7 +122,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       name: "Werewolf Bite",
       description: "Savage jaws tear into the enemy for weapon damage + 1.5× Dexterity. Heals 50% of damage dealt.",
       manaCost: 18,
-      cooldown: 2,
+      cooldown: 3,
       kind: "bite",
       power: 1.0,
       magic: false,

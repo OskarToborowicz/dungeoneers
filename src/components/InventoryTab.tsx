@@ -1,7 +1,7 @@
 import { useState, type DragEvent } from "react";
 import { ItemIcon } from "./ItemIcon";
 import { ItemTooltip } from "./ItemTooltip";
-import { RARITY_COLORS, sellValue } from "../game/data/items";
+import { RARITY_COLORS } from "../game/data/items";
 import type { EquipmentSlot, Item } from "../game/types";
 
 type Location = EquipmentSlot | "inventory";
@@ -10,7 +10,6 @@ interface Props {
   equipment: Partial<Record<EquipmentSlot, Item>>;
   inventory: Item[];
   onMoveItem: (itemId: string, from: Location, to: Location) => void;
-  onSell: (item: Item) => void;
 }
 
 const EQUIP_SLOTS: EquipmentSlot[] = [
@@ -34,7 +33,7 @@ function encode(itemId: string, from: Location) {
   return JSON.stringify({ itemId, from });
 }
 
-export function InventoryTab({ equipment, inventory, onMoveItem, onSell }: Props) {
+export function InventoryTab({ equipment, inventory, onMoveItem }: Props) {
   const [dragOver, setDragOver] = useState<Location | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
 
@@ -115,15 +114,6 @@ export function InventoryTab({ equipment, inventory, onMoveItem, onSell }: Props
             >
               <ItemIcon item={item} />
               <ItemTooltip item={item} />
-              <button
-                className="sell-button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSell(item);
-                }}
-              >
-                {sellValue(item)}g
-              </button>
             </div>
           ))}
         </div>

@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { CharacterSprite } from "./sprites/CharacterSprite";
+import type { CSSProperties } from "react";
+import { CharacterSprite, CLASS_COLORS } from "./sprites/CharacterSprite";
 import { CharacterTab } from "./CharacterTab";
 import { InventoryTab } from "./InventoryTab";
 import { DungeonsTab } from "./DungeonsTab";
@@ -20,6 +21,7 @@ interface Props {
   onAllocate: (stat: keyof BaseStats) => void;
   onMoveItem: (itemId: string, from: EquipmentSlot | "inventory", to: EquipmentSlot | "inventory") => void;
   onSell: (item: Item) => void;
+  onSellAll: () => void;
   onStartDungeon: (dungeonId: string) => void;
   onQuitToMenu: () => void;
   onBuyConsumable: (id: ConsumableId) => void;
@@ -38,6 +40,7 @@ export function Hub({
   onAllocate,
   onMoveItem,
   onSell,
+  onSellAll,
   onStartDungeon,
   onQuitToMenu,
   onBuyConsumable,
@@ -47,7 +50,7 @@ export function Hub({
   const [tab, setTab] = useState<TabId>("character");
 
   return (
-    <div className="screen hub-screen">
+    <div className="screen hub-screen" style={{ "--class-color": CLASS_COLORS[character.classId] } as CSSProperties}>
       <div className="hub-layout">
         <div className="hub-sidebar">
           <div className="hub-sprite">
@@ -83,16 +86,19 @@ export function Hub({
         <div className="hub-content">
           {tab === "character" && <CharacterTab character={character} derived={derived} onAllocate={onAllocate} />}
           {tab === "inventory" && (
-            <InventoryTab equipment={equipment} inventory={inventory} onMoveItem={onMoveItem} onSell={onSell} />
+            <InventoryTab equipment={equipment} inventory={inventory} onMoveItem={onMoveItem} />
           )}
           {tab === "shop" && (
             <ShopTab
               character={character}
               consumables={consumables}
               shopStock={shopStock}
+              inventory={inventory}
               onBuyConsumable={onBuyConsumable}
               onBuyItem={onBuyItem}
               onRestock={onRestockShop}
+              onSell={onSell}
+              onSellAll={onSellAll}
             />
           )}
           {tab === "dungeons" && (

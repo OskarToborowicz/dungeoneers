@@ -49,14 +49,22 @@ const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: nu
   { label: "of Mana", stat: "mana", min: 5, max: 20 },
 ];
 
-function rollRarity(): (typeof RARITY_ROLLS)[number] {
-  const total = RARITY_ROLLS.reduce((sum, r) => sum + r.weight, 0);
+function rollRarity(maxRarity: ItemRarity = "unique"): (typeof RARITY_ROLLS)[number] {
+  const order: ItemRarity[] = ["normal", "magic", "rare", "unique"];
+  const allowed = RARITY_ROLLS.filter((r) => order.indexOf(r.rarity) <= order.indexOf(maxRarity));
+  const total = allowed.reduce((sum, r) => sum + r.weight, 0);
   let roll = Math.random() * total;
-  for (const entry of RARITY_ROLLS) {
+  for (const entry of allowed) {
     if (roll < entry.weight) return entry;
     roll -= entry.weight;
   }
-  return RARITY_ROLLS[0];
+  return allowed[0];
+}
+
+function shopMaxRarity(characterLevel: number): ItemRarity {
+  if (characterLevel < 5) return "magic";
+  if (characterLevel < 10) return "rare";
+  return "unique";
 }
 
 function rollAffixes(count: number, itemLevel: number): ItemAffix[] {
@@ -74,13 +82,13 @@ function rollAffixes(count: number, itemLevel: number): ItemAffix[] {
 
 let itemCounter = 0;
 
-export function generateRandomItem(itemLevel: number, classId?: ClassId): Item {
+export function generateRandomItem(itemLevel: number, classId?: ClassId, maxRarity?: ItemRarity): Item {
   const weapons = classId
     ? WEAPON_BASES.filter((w) => !w.allowedClasses || w.allowedClasses.includes(classId))
     : WEAPON_BASES;
   const bag = [...weapons, ...ARMOR_BASES, ...JEWELRY_BASES];
   const base = bag[Math.floor(Math.random() * bag.length)];
-  const rarityEntry = rollRarity();
+  const rarityEntry = rollRarity(maxRarity);
   const slot: EquipmentSlot =
     base.slot === "ring1" && Math.random() < 0.5 ? "ring2" : base.slot;
 
@@ -124,13 +132,14 @@ export function sellValue(item: Item): number {
 }
 
 export function buyValue(item: Item): number {
-  return sellValue(item) * 4;
+  return sellValue(item) * 6;
 }
 
 export function generateShopStock(characterLevel: number, classId?: ClassId, count = 4): Item[] {
+  const maxRarity = shopMaxRarity(characterLevel);
   const items: Item[] = [];
   for (let i = 0; i < count; i++) {
-    items.push(generateRandomItem(Math.max(1, characterLevel), classId));
+    items.push(generateRandomItem(Math.max(1, characterLevel), classId, maxRarity));
   }
   return items;
 }

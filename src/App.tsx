@@ -6,7 +6,7 @@ import { CombatScreen } from "./components/CombatScreen";
 import { GameOverScreen } from "./components/GameOverScreen";
 import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
 import { CONSUMABLES, EMPTY_CONSUMABLES } from "./game/data/consumables";
-import { DUNGEONS } from "./game/data/dungeons";
+import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
 import { buyValue, generateRandomItem, generateShopStock, sellValue } from "./game/data/items";
 import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
@@ -151,10 +151,9 @@ function App() {
     if (!character) return false;
     if (targetSlot === "weapon") return item.slot === "weapon";
     if (targetSlot === "shield") {
+      if (character.classId !== "paladin") return false;
       if (equipment.weapon?.twoHanded) return false;
-      if (item.slot === "shield") return true;
-      if (item.slot === "weapon" && !item.twoHanded && character.classId === "barbarian") return true;
-      return false;
+      return item.slot === "shield";
     }
     return slotCategory(item.slot) === slotCategory(targetSlot);
   }
@@ -206,6 +205,12 @@ function App() {
     setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + sellValue(item) } : prev));
   }
 
+  function handleSellAll() {
+    const total = inventory.reduce((sum, item) => sum + sellValue(item), 0);
+    setInventory([]);
+    setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + total } : prev));
+  }
+
   function handleBuyConsumable(id: ConsumableId) {
     if (!character) return;
     const def = CONSUMABLES[id];
@@ -246,6 +251,11 @@ function App() {
       currentMana: getStartingResource(character, derived),
       currentCooldown: 0,
     });
+  }
+
+  function handleEscape() {
+    setCharacter((prev) => prev ? { ...prev, escapeTokens: Math.max(0, prev.escapeTokens - 1) } : prev);
+    setDungeonRun(null);
   }
 
   function handleQuitToMenu() {
@@ -292,10 +302,12 @@ function App() {
       return;
     }
 
+    const xpCap = getXpCapLevel(clearedDungeons);
     setCharacter((prev) => {
       if (!prev) return prev;
       const withGold = { ...prev, gold: prev.gold + result.goldReward, runStats: updatedRunStats };
-      const { character: withXp } = grantXp(withGold, result.xpReward);
+      const cappedXp = prev.level >= xpCap ? 0 : result.xpReward;
+      const { character: withXp } = grantXp(withGold, cappedXp);
       return withXp;
     });
 
@@ -335,8 +347,10 @@ function App() {
         startingMana={dungeonRun.currentMana}
         startingCooldown={dungeonRun.currentCooldown}
         consumables={consumables}
+        escapeTokens={character.escapeTokens ?? 0}
         onUsePotion={handleUsePotion}
         onFinished={handleFightFinished}
+        onEscape={handleEscape}
       />
     );
   }
@@ -353,6 +367,7 @@ function App() {
       onAllocate={handleAllocate}
       onMoveItem={handleMoveItem}
       onSell={handleSell}
+      onSellAll={handleSellAll}
       onStartDungeon={handleStartDungeon}
       onQuitToMenu={handleQuitToMenu}
       onBuyConsumable={handleBuyConsumable}
