@@ -7,7 +7,7 @@ import { GameOverScreen } from "./components/GameOverScreen";
 import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
 import { CONSUMABLES, EMPTY_CONSUMABLES } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
-import { buyValue, generateRandomItem, generateShopStock, sellValue } from "./game/data/items";
+import { buyValue, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
 import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
 import type { CombatResult } from "./game/combat";
@@ -91,9 +91,10 @@ function App() {
         onCreate={(name: string, classId: ClassId) => {
           const newCharacter = createCharacter(name, classId);
           const newShopStock = generateShopStock(1, classId);
+          const startingEquipment = generateStartingEquipment(classId);
           const save: SaveGame = {
             character: newCharacter,
-            equipment: {},
+            equipment: startingEquipment,
             inventory: [],
             clearedDungeons: [],
             consumables: EMPTY_CONSUMABLES,
@@ -103,7 +104,7 @@ function App() {
           setSlots(getAllSaves());
           setActiveSlotId(id);
           setCharacter(newCharacter);
-          setEquipment({});
+          setEquipment(startingEquipment);
           setInventory([]);
           setClearedDungeons([]);
           setConsumables(EMPTY_CONSUMABLES);

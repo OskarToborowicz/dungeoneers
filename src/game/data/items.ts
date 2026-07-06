@@ -138,6 +138,30 @@ export function buyValue(item: Item): number {
   return sellValue(item) * 6;
 }
 
+function generateItemFromBase(base: ItemBase, itemLevel: number): Item {
+  itemCounter += 1;
+  const id = `item-${Date.now()}-${itemCounter}`;
+  const slot: EquipmentSlot = base.slot === "ring1" && Math.random() < 0.5 ? "ring2" : base.slot;
+  const item: Item = { id, name: base.name, slot, rarity: "normal", itemLevel, affixes: [] };
+  if (base.baseDamage) {
+    item.baseDamage = [
+      Math.round(base.baseDamage[0] + itemLevel * 0.25),
+      Math.round(base.baseDamage[1] + itemLevel * 0.35),
+    ];
+    item.twoHanded = base.twoHanded ?? false;
+  }
+  if (base.baseDefense) {
+    item.baseDefense = Math.round(base.baseDefense + itemLevel * 0.25);
+  }
+  return item;
+}
+
+export function generateStartingEquipment(classId: ClassId): Partial<Record<EquipmentSlot, Item>> {
+  const weaponBase = WEAPON_BASES.find((w) => w.allowedClasses?.includes(classId)) ?? WEAPON_BASES[0];
+  const weapon = generateItemFromBase(weaponBase, 1);
+  return { weapon };
+}
+
 export function generateShopStock(characterLevel: number, classId?: ClassId, count = 4): Item[] {
   const maxRarity = shopMaxRarity(characterLevel);
   const items: Item[] = [];
