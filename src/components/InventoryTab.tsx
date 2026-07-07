@@ -40,6 +40,7 @@ export function InventoryTab({ equipment, inventory, onMoveItem }: Props) {
   function handleDrop(e: DragEvent, target: Location) {
     e.preventDefault();
     setDragOver(null);
+    setDragging(null);
     const raw = e.dataTransfer.getData("application/json");
     if (!raw) return;
     const { itemId, from } = JSON.parse(raw) as { itemId: string; from: Location };
