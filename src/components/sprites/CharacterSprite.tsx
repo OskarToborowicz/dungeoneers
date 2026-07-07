@@ -20,6 +20,7 @@ export const CLASS_COLORS: Record<ClassId, string> = {
   amazon: "#44bb55",
   paladin: "#ddaa22",
   druid: "#88aa22",
+  assassin: "#33aacc",
 };
 
 const UNIQUE_COLOR = "#ffa040";
@@ -101,6 +102,27 @@ const BODY_AND_ARMS: Record<ClassId, ReactNode> = {
       <path d="M54 32 L62 52 L56 56 L46 38 Z" />
     </>
   ),
+  assassin: (
+    <>
+      {/* Hood/mask */}
+      <path d="M22 26 C22 12 42 12 42 26 L40 28 L24 28 Z" />
+      {/* Head */}
+      <ellipse cx="32" cy="22" rx="8" ry="9" />
+      {/* Mask slit eyes */}
+      <line x1="25" y1="21" x2="29" y2="21" strokeWidth="1.5" stroke="currentColor" strokeOpacity="0.9" />
+      <line x1="35" y1="21" x2="39" y2="21" strokeWidth="1.5" stroke="currentColor" strokeOpacity="0.9" />
+      {/* Slim torso */}
+      <path d="M24 30 L40 30 L38 60 L26 60 Z" />
+      {/* Legs */}
+      <rect x="26" y="60" width="12" height="34" rx="3" />
+      {/* Left arm */}
+      <path d="M24 32 L10 52 L16 56 L28 38 Z" />
+      {/* Right arm */}
+      <path d="M40 32 L54 50 L50 54 L36 36 Z" />
+      {/* Belt */}
+      <rect x="24" y="58" width="16" height="4" rx="1" />
+    </>
+  ),
   druid: (
     <>
       {/* Left antler */}
@@ -158,6 +180,16 @@ const WEAPON_BASE: Record<ClassId, (c: string) => ReactNode> = {
       <line x1="10" y1="20" x2="10" y2="68" strokeWidth="1.5" />
       <line x1="10" y1="44" x2="58" y2="44" strokeWidth="1.2" />
       <polygon points="10,44 18,39 18,49" />
+    </>
+  ),
+  assassin: () => (
+    <>
+      {/* Knuckle guard */}
+      <rect x="2" y="48" width="10" height="7" rx="2" />
+      {/* Three forward claws */}
+      <line x1="5"  y1="48" x2="0"  y2="32" strokeWidth="2.2" strokeLinecap="round" />
+      <line x1="8"  y1="47" x2="5"  y2="30" strokeWidth="2.2" strokeLinecap="round" />
+      <line x1="11" y1="48" x2="10" y2="31" strokeWidth="2.2" strokeLinecap="round" />
     </>
   ),
   paladin: () => (
@@ -220,6 +252,18 @@ const WEAPON_UNIQUE: Record<ClassId, (c: string) => ReactNode> = {
       <line x1="22" y1="16" x2="22" y2="72" strokeWidth="1.5" />
       <line x1="10" y1="44" x2="58" y2="44" strokeWidth="1.2" />
       <polygon points="10,44 18,39 18,49" />
+    </>
+  ),
+  assassin: (c) => (
+    <>
+      {/* Knuckle guard with gem */}
+      <rect x="1" y="47" width="12" height="8" rx="2" />
+      <circle cx="7" cy="51" r="2.5" fill={c} fillOpacity="0.6" stroke="none" />
+      {/* Four longer curved claws */}
+      <path d="M4 47 C2 38 -2 30 1 24" fill="none" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M7 46 C6 36 4 27 6 20" fill="none" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M10 47 C10 37 10 28 12 22" fill="none" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M13 48 C14 39 16 30 16 24" fill="none" strokeWidth="2" strokeLinecap="round" />
     </>
   ),
   paladin: (c) => (

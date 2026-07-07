@@ -157,6 +157,7 @@ function App() {
       if (equipment.weapon?.twoHanded) return false;
       if (character.classId === "paladin") return item.slot === "shield";
       if (character.classId === "barbarian") return item.slot === "weapon" && !item.twoHanded;
+      if (character.classId === "assassin") return item.slot === "weapon" && !item.twoHanded;
       return false;
     }
     return slotCategory(item.slot) === slotCategory(targetSlot);

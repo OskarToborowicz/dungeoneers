@@ -4,9 +4,10 @@ import type { ClassId } from "../game/types";
 interface Props {
   classId: ClassId;
   onDone: () => void;
+  detonation?: boolean;
 }
 
-export function AbilityEffect({ classId, onDone }: Props) {
+export function AbilityEffect({ classId, onDone, detonation = false }: Props) {
   useEffect(() => {
     const t = setTimeout(onDone, 800);
     return () => clearTimeout(t);
@@ -21,6 +22,8 @@ export function AbilityEffect({ classId, onDone }: Props) {
         {classId === "amazon"      && <MultishotFx />}
         {classId === "paladin"     && <HolyBoltFx />}
         {classId === "druid"       && <BiteFx />}
+        {classId === "assassin"    && !detonation && <TrapPlantFx />}
+        {classId === "assassin"    && detonation  && <TrapDetonateFx />}
       </svg>
     </div>
   );
@@ -135,6 +138,48 @@ function BiteFx() {
       <line className="ae-claw ae-claw-3" x1="128" y1="22" x2="160" y2="62"
         stroke="#88aa22" strokeWidth="3" strokeLinecap="round"
         strokeDasharray="52" strokeDashoffset="52"/>
+    </g>
+  );
+}
+
+function TrapPlantFx() {
+  return (
+    <g className="ae-trap-plant" style={{ transformOrigin: "70px 90px" }}>
+      {/* Trap device on the ground */}
+      <rect x="58" y="86" width="24" height="8" rx="3" fill="#33aacc" opacity="0.9" />
+      <rect x="66" y="82" width="8" height="4" rx="1" fill="#55ccee" opacity="0.85" />
+      {/* Spark lines radiating out */}
+      <line x1="70" y1="86" x2="70" y2="72" stroke="#33aacc" strokeWidth="2" strokeLinecap="round" className="ae-trap-spark ae-ts-1" />
+      <line x1="70" y1="86" x2="84" y2="76" stroke="#33aacc" strokeWidth="1.8" strokeLinecap="round" className="ae-trap-spark ae-ts-2" />
+      <line x1="70" y1="86" x2="56" y2="76" stroke="#33aacc" strokeWidth="1.8" strokeLinecap="round" className="ae-trap-spark ae-ts-3" />
+      <line x1="70" y1="86" x2="88" y2="86" stroke="#33aacc" strokeWidth="1.5" strokeLinecap="round" className="ae-trap-spark ae-ts-4" />
+      <line x1="70" y1="86" x2="52" y2="86" stroke="#33aacc" strokeWidth="1.5" strokeLinecap="round" className="ae-trap-spark ae-ts-5" />
+      {/* Glow ring */}
+      <circle cx="70" cy="87" r="16" fill="none" stroke="#33aacc" strokeWidth="1.5" opacity="0.5" className="ae-trap-ring" />
+    </g>
+  );
+}
+
+function TrapDetonateFx() {
+  return (
+    <g>
+      {/* Central explosion on monster side */}
+      <g className="ae-trap-det-core" style={{ transformOrigin: "140px 65px" }}>
+        <circle cx="140" cy="65" r="20" fill="#ff5500" opacity="0.88" />
+        <circle cx="140" cy="65" r="12" fill="#ff9900" opacity="0.9" />
+        <circle cx="140" cy="65" r="5"  fill="#ffee44" opacity="0.95" />
+      </g>
+      {/* Explosion rays */}
+      <g className="ae-trap-det-rays" style={{ transformOrigin: "140px 65px" }}>
+        <line x1="140" y1="45" x2="140" y2="22" stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="154" y1="51" x2="170" y2="36" stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="160" y1="65" x2="184" y2="65" stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="154" y1="79" x2="170" y2="94" stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="140" y1="85" x2="140" y2="108" stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="126" y1="79" x2="110" y2="94" stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="120" y1="65" x2="96"  y2="65" stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="126" y1="51" x2="110" y2="36" stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round" />
+      </g>
     </g>
   );
 }

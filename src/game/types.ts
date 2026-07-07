@@ -4,7 +4,8 @@ export type ClassId =
   | "sorceress"
   | "amazon"
   | "paladin"
-  | "druid";
+  | "druid"
+  | "assassin";
 
 export interface BaseStats {
   strength: number;
@@ -28,12 +29,13 @@ export interface ClassDefinition {
   resourceName: string;
   resourceType: ResourceType;
   passive: ClassPassive;
+  passive2?: ClassPassive & { levelRequirement: number };
   ability: {
     name: string;
     description: string;
     manaCost: number;
     cooldown: number;
-    kind: "burst" | "dot" | "multi" | "heal" | "bite";
+    kind: "burst" | "dot" | "multi" | "heal" | "bite" | "trap";
     power: number;
     magic: boolean;
     hits?: number;

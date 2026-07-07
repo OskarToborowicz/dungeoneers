@@ -66,6 +66,7 @@ export function CombatScreen({
   const [playerAnim, setPlayerAnim] = useState<SpriteState>("idle");
   const [monsterAnim, setMonsterAnim] = useState<SpriteState>("idle");
   const [abilityEffect, setAbilityEffect] = useState(false);
+  const [trapDetonateEffect, setTrapDetonateEffect] = useState(false);
   const [monsterSpellEffect, setMonsterSpellEffect] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
 
@@ -102,26 +103,43 @@ export function CombatScreen({
       setTimeout(() => setPlayerAnim("dead"), 500);
     } else {
       // Sequential animation: player first, then monster
+      // HP drops at the START of each animation
+      const playerEntries = result.log.filter((e) => e.actor === "player");
+      const monsterEntries = result.log.filter((e) => e.actor === "monster");
+      const lastPlayer = playerEntries.length > 0 ? playerEntries[playerEntries.length - 1] : null;
+      const lastMonster = monsterEntries.length > 0 ? monsterEntries[monsterEntries.length - 1] : null;
+
       setIsAnimating(true);
       setPlayerAnim("attack");
       if (wasAbility) setAbilityEffect(true);
+      // Monster HP drops immediately as player starts swinging
+      if (lastPlayer) {
+        setBattle((b) => ({ ...b, monsterLife: lastPlayer.monsterLife, playerLife: lastPlayer.playerLife }));
+      }
+
       setTimeout(() => {
         setPlayerAnim("idle");
-        const monsterAttacked = result.log.some((e) => e.actor === "monster");
+        setLog((prev) => [...prev, ...playerEntries]);
+        const monsterAttacked = monsterEntries.length > 0;
         if (monsterAttacked) {
           setMonsterAnim("attack");
           if (result.monsterSpellCast) setMonsterSpellEffect(result.monsterSpellCast);
+          if (result.trapDetonated) setTrapDetonateEffect(true);
+          // Player HP drops as monster starts attacking
+          if (lastMonster) {
+            setBattle((b) => ({ ...b, playerLife: lastMonster.playerLife, monsterLife: lastMonster.monsterLife }));
+          }
           setTimeout(() => {
             setMonsterAnim("idle");
             setBattle(result.state);
-            setLog((prev) => [...prev, ...result.log]);
+            setLog((prev) => [...prev, ...monsterEntries]);
             setStatus(result.status);
             setTotalDamageDealt((d) => d + result.damageDealt);
             setIsAnimating(false);
           }, 550);
         } else {
+          if (result.trapDetonated) setTrapDetonateEffect(true);
           setBattle(result.state);
-          setLog((prev) => [...prev, ...result.log]);
           setStatus(result.status);
           setTotalDamageDealt((d) => d + result.damageDealt);
           setIsAnimating(false);
@@ -152,7 +170,7 @@ export function CombatScreen({
 
   return (
     <div className="screen combat-screen">
-      <h2>{monster.name}</h2>
+      <h2>{monster.name} <span className="monster-level">Lv.{monster.level}</span></h2>
 
       <div className="battle-arena">
         {abilityEffect && (
@@ -160,6 +178,23 @@ export function CombatScreen({
         )}
         {monsterSpellEffect && (
           <MonsterSpellEffect spellName={monsterSpellEffect} onDone={() => setMonsterSpellEffect(null)} />
+        )}
+        {trapDetonateEffect && (
+          <AbilityEffect classId="assassin" detonation={true} onDone={() => setTrapDetonateEffect(false)} />
+        )}
+        {battle.trapRounds > 0 && !trapDetonateEffect && (
+          <div className="trap-on-field">
+            <svg viewBox="0 0 44 28" overflow="visible">
+              <g className="trap-field-glow">
+                <rect x="10" y="14" width="24" height="8" rx="3" fill="#33aacc" opacity="0.9" />
+                <rect x="18" y="10" width="8" height="4" rx="1" fill="#55ccee" opacity="0.85" />
+                <line x1="22" y1="14" x2="22" y2="6" stroke="#33aacc" strokeWidth="1.5" strokeLinecap="round" />
+                <line x1="22" y1="14" x2="30" y2="8" stroke="#33aacc" strokeWidth="1.2" strokeLinecap="round" />
+                <line x1="22" y1="14" x2="14" y2="8" stroke="#33aacc" strokeWidth="1.2" strokeLinecap="round" />
+              </g>
+              <text x="22" y="28" textAnchor="middle" fill="#55ccee" fontSize="7" fontWeight="bold">{battle.trapRounds}</text>
+            </svg>
+          </div>
         )}
         <div className="battle-side player-side">
           <CharacterSprite
@@ -187,8 +222,45 @@ export function CombatScreen({
               style={{ width: `${Math.max(0, (battle.playerLife / derived.maxLife) * 100)}%` }}
             />
           </div>
-          <div className="hp-value">{battle.playerLife} / {derived.maxLife}</div>
-          <div className={def.resourceType === "fury" ? "fury-value" : "mana-value"}>{battle.playerMana} / {derived.maxMana} {def.resourceName.toLowerCase()}</div>
+          <div className={`resource-bar ${def.resourceType}`}>
+            <div
+              className={`resource-bar-fill ${def.resourceType}`}
+              style={{ width: `${Math.max(0, (battle.playerMana / derived.maxMana) * 100)}%` }}
+            />
+          </div>
+          <div className="combat-stat-row">
+            <span className="combat-stat hp">
+              <svg viewBox="0 0 10 9" width="10" height="9"><path d="M5 8 C5 8 1 5 1 3a2 2 0 0 1 4-1 2 2 0 0 1 4 1c0 2-4 5-4 5z" fill="#cc3333"/></svg>
+              {battle.playerLife}/{derived.maxLife}
+            </span>
+            <span className={`combat-stat ${def.resourceType}`}>
+              {def.resourceType === "mana"
+                ? <svg viewBox="0 0 8 10" width="8" height="10"><path d="M4 1 C4 1 7 5 7 7a3 3 0 0 1-6 0c0-2 3-6 3-6z" fill="#4477ff"/></svg>
+                : <svg viewBox="0 0 10 10" width="10" height="10"><path d="M5 1 L9 5 L5 9 L1 5 Z" fill="#cc3300"/></svg>
+              }
+              {battle.playerMana}/{derived.maxMana}
+            </span>
+            <button
+              className={`potion-compact health${battle.healthPotionCooldown > 0 ? " on-cooldown" : ""}`}
+              disabled={isAnimating || consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0}
+              onClick={() => handleAction("healthPotion")}
+              title={battle.healthPotionCooldown > 0 ? `Cooldown: ${battle.healthPotionCooldown}` : CONSUMABLES.healthPotion.description}
+            >
+              <PotionIcon type="health" size={13} />
+              <span>{battle.healthPotionCooldown > 0 ? battle.healthPotionCooldown : consumables.healthPotion}/5</span>
+            </button>
+            {def.resourceType === "mana" && (
+              <button
+                className={`potion-compact mana${battle.manaPotionCooldown > 0 ? " on-cooldown" : ""}`}
+                disabled={isAnimating || consumables.manaPotion <= 0 || battle.manaPotionCooldown > 0}
+                onClick={() => handleAction("manaPotion")}
+                title={battle.manaPotionCooldown > 0 ? `Cooldown: ${battle.manaPotionCooldown}` : CONSUMABLES.manaPotion.description}
+              >
+                <PotionIcon type="mana" size={13} />
+                <span>{battle.manaPotionCooldown > 0 ? battle.manaPotionCooldown : consumables.manaPotion}/5</span>
+              </button>
+            )}
+          </div>
           {(battle.playerPoisonRounds > 0 || battle.playerBurnRounds > 0) && (
             <div className="status-effects">
               {battle.playerPoisonRounds > 0 && (
@@ -209,7 +281,12 @@ export function CombatScreen({
               style={{ width: `${Math.max(0, (battle.monsterLife / monster.life) * 100)}%` }}
             />
           </div>
-          <div className="hp-value">{battle.monsterLife} / {monster.life}</div>
+          <div className="combat-stat-row">
+            <span className="combat-stat hp">
+              <svg viewBox="0 0 10 9" width="10" height="9"><path d="M5 8 C5 8 1 5 1 3a2 2 0 0 1 4-1 2 2 0 0 1 4 1c0 2-4 5-4 5z" fill="#cc3333"/></svg>
+              {battle.monsterLife}/{monster.life}
+            </span>
+          </div>
           {battle.poisonRounds > 0 && (
             <div className="status-effects">
               <span className="status-pill poison">☠ Poison {battle.poisonRounds}</span>
@@ -241,40 +318,14 @@ export function CombatScreen({
           >
             {def.ability.name}
             <span className="action-cost">
-              {battle.abilityCooldown > 0
+              {battle.trapRounds > 0
+                ? `Trap detonates in ${battle.trapRounds}`
+                : battle.abilityCooldown > 0
                 ? `Cooldown: ${battle.abilityCooldown}`
                 : `${def.ability.manaCost} ${def.resourceName.toLowerCase()}`}
             </span>
             <span className="action-dmg-type">{abilityPreview.label} · {abilityPreview.type}</span>
           </button>
-          <button
-            className="action-button potion health"
-            disabled={isAnimating || consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0}
-            onClick={() => handleAction("healthPotion")}
-            title={CONSUMABLES.healthPotion.description}
-          >
-            <PotionIcon type="health" size={16} /> {CONSUMABLES.healthPotion.name}
-            <span className="action-cost">
-              {battle.healthPotionCooldown > 0
-                ? `Cooldown: ${battle.healthPotionCooldown}`
-                : `Owned: ${consumables.healthPotion}`}
-            </span>
-          </button>
-          {def.resourceType === "mana" && (
-            <button
-              className="action-button potion mana"
-              disabled={isAnimating || consumables.manaPotion <= 0 || battle.manaPotionCooldown > 0}
-              onClick={() => handleAction("manaPotion")}
-              title={CONSUMABLES.manaPotion.description}
-            >
-              <PotionIcon type="mana" size={16} /> {CONSUMABLES.manaPotion.name}
-              <span className="action-cost">
-                {battle.manaPotionCooldown > 0
-                  ? `Cooldown: ${battle.manaPotionCooldown}`
-                  : `Owned: ${consumables.manaPotion}`}
-              </span>
-            </button>
-          )}
           <button
             className="action-button run"
             disabled={isAnimating || escapeTokens <= 0}

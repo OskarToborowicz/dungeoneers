@@ -25,6 +25,7 @@ export interface BattleState {
   playerPoisonDamage: number;
   playerBurnRounds: number;
   playerBurnDamage: number;
+  trapRounds: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "healthPotion" | "manaPotion";
@@ -47,6 +48,7 @@ export interface RoundResult {
   status: BattleStatus;
   damageDealt: number;
   monsterSpellCast?: string;
+  trapDetonated?: boolean;
 }
 
 const ALWAYS_MISS_CHANCE = 0.02;
@@ -95,11 +97,13 @@ export function createBattleState(
     playerPoisonDamage: 0,
     playerBurnRounds: 0,
     playerBurnDamage: 0,
+    trapRounds: 0,
   };
 }
 
 export function canUseAbility(character: Character, state: BattleState): boolean {
   const def = CLASSES[character.classId];
+  if (def.ability.kind === "trap" && state.trapRounds > 0) return false;
   return state.playerMana >= def.ability.manaCost && state.abilityCooldown <= 0;
 }
 
@@ -163,6 +167,10 @@ export function getAbilityPreview(character: Character, stats: DerivedStats): Da
     const heal = Math.round(est * 0.15);
     return { label: `~${est} + ${heal} heal`, type: "Physical" };
   }
+  if (ability.kind === "trap") {
+    const est = Math.round(stats.stats.dexterity * ability.power);
+    return { label: `~${est} (3 turn delay)`, type: "Physical" };
+  }
   return { label: "—", type: dmgType };
 }
 
@@ -179,15 +187,16 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds } = state;
   let damageDealt = 0;
+  let trapDetonated = false;
 
   if (monsterLife > 0) {
     const useAbility = action === "ability" && playerMana >= def.ability.manaCost && abilityCooldown <= 0;
 
     if (useAbility) {
       playerMana -= def.ability.manaCost;
-      abilityCooldown = def.ability.cooldown;
+      if (def.ability.kind !== "trap") abilityCooldown = def.ability.cooldown;
 
       if (Math.random() < ALWAYS_MISS_CHANCE) {
         log.push({
@@ -265,6 +274,14 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+      } else if (def.ability.kind === "trap") {
+        trapRounds = 3;
+        log.push({
+          actor: "player",
+          message: "You plant a Fire Trap!",
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
       }
     } else if (action === "healthPotion" && healthPotionCooldown <= 0) {
       const before = playerLife;
@@ -288,12 +305,14 @@ export function resolveRound(
       });
     } else {
       const hitChance = 1 - ALWAYS_MISS_CHANCE;
+      let basicHitDmg = 0;
       if (Math.random() < hitChance) {
         const isCrit = Math.random() < critChance;
         let dmg = randomInRange(stats.damage);
         if (isCrit) dmg = Math.round(dmg * critMultiplier);
         monsterLife -= dmg;
         damageDealt += dmg;
+        basicHitDmg = dmg;
         log.push({
           actor: "player",
           message: isCrit ? `Critical hit! You deal ${dmg} damage.` : `You attack for ${dmg} damage.`,
@@ -311,6 +330,16 @@ export function resolveRound(
 
       if (def.resourceType === "fury") {
         playerMana = Math.min(stats.maxMana, playerMana + FURY_PER_ATTACK);
+      }
+      if (character.classId === "assassin" && character.level >= 20 && basicHitDmg > 0) {
+        poisonRounds = 2;
+        poisonDamage = Math.round(basicHitDmg * 0.30);
+        log.push({
+          actor: "player",
+          message: `Venom seeps in — ${poisonDamage} poison per turn for 2 turns.`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
       }
     }
   }
@@ -339,6 +368,7 @@ export function resolveRound(
       playerPoisonDamage,
       playerBurnRounds,
       playerBurnDamage,
+      trapRounds,
     };
   }
 
@@ -380,7 +410,7 @@ export function resolveRound(
       : 0;
     if (necroHeal > 0) playerLife = Math.min(stats.maxLife, playerLife + necroHeal);
     log.push({
-      actor: "player",
+      actor: "monster",
       message: `${monster.name} suffers ${poisonDamage} poison damage.${necroHeal > 0 ? ` Soul Siphon heals you for ${necroHeal}.` : ""}`,
       playerLife: Math.max(0, playerLife),
       monsterLife: Math.max(0, monsterLife),
@@ -389,6 +419,8 @@ export function resolveRound(
       return { state: makeState(), log, status: "victory", damageDealt };
     }
   }
+
+  if (trapRounds > 0) trapRounds -= 1;
 
   if (monsterSpellCooldown > 0) monsterSpellCooldown -= 1;
 
@@ -399,7 +431,9 @@ export function resolveRound(
   if (castSpell && spell) {
     monsterSpellCastName = spell.name;
     monsterSpellCooldown = spell.cooldown;
-    const spellDmg = Math.round(randomInRange(monster.damage) * spell.power);
+    let spellDmg = Math.round(randomInRange(monster.damage) * spell.power);
+    const fadedSpell = character.classId === "assassin" && Math.random() < 0.25;
+    if (fadedSpell) spellDmg = Math.max(1, Math.round(spellDmg * 0.55));
 
     if (spell.kind === "burst") {
       playerLife -= spellDmg;
@@ -459,6 +493,9 @@ export function resolveRound(
         dmg = Math.max(1, Math.round(dmg * (1 - reduction)));
       }
 
+      const fadedNormal = character.classId === "assassin" && Math.random() < 0.25;
+      if (fadedNormal) dmg = Math.max(1, Math.round(dmg * 0.55));
+
       playerLife -= dmg;
 
       let message = isMonsterCrit
@@ -469,6 +506,7 @@ export function resolveRound(
         const reductionPct = Math.round(Math.min(25, stats.stats.dexterity * 0.2));
         message += ` Thick Hide absorbs ${reductionPct}%.`;
       }
+      if (fadedNormal) message += " Fade reduces the blow by 45%.";
 
       if (character.classId === "paladin") {
         const healBack = Math.round(dmg * PALADIN_DAMAGE_TAKEN_HEAL);
@@ -492,6 +530,28 @@ export function resolveRound(
     }
   }
 
+  // Fire Trap detonation — after monster acts
+  if (trapRounds === 0 && state.trapRounds > 0) {
+    const trapDmg = Math.round(stats.stats.dexterity * def.ability.power);
+    const isCrit = Math.random() < critChance;
+    const finalTrapDmg = isCrit ? Math.round(trapDmg * critMultiplier) : trapDmg;
+    monsterLife -= finalTrapDmg;
+    damageDealt += finalTrapDmg;
+    abilityCooldown = def.ability.cooldown;
+    trapDetonated = true;
+    log.push({
+      actor: "monster",
+      message: isCrit
+        ? `Critical hit! Fire Trap explodes for ${finalTrapDmg} damage!`
+        : `Fire Trap explodes for ${finalTrapDmg} damage!`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+    if (monsterLife <= 0) {
+      return { state: makeState(), log, status: "victory", damageDealt, trapDetonated };
+    }
+  }
+
   const status: BattleStatus = playerLife <= 0 ? "defeat" : "ongoing";
-  return { state: makeState(), log, status, damageDealt, monsterSpellCast: monsterSpellCastName };
+  return { state: makeState(), log, status, damageDealt, monsterSpellCast: monsterSpellCastName, trapDetonated };
 }

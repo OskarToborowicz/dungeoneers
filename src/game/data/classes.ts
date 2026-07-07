@@ -128,6 +128,32 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       magic: false,
     },
   },
+  assassin: {
+    id: "assassin",
+    name: "Assassin",
+    description: "A shadow warrior who eliminates enemies with traps and venom.",
+    baseStats: { strength: 10, dexterity: 10, vitality: 10, energy: 10 },
+    resourceName: "Mana",
+    resourceType: "mana",
+    passive: {
+      name: "Fade",
+      description: "25% chance to reduce incoming damage by 45%.",
+    },
+    passive2: {
+      name: "Venom",
+      description: "Basic attacks poison the enemy for 2 turns, dealing 30% of the hit damage per tick.",
+      levelRequirement: 20,
+    },
+    ability: {
+      name: "Fire Trap",
+      description: "Plant a trap that detonates after 3 turns, dealing 2.5× Dexterity as damage. Can critically strike. Cooldown begins after detonation.",
+      manaCost: 22,
+      cooldown: 3,
+      kind: "trap",
+      power: 2.5,
+      magic: false,
+    },
+  },
 };
 
 export const CLASS_LIST = Object.values(CLASSES);

@@ -18,6 +18,9 @@ export function DungeonsTab({ clearedDungeons, onStart }: Props) {
           const cleared = clearedDungeons.includes(d.id);
           const locked = index > 0 && !clearedDungeons.includes(regularDungeons[index - 1].id);
 
+          const allMonsters = [...d.waves, d.boss];
+          const minLvl = Math.min(...allMonsters.map((m) => m.level));
+          const maxLvl = Math.max(...allMonsters.map((m) => m.level));
           return (
             <div key={d.id} className={`dungeon-card ${locked ? "locked" : ""}`}>
               <div className="dungeon-name">
@@ -25,7 +28,7 @@ export function DungeonsTab({ clearedDungeons, onStart }: Props) {
               </div>
               <p className="dungeon-desc">{d.description}</p>
               <div className="dungeon-meta">
-                {d.waves.length + 1} encounters &middot; Boss: {d.boss.name}
+                Lv.{minLvl}–{maxLvl} &middot; {d.waves.length + 1} encounters &middot; Boss: {d.boss.name}
               </div>
               <button className="primary-button small" disabled={locked} onClick={() => onStart(d.id)}>
                 {locked ? `Locked — clear ${regularDungeons[index - 1].name} first` : "Enter"}
@@ -36,6 +39,9 @@ export function DungeonsTab({ clearedDungeons, onStart }: Props) {
 
         {allRegularCleared && endgameDungeons.map((d) => {
           const cleared = clearedDungeons.includes(d.id);
+          const allMonsters = [...d.waves, d.boss];
+          const minLvl = Math.min(...allMonsters.map((m) => m.level));
+          const maxLvl = Math.max(...allMonsters.map((m) => m.level));
           return (
             <div key={d.id} className="dungeon-card dungeon-endgame">
               <div className="dungeon-name">
@@ -43,7 +49,7 @@ export function DungeonsTab({ clearedDungeons, onStart }: Props) {
               </div>
               <p className="dungeon-desc">{d.description}</p>
               <div className="dungeon-meta">
-                {d.waves.length + 1} encounters &middot; Final Boss: {d.boss.name}
+                Lv.{minLvl}–{maxLvl} &middot; {d.waves.length + 1} encounters &middot; Final Boss: {d.boss.name}
               </div>
               <button className="primary-button small endgame-button" onClick={() => onStart(d.id)}>
                 Enter — All dungeons cleared. You face the Prime Evil.

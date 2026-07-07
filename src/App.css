@@ -402,6 +402,12 @@
   font-style: italic;
 }
 
+.monster-level {
+  color: var(--text-dim);
+  font-size: 14px;
+  font-weight: normal;
+}
+
 .level-line {
   color: var(--text-heading);
 }
@@ -1022,6 +1028,77 @@
 .ae-claw-2 { animation: ae-slash-draw 0.65s ease-out 0.09s forwards; }
 .ae-claw-3 { animation: ae-slash-draw 0.65s ease-out 0.18s forwards; }
 
+/* Fire Trap plant – Assassin */
+@keyframes ae-trap-place {
+  0%   { transform: scale(0.1); opacity: 0; }
+  30%  { transform: scale(1.1); opacity: 1; }
+  70%  { transform: scale(1);   opacity: 1; }
+  100% { transform: scale(1);   opacity: 0; }
+}
+@keyframes ae-trap-spark-out {
+  0%   { opacity: 0; transform: scaleY(0); }
+  40%  { opacity: 1; transform: scaleY(1); }
+  100% { opacity: 0; transform: scaleY(1); }
+}
+@keyframes ae-trap-ring-expand {
+  0%   { r: 4;  opacity: 0.7; }
+  100% { r: 28; opacity: 0;   }
+}
+.ae-trap-plant        { animation: ae-trap-place 0.75s ease-out forwards; }
+.ae-trap-spark        { animation: ae-trap-spark-out 0.6s ease-out forwards; }
+.ae-ts-1 { animation-delay: 0.05s; }
+.ae-ts-2 { animation-delay: 0.10s; }
+.ae-ts-3 { animation-delay: 0.10s; }
+.ae-ts-4 { animation-delay: 0.15s; }
+.ae-ts-5 { animation-delay: 0.15s; }
+.ae-trap-ring         { animation: ae-trap-ring-expand 0.7s ease-out 0.2s forwards; }
+
+/* Fire Trap detonation – Assassin */
+@keyframes ae-trap-det-burst {
+  0%   { transform: scale(0.1); opacity: 1; }
+  50%  { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+@keyframes ae-trap-det-rays-out {
+  0%   { opacity: 0; transform: scale(0.2); }
+  20%  { opacity: 1; }
+  80%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.1); }
+}
+.ae-trap-det-core { animation: ae-trap-det-burst    0.75s ease-out forwards; }
+.ae-trap-det-rays { animation: ae-trap-det-rays-out 0.75s ease-out 0.1s forwards; }
+
+/* Persistent trap on battlefield */
+.trap-on-field {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  z-index: 5;
+}
+.trap-on-field svg {
+  width: 44px;
+  height: 28px;
+  overflow: visible;
+}
+@keyframes trap-pulse {
+  0%, 100% { filter: drop-shadow(0 0 3px #33aacc); opacity: 0.9; }
+  50%       { filter: drop-shadow(0 0 8px #55eeff); opacity: 1; }
+}
+.trap-field-glow { animation: trap-pulse 1.2s ease-in-out infinite; }
+
+/* Locked passive */
+.passive-locked {
+  opacity: 0.45;
+  border-color: #3a3228 !important;
+}
+.passive-lock-level {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: normal;
+}
+
 .battle-side {
   display: flex;
   flex-direction: column;
@@ -1071,6 +1148,27 @@
 
 .hp-bar-fill.monster {
   background: linear-gradient(90deg, #7a1c1c, #c23a3a);
+}
+
+.resource-bar {
+  height: 10px;
+  background: var(--bg-panel-light);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.resource-bar-fill {
+  height: 100%;
+  transition: width 0.2s ease;
+}
+
+.resource-bar-fill.mana {
+  background: linear-gradient(90deg, #2255cc, #5588ff);
+}
+
+.resource-bar-fill.fury {
+  background: linear-gradient(90deg, #aa2200, #ff5522);
 }
 
 .hp-value {
@@ -1229,6 +1327,40 @@
 .mse-nova-2 { animation: mse-nova-expand 0.85s ease-out forwards; animation-delay: 0.1s; }
 .mse-nova-3 { animation: mse-nova-expand 0.85s ease-out forwards; animation-delay: 0.2s; }
 .mse-nova-dots { animation: mse-nova-dots-ride 0.85s ease-out forwards; }
+
+.combat-stat-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 3px;
+}
+
+.combat-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+}
+
+.combat-stat.hp { color: #cc5555; }
+.combat-stat.mana { color: #6f8fff; }
+.combat-stat.fury { color: var(--accent-red-bright); }
+
+.potion-compact {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: none;
+  border: 1px solid var(--border-dim);
+  border-radius: 4px;
+  padding: 1px 5px;
+  cursor: pointer;
+  font-size: 11px;
+  color: var(--text-dim);
+  line-height: 1;
+}
+.potion-compact:hover:not(:disabled) { border-color: var(--border-gold); color: var(--text-light); }
+.potion-compact:disabled { opacity: 0.4; cursor: default; }
+.potion-compact.on-cooldown { border-color: #555; color: #888; }
 
 .mana-value {
   font-size: 11px;

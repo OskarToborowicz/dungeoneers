@@ -66,6 +66,20 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
         <strong>{def.passive.name}</strong>
         <p>{def.passive.description}</p>
       </div>
+
+      {def.passive2 && (
+        character.level >= def.passive2.levelRequirement ? (
+          <div className="ability-box passive-box">
+            <strong>{def.passive2.name}</strong>
+            <p>{def.passive2.description}</p>
+          </div>
+        ) : (
+          <div className="ability-box passive-box passive-locked">
+            <strong>{def.passive2.name} <span className="passive-lock-level">(unlocks at level {def.passive2.levelRequirement})</span></strong>
+            <p>{def.passive2.description}</p>
+          </div>
+        )
+      )}
     </div>
   );
 }
