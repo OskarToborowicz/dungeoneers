@@ -20,6 +20,7 @@ A browser-based Diablo-style dungeon crawler built with React + TypeScript.
 12. [Consumables](#consumables)
 13. [Dungeons](#dungeons)
 14. [Save System](#save-system)
+15. [Patch Notes](PATCH_NOTES.md)
 
 ---
 
@@ -30,7 +31,7 @@ Six classes are available, each with a unique resource type, active ability, and
 | Class | Resource | Weapon | Playstyle |
 |---|---|---|---|
 | Barbarian | Fury | Axe | Melee berserker, high crit |
-| Necromancer | Mana | War Staff | Poison DoT with lifesteal |
+| Necromancer | Mana | Scythe | Poison DoT with lifesteal |
 | Sorceress | Mana | War Staff | Magic burst damage |
 | Amazon | Mana | Bow | Multi-hit ranged |
 | Paladin | Mana | Mace | Tank/sustain, converts damage to life |
@@ -181,6 +182,8 @@ Clearing each dungeon raises the cap, forcing the player to progress rather than
 
 Combat is turn-based. The player chooses one action per round; the monster then attacks back.
 
+**Animations are sequential.** The player's attack animation plays first (~550 ms), then the monster's animation fires. Action buttons are locked during the sequence. The damage preview on each button (range, crit ceiling, type) reflects pre-combat expected values.
+
 ### Player Actions
 
 | Action | Effect |
@@ -234,11 +237,22 @@ The Necromancer's Soul Siphon passive heals 10% of every poison tick. The heal a
 
 ### Status Effects
 
-Active status effects are displayed as colored pills beneath the monster's HP bar during combat.
+Active status effects are shown as colored pills below each combatant's HP bar and as a pulsing aura on the player sprite.
+
+**On the monster:**
 
 | Effect | Trigger | Display |
 |---|---|---|
-| ☠ Poison N | Necromancer Poison Dagger | Shows remaining tick count |
+| ☠ Poison N | Necromancer Poison Dagger | Green pill, remaining tick count |
+
+**On the player** (applied by boss spells):
+
+| Effect | Trigger | Aura | Damage per tick |
+|---|---|---|---|
+| ☠ Poison N | Andariel — Poison Nova | Green glow | `round(spellDmg × 0.4)` × 3 rounds |
+| 🔥 Burn N | Bishibosh — Fire Wall | Orange glow | `round(spellDmg × 0.4)` × 3 rounds |
+
+Both DoTs tick at the start of the monster's turn (after the player acts, before the monster attacks).
 
 ### Ability Animations
 
@@ -252,6 +266,25 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 | Amazon | Two arrows flying toward the enemy |
 | Paladin | Golden holy cross with radiant pulse |
 | Druid | Three green claw slashes |
+
+### Monster Spells
+
+Each dungeon boss has a unique spell that replaces its normal attack when it fires. Spells have a **3-round cooldown** after casting and a **35–40% cast chance** per eligible round. A spell animation overlay plays when the boss casts.
+
+| Boss | Spell | Kind | Power | Effect |
+|---|---|---|---|---|
+| Corpsefire | Corpse Explosion | Burst | ×1.8 | Instant damage |
+| Bishibosh | Fire Wall | Burn | ×1.6 | Initial hit + 3 burn ticks |
+| Rakanishu | Chain Lightning | Burst | ×2.0 | Instant damage |
+| Treehead Woodfist | Ground Slam | Burst | ×2.2 | Instant damage |
+| The Countess | Blood Drain | Drain | ×1.5 | Deals damage, heals monster |
+| Andariel | Poison Nova | Dot | ×2.4 | Initial hit + 3 poison ticks |
+
+**Spell damage** = `round(randomInRange(monster.damage) × power)`.
+
+For Dot/Burn spells, the initial hit is 40% of spell damage; each tick is also 40% of spell damage over 3 rounds.
+
+The Paladin's Divine Retribution passive (15% of damage taken converted to life) applies to spell damage.
 
 ### Escape Tokens
 
@@ -372,7 +405,8 @@ offHandBonus = round(((baseDamage.min + baseDamage.max) / 2) × 0.5)
 | Weapon | Class | Min | Max | Two-Handed |
 |---|---|---|---|---|
 | Axe | Barbarian | 2 | 6 | No |
-| War Staff | Necromancer, Sorceress | 2 | 8 | Yes |
+| Scythe | Necromancer | 3 | 8 | Yes |
+| War Staff | Sorceress | 2 | 8 | Yes |
 | Bow | Amazon | 3 | 7 | Yes |
 | Mace | Paladin | 3 | 4 | No |
 | Totem | Druid | 2 | 6 | Yes |
@@ -383,7 +417,9 @@ Item level scaling adds `+0.25 to min` and `+0.35 to max` per level, applied aft
 
 ## Item Affixes
 
-Affixes are random bonuses rolled when an item generates. Items can have 0–4 affixes depending on rarity. Jewelry (amulet, rings) always gets at least 1 affix regardless of rarity.
+Affixes are random bonuses rolled when an item generates. Items can have 0–4 affixes depending on rarity. **Normal (white) items never have affixes** — they show only their base stat.
+
+**Jewelry (amulets, rings)** always drops at minimum **Magic** rarity, so it always has at least 1 affix. White jewelry does not exist in drops or shops.
 
 | Affix Label | Stat Affected | Base Range |
 |---|---|---|
@@ -460,6 +496,8 @@ Bought from the Shop tab. Prices are fixed.
 
 Potions are used as an action during combat. The restored amount scales with the character's current max life/mana (including all gear bonuses), making them more powerful as the character grows stronger. Each potion type has its own independent cooldown timer shown on the button.
 
+**Stack cap**: each potion type is limited to **5 per character**. The shop buy button shows "Full (5/5)" and is disabled at the cap.
+
 ---
 
 ## Dungeons
@@ -475,6 +513,9 @@ Completing a dungeon marks it as cleared (shown with a badge) but it can be repl
 | Stony Field | 6–8 | Rakanishu | 180 |
 | Dark Wood | 10–12 | Treehead Woodfist | 320 |
 | Ruins of Tristram | 15–18 | The Countess | 520 |
+| Rogue Monastery | 20–25 | Andariel | 800 |
+
+Each boss casts a unique spell — see the [Monster Spells](#monster-spells) section.
 
 ### Item Drops
 

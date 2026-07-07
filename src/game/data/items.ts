@@ -50,9 +50,12 @@ const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: nu
   { label: "of Mana", stat: "mana", min: 5, max: 20 },
 ];
 
-function rollRarity(maxRarity: ItemRarity = "unique"): (typeof RARITY_ROLLS)[number] {
+function rollRarity(maxRarity: ItemRarity = "unique", minRarity: ItemRarity = "normal"): (typeof RARITY_ROLLS)[number] {
   const order: ItemRarity[] = ["normal", "magic", "rare", "unique"];
-  const allowed = RARITY_ROLLS.filter((r) => order.indexOf(r.rarity) <= order.indexOf(maxRarity));
+  const allowed = RARITY_ROLLS.filter((r) => {
+    const idx = order.indexOf(r.rarity);
+    return idx >= order.indexOf(minRarity) && idx <= order.indexOf(maxRarity);
+  });
   const total = allowed.reduce((sum, r) => sum + r.weight, 0);
   let roll = Math.random() * total;
   for (const entry of allowed) {
@@ -100,13 +103,16 @@ export function generateRandomItem(itemLevel: number, classId?: ClassId, maxRari
   const id = `item-${Date.now()}-${itemCounter}`;
 
   const isJewelry = base.slot === "amulet" || base.slot === "ring1";
-  const affixCount = isJewelry ? Math.max(1, rarityEntry.affixCount) : rarityEntry.affixCount;
+  const effectiveRarityEntry = isJewelry && rarityEntry.rarity === "normal"
+    ? rollRarity(maxRarity, "magic")
+    : rarityEntry;
+  const affixCount = isJewelry ? Math.max(1, effectiveRarityEntry.affixCount) : effectiveRarityEntry.affixCount;
 
   const item: Item = {
     id,
-    name: rarityEntry.rarity === "normal" ? base.name : `${base.name} ${rarityEntry.rarity === "unique" ? "of the Ancients" : ""}`.trim(),
+    name: effectiveRarityEntry.rarity === "normal" ? base.name : `${base.name} ${effectiveRarityEntry.rarity === "unique" ? "of the Ancients" : ""}`.trim(),
     slot,
-    rarity: rarityEntry.rarity,
+    rarity: effectiveRarityEntry.rarity,
     itemLevel,
     affixes: rollAffixes(affixCount, itemLevel),
   };
