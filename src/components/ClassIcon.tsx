@@ -11,17 +11,13 @@ export function ClassIcon({ classId, size = 34 }: { classId: ClassId; size?: num
 
 const AXE_BLADE = "M20 10 C13 8 8 12 10 17 C12 21 18 19 20 15 Z";
 
+const CROSS_SWORDS = "M15 10 L25 30 M25 10 L15 30";
+
 const ICONS: Record<ClassId, ReactNode> = {
   barbarian: (
     <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <g transform="rotate(45 20 20)">
-        <line x1="20" y1="10" x2="20" y2="32" />
-        <path d={AXE_BLADE} />
-      </g>
-      <g transform="rotate(-45 20 20)">
-        <line x1="20" y1="10" x2="20" y2="32" />
-        <path d={AXE_BLADE} />
-      </g>
+      <line x1="15" y1="10" x2="25" y2="30" />
+      <line x1="25" y1="10" x2="15" y2="30" />
     </g>
   ),
   sorceress: (
@@ -68,10 +64,16 @@ const ICONS: Record<ClassId, ReactNode> = {
     </g>
   ),
   assassin: (
-    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <ellipse cx="20" cy="8" rx="6" ry="2.4" />
-      <line x1="20" y1="14" x2="20" y2="33" />
-      <rect x="13" y="14" width="14" height="8" rx="1" />
+     <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      {/* Assassin body */}
+      <path d="M20 10 L15 20 L20 25 L25 20 Z" />
+      {/* Claws */}
+      <path d="M15 20 L12 18 M25 20 L28 18" />
+      {/* Head */}
+      <circle cx="20" cy="10" r="4" />
+      {/* Eyes */}
+      <circle cx="19" cy="9" r="1" fill="currentColor" />
+      <circle cx="21" cy="9" r="1" fill="currentColor" />
     </g>
   ),
 };

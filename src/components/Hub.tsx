@@ -31,6 +31,8 @@ interface Props {
   onBuyItem: (item: Item) => void;
   onRestockShop: () => void;
   restockFee: number;
+  showPortalMessage?: boolean;
+  onDismissPortal?: () => void;
 }
 
 export function Hub({
@@ -51,11 +53,23 @@ export function Hub({
   onBuyItem,
   onRestockShop,
   restockFee,
+  showPortalMessage,
+  onDismissPortal,
 }: Props) {
   const [tab, setTab] = useState<TabId>("character");
 
   return (
     <div className="screen hub-screen" style={{ "--class-color": CLASS_COLORS[character.classId] } as CSSProperties}>
+      {showPortalMessage && (
+        <div className="portal-overlay">
+          <div className="portal-modal">
+            <div className="portal-icon">🔴</div>
+            <h2>A Red Portal Has Appeared</h2>
+            <p>Andariel has fallen. A crimson gate tears open in the distance — beyond lies Act 2, the realm of fire and damnation.</p>
+            <button className="primary-button" onClick={onDismissPortal}>Enter the Portal</button>
+          </div>
+        </div>
+      )}
       <div className="hub-layout">
         <div className="hub-sidebar">
           <div className="hub-sprite">

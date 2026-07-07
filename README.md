@@ -26,7 +26,7 @@ A browser-based Diablo-style dungeon crawler built with React + TypeScript.
 
 ## Characters & Classes
 
-Six classes are available, each with a unique resource type, active ability, and passive skill.
+Seven classes are available, each with a unique resource type, active ability, and passive skill.
 
 | Class | Resource | Weapon | Playstyle |
 |---|---|---|---|
@@ -36,6 +36,7 @@ Six classes are available, each with a unique resource type, active ability, and
 | Amazon | Mana | Bow | Multi-hit ranged |
 | Paladin | Mana | Mace | Tank/sustain, converts damage to life |
 | Druid | Mana | Totem | Dex-scaling melee with lifesteal and damage reduction |
+| Assassin | Mana | Claw | Dex-scaling trap setter; trap detonates after monster's turn |
 
 All classes start with **10 in every base stat** (Strength, Dexterity, Vitality, Energy) and **10 free stat points** to allocate.
 
@@ -43,7 +44,7 @@ All classes start with **10 in every base stat** (Strength, Dexterity, Vitality,
 
 **Starting equipment.** Every new character begins with a Normal-quality version of their class weapon (item level 1, no affixes). This weapon occupies the main-hand slot immediately on character creation.
 
-**Shield restrictions.** Only the Paladin can equip shields. The Barbarian can equip a second Axe in the off-hand slot (see Dual-Wield below). All other classes leave the shield slot empty.
+**Shield restrictions.** Only the Paladin can equip shields. The Barbarian can equip a second Axe in the off-hand slot (see Dual-Wield below). The Assassin can equip a second Claw in the off-hand slot. All other classes leave the shield slot empty.
 
 ---
 
@@ -59,7 +60,7 @@ flatStrengthDamage = strength / 5
 Every 5 Strength adds +1 to both minimum and maximum weapon damage.
 
 ### Dexterity
-Increases defense and critical strike chance, and powers the Druid's passive and active ability.
+Increases defense and critical strike chance, and powers the Druid's and Assassin's abilities.
 ```
 defense      += dexterity / 4
 critChance    = min(0.60, 0.05 + dexterity × 0.001)
@@ -68,6 +69,7 @@ Base crit chance is 5% and scales to a soft cap of 60%. The Barbarian's passive 
 
 - Druid passive (Thick Hide): `reduction = min(0.25, dexterity × 0.002)` — caps at 25% damage reduction at 125 Dexterity.
 - Druid ability (Werewolf Bite): deals `dexterity × 1.5` flat bonus damage on top of weapon damage.
+- Assassin ability (Fire Trap): deals `dexterity × 2.5` damage when the trap detonates.
 
 ### Vitality
 Directly increases maximum life.
@@ -80,7 +82,7 @@ Adds flat bonus damage to all magic-typed abilities (spells).
 ```
 magicDamageBonus = floor(energy / 5)
 ```
-Every 5 Energy grants +1 flat damage added to each magic ability hit. At 50 Energy a spell gains +10 damage; at 100 Energy it gains +20. This is added after the power multiplier, so it is more valuable on spells with smaller base multipliers (e.g. the Necromancer's initial hit) than on high-power bursts. Non-magic abilities (Barbarian, Amazon, Druid) receive no benefit from Energy.
+Every 5 Energy grants +1 flat damage added to each magic ability hit. Non-magic abilities (Barbarian, Amazon, Druid, Assassin) receive no benefit from Energy.
 
 ---
 
@@ -163,7 +165,7 @@ xpCapLevel = 3 + 5 = 8
 
 When `character.level >= xpCapLevel`, battles award **0 XP**. Gold drops and item drops are unaffected.
 
-### Cap progression table
+### Cap progression table — Act 1
 
 | Highest dungeon cleared | Boss level | XP cap (max level) |
 |---|---|---|
@@ -173,6 +175,18 @@ When `character.level >= xpCapLevel`, battles award **0 XP**. Gold drops and ite
 | Stony Field | 8 | 13 |
 | Dark Wood | 12 | 17 |
 | Ruins of Tristram | 18 | 23 |
+| Rogue Monastery (Andariel) | 30 | 35 |
+
+### Cap progression table — Act 2
+
+| Highest dungeon cleared | Boss level | XP cap (max level) |
+|---|---|---|
+| Imp Field | 33 | 38 |
+| Lava River | 38 | 43 |
+| Ashen Caves | 43 | 48 |
+| Higher Hell | 50 | 55 |
+| Lower Hell (The Reaper) | 57 | 62 |
+| Hellcore (Core of Hell) | 70 | 75 |
 
 Clearing each dungeon raises the cap, forcing the player to progress rather than over-level an earlier zone.
 
@@ -182,7 +196,7 @@ Clearing each dungeon raises the cap, forcing the player to progress rather than
 
 Combat is turn-based. The player chooses one action per round; the monster then attacks back.
 
-**Animations are sequential.** The player's attack animation plays first (~550 ms), then the monster's animation fires. Action buttons are locked during the sequence. The damage preview on each button (range, crit ceiling, type) reflects pre-combat expected values.
+**Animations are sequential.** The player's attack animation plays first (~550 ms), then the monster's animation fires. HP bars update at the start of each combatant's animation phase. Action buttons are locked during the sequence. The damage preview on each button (range, crit ceiling, type) reflects pre-combat expected values.
 
 ### Player Actions
 
@@ -235,6 +249,14 @@ poisonDamage = round(randomInRange(damage) × ability.power × 0.4) + magicDamag
 ```
 The Necromancer's Soul Siphon passive heals 10% of every poison tick. The heal amount is shown in the combat log.
 
+### Fire Trap (Assassin)
+
+Using Fire Trap places a trap on the battlefield that detonates **after the monster's attack** on the next round. While active, the trap is shown as a glowing device with a countdown in the battle arena. Detonation deals:
+```
+trapDamage = round(dexterity × 2.5)
+```
+Crits are possible. After detonation a 4-round cooldown applies before another trap can be placed. If the monster dies to the trap's explosion it counts as a player victory.
+
 ### Status Effects
 
 Active status effects are shown as colored pills below each combatant's HP bar and as a pulsing aura on the player sprite.
@@ -266,10 +288,13 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 | Amazon | Two arrows flying toward the enemy |
 | Paladin | Golden holy cross with radiant pulse |
 | Druid | Three green claw slashes |
+| Assassin | Blue trap placed; cyan explosion on detonation |
 
 ### Monster Spells
 
-Each dungeon boss has a unique spell that replaces its normal attack when it fires. Spells have a **3-round cooldown** after casting and a **35–40% cast chance** per eligible round. A spell animation overlay plays when the boss casts.
+Each dungeon boss has a unique spell that replaces its normal attack when it fires. Spells have a **3-round cooldown** after casting and a **35–45% cast chance** per eligible round. A spell animation overlay plays when the boss casts.
+
+**Act 1 bosses:**
 
 | Boss | Spell | Kind | Power | Effect |
 |---|---|---|---|---|
@@ -278,7 +303,18 @@ Each dungeon boss has a unique spell that replaces its normal attack when it fir
 | Rakanishu | Chain Lightning | Burst | ×2.0 | Instant damage |
 | Treehead Woodfist | Ground Slam | Burst | ×2.2 | Instant damage |
 | The Countess | Blood Drain | Drain | ×1.5 | Deals damage, heals monster |
-| Andariel | Poison Nova | Dot | ×2.4 | Initial hit + 3 poison ticks |
+| Andariel | Poison Nova | Dot | ×0.7 | Initial hit + 3 poison ticks |
+
+**Act 2 bosses:**
+
+| Boss | Spell | Kind | Power | Effect |
+|---|---|---|---|---|
+| Queen of Imps | Imp Swarm | Burst | ×2.0 | Instant damage |
+| Emberfire | Lava Burst | Burn | ×2.2 | Initial hit + 3 burn ticks |
+| It | Suffocating Cloud | Dot | ×2.0 | Initial hit + 3 poison ticks |
+| Reltih | Hellfire | Burn | ×2.5 | Initial hit + 3 burn ticks |
+| The Reaper | Death Chill | Dot | ×2.3 | Initial hit + 3 poison ticks |
+| Core of Hell | Hellstorm | Burn | ×3.0 | Initial hit + 3 burn ticks (45% cast chance) |
 
 **Spell damage** = `round(randomInRange(monster.damage) × power)`.
 
@@ -333,6 +369,13 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Damage**: `randomInRange(weaponDamage) + round(dexterity × 1.5)` — bypasses the power multiplier entirely
 - **Lifesteal**: heals the player for **15% of damage dealt**
 
+### Assassin — Fire Trap
+- **Kind**: trap (physical — no magic bonus)
+- **Mana Cost**: 20
+- **Cooldown**: 4 turns (starts after detonation)
+- **Damage**: `round(dexterity × 2.5)` — scales entirely with Dexterity
+- **Timing**: trap is placed this turn; detonates after the monster attacks next turn
+
 ### General Ability Damage Formula
 
 For `burst`, `dot`, `multi`, and `heal` kinds:
@@ -371,6 +414,9 @@ reduction = min(0.25, dexterity × 0.002)
 ```
 At 50 Dex: 10% reduction. At 100 Dex: 20%. The 25% cap is reached at 125 Dex.
 
+### Assassin — Shadow Step
+- Basic attacks deal **+20% bonus damage**.
+
 ---
 
 ## Items & Equipment
@@ -380,7 +426,7 @@ At 50 Dex: 10% reduction. At 100 Dex: 20%. The 25% cap is reached at 125 Dex.
 | Slot | Description |
 |---|---|
 | weapon | Main-hand weapon |
-| shield | Off-hand (or second weapon for Barbarian) |
+| shield | Off-hand (or second weapon for Barbarian/Assassin) |
 | helm | Head armor |
 | armor | Body armor |
 | gloves | Hand armor |
@@ -400,6 +446,10 @@ The Barbarian can equip an Axe in both the weapon and shield slots. The off-hand
 offHandBonus = round(((baseDamage.min + baseDamage.max) / 2) × 0.5)
 ```
 
+### Assassin Dual-Wield
+
+The Assassin can equip a Claw in the off-hand slot under the same rules as the Barbarian's second Axe.
+
 ### Weapon Base Damage (before item level scaling)
 
 | Weapon | Class | Min | Max | Two-Handed |
@@ -410,6 +460,7 @@ offHandBonus = round(((baseDamage.min + baseDamage.max) / 2) × 0.5)
 | Bow | Amazon | 3 | 7 | Yes |
 | Mace | Paladin | 3 | 4 | No |
 | Totem | Druid | 2 | 6 | Yes |
+| Claw | Assassin | 2 | 5 | No |
 
 Item level scaling adds `+0.25 to min` and `+0.35 to max` per level, applied after the rarity multiplier.
 
@@ -502,9 +553,13 @@ Potions are used as an action during combat. The restored amount scales with the
 
 ## Dungeons
 
-Dungeons are linear: three regular wave fights followed by a boss. Life carries over between fights within the same run. Mana resets to full between fights; Fury always resets to 20.
+The game is split into two acts. Each act has five regular dungeons followed by an endgame dungeon, unlocked after all five regulars are cleared. Clearing the Act 1 endgame (Rogue Monastery) opens Act 2 via a red portal.
+
+Dungeons are linear: wave fights followed by a boss. Life carries over between fights within the same run. Mana resets to full between fights; Fury always resets to 20.
 
 Completing a dungeon marks it as cleared (shown with a badge) but it can be replayed for loot and XP.
+
+### Act 1
 
 | Dungeon | Monster Levels | Boss | Boss Life |
 |---|---|---|---|
@@ -513,7 +568,20 @@ Completing a dungeon marks it as cleared (shown with a badge) but it can be repl
 | Stony Field | 6–8 | Rakanishu | 180 |
 | Dark Wood | 10–12 | Treehead Woodfist | 320 |
 | Ruins of Tristram | 15–18 | The Countess | 520 |
-| Rogue Monastery | 20–25 | Andariel | 800 |
+| Rogue Monastery *(endgame)* | 22–30 | Andariel | 3,500 |
+
+### Act 2
+
+Unlocked after clearing Rogue Monastery. Select via the Act 1 / Act 2 toggle in the Dungeons tab.
+
+| Dungeon | Monster Levels | Boss | Boss Life |
+|---|---|---|---|
+| Imp Field | 30–33 | Queen of Imps | 5,000 |
+| Lava River | 34–38 | Emberfire | 7,000 |
+| Ashen Caves | 39–43 | It | 9,500 |
+| Higher Hell | 44–50 | Reltih | 13,000 |
+| Lower Hell | 51–57 | The Reaper | 18,000 |
+| Hellcore *(endgame)* | 60–70 | Core of Hell | 50,000 |
 
 Each boss casts a unique spell — see the [Monster Spells](#monster-spells) section.
 

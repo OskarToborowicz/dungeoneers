@@ -240,13 +240,15 @@ export function CombatScreen({
               }
               {battle.playerMana}/{derived.maxMana}
             </span>
+          </div>
+          <div className="potion-row">
             <button
               className={`potion-compact health${battle.healthPotionCooldown > 0 ? " on-cooldown" : ""}`}
               disabled={isAnimating || consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0}
               onClick={() => handleAction("healthPotion")}
               title={battle.healthPotionCooldown > 0 ? `Cooldown: ${battle.healthPotionCooldown}` : CONSUMABLES.healthPotion.description}
             >
-              <PotionIcon type="health" size={13} />
+              <PotionIcon type="health" size={16} />
               <span>{battle.healthPotionCooldown > 0 ? battle.healthPotionCooldown : consumables.healthPotion}/5</span>
             </button>
             {def.resourceType === "mana" && (
@@ -256,7 +258,7 @@ export function CombatScreen({
                 onClick={() => handleAction("manaPotion")}
                 title={battle.manaPotionCooldown > 0 ? `Cooldown: ${battle.manaPotionCooldown}` : CONSUMABLES.manaPotion.description}
               >
-                <PotionIcon type="mana" size={13} />
+                <PotionIcon type="mana" size={16} />
                 <span>{battle.manaPotionCooldown > 0 ? battle.manaPotionCooldown : consumables.manaPotion}/5</span>
               </button>
             )}

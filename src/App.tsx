@@ -51,6 +51,7 @@ function App() {
   const [dungeonRun, setDungeonRun] = useState<DungeonRunState | null>(null);
   const [deathSummary, setDeathSummary] = useState<DeathSummary | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [showPortalMessage, setShowPortalMessage] = useState(false);
 
   useEffect(() => {
     setSlots(getAllSaves());
@@ -329,7 +330,9 @@ function App() {
 
     const nextIndex = dungeonRun.index + 1;
     if (nextIndex >= dungeonRun.queue.length) {
+      const wasNew = !clearedDungeons.includes(dungeonRun.dungeonId);
       setClearedDungeons((prev) => (prev.includes(dungeonRun.dungeonId) ? prev : [...prev, dungeonRun.dungeonId]));
+      if (wasNew && dungeonRun.dungeonId === "diablo") setShowPortalMessage(true);
       setDungeonRun(null);
       return;
     }
@@ -384,6 +387,8 @@ function App() {
       onBuyItem={handleBuyItem}
       onRestockShop={handleRestockShop}
       restockFee={restockFee(character.level)}
+      showPortalMessage={showPortalMessage}
+      onDismissPortal={() => setShowPortalMessage(false)}
     />
   );
 }

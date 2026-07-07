@@ -1,4 +1,5 @@
-import { DUNGEONS, REGULAR_DUNGEON_COUNT } from "../game/data/dungeons";
+import { useState } from "react";
+import { DUNGEONS, REGULAR_DUNGEON_COUNT_ACT1, REGULAR_DUNGEON_COUNT_ACT2 } from "../game/data/dungeons";
 
 interface Props {
   clearedDungeons: string[];
@@ -6,18 +7,50 @@ interface Props {
 }
 
 export function DungeonsTab({ clearedDungeons, onStart }: Props) {
-  const regularDungeons = DUNGEONS.filter((d) => !d.endgame);
-  const endgameDungeons = DUNGEONS.filter((d) => d.endgame);
-  const allRegularCleared = regularDungeons.every((d) => clearedDungeons.includes(d.id));
+  const act1Regular = DUNGEONS.filter((d) => d.act === 1 && !d.endgame);
+  const act1Endgame = DUNGEONS.filter((d) => d.act === 1 && d.endgame);
+  const act2Regular = DUNGEONS.filter((d) => d.act === 2 && !d.endgame);
+  const act2Endgame = DUNGEONS.filter((d) => d.act === 2 && d.endgame);
+
+  const act2Unlocked = act1Endgame.every((d) => clearedDungeons.includes(d.id));
+  const allAct1RegularCleared = act1Regular.every((d) => clearedDungeons.includes(d.id));
+  const allAct2RegularCleared = act2Regular.every((d) => clearedDungeons.includes(d.id));
+
+  const [selectedAct, setSelectedAct] = useState<1 | 2>(1);
+  const act = selectedAct;
+
+  const regularDungeons = act === 1 ? act1Regular : act2Regular;
+  const endgameDungeons = act === 1 ? act1Endgame : act2Endgame;
+  const allRegularCleared = act === 1 ? allAct1RegularCleared : allAct2RegularCleared;
+
+  const remainingRegular = regularDungeons.filter((d) => !clearedDungeons.includes(d.id)).length;
 
   return (
     <div className="tab-panel">
-      <h3>Dungeons</h3>
+      <div className="dungeons-header">
+        <h3>Dungeons</h3>
+        {act2Unlocked && (
+          <div className="act-selector">
+            <button
+              className={`act-tab${act === 1 ? " active" : ""}`}
+              onClick={() => setSelectedAct(1)}
+            >
+              Act 1
+            </button>
+            <button
+              className={`act-tab${act === 2 ? " active" : ""}`}
+              onClick={() => setSelectedAct(2)}
+            >
+              Act 2
+            </button>
+          </div>
+        )}
+      </div>
+
       <div className="dungeon-list">
         {regularDungeons.map((d, index) => {
           const cleared = clearedDungeons.includes(d.id);
           const locked = index > 0 && !clearedDungeons.includes(regularDungeons[index - 1].id);
-
           const allMonsters = [...d.waves, d.boss];
           const minLvl = Math.min(...allMonsters.map((m) => m.level));
           const maxLvl = Math.max(...allMonsters.map((m) => m.level));
@@ -52,7 +85,9 @@ export function DungeonsTab({ clearedDungeons, onStart }: Props) {
                 Lv.{minLvl}–{maxLvl} &middot; {d.waves.length + 1} encounters &middot; Final Boss: {d.boss.name}
               </div>
               <button className="primary-button small endgame-button" onClick={() => onStart(d.id)}>
-                Enter — All dungeons cleared. You face the Prime Evil.
+                {act === 1
+                  ? "Enter — All dungeons cleared. You face the Maiden of Anguish."
+                  : "Enter — All dungeons cleared. You face the Core of Hell."}
               </button>
             </div>
           );
@@ -60,11 +95,24 @@ export function DungeonsTab({ clearedDungeons, onStart }: Props) {
 
         {!allRegularCleared && (
           <div className="dungeon-card locked endgame-locked-hint">
-            <div className="dungeon-name">??? — Chaos Sanctuary</div>
-            <p className="dungeon-desc">Clear all dungeons to reveal what lies beyond.</p>
-            <div className="dungeon-meta">
-              {REGULAR_DUNGEON_COUNT - clearedDungeons.filter((id) => regularDungeons.some((d) => d.id === id)).length} dungeon{(REGULAR_DUNGEON_COUNT - clearedDungeons.filter((id) => regularDungeons.some((d) => d.id === id)).length) !== 1 ? "s" : ""} remaining
+            <div className="dungeon-name">
+              {act === 1 ? "??? — Rogue Monastery" : "??? — Hellcore"}
             </div>
+            <p className="dungeon-desc">
+              {act === 1
+                ? "Clear all dungeons to reveal what lies beyond."
+                : "Clear all dungeons to unlock the Core of Hell."}
+            </p>
+            <div className="dungeon-meta">
+              {remainingRegular} dungeon{remainingRegular !== 1 ? "s" : ""} remaining
+            </div>
+          </div>
+        )}
+
+        {act === 1 && !act2Unlocked && allAct1RegularCleared && (
+          <div className="dungeon-card locked endgame-locked-hint">
+            <div className="dungeon-name">??? — Act 2</div>
+            <p className="dungeon-desc">Defeat Andariel to open the red portal.</p>
           </div>
         )}
       </div>
