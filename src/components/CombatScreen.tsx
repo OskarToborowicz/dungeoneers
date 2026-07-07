@@ -7,6 +7,8 @@ import {
   createBattleState,
   resolveRound,
   rollGoldReward,
+  getAttackPreview,
+  getAbilityPreview,
   type BattleState,
   type BattleStatus,
   type CombatLogEntry,
@@ -17,6 +19,7 @@ import type { Character, ConsumableId, EquipmentSlot, Item, MonsterDefinition } 
 import { CharacterSprite, type SpriteState } from "./sprites/CharacterSprite";
 import { MonsterSprite } from "./sprites/MonsterSprite";
 import { AbilityEffect } from "./AbilityEffect";
+import { MonsterSpellEffect } from "./MonsterSpellEffect";
 import { PotionIcon } from "./PotionIcon";
 
 interface Props {
@@ -63,6 +66,8 @@ export function CombatScreen({
   const [playerAnim, setPlayerAnim] = useState<SpriteState>("idle");
   const [monsterAnim, setMonsterAnim] = useState<SpriteState>("idle");
   const [abilityEffect, setAbilityEffect] = useState(false);
+  const [monsterSpellEffect, setMonsterSpellEffect] = useState<string | null>(null);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   useEffect(() => {
     if (logRef.current) {
@@ -71,33 +76,57 @@ export function CombatScreen({
   }, [log]);
 
   function handleAction(action: PlayerActionKind) {
-    if (status !== "ongoing") return;
+    if (status !== "ongoing" || isAnimating) return;
     if (action === "healthPotion" && (consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0)) return;
     if (action === "manaPotion" && (consumables.manaPotion <= 0 || battle.manaPotionCooldown > 0)) return;
 
     const wasAbility = action === "ability" && canUseAbility(character, battle);
     const result = resolveRound(character, derived, monster, battle, action);
-    if (wasAbility) setAbilityEffect(true);
-    setBattle(result.state);
-    setLog((prev) => [...prev, ...result.log]);
-    setStatus(result.status);
-    setTotalDamageDealt((d) => d + result.damageDealt);
 
     if (result.status === "victory") {
+      if (wasAbility) setAbilityEffect(true);
+      setBattle(result.state);
+      setLog((prev) => [...prev, ...result.log]);
+      setStatus(result.status);
+      setTotalDamageDealt((d) => d + result.damageDealt);
       setReward({ xp: monster.xpReward, gold: rollGoldReward(monster) });
-      setMonsterAnim("dead");
-    } else if (result.status === "defeat") {
-      setPlayerAnim("dead");
-    } else {
       setPlayerAnim("attack");
-      setTimeout(() => setPlayerAnim("idle"), 550);
-      const monsterAttacked = result.log.some((e) => e.actor === "monster");
-      if (monsterAttacked) {
-        setTimeout(() => {
+      setTimeout(() => { setPlayerAnim("idle"); setMonsterAnim("dead"); }, 500);
+    } else if (result.status === "defeat") {
+      if (wasAbility) setAbilityEffect(true);
+      setBattle(result.state);
+      setLog((prev) => [...prev, ...result.log]);
+      setStatus(result.status);
+      setTotalDamageDealt((d) => d + result.damageDealt);
+      setPlayerAnim("attack");
+      setTimeout(() => setPlayerAnim("dead"), 500);
+    } else {
+      // Sequential animation: player first, then monster
+      setIsAnimating(true);
+      setPlayerAnim("attack");
+      if (wasAbility) setAbilityEffect(true);
+      setTimeout(() => {
+        setPlayerAnim("idle");
+        const monsterAttacked = result.log.some((e) => e.actor === "monster");
+        if (monsterAttacked) {
           setMonsterAnim("attack");
-          setTimeout(() => setMonsterAnim("idle"), 550);
-        }, 280);
-      }
+          if (result.monsterSpellCast) setMonsterSpellEffect(result.monsterSpellCast);
+          setTimeout(() => {
+            setMonsterAnim("idle");
+            setBattle(result.state);
+            setLog((prev) => [...prev, ...result.log]);
+            setStatus(result.status);
+            setTotalDamageDealt((d) => d + result.damageDealt);
+            setIsAnimating(false);
+          }, 550);
+        } else {
+          setBattle(result.state);
+          setLog((prev) => [...prev, ...result.log]);
+          setStatus(result.status);
+          setTotalDamageDealt((d) => d + result.damageDealt);
+          setIsAnimating(false);
+        }
+      }, 550);
     }
 
     if (action === "healthPotion" || action === "manaPotion") {
@@ -117,7 +146,9 @@ export function CombatScreen({
     });
   }
 
-  const abilityUsable = status === "ongoing" && canUseAbility(character, battle);
+  const abilityUsable = status === "ongoing" && !isAnimating && canUseAbility(character, battle);
+  const attackPreview = getAttackPreview(character, derived);
+  const abilityPreview = getAbilityPreview(character, derived);
 
   return (
     <div className="screen combat-screen">
@@ -127,12 +158,19 @@ export function CombatScreen({
         {abilityEffect && (
           <AbilityEffect classId={character.classId} onDone={() => setAbilityEffect(false)} />
         )}
+        {monsterSpellEffect && (
+          <MonsterSpellEffect spellName={monsterSpellEffect} onDone={() => setMonsterSpellEffect(null)} />
+        )}
         <div className="battle-side player-side">
           <CharacterSprite
               classId={character.classId}
               size={80}
               state={playerAnim}
               isUnique={equipment.weapon?.rarity === "unique"}
+              statusEffects={[
+                ...(battle.playerPoisonRounds > 0 ? ["poison" as const] : []),
+                ...(battle.playerBurnRounds > 0 ? ["burn" as const] : []),
+              ]}
             />
         </div>
         <div className="battle-side monster-side">
@@ -190,8 +228,10 @@ export function CombatScreen({
 
       {status === "ongoing" && (
         <div className="combat-actions">
-          <button className="action-button" onClick={() => handleAction("attack")}>
+          <button className="action-button" disabled={isAnimating} onClick={() => handleAction("attack")}>
             Attack
+            <span className="action-cost">{attackPreview.label}</span>
+            <span className="action-dmg-type">{attackPreview.type}</span>
           </button>
           <button
             className="action-button ability"
@@ -205,10 +245,11 @@ export function CombatScreen({
                 ? `Cooldown: ${battle.abilityCooldown}`
                 : `${def.ability.manaCost} ${def.resourceName.toLowerCase()}`}
             </span>
+            <span className="action-dmg-type">{abilityPreview.label} · {abilityPreview.type}</span>
           </button>
           <button
             className="action-button potion health"
-            disabled={consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0}
+            disabled={isAnimating || consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0}
             onClick={() => handleAction("healthPotion")}
             title={CONSUMABLES.healthPotion.description}
           >
@@ -222,7 +263,7 @@ export function CombatScreen({
           {def.resourceType === "mana" && (
             <button
               className="action-button potion mana"
-              disabled={consumables.manaPotion <= 0 || battle.manaPotionCooldown > 0}
+              disabled={isAnimating || consumables.manaPotion <= 0 || battle.manaPotionCooldown > 0}
               onClick={() => handleAction("manaPotion")}
               title={CONSUMABLES.manaPotion.description}
             >
@@ -236,7 +277,7 @@ export function CombatScreen({
           )}
           <button
             className="action-button run"
-            disabled={escapeTokens <= 0}
+            disabled={isAnimating || escapeTokens <= 0}
             onClick={onEscape}
             title="Flee the battle. Ends the dungeon run. One use per character."
           >

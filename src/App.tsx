@@ -178,7 +178,7 @@ function App() {
     if (!canPlaceInSlot(sourceItem, to)) return;
 
     const targetItem = equipment[to];
-    const placedItem = sourceItem.slot === to ? sourceItem : { ...sourceItem, slot: to };
+    const placedItem = sourceItem;
     const nextEquipment = { ...equipment, [to]: placedItem };
     let nextInventory = inventory.filter((i) => i.id !== itemId);
 

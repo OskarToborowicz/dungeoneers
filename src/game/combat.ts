@@ -46,6 +46,7 @@ export interface RoundResult {
   log: CombatLogEntry[];
   status: BattleStatus;
   damageDealt: number;
+  monsterSpellCast?: string;
 }
 
 const ALWAYS_MISS_CHANCE = 0.02;
@@ -112,6 +113,57 @@ export function getCritMultiplier(character: Character): number {
 
 export function rollGoldReward(monster: MonsterDefinition): number {
   return randomInRange(monster.goldReward);
+}
+
+export interface DamagePreview {
+  label: string;
+  type: string;
+}
+
+export function getAttackPreview(character: Character, stats: DerivedStats): DamagePreview {
+  const [min, max] = stats.damage;
+  const critChance = getEffectiveCritChance(character, stats);
+  const critMult = getCritMultiplier(character);
+  const critHigh = Math.round(max * critMult);
+  const critPct = Math.round(critChance * 100);
+  return {
+    label: `${min}–${max} (${critPct}% crit → ${critHigh})`,
+    type: "Physical",
+  };
+}
+
+export function getAbilityPreview(character: Character, stats: DerivedStats): DamagePreview {
+  const def = CLASSES[character.classId];
+  const ability = def.ability;
+  const avg = (stats.damage[0] + stats.damage[1]) / 2;
+  const bonus = ability.magic ? stats.magicDamageBonus : 0;
+  const dmgType = ability.magic ? "Magic" : "Physical";
+
+  if (ability.kind === "burst") {
+    const est = Math.round(avg * ability.power + bonus);
+    return { label: `~${est}`, type: dmgType };
+  }
+  if (ability.kind === "dot") {
+    const initial = Math.round(avg * 0.4 + bonus);
+    const tick = Math.round(avg * ability.power * 0.4 + bonus);
+    return { label: `~${initial} + 3×${tick}`, type: "Poison" };
+  }
+  if (ability.kind === "multi") {
+    const hits = ability.hits ?? 2;
+    const est = Math.round(avg * ability.power + bonus);
+    return { label: `${hits}× ~${est}`, type: dmgType };
+  }
+  if (ability.kind === "heal") {
+    const est = Math.round(avg * ability.power + bonus);
+    const heal = Math.round(est * 0.35);
+    return { label: `~${est} + ${heal} heal`, type: dmgType };
+  }
+  if (ability.kind === "bite") {
+    const est = Math.round(avg + stats.stats.dexterity * 1.5);
+    const heal = Math.round(est * 0.15);
+    return { label: `~${est} + ${heal} heal`, type: "Physical" };
+  }
+  return { label: "—", type: dmgType };
 }
 
 export function resolveRound(
@@ -343,7 +395,9 @@ export function resolveRound(
   // Monster spell (replaces normal attack when cast)
   const spell = monster.spell;
   const castSpell = spell && monsterSpellCooldown <= 0 && Math.random() < spell.chance;
+  let monsterSpellCastName: string | undefined;
   if (castSpell && spell) {
+    monsterSpellCastName = spell.name;
     monsterSpellCooldown = spell.cooldown;
     const spellDmg = Math.round(randomInRange(monster.damage) * spell.power);
 
@@ -439,5 +493,5 @@ export function resolveRound(
   }
 
   const status: BattleStatus = playerLife <= 0 ? "defeat" : "ongoing";
-  return { state: makeState(), log, status, damageDealt };
+  return { state: makeState(), log, status, damageDealt, monsterSpellCast: monsterSpellCastName };
 }

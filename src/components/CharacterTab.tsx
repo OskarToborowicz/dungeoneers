@@ -40,16 +40,6 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
         <div>Crit Chance: {Math.round(critChance * 100)}%</div>
       </div>
 
-      <div className="ability-box">
-        <strong>{def.ability.name}</strong>
-        <p>{def.ability.description}</p>
-      </div>
-
-      <div className="ability-box passive-box">
-        <strong>{def.passive.name}</strong>
-        <p>{def.passive.description}</p>
-      </div>
-
       <h3>Attributes {character.unspentStatPoints > 0 && `(${character.unspentStatPoints} points to spend)`}</h3>
       <div className="allocate-grid">
         {(["strength", "dexterity", "vitality", "energy"] as const).map((stat) => (
@@ -59,12 +49,22 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
             <button
               disabled={character.unspentStatPoints <= 0}
               onClick={() => onAllocate(stat)}
-              className="allocate-button"
+              className={`allocate-button${character.unspentStatPoints > 0 ? " allocate-button--glow" : ""}`}
             >
               +
             </button>
           </div>
         ))}
+      </div>
+
+      <div className="ability-box">
+        <strong>{def.ability.name}</strong>
+        <p>{def.ability.description}</p>
+      </div>
+
+      <div className="ability-box passive-box">
+        <strong>{def.passive.name}</strong>
+        <p>{def.passive.description}</p>
       </div>
     </div>
   );

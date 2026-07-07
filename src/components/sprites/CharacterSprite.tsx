@@ -10,6 +10,7 @@ interface Props {
   size?: number;
   state?: SpriteState;
   isUnique?: boolean;
+  statusEffects?: Array<"poison" | "burn">;
 }
 
 export const CLASS_COLORS: Record<ClassId, string> = {
@@ -134,12 +135,14 @@ const WEAPON_BASE: Record<ClassId, (c: string) => ReactNode> = {
   ),
   necromancer: () => (
     <>
-      {/* Pole */}
-      <line x1="56" y1="56" x2="50" y2="-2" strokeWidth="3.5" />
-      {/* Blade outer arc */}
-      <path d="M50 -2 C42 -16 20 -20 16 -4 C22 -2 38 -7 50 -2" fill="none" strokeWidth="3" />
-      {/* Blade inner cutting edge */}
-      <path d="M50 -2 C44 -10 26 -12 18 -3" fill="none" strokeWidth="1.5" />
+      {/* Long pole reaching to feet */}
+      <line x1="57" y1="92" x2="44" y2="-4" strokeWidth="3.5" />
+      {/* Blade spine — sweeps up-left then hooks tip down */}
+      <path d="M44 -4 C28 -32 -4 -24 4 8" fill="none" strokeWidth="3" />
+      {/* Blade cutting edge — tighter inner arc */}
+      <path d="M44 -4 C32 -18 6 -10 6 6" fill="none" strokeWidth="1.5" />
+      {/* Tip point */}
+      <line x1="4" y1="8" x2="6" y2="6" strokeWidth="2.5" strokeLinecap="round" />
     </>
   ),
   sorceress: (c) => (
@@ -183,14 +186,16 @@ const WEAPON_UNIQUE: Record<ClassId, (c: string) => ReactNode> = {
   ),
   necromancer: (c) => (
     <>
-      {/* Pole */}
-      <line x1="56" y1="56" x2="50" y2="-2" strokeWidth="3.5" />
-      {/* Blade outer arc — wider on unique */}
-      <path d="M50 -2 C40 -20 14 -24 10 -4 C18 -2 38 -8 50 -2" fill="none" strokeWidth="3.5" />
+      {/* Long pole reaching to feet */}
+      <line x1="57" y1="92" x2="44" y2="-4" strokeWidth="3.5" />
+      {/* Blade spine — wider sweep, hooks down */}
+      <path d="M44 -4 C24 -36 -8 -26 2 10" fill="none" strokeWidth="3.5" />
       {/* Inner cutting edge */}
-      <path d="M50 -2 C42 -12 22 -14 14 -3" fill="none" strokeWidth="2" />
-      {/* Blade glow */}
-      <path d="M50 -2 C42 -14 22 -16 14 -4" fill={c} fillOpacity="0.25" stroke="none" />
+      <path d="M44 -4 C28 -20 2 -10 4 8" fill="none" strokeWidth="2" />
+      {/* Blade glow fill */}
+      <path d="M44 -4 C26 -28 -4 -18 3 9" fill={c} fillOpacity="0.25" stroke="none" />
+      {/* Tip point */}
+      <line x1="2" y1="10" x2="4" y2="8" strokeWidth="2.5" strokeLinecap="round" />
     </>
   ),
   sorceress: (c) => (
@@ -240,7 +245,7 @@ const WEAPON_UNIQUE: Record<ClassId, (c: string) => ReactNode> = {
   ),
 };
 
-export function CharacterSprite({ classId, size = 64, state = "idle", isUnique = false }: Props) {
+export function CharacterSprite({ classId, size = 64, state = "idle", isUnique = false, statusEffects = [] }: Props) {
   const [animKey, setAnimKey] = useState(0);
   useEffect(() => { setAnimKey((k) => k + 1); }, [state]);
 
@@ -258,6 +263,14 @@ export function CharacterSprite({ classId, size = 64, state = "idle", isUnique =
   return (
     <svg width={size} height={height} viewBox="0 0 64 96" overflow="visible" style={{ display: "block" }}>
       <motion.g key={animKey} animate={getAnimate(state)} transition={getTransition(state)}>
+        {statusEffects.includes("poison") && (
+          <ellipse cx="32" cy="50" rx="28" ry="48" fill="none" stroke="#44cc22" strokeWidth="2.5"
+            className="status-aura-poison" strokeOpacity="0.7" />
+        )}
+        {statusEffects.includes("burn") && (
+          <ellipse cx="32" cy="50" rx="28" ry="48" fill="none" stroke="#ff6600" strokeWidth="2.5"
+            className="status-aura-burn" strokeOpacity="0.7" />
+        )}
         <g
           {...sharedG}
           stroke={classColor}

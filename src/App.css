@@ -93,6 +93,7 @@
   border: 1px solid var(--border-gold);
   border-radius: 4px;
   padding: 10px 12px;
+  margin-top: 20px;
 }
 
 .ability-box strong {
@@ -468,6 +469,18 @@
   border-radius: 4px;
   width: 28px;
   height: 28px;
+  transition: box-shadow 0.2s;
+}
+
+@keyframes allocate-glow-pulse {
+  0%, 100% { box-shadow: 0 0 4px 1px #c8880e, 0 0 8px 2px #c8880e88; }
+  50%       { box-shadow: 0 0 10px 3px #e8a820, 0 0 18px 5px #e8a82066; }
+}
+
+.allocate-button--glow {
+  border-color: #e8a820;
+  color: #e8a820;
+  animation: allocate-glow-pulse 1.2s ease-in-out infinite;
 }
 
 /* ---------- Inventory Tab: Paperdoll ---------- */
@@ -1094,6 +1107,130 @@
   color: #ff8833;
 }
 
+/* Status effect auras on character sprite */
+@keyframes aura-pulse {
+  0%, 100% { stroke-opacity: 0.3; r: 0; }
+  50% { stroke-opacity: 0.85; }
+}
+.status-aura-poison {
+  animation: aura-pulse-poison 1.2s ease-in-out infinite;
+}
+.status-aura-burn {
+  animation: aura-pulse-burn 0.8s ease-in-out infinite;
+}
+@keyframes aura-pulse-poison {
+  0%, 100% { stroke-opacity: 0.25; stroke-width: 1.5; }
+  50% { stroke-opacity: 0.8; stroke-width: 3; }
+}
+@keyframes aura-pulse-burn {
+  0%, 100% { stroke-opacity: 0.3; stroke-width: 2; }
+  50% { stroke-opacity: 0.9; stroke-width: 3.5; }
+}
+
+/* ── Monster spell effect animations ── */
+
+/* Fire Wall */
+@keyframes mse-fire-rise {
+  0%   { transform: scaleY(0); opacity: 0; }
+  15%  { transform: scaleY(1); opacity: 0.95; }
+  75%  { transform: scaleY(1.08); opacity: 0.9; }
+  100% { transform: scaleY(0); opacity: 0; }
+}
+@keyframes mse-fire-glow-pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.5; }
+}
+.mse-fire-pillar { animation: mse-fire-rise 0.85s ease-in-out forwards; }
+.mse-fp-1 { animation-delay: 0s; }
+.mse-fp-2 { animation-delay: 0.07s; }
+.mse-fp-3 { animation-delay: 0.04s; }
+.mse-fire-glow { animation: mse-fire-glow-pulse 0.85s ease-in-out infinite; }
+
+/* Chain Lightning */
+@keyframes mse-bolt-draw {
+  0%   { stroke-dashoffset: 300; opacity: 0; }
+  20%  { stroke-dashoffset: 0; opacity: 1; }
+  70%  { stroke-dashoffset: 0; opacity: 1; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes mse-bolt-impact-flash {
+  0%, 100% { opacity: 0; r: 6; }
+  30%, 60% { opacity: 0.7; r: 14; }
+}
+.mse-bolt-white { stroke-dasharray: 300; animation: mse-bolt-draw 0.85s ease-out forwards; }
+.mse-bolt-glow  { stroke-dasharray: 300; animation: mse-bolt-draw 0.85s ease-out forwards; animation-delay: 0.03s; }
+.mse-bolt-impact { animation: mse-bolt-impact-flash 0.85s ease-out forwards; }
+
+/* Corpse Explosion */
+@keyframes mse-corpse-ring-expand {
+  0%   { r: 4; opacity: 0.9; }
+  100% { r: 44; opacity: 0; }
+}
+@keyframes mse-corpse-burst-out {
+  0%   { transform: scale(0); opacity: 1; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+@keyframes mse-corpse-core-flash {
+  0%, 100% { opacity: 0; r: 4; }
+  20% { opacity: 0.8; r: 12; }
+}
+.mse-corpse-ring   { animation: mse-corpse-ring-expand 0.7s ease-out forwards; }
+.mse-corpse-ring-2 { animation: mse-corpse-ring-expand 0.7s ease-out forwards; animation-delay: 0.1s; }
+.mse-corpse-burst  { animation: mse-corpse-burst-out 0.7s ease-out forwards; }
+.mse-corpse-core   { animation: mse-corpse-core-flash 0.5s ease-out forwards; }
+
+/* Ground Slam */
+@keyframes mse-slam-wave-expand {
+  0%   { rx: 5; ry: 2; opacity: 0.9; }
+  100% { rx: 80; ry: 18; opacity: 0; }
+}
+@keyframes mse-slam-cracks-appear {
+  0%   { transform: scale(0); opacity: 0; }
+  30%  { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1); opacity: 0; }
+}
+@keyframes mse-slam-dust-expand {
+  0%   { rx: 10; opacity: 0.4; }
+  100% { rx: 60; opacity: 0; }
+}
+.mse-slam-w1 { animation: mse-slam-wave-expand 0.75s ease-out forwards; }
+.mse-slam-w2 { animation: mse-slam-wave-expand 0.75s ease-out forwards; animation-delay: 0.1s; }
+.mse-slam-w3 { animation: mse-slam-wave-expand 0.75s ease-out forwards; animation-delay: 0.2s; }
+.mse-slam-cracks { animation: mse-slam-cracks-appear 0.85s ease-out forwards; }
+.mse-slam-dust   { animation: mse-slam-dust-expand 0.85s ease-out forwards; }
+
+/* Blood Drain */
+@keyframes mse-drain-flow {
+  0%   { stroke-dashoffset: 140; opacity: 0; }
+  20%  { opacity: 0.9; }
+  80%  { stroke-dashoffset: -140; opacity: 0.9; }
+  100% { stroke-dashoffset: -140; opacity: 0; }
+}
+@keyframes mse-drain-heal-pulse {
+  0%, 100% { opacity: 0; r: 6; }
+  50% { opacity: 0.5; r: 18; }
+}
+.mse-drain-stream { animation: mse-drain-flow 0.85s ease-in-out forwards; }
+.mse-ds-1 { animation-delay: 0s; }
+.mse-ds-2 { animation-delay: 0.06s; }
+.mse-ds-3 { animation-delay: 0.12s; }
+.mse-drain-heal { animation: mse-drain-heal-pulse 0.85s ease-in-out forwards; }
+
+/* Poison Nova */
+@keyframes mse-nova-expand {
+  0%   { r: 5; opacity: 0.9; stroke-width: 3; }
+  100% { r: 90; opacity: 0; stroke-width: 1; }
+}
+@keyframes mse-nova-dots-ride {
+  0%   { transform: scale(0.1); opacity: 0; }
+  30%  { opacity: 0.9; }
+  100% { transform: scale(5); opacity: 0; }
+}
+.mse-nova-1 { animation: mse-nova-expand 0.85s ease-out forwards; }
+.mse-nova-2 { animation: mse-nova-expand 0.85s ease-out forwards; animation-delay: 0.1s; }
+.mse-nova-3 { animation: mse-nova-expand 0.85s ease-out forwards; animation-delay: 0.2s; }
+.mse-nova-dots { animation: mse-nova-dots-ride 0.85s ease-out forwards; }
+
 .mana-value {
   font-size: 11px;
   color: #6f8fff;
@@ -1200,6 +1337,12 @@
 .action-cost {
   font-size: 11px;
   color: var(--text-dim);
+}
+
+.action-dmg-type {
+  font-size: 10px;
+  color: var(--border-gold);
+  opacity: 0.85;
 }
 
 .combat-result {
