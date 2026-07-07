@@ -26,9 +26,11 @@ export interface BattleState {
   playerBurnRounds: number;
   playerBurnDamage: number;
   trapRounds: number;
+  bloodFuryRounds: number;
+  ability2Cooldown: number;
 }
 
-export type PlayerActionKind = "attack" | "ability" | "healthPotion" | "manaPotion";
+export type PlayerActionKind = "attack" | "ability" | "ability2" | "healthPotion" | "manaPotion";
 
 export type BattleStatus = "ongoing" | "victory" | "defeat";
 
@@ -57,11 +59,23 @@ const DEFAULT_CRIT_MULTIPLIER = 1.50;
 const MANA_REGEN_RATE = 0.05;
 
 // Passives
-const BARBARIAN_BONUS_CRIT_CHANCE = 0.10;
-const BARBARIAN_CRIT_MULTIPLIER = 1.25;
+const BARBARIAN_DOUBLE_SWING_CHANCE = 0.25;
+const BARBARIAN_BLOOD_FURY_DAMAGE_BONUS = 0.20;
+const BARBARIAN_BLOOD_FURY_LIFESTEAL = 0.20;
+const BARBARIAN_BLOOD_FURY_DOUBLE_SWING_BONUS = 0.25;
+const BARBARIAN_IRON_SKIN_REDUCTION_PER_5PCT = 0.02;
+const BARBARIAN_MADNESS_DAMAGE_BONUS = 0.15;
+const BARBARIAN_MADNESS_FURY_BONUS = 5;
+const BARBARIAN_MADNESS_FURY_THRESHOLD = 30;
 const SORCERESS_ATTACK_MANA_REGEN_RATE = 0.2;
 const PALADIN_DAMAGE_TAKEN_HEAL = 0.15;
 const NECROMANCER_POISON_LIFESTEAL = 0.1;
+
+function getIronSkinReduction(character: Character, currentLife: number, maxLife: number): number {
+  if (character.classId !== "barbarian" || character.level < 20) return 0;
+  const missingPct = Math.max(0, (1 - currentLife / maxLife) * 100);
+  return Math.floor(missingPct / 5) * BARBARIAN_IRON_SKIN_REDUCTION_PER_5PCT;
+}
 
 function rollHitChance(attackRating: number, defense: number): number {
   const chance = attackRating / (attackRating + defense * 2);
@@ -98,13 +112,22 @@ export function createBattleState(
     playerBurnRounds: 0,
     playerBurnDamage: 0,
     trapRounds: 0,
+    bloodFuryRounds: 0,
+    ability2Cooldown: 0,
   };
 }
 
 export function canUseAbility(character: Character, state: BattleState): boolean {
   const def = CLASSES[character.classId];
   if (def.ability.kind === "trap" && state.trapRounds > 0) return false;
+  if (def.ability.kind === "buff" && state.bloodFuryRounds > 0) return false;
   return state.playerMana >= def.ability.manaCost && state.abilityCooldown <= 0;
+}
+
+export function canUseAbility2(character: Character, state: BattleState): boolean {
+  const def = CLASSES[character.classId];
+  if (!def.ability2) return false;
+  return state.playerMana >= def.ability2.manaCost && state.ability2Cooldown <= 0;
 }
 
 const AMAZON_FIND_WEAKNESS_CRIT = 0.15;
@@ -112,11 +135,11 @@ const AMAZON_DODGE_CHANCE = 0.15;
 
 export function getEffectiveCritChance(character: Character, stats: DerivedStats): number {
   const amazonBonus = character.classId === "amazon" && character.level >= 20 ? AMAZON_FIND_WEAKNESS_CRIT : 0;
-  return Math.min(0.9, stats.critChance + (character.classId === "barbarian" ? BARBARIAN_BONUS_CRIT_CHANCE : 0) + amazonBonus);
+  return Math.min(0.9, stats.critChance + amazonBonus);
 }
 
-export function getCritMultiplier(character: Character): number {
-  return character.classId === "barbarian" ? BARBARIAN_CRIT_MULTIPLIER : DEFAULT_CRIT_MULTIPLIER;
+export function getCritMultiplier(_character: Character): number {
+  return DEFAULT_CRIT_MULTIPLIER;
 }
 
 export function rollGoldReward(monster: MonsterDefinition): number {
@@ -147,6 +170,9 @@ export function getAbilityPreview(character: Character, stats: DerivedStats): Da
   const bonus = ability.magic ? stats.magicDamageBonus : 0;
   const dmgType = ability.magic ? "Magic" : "Physical";
 
+  if (ability.kind === "buff") {
+    return { label: "3 turns", type: "Buff" };
+  }
   if (ability.kind === "burst") {
     const est = Math.round(avg * ability.power + bonus);
     return { label: `~${est}`, type: dmgType };
@@ -178,6 +204,18 @@ export function getAbilityPreview(character: Character, stats: DerivedStats): Da
   return { label: "—", type: dmgType };
 }
 
+export function getAbility2Preview(character: Character, stats: DerivedStats): DamagePreview {
+  const def = CLASSES[character.classId];
+  if (!def.ability2) return { label: "—", type: "Physical" };
+  const ability = def.ability2;
+  if (ability.kind === "obliterate") {
+    const avg = Math.round((stats.damage[0] + stats.damage[1]) / 2);
+    const est = avg + stats.stats.strength;
+    return { label: `~${est} + kill heal`, type: "Physical" };
+  }
+  return { label: "—", type: "Physical" };
+}
+
 export function resolveRound(
   character: Character,
   stats: DerivedStats,
@@ -191,16 +229,91 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown } = state;
   let damageDealt = 0;
   let trapDetonated = false;
+
+  const doBasicAttack = () => {
+    const hitChance = 1 - ALWAYS_MISS_CHANCE;
+    let damageMult = 1.0;
+    if (bloodFuryRounds > 0) damageMult *= 1 + BARBARIAN_BLOOD_FURY_DAMAGE_BONUS;
+    if (character.classId === "barbarian" && character.level >= 35 && playerMana > BARBARIAN_MADNESS_FURY_THRESHOLD) damageMult *= 1 + BARBARIAN_MADNESS_DAMAGE_BONUS;
+    let basicHitDmg = 0;
+    let basicHitCrit = false;
+
+    if (Math.random() < hitChance) {
+      const isCrit = Math.random() < critChance;
+      basicHitCrit = isCrit;
+      let dmg = Math.round(randomInRange(stats.damage) * damageMult);
+      if (isCrit) dmg = Math.round(dmg * critMultiplier);
+      monsterLife -= dmg;
+      damageDealt += dmg;
+      basicHitDmg = dmg;
+
+      let attackMsg = isCrit ? `Critical hit! You deal ${dmg} damage.` : `You attack for ${dmg} damage.`;
+      if (bloodFuryRounds > 0) {
+        const stolen = Math.round(dmg * BARBARIAN_BLOOD_FURY_LIFESTEAL);
+        if (stolen > 0) {
+          playerLife = Math.min(stats.maxLife, playerLife + stolen);
+          attackMsg += ` Blood Fury steals ${stolen} life.`;
+        }
+      }
+      log.push({ actor: "player", message: attackMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+    } else {
+      log.push({ actor: "player", message: "Your attack misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+    }
+
+    if (def.resourceType === "fury") {
+      const madnessFuryBonus = character.classId === "barbarian" && character.level >= 35 ? BARBARIAN_MADNESS_FURY_BONUS : 0;
+      playerMana = Math.min(stats.maxMana, playerMana + FURY_PER_ATTACK + madnessFuryBonus);
+    }
+
+    if (character.classId === "amazon" && character.level >= 35 && basicHitCrit && basicHitDmg > 0 && monsterLife > 0) {
+      const heartseekerDmg = Math.round(basicHitDmg * 0.5);
+      monsterLife -= heartseekerDmg;
+      damageDealt += heartseekerDmg;
+      log.push({ actor: "player", message: `Heartseeker fires for ${heartseekerDmg} damage!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+    }
+
+    if (character.classId === "assassin" && character.level >= 20 && basicHitDmg > 0) {
+      poisonRounds = 2;
+      poisonDamage = Math.round(basicHitDmg * 0.30);
+      log.push({ actor: "player", message: `Venom seeps in — ${poisonDamage} poison per turn for 2 turns.`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+    }
+
+    const doubleSwingChance = BARBARIAN_DOUBLE_SWING_CHANCE + (bloodFuryRounds > 0 ? BARBARIAN_BLOOD_FURY_DOUBLE_SWING_BONUS : 0);
+    if (character.classId === "barbarian" && monsterLife > 0 && Math.random() < doubleSwingChance) {
+      const hitChance2 = 1 - ALWAYS_MISS_CHANCE;
+      if (Math.random() < hitChance2) {
+        const isCrit2 = Math.random() < critChance;
+        let dmg2 = Math.round(randomInRange(stats.damage) * damageMult);
+        if (isCrit2) dmg2 = Math.round(dmg2 * critMultiplier);
+        monsterLife -= dmg2;
+        damageDealt += dmg2;
+
+        let swingMsg = isCrit2 ? `Double Swing! Critical hit — ${dmg2} damage!` : `Double Swing! You strike again for ${dmg2} damage.`;
+        if (bloodFuryRounds > 0) {
+          const stolen2 = Math.round(dmg2 * BARBARIAN_BLOOD_FURY_LIFESTEAL);
+          if (stolen2 > 0) {
+            playerLife = Math.min(stats.maxLife, playerLife + stolen2);
+            swingMsg += ` Blood Fury steals ${stolen2} life.`;
+          }
+        }
+        log.push({ actor: "player", message: swingMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+      } else {
+        log.push({ actor: "player", message: "Double Swing! Your second strike misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+      }
+    }
+  };
 
   if (monsterLife > 0) {
     const useAbility = action === "ability" && playerMana >= def.ability.manaCost && abilityCooldown <= 0;
 
     if (useAbility) {
       playerMana -= def.ability.manaCost;
-      abilityCooldown = def.ability.cooldown;
+      if (def.ability.kind !== "buff") {
+        abilityCooldown = def.ability.cooldown;
+      }
 
       if (def.ability.canMiss !== false && Math.random() < ALWAYS_MISS_CHANCE) {
         log.push({
@@ -209,6 +322,15 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+      } else if (def.ability.kind === "buff") {
+        bloodFuryRounds = 3;
+        log.push({
+          actor: "player",
+          message: "Blood Fury ignites! You surge with primal power.",
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+        doBasicAttack();
       } else if (def.ability.kind === "burst") {
         const dmg = rollAbilityDamage(stats, def.ability.power, def.ability.magic);
         monsterLife -= dmg;
@@ -299,6 +421,30 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
       }
+    } else if (action === "ability2" && def.ability2 && playerMana >= def.ability2.manaCost && ability2Cooldown <= 0) {
+      const furyBeforeCost = playerMana;
+      playerMana -= def.ability2.manaCost;
+      ability2Cooldown = def.ability2.cooldown;
+
+      if (def.ability2.kind === "obliterate") {
+        const madnessMult = character.classId === "barbarian" && character.level >= 35 && furyBeforeCost > BARBARIAN_MADNESS_FURY_THRESHOLD ? 1 + BARBARIAN_MADNESS_DAMAGE_BONUS : 1.0;
+        const baseDmg = randomInRange(stats.damage);
+        const strBonus = stats.stats.strength;
+        const dmg = Math.round((baseDmg + strBonus) * madnessMult);
+        const killingBlow = monsterLife - dmg <= 0;
+        monsterLife -= dmg;
+        damageDealt += dmg;
+        const healAmt = killingBlow ? Math.round(stats.maxLife * 0.10) : 0;
+        if (healAmt > 0) playerLife = Math.min(stats.maxLife, playerLife + healAmt);
+        log.push({
+          actor: "player",
+          message: killingBlow
+            ? `Obliterate! You deal ${dmg} damage (${baseDmg} + ${strBonus} str) — killing blow! You recover ${healAmt} life.`
+            : `Obliterate! You deal ${dmg} damage (${baseDmg} + ${strBonus} str).`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+      }
     } else if (action === "healthPotion" && healthPotionCooldown <= 0) {
       const before = playerLife;
       playerLife = Math.min(stats.maxLife, playerLife + Math.round(stats.maxLife * POTION_RESTORE_RATE));
@@ -320,62 +466,18 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
     } else {
-      const hitChance = 1 - ALWAYS_MISS_CHANCE;
-      let basicHitDmg = 0;
-      let basicHitCrit = false;
-      if (Math.random() < hitChance) {
-        const isCrit = Math.random() < critChance;
-        basicHitCrit = isCrit;
-        let dmg = randomInRange(stats.damage);
-        if (isCrit) dmg = Math.round(dmg * critMultiplier);
-        monsterLife -= dmg;
-        damageDealt += dmg;
-        basicHitDmg = dmg;
-        log.push({
-          actor: "player",
-          message: isCrit ? `Critical hit! You deal ${dmg} damage.` : `You attack for ${dmg} damage.`,
-          playerLife: Math.max(0, playerLife),
-          monsterLife: Math.max(0, monsterLife),
-        });
-      } else {
-        log.push({
-          actor: "player",
-          message: "Your attack misses.",
-          playerLife: Math.max(0, playerLife),
-          monsterLife: Math.max(0, monsterLife),
-        });
-      }
-
-      if (def.resourceType === "fury") {
-        playerMana = Math.min(stats.maxMana, playerMana + FURY_PER_ATTACK);
-      }
-      if (character.classId === "amazon" && character.level >= 35 && basicHitCrit && basicHitDmg > 0 && monsterLife > 0) {
-        const heartseekerDmg = Math.round(basicHitDmg * 0.5);
-        monsterLife -= heartseekerDmg;
-        damageDealt += heartseekerDmg;
-        log.push({
-          actor: "player",
-          message: `Heartseeker fires for ${heartseekerDmg} damage!`,
-          playerLife: Math.max(0, playerLife),
-          monsterLife: Math.max(0, monsterLife),
-        });
-      }
-      if (character.classId === "assassin" && character.level >= 20 && basicHitDmg > 0) {
-        poisonRounds = 2;
-        poisonDamage = Math.round(basicHitDmg * 0.30);
-        log.push({
-          actor: "player",
-          message: `Venom seeps in — ${poisonDamage} poison per turn for 2 turns.`,
-          playerLife: Math.max(0, playerLife),
-          monsterLife: Math.max(0, monsterLife),
-        });
-      }
+      doBasicAttack();
     }
   }
 
   if (abilityCooldown > 0) abilityCooldown -= 1;
+  if (ability2Cooldown > 0) ability2Cooldown -= 1;
   if (healthPotionCooldown > 0) healthPotionCooldown -= 1;
   if (manaPotionCooldown > 0) manaPotionCooldown -= 1;
+  if (bloodFuryRounds > 0) {
+    bloodFuryRounds -= 1;
+    if (bloodFuryRounds === 0) abilityCooldown = def.ability.cooldown;
+  }
   if (def.resourceType === "mana" && playerMana < stats.maxMana) {
     const isSorceressAttackRegen = character.classId === "sorceress" && action === "attack";
     const regenRate = isSorceressAttackRegen ? SORCERESS_ATTACK_MANA_REGEN_RATE : MANA_REGEN_RATE;
@@ -398,6 +500,8 @@ export function resolveRound(
       playerBurnRounds,
       playerBurnDamage,
       trapRounds,
+      bloodFuryRounds,
+      ability2Cooldown,
     };
   }
 
@@ -472,6 +576,8 @@ export function resolveRound(
     let spellDmg = Math.round(randomInRange(monster.damage) * spell.power);
     const fadedSpell = character.classId === "assassin" && Math.random() < 0.25;
     if (fadedSpell) spellDmg = Math.max(1, Math.round(spellDmg * 0.55));
+    const ironSkinSpell = getIronSkinReduction(character, playerLife, stats.maxLife);
+    if (ironSkinSpell > 0) spellDmg = Math.max(1, Math.round(spellDmg * (1 - ironSkinSpell)));
 
     if (spell.kind === "burst") {
       playerLife -= spellDmg;
@@ -543,6 +649,8 @@ export function resolveRound(
 
       const fadedNormal = character.classId === "assassin" && Math.random() < 0.25;
       if (fadedNormal) dmg = Math.max(1, Math.round(dmg * 0.55));
+      const ironSkin = getIronSkinReduction(character, playerLife, stats.maxLife);
+      if (ironSkin > 0) dmg = Math.max(1, Math.round(dmg * (1 - ironSkin)));
 
       playerLife -= dmg;
 
@@ -555,6 +663,7 @@ export function resolveRound(
         message += ` Thick Hide absorbs ${reductionPct}%.`;
       }
       if (fadedNormal) message += " Fade reduces the blow by 45%.";
+      if (ironSkin > 0) message += ` Iron Skin absorbs ${Math.round(ironSkin * 100)}%.`;
 
       if (character.classId === "paladin") {
         const healBack = Math.round(dmg * PALADIN_DAMAGE_TAKEN_HEAL);

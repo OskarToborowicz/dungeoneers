@@ -1423,6 +1423,12 @@
   color: #ff8833;
 }
 
+.status-pill.blood-fury {
+  background: rgba(180, 20, 20, 0.22);
+  border: 1px solid #cc2222;
+  color: #ff5555;
+}
+
 /* Status effect auras on character sprite */
 @keyframes aura-pulse {
   0%, 100% { stroke-opacity: 0.3; r: 0; }

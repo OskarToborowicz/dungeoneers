@@ -5,11 +5,13 @@ import { xpToNextLevel } from "../game/character";
 import type { DerivedStats } from "../game/character";
 import {
   canUseAbility,
+  canUseAbility2,
   createBattleState,
   resolveRound,
   rollGoldReward,
   getAttackPreview,
   getAbilityPreview,
+  getAbility2Preview,
   type BattleState,
   type BattleStatus,
   type CombatLogEntry,
@@ -83,7 +85,7 @@ export function CombatScreen({
     if (action === "healthPotion" && (consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0)) return;
     if (action === "manaPotion" && (consumables.manaPotion <= 0 || battle.manaPotionCooldown > 0)) return;
 
-    const wasAbility = action === "ability" && canUseAbility(character, battle);
+    const wasAbility = (action === "ability" && canUseAbility(character, battle)) || (action === "ability2" && canUseAbility2(character, battle));
     const result = resolveRound(character, derived, monster, battle, action);
 
     if (result.status === "victory") {
@@ -167,8 +169,10 @@ export function CombatScreen({
   }
 
   const abilityUsable = status === "ongoing" && !isAnimating && canUseAbility(character, battle);
+  const ability2Usable = status === "ongoing" && !isAnimating && canUseAbility2(character, battle);
   const attackPreview = getAttackPreview(character, derived);
   const abilityPreview = getAbilityPreview(character, derived);
+  const ability2Preview = getAbility2Preview(character, derived);
 
   return (
     <div className="screen combat-screen">
@@ -272,8 +276,11 @@ export function CombatScreen({
               </button>
             )}
           </div>
-          {(battle.playerPoisonRounds > 0 || battle.playerBurnRounds > 0) && (
+          {(battle.playerPoisonRounds > 0 || battle.playerBurnRounds > 0 || battle.bloodFuryRounds > 0) && (
             <div className="status-effects">
+              {battle.bloodFuryRounds > 0 && (
+                <span className="status-pill blood-fury">Blood Fury {battle.bloodFuryRounds}</span>
+              )}
               {battle.playerPoisonRounds > 0 && (
                 <span className="status-pill poison">☠ Poison {battle.playerPoisonRounds}</span>
               )}
@@ -331,12 +338,30 @@ export function CombatScreen({
             <span className="action-cost">
               {battle.trapRounds > 0
                 ? `Trap detonates in ${battle.trapRounds}`
+                : battle.bloodFuryRounds > 0
+                ? `Active: ${battle.bloodFuryRounds} turns`
                 : battle.abilityCooldown > 0
                 ? `Cooldown: ${battle.abilityCooldown}`
                 : `${def.ability.manaCost} ${def.resourceName.toLowerCase()}`}
             </span>
             <span className="action-dmg-type">{abilityPreview.label} · {abilityPreview.type}</span>
           </button>
+          {def.ability2 && (
+            <button
+              className="action-button ability"
+              disabled={!ability2Usable}
+              onClick={() => handleAction("ability2")}
+              title={def.ability2.description}
+            >
+              {def.ability2.name}
+              <span className="action-cost">
+                {battle.ability2Cooldown > 0
+                  ? `Cooldown: ${battle.ability2Cooldown}`
+                  : `${def.ability2.manaCost} ${def.resourceName.toLowerCase()}`}
+              </span>
+              <span className="action-dmg-type">{ability2Preview.label} · {ability2Preview.type}</span>
+            </button>
+          )}
           <button
             className="action-button run"
             disabled={isAnimating || escapeTokens <= 0}
