@@ -63,6 +63,7 @@ export function Hub({
   onDismissDroppedItem,
 }: Props) {
   const [tab, setTab] = useState<TabId>("character");
+  const [selectedAct, setSelectedAct] = useState<1 | 2>(1);
 
   return (
     <div className="screen hub-screen" style={{ "--class-color": CLASS_COLORS[character.classId] } as CSSProperties}>
@@ -146,7 +147,7 @@ export function Hub({
             />
           )}
           {tab === "dungeons" && (
-            <DungeonsTab clearedDungeons={clearedDungeons} onStart={onStartDungeon} />
+            <DungeonsTab clearedDungeons={clearedDungeons} onStart={onStartDungeon} selectedAct={selectedAct} onSelectAct={setSelectedAct} />
           )}
         </div>
       </div>

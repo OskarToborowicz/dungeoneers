@@ -28,6 +28,7 @@ export interface BattleState {
   trapRounds: number;
   bloodFuryRounds: number;
   ability2Cooldown: number;
+  frozenRounds: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "ability2" | "healthPotion" | "manaPotion";
@@ -114,6 +115,7 @@ export function createBattleState(
     trapRounds: 0,
     bloodFuryRounds: 0,
     ability2Cooldown: 0,
+    frozenRounds: 0,
   };
 }
 
@@ -213,6 +215,11 @@ export function getAbility2Preview(character: Character, stats: DerivedStats): D
     const est = avg + stats.stats.strength;
     return { label: `~${est} + kill heal`, type: "Physical" };
   }
+  if (ability.kind === "freeze") {
+    const avg = Math.round((stats.damage[0] + stats.damage[1]) / 2);
+    const dexBonus = Math.round(stats.stats.dexterity * 0.5);
+    return { label: `~${avg + dexBonus} + freeze`, type: "Physical" };
+  }
   return { label: "—", type: "Physical" };
 }
 
@@ -229,7 +236,7 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds } = state;
   let damageDealt = 0;
   let trapDetonated = false;
 
@@ -426,7 +433,28 @@ export function resolveRound(
       playerMana -= def.ability2.manaCost;
       ability2Cooldown = def.ability2.cooldown;
 
-      if (def.ability2.kind === "obliterate") {
+      if (def.ability2.kind === "freeze") {
+        if (def.ability2.canMiss !== false && Math.random() < ALWAYS_MISS_CHANCE) {
+          log.push({ actor: "player", message: "Your Freezing Shot misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+        } else {
+          const baseDmg = randomInRange(stats.damage);
+          const dexBonus = Math.round(stats.stats.dexterity * 0.5);
+          const isCrit = Math.random() < critChance;
+          let dmg = baseDmg + dexBonus;
+          if (isCrit) dmg = Math.round(dmg * critMultiplier);
+          monsterLife -= dmg;
+          damageDealt += dmg;
+          frozenRounds = 2;
+          log.push({
+            actor: "player",
+            message: isCrit
+              ? `Critical hit! Freezing Shot strikes for ${dmg} damage (${baseDmg} + ${dexBonus} dex) — the target is frozen!`
+              : `Freezing Shot strikes for ${dmg} damage (${baseDmg} + ${dexBonus} dex) — the target is frozen!`,
+            playerLife: Math.max(0, playerLife),
+            monsterLife: Math.max(0, monsterLife),
+          });
+        }
+      } else if (def.ability2.kind === "obliterate") {
         const madnessMult = character.classId === "barbarian" && character.level >= 35 && furyBeforeCost > BARBARIAN_MADNESS_FURY_THRESHOLD ? 1 + BARBARIAN_MADNESS_DAMAGE_BONUS : 1.0;
         const baseDmg = randomInRange(stats.damage);
         const strBonus = stats.stats.strength;
@@ -502,6 +530,7 @@ export function resolveRound(
       trapRounds,
       bloodFuryRounds,
       ability2Cooldown,
+      frozenRounds,
     };
   }
 
@@ -557,10 +586,25 @@ export function resolveRound(
 
   if (monsterSpellCooldown > 0) monsterSpellCooldown -= 1;
 
+  let monsterSpellCastName: string | undefined;
+
+  // Frozen — monster skips its action entirely
+  const monsterActsThisTurn = frozenRounds <= 0;
+  if (frozenRounds > 0) {
+    frozenRounds -= 1;
+    log.push({
+      actor: "monster",
+      message: `${monster.name} is frozen solid and cannot act!`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+  }
+
+  if (monsterActsThisTurn) {
+
   // Monster spell (replaces normal attack when cast)
   const spell = monster.spell;
   const castSpell = spell && monsterSpellCooldown <= 0 && Math.random() < spell.chance;
-  let monsterSpellCastName: string | undefined;
   if (castSpell && spell) {
     monsterSpellCastName = spell.name;
     monsterSpellCooldown = spell.cooldown;
@@ -686,6 +730,8 @@ export function resolveRound(
       });
     }
   }
+
+  } // end monsterActsThisTurn
 
   // Fire Trap detonation — after monster acts
   if (trapRounds === 0 && state.trapRounds > 0) {

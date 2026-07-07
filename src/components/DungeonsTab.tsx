@@ -1,12 +1,13 @@
-import { useState } from "react";
 import { DUNGEONS } from "../game/data/dungeons";
 
 interface Props {
   clearedDungeons: string[];
   onStart: (dungeonId: string) => void;
+  selectedAct: 1 | 2;
+  onSelectAct: (act: 1 | 2) => void;
 }
 
-export function DungeonsTab({ clearedDungeons, onStart }: Props) {
+export function DungeonsTab({ clearedDungeons, onStart, selectedAct, onSelectAct }: Props) {
   const act1Regular = DUNGEONS.filter((d) => d.act === 1 && !d.endgame);
   const act1Endgame = DUNGEONS.filter((d) => d.act === 1 && d.endgame);
   const act2Regular = DUNGEONS.filter((d) => d.act === 2 && !d.endgame);
@@ -16,7 +17,6 @@ export function DungeonsTab({ clearedDungeons, onStart }: Props) {
   const allAct1RegularCleared = act1Regular.every((d) => clearedDungeons.includes(d.id));
   const allAct2RegularCleared = act2Regular.every((d) => clearedDungeons.includes(d.id));
 
-  const [selectedAct, setSelectedAct] = useState<1 | 2>(1);
   const act = selectedAct;
 
   const regularDungeons = act === 1 ? act1Regular : act2Regular;
@@ -33,13 +33,13 @@ export function DungeonsTab({ clearedDungeons, onStart }: Props) {
           <div className="act-selector">
             <button
               className={`act-tab${act === 1 ? " active" : ""}`}
-              onClick={() => setSelectedAct(1)}
+              onClick={() => onSelectAct(1)}
             >
               Act 1
             </button>
             <button
               className={`act-tab${act === 2 ? " active" : ""}`}
-              onClick={() => setSelectedAct(2)}
+              onClick={() => onSelectAct(2)}
             >
               Act 2
             </button>

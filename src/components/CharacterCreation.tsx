@@ -42,14 +42,42 @@ export function CharacterCreation({ onCreate }: Props) {
             {selected.name}
           </h2>
           <p className="class-desc">{selected.description}</p>
-          <div className="ability-box">
+          <div className="ability-box ability-box--compact">
             <strong>{selected.ability.name}</strong>
-            <p>{selected.ability.description}</p>
+            <p>{selected.ability.short ?? selected.ability.description}</p>
           </div>
-          <div className="ability-box passive-box">
+
+          {selected.ability2 && (
+            <div className="ability-box ability-box--compact">
+              <strong>{selected.ability2.name}</strong>
+              <p>{selected.ability2.short ?? selected.ability2.description}</p>
+            </div>
+          )}
+
+          <div className="ability-box ability-box--compact passive-box">
             <strong>{selected.passive.name}</strong>
-            <p>{selected.passive.description}</p>
+            <p>{selected.passive.short ?? selected.passive.description}</p>
           </div>
+
+          {selected.passive2 && (
+            <div className="ability-box ability-box--compact passive-box passive-locked">
+              <strong>
+                {selected.passive2.name}{" "}
+                <span className="passive-lock-level">(lv. {selected.passive2.levelRequirement})</span>
+              </strong>
+              <p>{selected.passive2.short ?? selected.passive2.description}</p>
+            </div>
+          )}
+
+          {selected.passive3 && (
+            <div className="ability-box ability-box--compact passive-box passive-locked">
+              <strong>
+                {selected.passive3.name}{" "}
+                <span className="passive-lock-level">(lv. {selected.passive3.levelRequirement})</span>
+              </strong>
+              <p>{selected.passive3.short ?? selected.passive3.description}</p>
+            </div>
+          )}
         </div>
       </div>
 

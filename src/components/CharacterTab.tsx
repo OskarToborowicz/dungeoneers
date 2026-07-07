@@ -59,8 +59,22 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
 
       <div className="ability-box">
         <strong>{def.ability.name}</strong>
+        <div className="ability-cost">
+          {def.resourceName}: {def.ability.manaCost}
+          {def.ability.cooldown > 0 ? ` · ${def.ability.cooldown}-turn cooldown` : ""}
+        </div>
         <p>{def.ability.description}</p>
       </div>
+
+      {def.ability2 && (
+        <div className="ability-box">
+          <strong>{def.ability2.name}</strong>
+          <div className="ability-cost">
+            {def.resourceName}: {def.ability2.manaCost} · {def.ability2.cooldown}-turn cooldown
+          </div>
+          <p>{def.ability2.description}</p>
+        </div>
+      )}
 
       <div className="ability-box passive-box">
         <strong>{def.passive.name}</strong>

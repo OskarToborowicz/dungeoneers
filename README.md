@@ -30,10 +30,10 @@ Seven classes are available, each with a unique resource type, active ability, a
 
 | Class | Resource | Weapon | Playstyle |
 |---|---|---|---|
-| Barbarian | Fury | Axe | Melee berserker, rage-fueled combatant |
+| Barbarian | Fury | Axe | Melee berserker, rage-fueled combatant — 2 active abilities |
 | Necromancer | Mana | Scythe | Poison DoT with lifesteal |
 | Sorceress | Mana | War Staff | Magic burst damage |
-| Amazon | Mana | Bow | Multi-hit ranged |
+| Amazon | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities |
 | Paladin | Mana | Mace | Tank/sustain, converts damage to life |
 | Druid | Mana | Totem | Dex-scaling melee with lifesteal and damage reduction |
 | Assassin | Mana | Claw | Dex-scaling trap setter; trap detonates after monster's turn |
@@ -203,6 +203,7 @@ Combat is turn-based. The player chooses one action per round; the monster then 
 |---|---|
 | Attack | Basic weapon hit, 98% hit rate, crit possible |
 | Ability | Class active skill (costs mana/fury, has cooldown) |
+| Ability 2 | Second active skill — available on Barbarian and Amazon |
 | Health Potion | Restores 35% of max life; 3-turn cooldown |
 | Mana Potion | Restores 35% of max mana/fury; 3-turn cooldown |
 | Flee | Spends an Escape Token to end the dungeon run safely |
@@ -264,6 +265,9 @@ Active status effects are shown as colored pills below each combatant's HP bar a
 | Effect | Trigger | Display |
 |---|---|---|
 | ☠ Poison N | Necromancer Poison Dagger | Green pill, remaining tick count |
+| ❄ Frozen N | Amazon Freezing Shot | Blue pill, remaining frozen turns |
+
+**Frozen** prevents the monster from acting entirely for the duration. The monster still appears on its turn in the combat log with a "frozen solid" message, but deals no damage and casts no spells.
 
 **On the player** (applied by boss spells):
 
@@ -278,15 +282,17 @@ Both DoTs tick at the start of the monster's turn (after the player acts, before
 
 Each class ability triggers a short SVG overlay animation (≈800 ms) over the battle arena when used:
 
-| Class | Animation |
-|---|---|
-| Barbarian | Red spinning vortex (Blood Fury activation) |
-| Necromancer | Dagger thrust + green/purple poison clouds |
-| Sorceress | Expanding fireball with rays |
-| Amazon | Two arrows flying toward the enemy |
-| Paladin | Golden holy cross with radiant pulse |
-| Druid | Three green claw slashes |
-| Assassin | Blue trap placed; cyan explosion on detonation |
+| Class | Ability | Animation |
+|---|---|---|
+| Barbarian | Blood Fury | Red spinning vortex |
+| Barbarian | Obliterate | Red spinning vortex |
+| Necromancer | Poison Dagger | Dagger thrust + green/purple poison clouds |
+| Sorceress | Fireball | Expanding fireball with rays |
+| Amazon | Multishot | Two green arrows flying toward the enemy |
+| Amazon | Freezing Shot | Icy blue arrow flying toward the enemy + frost explosion on impact |
+| Paladin | Holy Bolt | Golden holy cross with radiant pulse |
+| Druid | Werewolf Bite | Three green claw slashes |
+| Assassin | Fire Trap | Blue trap placed on field; cyan explosion on detonation |
 
 ### Monster Spells
 
@@ -363,6 +369,16 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Cooldown**: 2 turns
 - **Damage per hit**: `round(randomInRange(damage) × 0.55)` — each hit rolls crit independently
 
+### Amazon — Freezing Shot *(Ability 2)*
+- **Kind**: freeze (physical — no magic bonus)
+- **Mana Cost**: 40
+- **Cooldown**: 5 turns
+- **Damage**: `randomInRange(weaponDamage) + round(dexterity × 0.5)` — weapon roll plus half Dexterity as flat bonus
+- **Crit**: standard crit roll applies; crits scale the full combined damage
+- **Freeze**: on hit, sets `frozenRounds = 2` — the monster skips its action entirely for the next 2 turns
+- **Miss**: subject to the standard 2% always-miss chance; on miss no freeze is applied
+- **Status display**: ❄ Frozen N pill appears below the monster's HP bar while frozen
+
 ### Paladin — Holy Bolt
 - **Kind**: heal (magic — gains `magicDamageBonus`)
 - **Mana Cost**: 20
@@ -422,8 +438,15 @@ reduction = floor(missingLifePct / 5) × 2%
 ### Sorceress — Arcane Flow
 - On a basic attack, regenerates **20% of max mana** (replaces the standard 5% regen for that round).
 
-### Amazon — Precise Strikes
-- Each of Multishot's two arrows rolls its own critical hit independently, so both can crit in a single cast.
+### Amazon — Dodge *(always active)*
+- **15% chance** to completely avoid any incoming attack or spell. Applies to both normal monster attacks and boss spell casts.
+
+### Amazon — Find Weakness *(unlocks at level 20)*
+- Increases Critical Strike Chance by **+15%** (stacks with the Dexterity-based base crit, recapped at 90%).
+
+### Amazon — Heartseeker *(unlocks at level 35)*
+- After any Critical Strike, fires a **bonus follow-up arrow** dealing **50% of the crit's damage**. The follow-up arrow cannot itself critically strike.
+- Triggers on basic attacks and on each individual Multishot arrow that crits.
 
 ### Paladin — Divine Retribution
 - On every hit taken, heals **15% of the incoming damage**.
@@ -435,8 +458,11 @@ reduction = min(0.25, dexterity × 0.002)
 ```
 At 50 Dex: 10% reduction. At 100 Dex: 20%. The 25% cap is reached at 125 Dex.
 
-### Assassin — Shadow Step
-- Basic attacks deal **+20% bonus damage**.
+### Assassin — Fade *(always active)*
+- **25% chance** to reduce incoming physical or spell damage by **45%**.
+
+### Assassin — Venom *(unlocks at level 20)*
+- Basic attacks **poison the enemy for 2 turns**, dealing **30% of the hit's damage** per tick. Replaces any existing poison on the target.
 
 ---
 

@@ -11,20 +11,24 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     passive: {
       name: "Double Swing",
       description: "25% chance to strike a second time after a basic attack. The follow-up can hit, miss, and crit independently.",
+      short: "Chance to strike a second time after each basic attack.",
     },
     passive2: {
       name: "Iron Skin",
       description: "For every 5% of maximum life missing, reduce incoming damage by 2%.",
+      short: "The lower your life, the more damage you reduce.",
       levelRequirement: 20,
     },
     passive3: {
       name: "Madness",
       description: "While Fury exceeds 30, deal 15% increased damage. Attacks generate 5 additional Fury.",
+      short: "High Fury increases damage and Fury gained per attack.",
       levelRequirement: 35,
     },
     ability: {
       name: "Blood Fury",
       description: "Enter a blood rage for 3 turns, gaining 20% Life Steal, +25% Double Swing chance, and +20% damage. You still attack on the turn you activate it. Cooldown begins after the buff fades.",
+      short: "Enter a battle rage granting life steal, bonus damage, and more Double Swing chances. You still attack on activation.",
       manaCost: 40,
       cooldown: 3,
       kind: "buff",
@@ -35,6 +39,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     ability2: {
       name: "Obliterate",
       description: "A savage blow that deals weapon damage + Strength. If it kills the enemy, restore 10% of your maximum life.",
+      short: "A Strength-powered blow. Killing blows restore some life.",
       manaCost: 30,
       cooldown: 3,
       kind: "obliterate",
@@ -52,6 +57,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     passive: {
       name: "Soul Siphon",
       description: "Poison damage you deal also heals you for 10% of the damage.",
+      short: "Each poison tick heals you for a portion of the damage.",
     },
     ability: {
       name: "Poison Dagger",
@@ -73,6 +79,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     passive: {
       name: "Arcane Flow",
       description: "Regenerates 20% of your maximum mana whenever you land a basic attack.",
+      short: "Basic attacks restore a large portion of your mana.",
     },
     ability: {
       name: "Fireball",
@@ -94,26 +101,40 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     passive: {
       name: "Dodge",
       description: "15% chance to completely dodge an incoming attack.",
+      short: "Chance to completely avoid an incoming attack or spell.",
     },
     passive2: {
       name: "Find Weakness",
       description: "Your keen eye increases Critical Strike Chance by 15%.",
+      short: "Increases your critical strike chance.",
       levelRequirement: 20,
     },
     passive3: {
       name: "Heartseeker",
       description: "After a Critical Strike, fire an additional arrow dealing 50% of the damage dealt. This arrow cannot critically strike.",
+      short: "Critical strikes launch a bonus follow-up arrow.",
       levelRequirement: 35,
     },
     ability: {
       name: "Multishot",
       description: "Fires two arrows, each dealing full damage and each able to land a critical hit.",
+      short: "Fire two arrows simultaneously, each able to critically strike.",
       manaCost: 18,
       cooldown: 2,
       kind: "multi",
       power: 1.0,
       magic: false,
       hits: 2,
+    },
+    ability2: {
+      name: "Freezing Shot",
+      description: "An enchanted arrow dealing weapon damage + half your Dexterity. Freezes the target for 2 turns, preventing all actions.",
+      short: "A frost arrow dealing Dexterity-scaled damage that freezes the target for 2 turns.",
+      manaCost: 40,
+      cooldown: 5,
+      kind: "freeze",
+      power: 0,
+      magic: false,
     },
   },
   paladin: {
@@ -126,6 +147,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     passive: {
       name: "Divine Retribution",
       description: "Converts 15% of damage taken into life.",
+      short: "A portion of incoming damage is converted into life.",
     },
     ability: {
       name: "Holy Bolt",
@@ -147,10 +169,12 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     passive: {
       name: "Thick Hide",
       description: "Your bestial resilience reduces damage taken by 0.2% per Dexterity point, up to 25%.",
+      short: "Your Dexterity passively reduces all incoming damage.",
     },
     ability: {
       name: "Werewolf Bite",
       description: "Savage jaws tear into the enemy for weapon damage + 1.5× Dexterity. Heals 15% of damage dealt.",
+      short: "A Dexterity-powered bite that heals you for part of the damage.",
       manaCost: 18,
       cooldown: 3,
       kind: "bite",
@@ -168,15 +192,18 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     passive: {
       name: "Fade",
       description: "25% chance to reduce incoming damage by 45%.",
+      short: "Chance to sharply reduce incoming damage.",
     },
     passive2: {
       name: "Venom",
       description: "Basic attacks poison the enemy for 2 turns, dealing 30% of the hit damage per tick.",
+      short: "Basic attacks apply a short poison to the enemy.",
       levelRequirement: 20,
     },
     ability: {
       name: "Fire Trap",
       description: "Plant a trap that detonates after 3 turns, dealing 2.5× Dexterity as damage. Can critically strike. Cooldown begins on placement.",
+      short: "Place a delayed trap that detonates for Dexterity-scaled damage.",
       manaCost: 22,
       cooldown: 3,
       kind: "trap",

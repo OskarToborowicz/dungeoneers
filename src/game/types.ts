@@ -19,13 +19,15 @@ export type ResourceType = "mana" | "fury";
 export interface ClassPassive {
   name: string;
   description: string;
+  short?: string;
 }
 
-export type AbilityKind = "burst" | "dot" | "multi" | "heal" | "bite" | "trap" | "buff" | "obliterate";
+export type AbilityKind = "burst" | "dot" | "multi" | "heal" | "bite" | "trap" | "buff" | "obliterate" | "freeze";
 
 export interface AbilityDefinition {
   name: string;
   description: string;
+  short?: string;
   manaCost: number;
   cooldown: number;
   kind: AbilityKind;

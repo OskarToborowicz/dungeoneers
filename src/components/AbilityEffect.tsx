@@ -5,9 +5,10 @@ interface Props {
   classId: ClassId;
   onDone: () => void;
   detonation?: boolean;
+  useAbility2?: boolean;
 }
 
-export function AbilityEffect({ classId, onDone, detonation = false }: Props) {
+export function AbilityEffect({ classId, onDone, detonation = false, useAbility2 = false }: Props) {
   useEffect(() => {
     const t = setTimeout(onDone, 800);
     return () => clearTimeout(t);
@@ -19,7 +20,8 @@ export function AbilityEffect({ classId, onDone, detonation = false }: Props) {
         {classId === "barbarian"   && <WhirlwindFx />}
         {classId === "necromancer" && <PoisonFx />}
         {classId === "sorceress"   && <FireballFx />}
-        {classId === "amazon"      && <MultishotFx />}
+        {classId === "amazon"      && !useAbility2 && <MultishotFx />}
+        {classId === "amazon"      && useAbility2  && <FreezingArrowFx />}
         {classId === "paladin"     && <HolyBoltFx />}
         {classId === "druid"       && <BiteFx />}
         {classId === "assassin"    && !detonation && <TrapPlantFx />}
@@ -156,6 +158,43 @@ function TrapPlantFx() {
       <line x1="70" y1="86" x2="52" y2="86" stroke="#33aacc" strokeWidth="1.5" strokeLinecap="round" className="ae-trap-spark ae-ts-5" />
       {/* Glow ring */}
       <circle cx="70" cy="87" r="16" fill="none" stroke="#33aacc" strokeWidth="1.5" opacity="0.5" className="ae-trap-ring" />
+    </g>
+  );
+}
+
+function FreezingArrowFx() {
+  return (
+    <g>
+      {/* Frozen arrow flying toward the monster */}
+      <g className="ae-ice-arrow" style={{ transformOrigin: "80px 60px" }}>
+        <line x1="28" y1="60" x2="118" y2="60" stroke="#88ddff" strokeWidth="2.5" strokeLinecap="round"/>
+        <polygon points="118,55 136,60 118,65" fill="#aaeeff"/>
+        {/* Ice crystal ridges along the shaft */}
+        <line x1="60"  y1="54" x2="60"  y2="66" stroke="#cceeff" strokeWidth="1.2" strokeLinecap="round" opacity="0.8"/>
+        <line x1="82"  y1="53" x2="82"  y2="67" stroke="#cceeff" strokeWidth="1.2" strokeLinecap="round" opacity="0.8"/>
+        <line x1="104" y1="55" x2="104" y2="65" stroke="#cceeff" strokeWidth="1.2" strokeLinecap="round" opacity="0.8"/>
+        {/* Frost sparkles */}
+        <circle cx="70" cy="55" r="1.8" fill="#88eeff" opacity="0.9"/>
+        <circle cx="93" cy="65" r="1.8" fill="#88eeff" opacity="0.9"/>
+        <circle cx="114" cy="54" r="1.5" fill="#bbf0ff" opacity="0.85"/>
+      </g>
+      {/* Icy explosion at impact */}
+      <g className="ae-ice-burst" style={{ transformOrigin: "152px 60px" }}>
+        <circle cx="152" cy="60" r="11" fill="#aaeeff" opacity="0.92"/>
+        <circle cx="152" cy="60" r="5"  fill="#eef9ff" opacity="0.97"/>
+        {/* Cardinal ice spikes */}
+        <polygon points="152,40 148,53 156,53" fill="#55aacc" opacity="0.9"/>
+        <polygon points="172,60 159,56 159,64" fill="#55aacc" opacity="0.9"/>
+        <polygon points="152,80 156,67 148,67" fill="#55aacc" opacity="0.9"/>
+        <polygon points="132,60 145,64 145,56" fill="#55aacc" opacity="0.9"/>
+        {/* Diagonal shards */}
+        <polygon points="167,45 157,56 163,49" fill="#88ccee" opacity="0.78"/>
+        <polygon points="167,75 163,62 157,65" fill="#88ccee" opacity="0.78"/>
+        <polygon points="137,75 143,65 137,62" fill="#88ccee" opacity="0.78"/>
+        <polygon points="137,45 143,55 137,49" fill="#88ccee" opacity="0.78"/>
+        {/* Outer frost ring */}
+        <circle cx="152" cy="60" r="27" fill="none" stroke="#88ccee" strokeWidth="1.5" opacity="0.4" strokeDasharray="5 3"/>
+      </g>
     </g>
   );
 }
