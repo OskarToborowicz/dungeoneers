@@ -104,23 +104,28 @@ const BODY_AND_ARMS: Record<ClassId, ReactNode> = {
   ),
   assassin: (
     <>
-      {/* Hood/mask */}
-      <path d="M22 26 C22 12 42 12 42 26 L40 28 L24 28 Z" />
+      {/* Cowl — peaked hood */}
+      <path d="M24 28 C22 10 42 10 40 28 L38 30 L26 30 Z" />
       {/* Head */}
-      <ellipse cx="32" cy="22" rx="8" ry="9" />
-      {/* Mask slit eyes */}
-      <line x1="25" y1="21" x2="29" y2="21" strokeWidth="1.5" stroke="currentColor" strokeOpacity="0.9" />
-      <line x1="35" y1="21" x2="39" y2="21" strokeWidth="1.5" stroke="currentColor" strokeOpacity="0.9" />
-      {/* Slim torso */}
-      <path d="M24 30 L40 30 L38 60 L26 60 Z" />
-      {/* Legs */}
-      <rect x="26" y="60" width="12" height="34" rx="3" />
-      {/* Left arm */}
-      <path d="M24 32 L10 52 L16 56 L28 38 Z" />
-      {/* Right arm */}
-      <path d="M40 32 L54 50 L50 54 L36 36 Z" />
-      {/* Belt */}
-      <rect x="24" y="58" width="16" height="4" rx="1" />
+      <ellipse cx="32" cy="23" rx="8" ry="9" />
+      {/* Mask — wraps lower face, only eyes exposed */}
+      <path d="M24 24 L40 24 L40 30 L24 30 Z" />
+      {/* Glowing slit eyes */}
+      <line x1="25" y1="22" x2="30" y2="22" strokeWidth="2" stroke="currentColor" strokeOpacity="1" />
+      <line x1="34" y1="22" x2="39" y2="22" strokeWidth="2" stroke="currentColor" strokeOpacity="1" />
+      {/* Lean torso — forward crouch */}
+      <path d="M26 32 L42 30 L40 62 L24 64 Z" />
+      {/* Sash / belt wrapping */}
+      <path d="M24 56 L42 54" fill="none" strokeWidth="3" strokeLinecap="round" />
+      {/* Separate legs — wide stance */}
+      <rect x="22" y="64" width="11" height="30" rx="3" />
+      <rect x="35" y="62" width="11" height="30" rx="3" />
+      {/* Left arm — extended forward aggressively */}
+      <path d="M26 34 L6 50 L12 56 L30 42 Z" />
+      {/* Right arm — pulled back ready to strike */}
+      <path d="M42 32 L56 46 L52 52 L38 38 Z" />
+      {/* Shoulder scarf wrap */}
+      <path d="M26 32 C18 28 12 34 10 40" fill="none" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.7" />
     </>
   ),
   druid: (
@@ -179,17 +184,21 @@ const WEAPON_BASE: Record<ClassId, (c: string) => ReactNode> = {
       <path d="M10 20 C2 32 2 56 10 68" fill="none" strokeWidth="4" />
       <line x1="10" y1="20" x2="10" y2="68" strokeWidth="1.5" />
       <line x1="10" y1="44" x2="58" y2="44" strokeWidth="1.2" />
-      <polygon points="10,44 18,39 18,49" />
+      <polygon points="58,44 50,39 50,49" />
     </>
   ),
   assassin: () => (
     <>
-      {/* Knuckle guard */}
-      <rect x="2" y="48" width="10" height="7" rx="2" />
-      {/* Three forward claws */}
-      <line x1="5"  y1="48" x2="0"  y2="32" strokeWidth="2.2" strokeLinecap="round" />
-      <line x1="8"  y1="47" x2="5"  y2="30" strokeWidth="2.2" strokeLinecap="round" />
-      <line x1="11" y1="48" x2="10" y2="31" strokeWidth="2.2" strokeLinecap="round" />
+      {/* Knuckle plate */}
+      <rect x="1" y="50" width="14" height="6" rx="1.5" />
+      {/* Knuckle studs */}
+      <circle cx="4"  cy="50" r="1.5" />
+      <circle cx="8"  cy="50" r="1.5" />
+      <circle cx="12" cy="50" r="1.5" />
+      {/* Three curved razor claws — sweep forward then hook */}
+      <path d="M3  50 C0  44 -4 36 -2 28 C-1 22  3 20  4 26" fill="none" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M8  50 C6  43  3 34  5 26 C6  20 10 18 11 24" fill="none" strokeWidth="2.2" strokeLinecap="round" />
+      <path d="M13 50 C12 43 11 34 13 26 C14 20 18 19 18 25" fill="none" strokeWidth="2.2" strokeLinecap="round" />
     </>
   ),
   paladin: () => (
@@ -251,19 +260,23 @@ const WEAPON_UNIQUE: Record<ClassId, (c: string) => ReactNode> = {
       <path d="M10 66 C14 74 20 76 22 72" fill="none" strokeWidth="2.8" />
       <line x1="22" y1="16" x2="22" y2="72" strokeWidth="1.5" />
       <line x1="10" y1="44" x2="58" y2="44" strokeWidth="1.2" />
-      <polygon points="10,44 18,39 18,49" />
+      <polygon points="58,44 50,39 50,49" />
     </>
   ),
   assassin: (c) => (
     <>
-      {/* Knuckle guard with gem */}
-      <rect x="1" y="47" width="12" height="8" rx="2" />
-      <circle cx="7" cy="51" r="2.5" fill={c} fillOpacity="0.6" stroke="none" />
-      {/* Four longer curved claws */}
-      <path d="M4 47 C2 38 -2 30 1 24" fill="none" strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M7 46 C6 36 4 27 6 20" fill="none" strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M10 47 C10 37 10 28 12 22" fill="none" strokeWidth="2.5" strokeLinecap="round" />
-      <path d="M13 48 C14 39 16 30 16 24" fill="none" strokeWidth="2" strokeLinecap="round" />
+      {/* Reinforced knuckle plate */}
+      <rect x="0" y="49" width="18" height="7" rx="2" />
+      {/* Glowing gem in center */}
+      <circle cx="9" cy="52" r="3" fill={c} fillOpacity="0.7" stroke="none" />
+      {/* Knuckle studs */}
+      <circle cx="3"  cy="49" r="1.5" />
+      <circle cx="15" cy="49" r="1.5" />
+      {/* Four longer curved razor claws — deeper hook at tips */}
+      <path d="M2  49 C-2 41 -6 32 -3 22 C-2 16  2 14  4 20" fill="none" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M7  49 C4  40  1 30  4 20 C5  14  9 12 10 18" fill="none" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M12 49 C10 40  9 30 12 20 C13 14 17 13 17 19" fill="none" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M16 50 C15 41 15 32 18 22 C20 16 24 16 23 22" fill="none" strokeWidth="2" strokeLinecap="round" />
     </>
   ),
   paladin: (c) => (
