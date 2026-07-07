@@ -9,10 +9,6 @@ export function ClassIcon({ classId, size = 34 }: { classId: ClassId; size?: num
   );
 }
 
-const AXE_BLADE = "M20 10 C13 8 8 12 10 17 C12 21 18 19 20 15 Z";
-
-const CROSS_SWORDS = "M15 10 L25 30 M25 10 L15 30";
-
 const ICONS: Record<ClassId, ReactNode> = {
   barbarian: (
     <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

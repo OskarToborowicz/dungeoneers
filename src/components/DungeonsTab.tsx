@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { DUNGEONS, REGULAR_DUNGEON_COUNT_ACT1, REGULAR_DUNGEON_COUNT_ACT2 } from "../game/data/dungeons";
+import { DUNGEONS } from "../game/data/dungeons";
 
 interface Props {
   clearedDungeons: string[];
