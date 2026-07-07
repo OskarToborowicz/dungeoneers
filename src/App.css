@@ -979,6 +979,62 @@
 
 .drop-banner-dismiss:hover { color: var(--text-light); }
 
+.flee-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.flee-modal {
+  background: var(--bg-panel);
+  border: 2px solid #888;
+  border-radius: 6px;
+  padding: 28px 36px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+}
+
+.flee-question {
+  font-family: var(--heading-font);
+  font-size: 18px;
+  color: var(--text-light);
+  margin: 0 0 20px;
+}
+
+.flee-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.flee-confirm {
+  background: #5a1010;
+  border: 1px solid #aa3333;
+  color: #ffaaaa;
+  padding: 6px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--heading-font);
+}
+
+.flee-confirm:hover { background: #7a1a1a; }
+
+.flee-cancel {
+  background: #1a2a1a;
+  border: 1px solid #336633;
+  color: #aaffaa;
+  padding: 6px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--heading-font);
+}
+
+.flee-cancel:hover { background: #223322; }
+
 .dungeon-list {
   display: flex;
   flex-direction: column;
@@ -1244,6 +1300,7 @@
 
 .combat-screen {
   align-items: center;
+  position: relative;
 }
 
 .combat-bars {

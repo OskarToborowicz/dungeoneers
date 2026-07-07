@@ -30,6 +30,7 @@ export interface ClassDefinition {
   resourceType: ResourceType;
   passive: ClassPassive;
   passive2?: ClassPassive & { levelRequirement: number };
+  passive3?: ClassPassive & { levelRequirement: number };
   ability: {
     name: string;
     description: string;
@@ -39,6 +40,7 @@ export interface ClassDefinition {
     power: number;
     magic: boolean;
     hits?: number;
+    canMiss?: boolean;
   };
 }
 

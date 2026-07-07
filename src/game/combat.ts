@@ -107,8 +107,12 @@ export function canUseAbility(character: Character, state: BattleState): boolean
   return state.playerMana >= def.ability.manaCost && state.abilityCooldown <= 0;
 }
 
+const AMAZON_FIND_WEAKNESS_CRIT = 0.15;
+const AMAZON_DODGE_CHANCE = 0.15;
+
 export function getEffectiveCritChance(character: Character, stats: DerivedStats): number {
-  return Math.min(0.9, stats.critChance + (character.classId === "barbarian" ? BARBARIAN_BONUS_CRIT_CHANCE : 0));
+  const amazonBonus = character.classId === "amazon" && character.level >= 20 ? AMAZON_FIND_WEAKNESS_CRIT : 0;
+  return Math.min(0.9, stats.critChance + (character.classId === "barbarian" ? BARBARIAN_BONUS_CRIT_CHANCE : 0) + amazonBonus);
 }
 
 export function getCritMultiplier(character: Character): number {
@@ -196,9 +200,9 @@ export function resolveRound(
 
     if (useAbility) {
       playerMana -= def.ability.manaCost;
-      if (def.ability.kind !== "trap") abilityCooldown = def.ability.cooldown;
+      abilityCooldown = def.ability.cooldown;
 
-      if (Math.random() < ALWAYS_MISS_CHANCE) {
+      if (def.ability.canMiss !== false && Math.random() < ALWAYS_MISS_CHANCE) {
         log.push({
           actor: "player",
           message: `Your ${def.ability.name} fails to connect.`,
@@ -247,6 +251,18 @@ export function resolveRound(
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
+
+          if (character.classId === "amazon" && character.level >= 35 && isHitCrit && monsterLife > 0) {
+            const heartseekerDmg = Math.round(hitDmg * 0.5);
+            monsterLife -= heartseekerDmg;
+            damageDealt += heartseekerDmg;
+            log.push({
+              actor: "player",
+              message: `Heartseeker fires for ${heartseekerDmg} damage!`,
+              playerLife: Math.max(0, playerLife),
+              monsterLife: Math.max(0, monsterLife),
+            });
+          }
         }
       } else if (def.ability.kind === "heal") {
         const dmg = rollAbilityDamage(stats, def.ability.power, def.ability.magic);
@@ -306,8 +322,10 @@ export function resolveRound(
     } else {
       const hitChance = 1 - ALWAYS_MISS_CHANCE;
       let basicHitDmg = 0;
+      let basicHitCrit = false;
       if (Math.random() < hitChance) {
         const isCrit = Math.random() < critChance;
+        basicHitCrit = isCrit;
         let dmg = randomInRange(stats.damage);
         if (isCrit) dmg = Math.round(dmg * critMultiplier);
         monsterLife -= dmg;
@@ -330,6 +348,17 @@ export function resolveRound(
 
       if (def.resourceType === "fury") {
         playerMana = Math.min(stats.maxMana, playerMana + FURY_PER_ATTACK);
+      }
+      if (character.classId === "amazon" && character.level >= 35 && basicHitCrit && basicHitDmg > 0 && monsterLife > 0) {
+        const heartseekerDmg = Math.round(basicHitDmg * 0.5);
+        monsterLife -= heartseekerDmg;
+        damageDealt += heartseekerDmg;
+        log.push({
+          actor: "player",
+          message: `Heartseeker fires for ${heartseekerDmg} damage!`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
       }
       if (character.classId === "assassin" && character.level >= 20 && basicHitDmg > 0) {
         poisonRounds = 2;
@@ -431,6 +460,15 @@ export function resolveRound(
   if (castSpell && spell) {
     monsterSpellCastName = spell.name;
     monsterSpellCooldown = spell.cooldown;
+    const amazonDodgedSpell = character.classId === "amazon" && Math.random() < AMAZON_DODGE_CHANCE;
+    if (amazonDodgedSpell) {
+      log.push({
+        actor: "monster",
+        message: `${monster.name} casts ${spell.name}, but you dodge!`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    } else {
     let spellDmg = Math.round(randomInRange(monster.damage) * spell.power);
     const fadedSpell = character.classId === "assassin" && Math.random() < 0.25;
     if (fadedSpell) spellDmg = Math.max(1, Math.round(spellDmg * 0.55));
@@ -480,10 +518,20 @@ export function resolveRound(
       const healBack = Math.round(spellDmg * PALADIN_DAMAGE_TAKEN_HEAL);
       playerLife = Math.min(stats.maxLife, playerLife + healBack);
     }
+    } // end !amazonDodgedSpell
   } else {
     // Normal attack
+    const amazonDodged = character.classId === "amazon" && Math.random() < AMAZON_DODGE_CHANCE;
+    if (amazonDodged) {
+      log.push({
+        actor: "monster",
+        message: `${monster.name} attacks, but you dodge!`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    }
     const monsterHitChance = rollHitChance(monster.attackRating, stats.defense);
-    if (Math.random() < monsterHitChance) {
+    if (!amazonDodged && Math.random() < monsterHitChance) {
       const isMonsterCrit = Math.random() < MONSTER_CRIT_CHANCE;
       let dmg = randomInRange(monster.damage);
       if (isMonsterCrit) dmg = Math.round(dmg * 1.75);
@@ -537,7 +585,6 @@ export function resolveRound(
     const finalTrapDmg = isCrit ? Math.round(trapDmg * critMultiplier) : trapDmg;
     monsterLife -= finalTrapDmg;
     damageDealt += finalTrapDmg;
-    abilityCooldown = def.ability.cooldown;
     trapDetonated = true;
     log.push({
       actor: "monster",

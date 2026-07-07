@@ -70,6 +70,7 @@ export function CombatScreen({
   const [trapDetonateEffect, setTrapDetonateEffect] = useState(false);
   const [monsterSpellEffect, setMonsterSpellEffect] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
+  const [showFleePrompt, setShowFleePrompt] = useState(false);
 
   useEffect(() => {
     if (logRef.current) {
@@ -339,7 +340,7 @@ export function CombatScreen({
           <button
             className="action-button run"
             disabled={isAnimating || escapeTokens <= 0}
-            onClick={onEscape}
+            onClick={() => setShowFleePrompt(true)}
             title="Flee the battle. Ends the dungeon run. One use per character."
           >
             Flee
@@ -362,6 +363,18 @@ export function CombatScreen({
           <button className="primary-button" onClick={handleContinue}>
             {status === "victory" ? "Continue" : "Accept Your Fate"}
           </button>
+        </div>
+      )}
+
+      {showFleePrompt && (
+        <div className="flee-overlay">
+          <div className="flee-modal">
+            <p className="flee-question">Are you really this bad?</p>
+            <div className="flee-buttons">
+              <button className="flee-confirm" onClick={() => { setShowFleePrompt(false); onEscape(); }}>Yes</button>
+              <button className="flee-cancel" onClick={() => setShowFleePrompt(false)}>No</button>
+            </div>
+          </div>
         </div>
       )}
     </div>
