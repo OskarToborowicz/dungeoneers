@@ -85,7 +85,6 @@ export function InventoryTab({ equipment, inventory, onMoveItem }: Props) {
                 <div
                   className={`slot-item ${dragging === item.id ? "dragging" : ""}`}
                   style={{ color: RARITY_COLORS[item.rarity] }}
-                  title={item.name}
                   onDoubleClick={() => onMoveItem(item.id, slot, "inventory")}
                   {...dragHandleProps(item, slot)}
                 >
@@ -109,7 +108,6 @@ export function InventoryTab({ equipment, inventory, onMoveItem }: Props) {
               key={item.id}
               className={`inv-cell ${dragging === item.id ? "dragging" : ""}`}
               style={{ color: RARITY_COLORS[item.rarity] }}
-              title={item.name}
               onDoubleClick={() => onMoveItem(item.id, "inventory", item.slot)}
               {...dragHandleProps(item, "inventory")}
             >
