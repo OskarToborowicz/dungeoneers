@@ -34,8 +34,8 @@ const ICONS: Record<string, ReactNode> = {
   ),
   axe: (
     <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M20 8 C28 6 33 11 31 18 C29 23 24 22 21 19" />
-      <line x1="20" y1="8" x2="10" y2="32" />
+      <line x1="28" y1="38" x2="14" y2="8" />
+      <polygon points="14,8 4,3 4,20 14,16" fill="currentColor" />
     </g>
   ),
   mace: (

@@ -57,7 +57,7 @@ export function CharacterSelect({ slots, onSelect, onDelete, onNew }: Props) {
               <div className="hero-card-sprite">
                 <CharacterSprite
                   classId={character.classId}
-                  size={46}
+                  size={32}
                   state="idle"
                   isUnique={equipment.weapon?.rarity === "unique"}
                 />

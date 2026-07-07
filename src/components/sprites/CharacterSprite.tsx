@@ -162,8 +162,20 @@ const BODY_AND_ARMS: Record<ClassId, ReactNode> = {
 const WEAPON_BASE: Record<ClassId, (c: string) => ReactNode> = {
   barbarian: () => (
     <>
-      <path d="M2 44 Q-2 52 2 60 Q10 66 14 58 Q12 50 10 44 Z" />
-      <path d="M62 44 Q66 52 62 60 Q54 66 50 58 Q52 50 54 44 Z" />
+      {/* Left axe — diagonal handle, blade rotated to match handle angle */}
+      <line x1="14" y1="56" x2="-2" y2="18" strokeWidth="4.5" strokeLinecap="round" />
+      <ellipse cx="14" cy="57" rx="4" ry="3" />
+      <g transform="rotate(-23, -2, 18)">
+        <path d="M-2 12 L-26 6 L-26 30 L-2 24 Z" />
+        <line x1="-2" y1="12" x2="-2" y2="24" strokeWidth="2" />
+      </g>
+      {/* Right axe — mirrored */}
+      <line x1="50" y1="56" x2="66" y2="18" strokeWidth="4.5" strokeLinecap="round" />
+      <ellipse cx="50" cy="57" rx="4" ry="3" />
+      <g transform="rotate(23, 66, 18)">
+        <path d="M66 12 L92 6 L92 30 L66 24 Z" />
+        <line x1="66" y1="12" x2="66" y2="24" strokeWidth="2" />
+      </g>
     </>
   ),
   necromancer: () => (
@@ -222,13 +234,24 @@ const WEAPON_BASE: Record<ClassId, (c: string) => ReactNode> = {
 
 // Unique weapon — rendered in UNIQUE_COLOR (orange-gold)
 const WEAPON_UNIQUE: Record<ClassId, (c: string) => ReactNode> = {
-  barbarian: () => (
+  barbarian: (c) => (
     <>
-      {/* Larger crescents with upper spike */}
-      <path d="M2 42 Q-6 52 2 64 Q13 70 16 58 Q10 50 10 42 Z" />
-      <line x1="2" y1="42" x2="-6" y2="33" strokeWidth="2.2" />
-      <path d="M62 42 Q70 52 62 64 Q51 70 48 58 Q54 50 54 42 Z" />
-      <line x1="62" y1="42" x2="70" y2="33" strokeWidth="2.2" />
+      {/* Left axe — diagonal handle, larger blade rotated to match handle angle + spike + gem */}
+      <line x1="14" y1="56" x2="-2" y2="18" strokeWidth="4.5" strokeLinecap="round" />
+      <ellipse cx="14" cy="57" rx="4" ry="3" />
+      <g transform="rotate(-23, -2, 18)">
+        <path d="M-2 10 L-30 4 L-30 32 L-2 26 Z" />
+        <line x1="-2" y1="10" x2="-2" y2="26" strokeWidth="2" />
+        <circle cx="-18" cy="18" r="3" fill={c} fillOpacity="0.6" stroke="none" />
+      </g>
+      {/* Right axe — mirrored */}
+      <line x1="50" y1="56" x2="66" y2="18" strokeWidth="4.5" strokeLinecap="round" />
+      <ellipse cx="50" cy="57" rx="4" ry="3" />
+      <g transform="rotate(23, 66, 18)">
+        <path d="M66 10 L94 4 L94 32 L66 26 Z" />
+        <line x1="66" y1="10" x2="66" y2="26" strokeWidth="2" />
+        <circle cx="82" cy="18" r="3" fill={c} fillOpacity="0.6" stroke="none" />
+      </g>
     </>
   ),
   necromancer: (c) => (

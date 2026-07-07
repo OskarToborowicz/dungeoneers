@@ -12,8 +12,12 @@ export function ClassIcon({ classId, size = 34 }: { classId: ClassId; size?: num
 const ICONS: Record<ClassId, ReactNode> = {
   barbarian: (
     <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="15" y1="10" x2="25" y2="30" />
-      <line x1="25" y1="10" x2="15" y2="30" />
+      {/* Left axe */}
+      <line x1="24" y1="36" x2="10" y2="8" />
+      <polygon points="10,8 2,4 2,20 10,17" fill="currentColor" />
+      {/* Right axe */}
+      <line x1="16" y1="36" x2="30" y2="8" />
+      <polygon points="30,8 38,4 38,20 30,17" fill="currentColor" />
     </g>
   ),
   sorceress: (
