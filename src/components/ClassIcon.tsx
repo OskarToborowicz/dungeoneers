@@ -67,4 +67,11 @@ const ICONS: Record<ClassId, ReactNode> = {
       <line x1="20" y1="18" x2="20" y2="7" />
     </g>
   ),
+  assassin: (
+    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <ellipse cx="20" cy="8" rx="6" ry="2.4" />
+      <line x1="20" y1="14" x2="20" y2="33" />
+      <rect x="13" y="14" width="14" height="8" rx="1" />
+    </g>
+  ),
 };

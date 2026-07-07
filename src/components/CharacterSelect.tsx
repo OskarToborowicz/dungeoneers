@@ -12,6 +12,7 @@ const CLASS_NAMES: Record<ClassId, string> = {
   amazon: "Amazon",
   paladin: "Paladin",
   druid: "Druid",
+  assassin: "Assasin"
 };
 
 interface Props {
