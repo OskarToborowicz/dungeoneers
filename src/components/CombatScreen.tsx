@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { CLASSES } from "../game/data/classes";
 import { CONSUMABLES } from "../game/data/consumables";
+import { xpToNextLevel } from "../game/character";
 import type { DerivedStats } from "../game/character";
 import {
   canUseAbility,
@@ -215,7 +216,7 @@ export function CombatScreen({
 
       <div className="combat-bars">
         <div className="combat-bar-block">
-          <div className="combat-bar-label">{character.name}</div>
+          <div className="combat-bar-label">{character.name} <span className="monster-level">Lv.{character.level}</span></div>
           <div className="hp-bar">
             <div
               className="hp-bar-fill player"
@@ -227,6 +228,13 @@ export function CombatScreen({
               className={`resource-bar-fill ${def.resourceType}`}
               style={{ width: `${Math.max(0, (battle.playerMana / derived.maxMana) * 100)}%` }}
             />
+          </div>
+          <div className="xp-bar-combat">
+            <div
+              className="xp-bar-combat-fill"
+              style={{ width: `${Math.min(100, (character.xp / xpToNextLevel(character.level)) * 100)}%` }}
+            />
+            <span className="xp-bar-combat-label">{character.xp} / {xpToNextLevel(character.level)} XP</span>
           </div>
           <div className="combat-stat-row">
             <span className="combat-stat hp">

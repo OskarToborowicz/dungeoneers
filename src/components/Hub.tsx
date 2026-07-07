@@ -7,7 +7,9 @@ import { CharacterTab } from "./CharacterTab";
 import { InventoryTab } from "./InventoryTab";
 import { DungeonsTab } from "./DungeonsTab";
 import { ShopTab } from "./ShopTab";
+import { ItemIcon } from "./ItemIcon";
 import { CLASSES } from "../game/data/classes";
+import { RARITY_COLORS } from "../game/data/items";
 import type { DerivedStats } from "../game/character";
 import type { BaseStats, Character, ConsumableId, EquipmentSlot, Item } from "../game/types";
 
@@ -33,6 +35,8 @@ interface Props {
   restockFee: number;
   showPortalMessage?: boolean;
   onDismissPortal?: () => void;
+  droppedItem?: Item | null;
+  onDismissDroppedItem?: () => void;
 }
 
 export function Hub({
@@ -55,11 +59,25 @@ export function Hub({
   restockFee,
   showPortalMessage,
   onDismissPortal,
+  droppedItem,
+  onDismissDroppedItem,
 }: Props) {
   const [tab, setTab] = useState<TabId>("character");
 
   return (
     <div className="screen hub-screen" style={{ "--class-color": CLASS_COLORS[character.classId] } as CSSProperties}>
+      {droppedItem && !showPortalMessage && (
+        <div className="drop-banner" onClick={onDismissDroppedItem}>
+          <span className="drop-banner-label">Item found</span>
+          <span className="drop-banner-icon" style={{ color: RARITY_COLORS[droppedItem.rarity] }}>
+            <ItemIcon item={droppedItem} />
+          </span>
+          <span className="drop-banner-name" style={{ color: RARITY_COLORS[droppedItem.rarity] }}>
+            {droppedItem.name}
+          </span>
+          <button className="drop-banner-dismiss" onClick={onDismissDroppedItem}>×</button>
+        </div>
+      )}
       {showPortalMessage && (
         <div className="portal-overlay">
           <div className="portal-modal">

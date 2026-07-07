@@ -52,6 +52,7 @@ function App() {
   const [deathSummary, setDeathSummary] = useState<DeathSummary | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [showPortalMessage, setShowPortalMessage] = useState(false);
+  const [droppedItem, setDroppedItem] = useState<import("./game/types").Item | null>(null);
 
   useEffect(() => {
     setSlots(getAllSaves());
@@ -326,6 +327,7 @@ function App() {
     if (Math.random() < dropChance) {
       const item = generateRandomItem(monster.level, character.classId);
       setInventory((prev) => [...prev, item]);
+      setDroppedItem(item);
     }
 
     const nextIndex = dungeonRun.index + 1;
@@ -389,6 +391,8 @@ function App() {
       restockFee={restockFee(character.level)}
       showPortalMessage={showPortalMessage}
       onDismissPortal={() => setShowPortalMessage(false)}
+      droppedItem={droppedItem}
+      onDismissDroppedItem={() => setDroppedItem(null)}
     />
   );
 }
