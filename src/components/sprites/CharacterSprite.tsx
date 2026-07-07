@@ -189,8 +189,8 @@ const WEAPON_BASE: Record<ClassId, (c: string) => ReactNode> = {
     <>
       <path d="M54 20 C62 32 62 56 54 68" fill="none" strokeWidth="4" />
       <line x1="54" y1="20" x2="54" y2="68" strokeWidth="1.5" />
-      <line x1="10" y1="44" x2="54" y2="44" strokeWidth="1.2" />
-      <polygon points="54,44 46,39 46,49" />
+      <line x1="10" y1="44" x2="64" y2="44" strokeWidth="1.2" />
+      <polygon points="64,44 56,39 56,49" />
     </>
   ),
   assassin: () => (
@@ -265,8 +265,8 @@ const WEAPON_UNIQUE: Record<ClassId, (c: string) => ReactNode> = {
       <path d="M54 22 C50 14 44 12 42 16" fill="none" strokeWidth="2.8" />
       <path d="M54 66 C50 74 44 76 42 72" fill="none" strokeWidth="2.8" />
       <line x1="42" y1="16" x2="42" y2="72" strokeWidth="1.5" />
-      <line x1="10" y1="44" x2="54" y2="44" strokeWidth="1.2" />
-      <polygon points="54,44 46,39 46,49" />
+      <line x1="10" y1="44" x2="64" y2="44" strokeWidth="1.2" />
+      <polygon points="64,44 56,39 56,49" />
     </>
   ),
   assassin: (c) => (
