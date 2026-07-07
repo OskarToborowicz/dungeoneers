@@ -91,6 +91,14 @@ export interface Character {
   runStats: RunStats;
 }
 
+export interface MonsterSpell {
+  name: string;
+  kind: "burst" | "dot" | "drain";
+  power: number;
+  chance: number;
+  cooldown: number;
+}
+
 export interface MonsterDefinition {
   name: string;
   level: number;
@@ -100,6 +108,7 @@ export interface MonsterDefinition {
   attackRating: number;
   xpReward: number;
   goldReward: [number, number];
+  spell?: MonsterSpell;
 }
 
 export interface DungeonDefinition {

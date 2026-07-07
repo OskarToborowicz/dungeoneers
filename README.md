@@ -65,7 +65,7 @@ critChance    = min(0.60, 0.05 + dexterity × 0.001)
 ```
 Base crit chance is 5% and scales to a soft cap of 60%. The Barbarian's passive adds 10% on top (recapped at 90%).
 
-- Druid passive (Thick Hide): `reduction = min(0.40, dexterity × 0.002)` — caps at 40% damage reduction at 200 Dexterity.
+- Druid passive (Thick Hide): `reduction = min(0.25, dexterity × 0.002)` — caps at 25% damage reduction at 125 Dexterity.
 - Druid ability (Werewolf Bite): deals `dexterity × 1.5` flat bonus damage on top of weapon damage.
 
 ### Vitality
@@ -207,7 +207,7 @@ Monsters always have at least a 15% chance to hit regardless of the player's def
 | | Crit Chance | Crit Multiplier |
 |---|---|---|
 | Player (base) | 5% + dex×0.001 (cap 60%) | ×1.50 |
-| Barbarian passive | +10% (combined cap 90%) | ×1.75 |
+| Barbarian passive | +10% (combined cap 90%) | ×1.25 |
 | Monster | 10% | ×1.75 |
 
 ### Mana Regeneration
@@ -317,7 +317,7 @@ Passives are always active — no activation required.
 
 ### Barbarian — Berserker's Edge
 - +10% crit chance (stacks on top of the Dexterity formula; combined value capped at 90%).
-- Crit multiplier becomes ×1.75 instead of ×1.50.
+- Crit multiplier is ×1.25 (25% bonus damage on crit), replacing the default ×1.50.
 
 ### Necromancer — Soul Siphon
 - Each poison tick heals the Necromancer for **10% of that tick's damage**.
@@ -334,9 +334,9 @@ Passives are always active — no activation required.
 ### Druid — Thick Hide
 - On every monster hit, reduces incoming damage by a percentage based on Dexterity:
 ```
-reduction = min(0.40, dexterity × 0.002)
+reduction = min(0.25, dexterity × 0.002)
 ```
-At 50 Dex: 10% reduction. At 100 Dex: 20%. The 40% cap is reached at 200 Dex.
+At 50 Dex: 10% reduction. At 100 Dex: 20%. The 25% cap is reached at 125 Dex.
 
 ---
 

@@ -116,7 +116,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     resourceType: "mana",
     passive: {
       name: "Thick Hide",
-      description: "Your bestial resilience reduces damage taken by 20% of your Dexterity.",
+      description: "Your bestial resilience reduces damage taken by 0.2% per Dexterity point, up to 25%.",
     },
     ability: {
       name: "Werewolf Bite",

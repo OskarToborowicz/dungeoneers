@@ -30,6 +30,10 @@ const MONSTER_TYPES: Record<string, string> = {
   "Scarab": "scarab",
   "Horror Archer": "skeleton_archer",
   "The Countess": "boss_countess",
+  "Dark Stalker": "wraith",
+  "Succubus": "succubus",
+  "Vile Guardian": "brute",
+  "Andariel": "boss_andariel",
 };
 
 const MONSTER_COLORS: Record<string, string> = {
@@ -50,6 +54,8 @@ const MONSTER_COLORS: Record<string, string> = {
   boss_fallen: "#ff4400",
   boss_tree: "#77aa33",
   boss_countess: "#dd2266",
+  succubus: "#cc4488",
+  boss_andariel: "#88cc22",
 };
 
 function getAnimate(state: SpriteState) {
@@ -503,6 +509,76 @@ const SPRITES: Record<string, ReactNode> = {
       <path d="M48 34 L62 54 L56 60 L42 42 Z" />
       <path d="M62 54 L56 22" strokeWidth="3" />
       <path d="M58 50 L64 48 L60 56 Z" />
+    </>
+  ),
+
+  succubus: (
+    <>
+      {/* Curved horns */}
+      <path d="M24 10 C18 4 14 -2 20 -4 C18 2 22 6 26 10" fill="none" strokeWidth="2.5" />
+      <path d="M40 10 C46 4 50 -2 44 -4 C46 2 42 6 38 10" fill="none" strokeWidth="2.5" />
+      {/* Head */}
+      <ellipse cx="32" cy="18" rx="10" ry="11" />
+      {/* Glowing eyes */}
+      <ellipse cx="27" cy="16" rx="3" ry="3" fill="#ff44aa" stroke="none" />
+      <ellipse cx="37" cy="16" rx="3" ry="3" fill="#ff44aa" stroke="none" />
+      {/* Lithe torso */}
+      <path d="M22 30 L42 30 L40 62 L24 62 Z" />
+      {/* Bat wings */}
+      <path d="M22 34 C14 26 2 20 0 28 C4 26 8 30 12 36 C6 28 8 18 16 22 C16 30 18 38 22 44 Z" />
+      <path d="M42 34 C50 26 62 20 64 28 C60 26 56 30 52 36 C58 28 56 18 48 22 C48 30 46 38 42 44 Z" />
+      {/* Legs */}
+      <rect x="22" y="62" width="12" height="28" rx="3" />
+      <rect x="30" y="62" width="12" height="28" rx="3" />
+      {/* Clawed arms */}
+      <path d="M22 36 L6 54 L12 58 L26 44 Z" />
+      <path d="M42 36 L58 54 L52 58 L38 44 Z" />
+      {/* Tail */}
+      <path d="M32 62 C28 72 22 78 26 86 C30 80 34 74 32 62" fill="none" strokeWidth="2.5" />
+      <polygon points="24,84 22,92 30,88" />
+    </>
+  ),
+
+  boss_andariel: (
+    <>
+      {/* Red hair spikes bursting upward */}
+      <path d="M24 10 L20 -2 L26 8" fill="none" strokeWidth="3" stroke="#cc2200" strokeOpacity="0.9" />
+      <path d="M30 7 L26 -6 L32 5" fill="none" strokeWidth="3" stroke="#cc2200" strokeOpacity="0.9" />
+      <path d="M38 7 L42 -6 L36 5" fill="none" strokeWidth="3" stroke="#cc2200" strokeOpacity="0.9" />
+      <path d="M44 10 L48 -2 L42 8" fill="none" strokeWidth="3" stroke="#cc2200" strokeOpacity="0.9" />
+      {/* Head */}
+      <ellipse cx="32" cy="17" rx="12" ry="13" />
+      {/* Poison-green eyes */}
+      <ellipse cx="25" cy="15" rx="4" ry="4" fill="#88ff22" stroke="none" />
+      <ellipse cx="39" cy="15" rx="4" ry="4" fill="#88ff22" stroke="none" />
+      {/* Pupil slit */}
+      <ellipse cx="25" cy="15" rx="1.5" ry="2.5" fill="#002200" stroke="none" />
+      <ellipse cx="39" cy="15" rx="1.5" ry="2.5" fill="#002200" stroke="none" />
+      {/* Humanoid torso */}
+      <path d="M16 30 L48 30 L46 60 L18 60 Z" />
+      {/* Upper long arms (2 per side, spreading wide) */}
+      <path d="M16 34 L-4 16 L2 24 L16 42 Z" />
+      <path d="M48 34 L68 16 L62 24 L48 42 Z" />
+      {/* Lower clawed arms */}
+      <path d="M16 48 L-6 62 L2 68 L18 56 Z" />
+      <path d="M48 48 L70 62 L62 68 L46 56 Z" />
+      {/* Claws on upper arms */}
+      <path d="M-4 16 L-8 10 M-2 16 L-6 10 M0 18 L-4 12" strokeWidth="1.5" />
+      <path d="M68 16 L72 10 M66 16 L70 10 M64 18 L68 12" strokeWidth="1.5" />
+      {/* Spider abdomen */}
+      <ellipse cx="32" cy="76" rx="17" ry="15" />
+      {/* Abdomen markings */}
+      <path d="M18 76 Q32 70 46 76" fill="none" strokeWidth="1.2" strokeOpacity="0.35" />
+      <path d="M18 80 Q32 86 46 80" fill="none" strokeWidth="1.2" strokeOpacity="0.35" />
+      {/* Spider legs — 3 per side from abdomen */}
+      <path d="M17 68 L2 54" strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M16 76 L-2 72" strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M18 84 L4 94" strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M47 68 L62 54" strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M48 76 L66 72" strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M46 84 L60 94" strokeWidth="3.5" strokeLinecap="round" />
+      {/* Waist connector */}
+      <path d="M22 60 C20 66 20 70 18 72 M42 60 C44 66 44 70 46 72" fill="none" strokeWidth="3" />
     </>
   ),
 };

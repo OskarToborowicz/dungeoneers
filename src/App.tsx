@@ -215,8 +215,11 @@ function App() {
     setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + total } : prev));
   }
 
+  const POTION_STACK_LIMIT = 5;
+
   function handleBuyConsumable(id: ConsumableId) {
     if (!character) return;
+    if (consumables[id] >= POTION_STACK_LIMIT) return;
     const def = CONSUMABLES[id];
     if (character.gold < def.cost) return;
     setCharacter({ ...character, gold: character.gold - def.cost });

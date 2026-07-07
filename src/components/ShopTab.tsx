@@ -51,10 +51,10 @@ export function ShopTab({
               <span className="owned-count">Owned: {consumables[def.id]}</span>
               <button
                 className="primary-button small"
-                disabled={character.gold < def.cost}
+                disabled={character.gold < def.cost || consumables[def.id] >= 5}
                 onClick={() => onBuyConsumable(def.id)}
               >
-                Buy for {def.cost}g
+                {consumables[def.id] >= 5 ? "Full (5/5)" : `Buy for ${def.cost}g`}
               </button>
             </div>
           </div>

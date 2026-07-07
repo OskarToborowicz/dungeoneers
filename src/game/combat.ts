@@ -20,6 +20,9 @@ export interface BattleState {
   manaPotionCooldown: number;
   poisonRounds: number;
   poisonDamage: number;
+  monsterSpellCooldown: number;
+  playerPoisonRounds: number;
+  playerPoisonDamage: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "healthPotion" | "manaPotion";
@@ -84,6 +87,9 @@ export function createBattleState(
     manaPotionCooldown: 0,
     poisonRounds: 0,
     poisonDamage: 0,
+    monsterSpellCooldown: 0,
+    playerPoisonRounds: 0,
+    playerPoisonDamage: 0,
   };
 }
 
@@ -117,7 +123,7 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage } = state;
   let damageDealt = 0;
 
   if (monsterLife > 0) {
@@ -262,25 +268,39 @@ export function resolveRound(
     playerMana = Math.min(stats.maxMana, playerMana + stats.maxMana * regenRate);
   }
 
-  if (monsterLife <= 0) {
+  function makeState() {
     return {
-      state: {
-        playerLife: Math.max(0, playerLife),
-        playerMana: Math.max(0, Math.round(playerMana)),
-        monsterLife: 0,
-        abilityCooldown,
-        healthPotionCooldown,
-        manaPotionCooldown,
-        poisonRounds,
-        poisonDamage,
-      },
-      log,
-      status: "victory",
-      damageDealt,
+      playerLife: Math.max(0, playerLife),
+      playerMana: Math.max(0, Math.round(playerMana)),
+      monsterLife: Math.max(0, monsterLife),
+      abilityCooldown,
+      healthPotionCooldown,
+      manaPotionCooldown,
+      poisonRounds,
+      poisonDamage,
+      monsterSpellCooldown,
+      playerPoisonRounds,
+      playerPoisonDamage,
     };
   }
 
-  // Poison ticks at the start of the monster's turn
+  if (monsterLife <= 0) {
+    return { state: makeState(), log, status: "victory", damageDealt };
+  }
+
+  // Player-poison tick from monster dot spell (start of monster turn)
+  if (playerPoisonRounds > 0) {
+    playerLife -= playerPoisonDamage;
+    playerPoisonRounds -= 1;
+    log.push({
+      actor: "monster",
+      message: `Poison burns you for ${playerPoisonDamage} damage.`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+  }
+
+  // Enemy poison tick (start of monster turn)
   if (poisonRounds > 0) {
     monsterLife -= poisonDamage;
     damageDealt += poisonDamage;
@@ -296,81 +316,99 @@ export function resolveRound(
       monsterLife: Math.max(0, monsterLife),
     });
     if (monsterLife <= 0) {
-      return {
-        state: {
-          playerLife: Math.max(0, playerLife),
-          playerMana: Math.max(0, Math.round(playerMana)),
-          monsterLife: 0,
-          abilityCooldown,
-          healthPotionCooldown,
-          manaPotionCooldown,
-          poisonRounds,
-          poisonDamage,
-        },
-        log,
-        status: "victory",
-        damageDealt,
-      };
+      return { state: makeState(), log, status: "victory", damageDealt };
     }
   }
 
-  const monsterHitChance = rollHitChance(monster.attackRating, stats.defense);
-  if (Math.random() < monsterHitChance) {
-    const isMonsterCrit = Math.random() < MONSTER_CRIT_CHANCE;
-    let dmg = randomInRange(monster.damage);
-    if (isMonsterCrit) dmg = Math.round(dmg * 1.75);
-    playerLife -= dmg;
+  if (monsterSpellCooldown > 0) monsterSpellCooldown -= 1;
 
-    if (character.classId === "druid") {
-      const reduction = Math.min(0.40, stats.stats.dexterity * 0.002);
-      dmg = Math.max(1, Math.round(dmg * (1 - reduction)));
+  // Monster spell (replaces normal attack when cast)
+  const spell = monster.spell;
+  const castSpell = spell && monsterSpellCooldown <= 0 && Math.random() < spell.chance;
+  if (castSpell && spell) {
+    monsterSpellCooldown = spell.cooldown;
+    const spellDmg = Math.round(randomInRange(monster.damage) * spell.power);
+
+    if (spell.kind === "burst") {
+      playerLife -= spellDmg;
+      log.push({
+        actor: "monster",
+        message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    } else if (spell.kind === "dot") {
+      const initialHit = Math.round(spellDmg * 0.4);
+      playerLife -= initialHit;
+      playerPoisonRounds = 3;
+      playerPoisonDamage = Math.round(spellDmg * 0.4);
+      log.push({
+        actor: "monster",
+        message: `${monster.name} casts ${spell.name} for ${initialHit} damage, poisoning you!`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    } else if (spell.kind === "drain") {
+      playerLife -= spellDmg;
+      monsterLife = Math.min(monster.life, monsterLife + spellDmg);
+      log.push({
+        actor: "monster",
+        message: `${monster.name} casts ${spell.name}, draining ${spellDmg} life from you!`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
     }
 
-    let message = isMonsterCrit
-      ? `Critical hit! ${monster.name} deals ${dmg} damage.`
-      : `${monster.name} hits you for ${dmg} damage.`;
-
-    if (character.classId === "druid") {
-      const reductionPct = Math.round(Math.min(40, stats.stats.dexterity * 0.2));
-      message += ` Thick Hide absorbs ${reductionPct}%.`;
-    }
-
-    if (character.classId === "paladin") {
-      const healBack = Math.round(dmg * PALADIN_DAMAGE_TAKEN_HEAL);
+    if (character.classId === "paladin" && spellDmg > 0) {
+      const healBack = Math.round(spellDmg * PALADIN_DAMAGE_TAKEN_HEAL);
       playerLife = Math.min(stats.maxLife, playerLife + healBack);
-      message += ` Divine Retribution restores ${healBack} life.`;
     }
-
-    log.push({
-      actor: "monster",
-      message,
-      playerLife: Math.max(0, playerLife),
-      monsterLife: Math.max(0, monsterLife),
-    });
   } else {
-    log.push({
-      actor: "monster",
-      message: `${monster.name}'s attack misses.`,
-      playerLife: Math.max(0, playerLife),
-      monsterLife: Math.max(0, monsterLife),
-    });
+    // Normal attack
+    const monsterHitChance = rollHitChance(monster.attackRating, stats.defense);
+    if (Math.random() < monsterHitChance) {
+      const isMonsterCrit = Math.random() < MONSTER_CRIT_CHANCE;
+      let dmg = randomInRange(monster.damage);
+      if (isMonsterCrit) dmg = Math.round(dmg * 1.75);
+
+      if (character.classId === "druid") {
+        const reduction = Math.min(0.25, stats.stats.dexterity * 0.002);
+        dmg = Math.max(1, Math.round(dmg * (1 - reduction)));
+      }
+
+      playerLife -= dmg;
+
+      let message = isMonsterCrit
+        ? `Critical hit! ${monster.name} deals ${dmg} damage.`
+        : `${monster.name} hits you for ${dmg} damage.`;
+
+      if (character.classId === "druid") {
+        const reductionPct = Math.round(Math.min(25, stats.stats.dexterity * 0.2));
+        message += ` Thick Hide absorbs ${reductionPct}%.`;
+      }
+
+      if (character.classId === "paladin") {
+        const healBack = Math.round(dmg * PALADIN_DAMAGE_TAKEN_HEAL);
+        playerLife = Math.min(stats.maxLife, playerLife + healBack);
+        message += ` Divine Retribution restores ${healBack} life.`;
+      }
+
+      log.push({
+        actor: "monster",
+        message,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    } else {
+      log.push({
+        actor: "monster",
+        message: `${monster.name}'s attack misses.`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    }
   }
 
   const status: BattleStatus = playerLife <= 0 ? "defeat" : "ongoing";
-
-  return {
-    state: {
-      playerLife: Math.max(0, playerLife),
-      playerMana: Math.max(0, Math.round(playerMana)),
-      monsterLife: Math.max(0, monsterLife),
-      abilityCooldown,
-      healthPotionCooldown,
-      manaPotionCooldown,
-      poisonRounds,
-      poisonDamage,
-    },
-    log,
-    status,
-    damageDealt,
-  };
+  return { state: makeState(), log, status, damageDealt };
 }
