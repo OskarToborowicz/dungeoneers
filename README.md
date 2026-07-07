@@ -30,7 +30,7 @@ Seven classes are available, each with a unique resource type, active ability, a
 
 | Class | Resource | Weapon | Playstyle |
 |---|---|---|---|
-| Barbarian | Fury | Axe | Melee berserker, high crit |
+| Barbarian | Fury | Axe | Melee berserker, rage-fueled combatant |
 | Necromancer | Mana | Scythe | Poison DoT with lifesteal |
 | Sorceress | Mana | War Staff | Magic burst damage |
 | Amazon | Mana | Bow | Multi-hit ranged |
@@ -116,7 +116,6 @@ defense = round(gear defense bonuses + dexterity / 4)
 ```
 critChance = min(0.60, 0.05 + dexterity × 0.001)
 ```
-Barbarian adds +10% after this calculation; combined value is re-capped at 90%.
 
 ### Magic Damage Bonus
 ```
@@ -224,14 +223,13 @@ Monsters always have at least a 15% chance to hit regardless of the player's def
 | | Crit Chance | Crit Multiplier |
 |---|---|---|
 | Player (base) | 5% + dex×0.001 (cap 60%) | ×1.50 |
-| Barbarian passive | +10% (combined cap 90%) | ×1.25 |
 | Monster | 10% | ×1.75 |
 
 ### Mana Regeneration
 
 Every round, mana classes regenerate **5% of max mana** regardless of the action taken (including rounds when an ability is used). The Sorceress replaces this with **20% of max mana** on rounds where she uses a basic attack.
 
-Fury never regenerates. It starts at 20 per fight and builds by +10 per basic attack.
+Fury never regenerates. It starts at 20 per fight and builds by +10 per basic attack (+15 at level 35 with the Madness passive).
 
 ### Ability Cooldown
 
@@ -282,7 +280,7 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 
 | Class | Animation |
 |---|---|
-| Barbarian | Red spinning whirlwind |
+| Barbarian | Red spinning vortex (Blood Fury activation) |
 | Necromancer | Dagger thrust + green/purple poison clouds |
 | Sorceress | Expanding fireball with rays |
 | Amazon | Two arrows flying toward the enemy |
@@ -330,11 +328,21 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 
 ## Skills & Abilities
 
-### Barbarian — Whirlwind
-- **Kind**: burst (physical — no magic bonus)
-- **Fury Cost**: 15
+### Barbarian — Blood Fury
+- **Kind**: buff (no damage roll — activates a combat stance)
+- **Fury Cost**: 40
+- **Cooldown**: 3 turns — **starts after the buff expires**, not on cast
+- **Duration**: 3 turns
+- **Effect**: While active, grants +20% Life Steal on all hits, +25% Double Swing chance (stacks with the base 25%), and +20% bonus damage on all attacks
+- **Special**: Does **not** end the turn — the player also attacks on the activation turn
+
+### Barbarian — Obliterate
+- **Kind**: physical (no magic bonus)
+- **Fury Cost**: 30
 - **Cooldown**: 3 turns
-- **Damage**: `round(randomInRange(damage) × 2.2)`
+- **Damage**: `round((randomInRange(damage) + strength) × madnessMult)`
+- **Killing Blow**: if the strike kills the enemy, restores **10% of max life**
+- **Madness interaction**: if Fury was above 30 before paying the cost, the Madness 15% damage bonus applies
 
 ### Necromancer — Poison Dagger
 - **Kind**: dot (magic — gains `magicDamageBonus` per tick)
@@ -391,9 +399,22 @@ result = magic ? base + magicDamageBonus : base
 
 Passives are always active — no activation required.
 
-### Barbarian — Berserker's Edge
-- +10% crit chance (stacks on top of the Dexterity formula; combined value capped at 90%).
-- Crit multiplier is ×1.25 (25% bonus damage on crit), replacing the default ×1.50.
+### Barbarian — Double Swing *(always active)*
+- After every basic attack, **25% chance to strike a second time** (50% with Blood Fury active).
+- The follow-up rolls hit, miss, and crit **independently** — it is a full separate attack.
+
+### Barbarian — Iron Skin *(unlocks at level 20)*
+- Reduces all incoming damage (physical and spell) based on how much life is missing:
+```
+reduction = floor(missingLifePct / 5) × 2%
+```
+- Example: at 40% life missing → 8 × 2% = 16% damage reduction.
+- At 0% life missing the passive provides 0 reduction; it scales up as the Barbarian takes damage.
+
+### Barbarian — Madness *(unlocks at level 35)*
+- While **Fury exceeds 30**, all damage is increased by **15%** (applies to basic attacks, Blood Fury hits, and Obliterate).
+- Basic attacks generate **+5 Fury** (15 total per attack instead of 10).
+- The Fury check for the damage bonus is evaluated at the moment the attack or ability fires (before cost is deducted for Obliterate, which captures the pre-spend value).
 
 ### Necromancer — Soul Siphon
 - Each poison tick heals the Necromancer for **10% of that tick's damage**.

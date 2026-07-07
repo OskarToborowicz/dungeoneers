@@ -21,6 +21,20 @@ export interface ClassPassive {
   description: string;
 }
 
+export type AbilityKind = "burst" | "dot" | "multi" | "heal" | "bite" | "trap" | "buff" | "obliterate";
+
+export interface AbilityDefinition {
+  name: string;
+  description: string;
+  manaCost: number;
+  cooldown: number;
+  kind: AbilityKind;
+  power: number;
+  magic: boolean;
+  hits?: number;
+  canMiss?: boolean;
+}
+
 export interface ClassDefinition {
   id: ClassId;
   name: string;
@@ -31,17 +45,8 @@ export interface ClassDefinition {
   passive: ClassPassive;
   passive2?: ClassPassive & { levelRequirement: number };
   passive3?: ClassPassive & { levelRequirement: number };
-  ability: {
-    name: string;
-    description: string;
-    manaCost: number;
-    cooldown: number;
-    kind: "burst" | "dot" | "multi" | "heal" | "bite" | "trap";
-    power: number;
-    magic: boolean;
-    hits?: number;
-    canMiss?: boolean;
-  };
+  ability: AbilityDefinition;
+  ability2?: AbilityDefinition;
 }
 
 export type EquipmentSlot =
