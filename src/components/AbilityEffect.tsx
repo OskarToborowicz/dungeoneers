@@ -22,7 +22,8 @@ export function AbilityEffect({ classId, onDone, detonation = false, useAbility2
         {classId === "sorceress"   && <FireballFx />}
         {classId === "amazon"      && !useAbility2 && <MultishotFx />}
         {classId === "amazon"      && useAbility2  && <FreezingArrowFx />}
-        {classId === "paladin"     && <HolyBoltFx />}
+        {classId === "paladin"     && !useAbility2 && <HolyBoltFx />}
+        {classId === "paladin"     && useAbility2  && <RegenNovaFx />}
         {classId === "druid"       && <BiteFx />}
         {classId === "assassin"    && !detonation && <TrapPlantFx />}
         {classId === "assassin"    && detonation  && <TrapDetonateFx />}
@@ -195,6 +196,29 @@ function FreezingArrowFx() {
         {/* Outer frost ring */}
         <circle cx="152" cy="60" r="27" fill="none" stroke="#88ccee" strokeWidth="1.5" opacity="0.4" strokeDasharray="5 3"/>
       </g>
+    </g>
+  );
+}
+
+function RegenNovaFx() {
+  return (
+    <g style={{ transformOrigin: "70px 60px" }}>
+      {/* Expanding outer ring */}
+      <circle className="ae-regen-ring-1" cx="70" cy="60" r="28" fill="none" stroke="#aaee88" strokeWidth="2.5" opacity="0.85" style={{ transformOrigin: "70px 60px" }}/>
+      {/* Mid ring delayed */}
+      <circle className="ae-regen-ring-2" cx="70" cy="60" r="18" fill="none" stroke="#ddffa0" strokeWidth="2" opacity="0.9" style={{ transformOrigin: "70px 60px" }}/>
+      {/* Soft glow core */}
+      <g className="ae-regen-core" style={{ transformOrigin: "70px 60px" }}>
+        <circle cx="70" cy="60" r="12" fill="#99ee66" opacity="0.55"/>
+        <circle cx="70" cy="60" r="6"  fill="#eeffbb" opacity="0.9"/>
+        <circle cx="70" cy="60" r="3"  fill="#ffffff" opacity="0.95"/>
+      </g>
+      {/* Rising sparkles */}
+      <circle className="ae-regen-spark ae-rs-1" cx="70" cy="42" r="2.2" fill="#bbff77" opacity="0.9" style={{ transformOrigin: "70px 42px" }}/>
+      <circle className="ae-regen-spark ae-rs-2" cx="54" cy="50" r="1.8" fill="#aaffaa" opacity="0.85" style={{ transformOrigin: "54px 50px" }}/>
+      <circle className="ae-regen-spark ae-rs-3" cx="86" cy="50" r="1.8" fill="#ccff88" opacity="0.85" style={{ transformOrigin: "86px 50px" }}/>
+      <circle className="ae-regen-spark ae-rs-4" cx="60" cy="36" r="1.5" fill="#eeffcc" opacity="0.8" style={{ transformOrigin: "60px 36px" }}/>
+      <circle className="ae-regen-spark ae-rs-5" cx="80" cy="36" r="1.5" fill="#eeffcc" opacity="0.8" style={{ transformOrigin: "80px 36px" }}/>
     </g>
   );
 }

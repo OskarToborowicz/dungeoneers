@@ -210,7 +210,7 @@ export function CombatScreen({
             </svg>
           </div>
         )}
-        <div className="battle-side player-side">
+        <div className={`battle-side player-side${battle.regenRounds > 0 ? " regen-aura-active" : ""}`}>
           <CharacterSprite
               classId={character.classId}
               size={80}
@@ -284,10 +284,13 @@ export function CombatScreen({
               </button>
             )}
           </div>
-          {(battle.playerPoisonRounds > 0 || battle.playerBurnRounds > 0 || battle.bloodFuryRounds > 0) && (
+          {(battle.playerPoisonRounds > 0 || battle.playerBurnRounds > 0 || battle.bloodFuryRounds > 0 || battle.regenRounds > 0) && (
             <div className="status-effects">
               {battle.bloodFuryRounds > 0 && (
                 <span className="status-pill blood-fury">Blood Fury {battle.bloodFuryRounds}</span>
+              )}
+              {battle.regenRounds > 0 && (
+                <span className="status-pill regen">✦ Regen Nova {battle.regenRounds}</span>
               )}
               {battle.playerPoisonRounds > 0 && (
                 <span className="status-pill poison">☠ Poison {battle.playerPoisonRounds}</span>
@@ -368,7 +371,9 @@ export function CombatScreen({
             >
               {def.ability2.name}
               <span className="action-cost">
-                {battle.ability2Cooldown > 0
+                {battle.regenRounds > 0 && def.ability2.kind === "regen"
+                  ? `Active: ${battle.regenRounds} turns`
+                  : battle.ability2Cooldown > 0
                   ? `Cooldown: ${battle.ability2Cooldown}`
                   : `${def.ability2.manaCost} ${def.resourceName.toLowerCase()}`}
               </span>

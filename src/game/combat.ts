@@ -29,6 +29,7 @@ export interface BattleState {
   bloodFuryRounds: number;
   ability2Cooldown: number;
   frozenRounds: number;
+  regenRounds: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "ability2" | "healthPotion" | "manaPotion";
@@ -116,6 +117,7 @@ export function createBattleState(
     bloodFuryRounds: 0,
     ability2Cooldown: 0,
     frozenRounds: 0,
+    regenRounds: 0,
   };
 }
 
@@ -129,6 +131,7 @@ export function canUseAbility(character: Character, state: BattleState): boolean
 export function canUseAbility2(character: Character, state: BattleState): boolean {
   const def = CLASSES[character.classId];
   if (!def.ability2) return false;
+  if (def.ability2.kind === "regen" && state.regenRounds > 0) return false;
   return state.playerMana >= def.ability2.manaCost && state.ability2Cooldown <= 0;
 }
 
@@ -220,6 +223,10 @@ export function getAbility2Preview(character: Character, stats: DerivedStats): D
     const dexBonus = Math.round(stats.stats.dexterity * 0.5);
     return { label: `~${avg + dexBonus} + freeze`, type: "Physical" };
   }
+  if (ability.kind === "regen") {
+    const healPerTick = Math.round(stats.maxLife * 0.10);
+    return { label: `3× ${healPerTick} heal`, type: "Heal" };
+  }
   return { label: "—", type: "Physical" };
 }
 
@@ -236,7 +243,7 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds } = state;
   let damageDealt = 0;
   let trapDetonated = false;
 
@@ -472,14 +479,31 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+      } else if (def.ability2.kind === "regen") {
+        ability2Cooldown = 0; // cooldown set when buff fades, not on cast
+        regenRounds = 3;
+        const firstHeal = Math.round(stats.maxLife * 0.10);
+        playerLife = Math.min(stats.maxLife, playerLife + firstHeal);
+        log.push({
+          actor: "player",
+          message: `Regenerating Nova radiates holy light — you recover ${firstHeal} life! (3 turns)`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+        doBasicAttack();
       }
     } else if (action === "healthPotion" && healthPotionCooldown <= 0) {
       const before = playerLife;
-      playerLife = Math.min(stats.maxLife, playerLife + Math.round(stats.maxLife * POTION_RESTORE_RATE));
+      const defensiveAuraPotionBonus = character.classId === "paladin" && character.level >= 20
+        ? Math.round(stats.maxLife * 0.10) : 0;
+      playerLife = Math.min(stats.maxLife, playerLife + Math.round(stats.maxLife * POTION_RESTORE_RATE) + defensiveAuraPotionBonus);
       healthPotionCooldown = POTION_COOLDOWN;
+      const potionRestored = playerLife - before;
       log.push({
         actor: "player",
-        message: `You drink a Health Potion, restoring ${playerLife - before} life.`,
+        message: defensiveAuraPotionBonus > 0
+          ? `You drink a Health Potion, restoring ${potionRestored} life (Defensive Aura bonus included).`
+          : `You drink a Health Potion, restoring ${potionRestored} life.`,
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });
@@ -506,6 +530,27 @@ export function resolveRound(
     bloodFuryRounds -= 1;
     if (bloodFuryRounds === 0) abilityCooldown = def.ability.cooldown;
   }
+  if (regenRounds > 0) {
+    regenRounds -= 1;
+    if (regenRounds > 0) {
+      const regenHeal = Math.round(stats.maxLife * 0.10);
+      playerLife = Math.min(stats.maxLife, playerLife + regenHeal);
+      log.push({
+        actor: "player",
+        message: `Regenerating Nova pulses — you recover ${regenHeal} life! (${regenRounds} turn${regenRounds !== 1 ? "s" : ""} remaining)`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    } else {
+      if (def.ability2 && def.ability2.kind === "regen") ability2Cooldown = def.ability2.cooldown;
+      log.push({
+        actor: "player",
+        message: "Regenerating Nova fades.",
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    }
+  }
   if (def.resourceType === "mana" && playerMana < stats.maxMana) {
     const isSorceressAttackRegen = character.classId === "sorceress" && action === "attack";
     const regenRate = isSorceressAttackRegen ? SORCERESS_ATTACK_MANA_REGEN_RATE : MANA_REGEN_RATE;
@@ -531,6 +576,7 @@ export function resolveRound(
       bloodFuryRounds,
       ability2Cooldown,
       frozenRounds,
+      regenRounds,
     };
   }
 
@@ -667,6 +713,12 @@ export function resolveRound(
     if (character.classId === "paladin" && spellDmg > 0) {
       const healBack = Math.round(spellDmg * PALADIN_DAMAGE_TAKEN_HEAL);
       playerLife = Math.min(stats.maxLife, playerLife + healBack);
+      if (character.level >= 35) {
+        const thornsDmg = Math.round(spellDmg * 0.20);
+        monsterLife -= thornsDmg;
+        damageDealt += thornsDmg;
+        log.push({ actor: "player", message: `Thorns Aura reflects ${thornsDmg} damage back!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+      }
     }
     } // end !amazonDodgedSpell
   } else {
@@ -680,7 +732,8 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
     }
-    const monsterHitChance = rollHitChance(monster.attackRating, stats.defense);
+    const defenseAuraBonus = character.classId === "paladin" && character.level >= 20 ? 1.15 : 1.0;
+    const monsterHitChance = rollHitChance(monster.attackRating, Math.round(stats.defense * defenseAuraBonus));
     if (!amazonDodged && Math.random() < monsterHitChance) {
       const isMonsterCrit = Math.random() < MONSTER_CRIT_CHANCE;
       let dmg = randomInRange(monster.damage);
@@ -713,6 +766,12 @@ export function resolveRound(
         const healBack = Math.round(dmg * PALADIN_DAMAGE_TAKEN_HEAL);
         playerLife = Math.min(stats.maxLife, playerLife + healBack);
         message += ` Divine Retribution restores ${healBack} life.`;
+        if (character.level >= 35) {
+          const thornsDmg = Math.round(dmg * 0.20);
+          monsterLife -= thornsDmg;
+          damageDealt += thornsDmg;
+          message += ` Thorns Aura reflects ${thornsDmg} damage!`;
+        }
       }
 
       log.push({

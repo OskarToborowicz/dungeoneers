@@ -1454,6 +1454,59 @@
   border: 1px solid #44aadd;
   color: #88ddff;
 }
+.status-pill.regen {
+  background: rgba(80, 200, 80, 0.18);
+  border: 1px solid #66cc66;
+  color: #aaffaa;
+  animation: regen-pill-pulse 1.1s ease-in-out infinite;
+}
+@keyframes regen-pill-pulse {
+  0%, 100% { box-shadow: 0 0 0px #66cc6600; }
+  50%       { box-shadow: 0 0 7px #66cc6699; }
+}
+
+/* Regenerating Nova animation */
+.ae-regen-ring-1 {
+  animation: ae-regen-ring-expand 0.7s ease-out forwards;
+}
+@keyframes ae-regen-ring-expand {
+  0%   { r: 4; opacity: 0.9; }
+  100% { r: 38; opacity: 0; }
+}
+.ae-regen-ring-2 {
+  animation: ae-regen-ring-expand 0.7s 0.12s ease-out forwards;
+}
+.ae-regen-core {
+  animation: ae-regen-core-pop 0.55s ease-out both;
+}
+@keyframes ae-regen-core-pop {
+  0%   { transform: scale(0.1); opacity: 0; }
+  55%  { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.85; }
+}
+.ae-regen-spark {
+  animation: ae-regen-spark-rise 0.65s ease-out both;
+}
+.ae-rs-1 { animation-delay: 0.10s; }
+.ae-rs-2 { animation-delay: 0.16s; }
+.ae-rs-3 { animation-delay: 0.16s; }
+.ae-rs-4 { animation-delay: 0.22s; }
+.ae-rs-5 { animation-delay: 0.22s; }
+@keyframes ae-regen-spark-rise {
+  0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+  40%  { opacity: 1; }
+  100% { transform: translateY(-18px) scale(1.2); opacity: 0; }
+}
+
+/* Player-side regen glow while aura is active */
+.regen-aura-active {
+  animation: regen-aura-pulse 1.1s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px #88ff88);
+}
+@keyframes regen-aura-pulse {
+  0%, 100% { filter: drop-shadow(0 0 4px #44aa4422); }
+  50%       { filter: drop-shadow(0 0 12px #88ff88aa); }
+}
 
 /* Freezing Shot animation */
 .ae-ice-arrow {

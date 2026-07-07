@@ -34,7 +34,7 @@ Seven classes are available, each with a unique resource type, active ability, a
 | Necromancer | Mana | Scythe | Poison DoT with lifesteal |
 | Sorceress | Mana | War Staff | Magic burst damage |
 | Amazon | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities |
-| Paladin | Mana | Mace | Tank/sustain, converts damage to life |
+| Paladin | Mana | Mace | Tank/sustain with healing aura — 2 active abilities, 3 passives |
 | Druid | Mana | Totem | Dex-scaling melee with lifesteal and damage reduction |
 | Assassin | Mana | Claw | Dex-scaling trap setter; trap detonates after monster's turn |
 
@@ -291,6 +291,7 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 | Amazon | Multishot | Two green arrows flying toward the enemy |
 | Amazon | Freezing Shot | Icy blue arrow flying toward the enemy + frost explosion on impact |
 | Paladin | Holy Bolt | Golden holy cross with radiant pulse |
+| Paladin | Regenerating Nova | Green healing rings expand from the player with rising sparkles |
 | Druid | Werewolf Bite | Three green claw slashes |
 | Assassin | Fire Trap | Blue trap placed on field; cyan explosion on detonation |
 
@@ -386,6 +387,15 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Damage**: `round(randomInRange(damage) × 1.6) + magicDamageBonus`
 - **Heal**: `round(damage × 0.35)` life restored to the player
 
+### Paladin — Regenerating Nova *(Ability 2)*
+- **Kind**: regen (no damage roll)
+- **Mana Cost**: 50
+- **Cooldown**: 3 turns — **starts after the aura fades**, not on cast
+- **Duration**: 3 turns
+- **Heal per turn**: `round(maxLife × 0.10)` — 10% of maximum life
+- **Special**: Does **not** end the turn — the player also attacks on the activation turn
+- **Status display**: ✦ Regen Nova N pill on the player, with a pulsing green glow on the sprite for each remaining turn
+
 ### Druid — Werewolf Bite
 - **Kind**: bite (physical — no magic bonus)
 - **Mana Cost**: 18
@@ -448,8 +458,17 @@ reduction = floor(missingLifePct / 5) × 2%
 - After any Critical Strike, fires a **bonus follow-up arrow** dealing **50% of the crit's damage**. The follow-up arrow cannot itself critically strike.
 - Triggers on basic attacks and on each individual Multishot arrow that crits.
 
-### Paladin — Divine Retribution
-- On every hit taken, heals **15% of the incoming damage**.
+### Paladin — Divine Retribution *(always active)*
+- On every hit taken (physical or spell), heals **15% of the incoming damage**.
+
+### Paladin — Defensive Aura *(unlocks at level 20)*
+- Increases effective Defense by **15%** when calculating monster physical hit chance.
+- Health Potions restore an additional **10% of maximum life** on top of the standard 35%.
+
+### Paladin — Thorns Aura *(unlocks at level 35)*
+- After every physical hit or spell that damages the player, deals **20% of that damage** back to the attacker.
+- Applies after Divine Retribution; the reflected damage is tracked in `damageDealt` for the run summary.
+- Can kill a monster via reflected damage.
 
 ### Druid — Thick Hide
 - On every monster hit, reduces incoming damage by a percentage based on Dexterity:
