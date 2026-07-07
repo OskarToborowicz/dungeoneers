@@ -134,10 +134,12 @@ const WEAPON_BASE: Record<ClassId, (c: string) => ReactNode> = {
   ),
   necromancer: () => (
     <>
-      <rect x="54" y="2" width="4" height="52" rx="2" />
-      <ellipse cx="56" cy="10" rx="9" ry="10" />
-      <ellipse cx="52" cy="8" rx="3" ry="3.5" fill="#000" stroke="none" />
-      <ellipse cx="60" cy="8" rx="3" ry="3.5" fill="#000" stroke="none" />
+      {/* Pole */}
+      <line x1="56" y1="56" x2="50" y2="-2" strokeWidth="3.5" />
+      {/* Blade outer arc */}
+      <path d="M50 -2 C42 -16 20 -20 16 -4 C22 -2 38 -7 50 -2" fill="none" strokeWidth="3" />
+      {/* Blade inner cutting edge */}
+      <path d="M50 -2 C44 -10 26 -12 18 -3" fill="none" strokeWidth="1.5" />
     </>
   ),
   sorceress: (c) => (
@@ -179,15 +181,16 @@ const WEAPON_UNIQUE: Record<ClassId, (c: string) => ReactNode> = {
       <line x1="62" y1="42" x2="70" y2="33" strokeWidth="2.2" />
     </>
   ),
-  necromancer: () => (
+  necromancer: (c) => (
     <>
-      <rect x="54" y="2" width="4" height="52" rx="2" />
-      {/* Skull with horns */}
-      <ellipse cx="56" cy="10" rx="11" ry="12" />
-      <path d="M46 4 Q40 -6 46 -10 Q51 -2 48 4" />
-      <path d="M66 4 Q72 -6 66 -10 Q61 -2 64 4" />
-      <ellipse cx="51" cy="9" rx="3.5" ry="4" fill="#000" stroke="none" />
-      <ellipse cx="61" cy="9" rx="3.5" ry="4" fill="#000" stroke="none" />
+      {/* Pole */}
+      <line x1="56" y1="56" x2="50" y2="-2" strokeWidth="3.5" />
+      {/* Blade outer arc — wider on unique */}
+      <path d="M50 -2 C40 -20 14 -24 10 -4 C18 -2 38 -8 50 -2" fill="none" strokeWidth="3.5" />
+      {/* Inner cutting edge */}
+      <path d="M50 -2 C42 -12 22 -14 14 -3" fill="none" strokeWidth="2" />
+      {/* Blade glow */}
+      <path d="M50 -2 C42 -14 22 -16 14 -4" fill={c} fillOpacity="0.25" stroke="none" />
     </>
   ),
   sorceress: (c) => (

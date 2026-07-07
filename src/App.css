@@ -1088,6 +1088,12 @@
   color: #66dd44;
 }
 
+.status-pill.burn {
+  background: rgba(220, 80, 0, 0.18);
+  border: 1px solid #dd5500;
+  color: #ff8833;
+}
+
 .mana-value {
   font-size: 11px;
   color: #6f8fff;

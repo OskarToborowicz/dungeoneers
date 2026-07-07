@@ -151,9 +151,14 @@ export function CombatScreen({
           </div>
           <div className="hp-value">{battle.playerLife} / {derived.maxLife}</div>
           <div className={def.resourceType === "fury" ? "fury-value" : "mana-value"}>{battle.playerMana} / {derived.maxMana} {def.resourceName.toLowerCase()}</div>
-          {battle.playerPoisonRounds > 0 && (
+          {(battle.playerPoisonRounds > 0 || battle.playerBurnRounds > 0) && (
             <div className="status-effects">
-              <span className="status-pill poison">☠ Poison {battle.playerPoisonRounds}</span>
+              {battle.playerPoisonRounds > 0 && (
+                <span className="status-pill poison">☠ Poison {battle.playerPoisonRounds}</span>
+              )}
+              {battle.playerBurnRounds > 0 && (
+                <span className="status-pill burn">🔥 Burn {battle.playerBurnRounds}</span>
+              )}
             </div>
           )}
         </div>

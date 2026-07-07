@@ -23,6 +23,8 @@ export interface BattleState {
   monsterSpellCooldown: number;
   playerPoisonRounds: number;
   playerPoisonDamage: number;
+  playerBurnRounds: number;
+  playerBurnDamage: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "healthPotion" | "manaPotion";
@@ -90,6 +92,8 @@ export function createBattleState(
     monsterSpellCooldown: 0,
     playerPoisonRounds: 0,
     playerPoisonDamage: 0,
+    playerBurnRounds: 0,
+    playerBurnDamage: 0,
   };
 }
 
@@ -123,7 +127,7 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage } = state;
   let damageDealt = 0;
 
   if (monsterLife > 0) {
@@ -281,6 +285,8 @@ export function resolveRound(
       monsterSpellCooldown,
       playerPoisonRounds,
       playerPoisonDamage,
+      playerBurnRounds,
+      playerBurnDamage,
     };
   }
 
@@ -294,7 +300,19 @@ export function resolveRound(
     playerPoisonRounds -= 1;
     log.push({
       actor: "monster",
-      message: `Poison burns you for ${playerPoisonDamage} damage.`,
+      message: `Poison courses through you for ${playerPoisonDamage} damage.`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+  }
+
+  // Player-burn tick from monster burn spell (start of monster turn)
+  if (playerBurnRounds > 0) {
+    playerLife -= playerBurnDamage;
+    playerBurnRounds -= 1;
+    log.push({
+      actor: "monster",
+      message: `Fire burns you for ${playerBurnDamage} damage.`,
       playerLife: Math.max(0, playerLife),
       monsterLife: Math.max(0, monsterLife),
     });
@@ -345,6 +363,17 @@ export function resolveRound(
       log.push({
         actor: "monster",
         message: `${monster.name} casts ${spell.name} for ${initialHit} damage, poisoning you!`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    } else if (spell.kind === "burn") {
+      const initialHit = Math.round(spellDmg * 0.4);
+      playerLife -= initialHit;
+      playerBurnRounds = 3;
+      playerBurnDamage = Math.round(spellDmg * 0.4);
+      log.push({
+        actor: "monster",
+        message: `${monster.name} casts ${spell.name} for ${initialHit} damage, setting you ablaze!`,
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });

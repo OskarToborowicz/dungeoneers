@@ -58,17 +58,53 @@ const MONSTER_COLORS: Record<string, string> = {
   boss_andariel: "#88cc22",
 };
 
-function getAnimate(state: SpriteState) {
-  if (state === "idle") return { y: [0, -5, 0] };
-  if (state === "attack") return { y: [0, -10, 4, 0] };
+type AnimStyle = "float" | "sway" | "stomp" | "skitter" | "pulse" | "lurch";
+
+const TYPE_ANIM: Record<string, AnimStyle> = {
+  fallen: "skitter", fallen_elite: "skitter",
+  bird: "float",
+  shaman: "sway", hag: "sway",
+  zombie: "lurch",
+  beast: "stomp", brute: "stomp",
+  ratspike: "skitter",
+  wraith: "float",
+  scarab: "skitter",
+  skeleton_archer: "sway",
+  boss_undead: "stomp", boss_shaman: "pulse",
+  boss_fallen: "stomp", boss_tree: "stomp",
+  boss_countess: "sway", boss_andariel: "pulse",
+  succubus: "float",
+};
+
+function getAnimate(state: SpriteState, type: string) {
+  const style: AnimStyle = TYPE_ANIM[type] ?? "sway";
+  if (state === "idle") {
+    if (style === "float")   return { y: [0, -8, 0], x: [0, 2, 0, -2, 0] };
+    if (style === "sway")    return { x: [0, 4, 0, -4, 0], y: [0, -2, 0] };
+    if (style === "stomp")   return { y: [0, -3, 0, -3, 0] };
+    if (style === "skitter") return { x: [0, 3, -2, 3, 0], y: [0, -3, 0] };
+    if (style === "pulse")   return { scale: [1, 1.04, 1], y: [0, -4, 0] };
+    if (style === "lurch")   return { x: [0, -3, 0], y: [0, -2, 0] };
+    return { y: [0, -5, 0] };
+  }
+  if (state === "attack") {
+    if (style === "stomp" || style === "pulse") return { y: [0, -14, 6, 0], x: [0, -4, 0] };
+    if (style === "skitter") return { x: [0, -14, 4, 0], y: [0, -6, 0] };
+    if (style === "float")   return { y: [0, -14, 4, 0], x: [0, -6, 0] };
+    return { y: [0, -12, 4, 0], x: [0, -4, 0] };
+  }
   if (state === "hit") return { x: [0, 10, -10, 6, -6, 0] };
   return { y: 26, opacity: 0.25 };
 }
 
-function getTransition(state: SpriteState) {
-  if (state === "idle") return { duration: 2.0, repeat: Infinity, ease: "easeInOut" as const };
+function getTransition(state: SpriteState, type: string) {
+  const style: AnimStyle = TYPE_ANIM[type] ?? "sway";
+  if (state === "idle") {
+    const dur = style === "skitter" ? 1.2 : style === "stomp" ? 1.6 : style === "float" ? 2.8 : style === "lurch" ? 3.2 : 2.0;
+    return { duration: dur, repeat: Infinity, ease: "easeInOut" as const };
+  }
   if (state === "attack") return { duration: 0.4 };
-  if (state === "hit") return { duration: 0.38 };
+  if (state === "hit")    return { duration: 0.38 };
   return { duration: 0.55, ease: "easeIn" as const };
 }
 
@@ -601,8 +637,8 @@ export function MonsterSprite({ name, size = 64, state = "idle" }: Props) {
     >
       <motion.g
         key={animKey}
-        animate={getAnimate(state)}
-        transition={getTransition(state)}
+        animate={getAnimate(state, type)}
+        transition={getTransition(state, type)}
         fill="#120e0a"
         stroke={color}
         strokeWidth="1.8"

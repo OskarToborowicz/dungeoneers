@@ -93,7 +93,7 @@ export interface Character {
 
 export interface MonsterSpell {
   name: string;
-  kind: "burst" | "dot" | "drain";
+  kind: "burst" | "dot" | "burn" | "drain";
   power: number;
   chance: number;
   cooldown: number;

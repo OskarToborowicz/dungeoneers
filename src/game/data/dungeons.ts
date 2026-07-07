@@ -47,7 +47,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       monster("Devilkin", 4, 36, [6, 10], 9, 34, 28, [5, 10]),
     ],
     boss: monster("Bishibosh", 5, 110, [9, 16], 16, 40, 120, [30, 55],
-      { name: "Fire Wall", kind: "dot", power: 1.6, chance: 0.35, cooldown: 3 }),
+      { name: "Fire Wall", kind: "burn", power: 1.6, chance: 0.35, cooldown: 3 }),
   },
   {
     id: "stony-field",

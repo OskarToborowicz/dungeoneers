@@ -11,7 +11,8 @@ interface ItemBase {
 
 const WEAPON_BASES: ItemBase[] = [
   { name: "Axe",      slot: "weapon", baseDamage: [2, 6], twoHanded: false, allowedClasses: ["barbarian"] },
-  { name: "War Staff",slot: "weapon", baseDamage: [2, 8], twoHanded: true,  allowedClasses: ["necromancer", "sorceress"] },
+  { name: "Scythe",   slot: "weapon", baseDamage: [3, 8], twoHanded: true,  allowedClasses: ["necromancer"] },
+  { name: "War Staff",slot: "weapon", baseDamage: [2, 8], twoHanded: true,  allowedClasses: ["sorceress"] },
   { name: "Bow",      slot: "weapon", baseDamage: [3, 7], twoHanded: true,  allowedClasses: ["amazon"] },
   { name: "Mace",     slot: "weapon", baseDamage: [3, 4], twoHanded: false, allowedClasses: ["paladin"] },
   { name: "Totem",    slot: "weapon", baseDamage: [2, 6], twoHanded: true,  allowedClasses: ["druid"] },
