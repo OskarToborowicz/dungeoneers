@@ -90,6 +90,7 @@ function App() {
   if (!character) {
     return (
       <CharacterCreation
+        onBack={() => setCreating(false)}
         onCreate={(name: string, classId: ClassId) => {
           const newCharacter = createCharacter(name, classId);
           const newShopStock = generateShopStock(1, classId);

@@ -6,9 +6,10 @@ import type { ClassId } from "../game/types";
 
 interface Props {
   onCreate: (name: string, classId: ClassId) => void;
+  onBack: () => void;
 }
 
-export function CharacterCreation({ onCreate }: Props) {
+export function CharacterCreation({ onCreate, onBack }: Props) {
   const [name, setName] = useState("");
   const [classId, setClassId] = useState<ClassId>(CLASS_LIST[0].id);
 
@@ -89,13 +90,18 @@ export function CharacterCreation({ onCreate }: Props) {
         onChange={(e) => setName(e.target.value)}
       />
 
-      <button
-        className="primary-button"
-        disabled={name.trim().length === 0}
-        onClick={() => onCreate(name.trim(), classId)}
-      >
-        Begin Your Journey
-      </button>
+      <div className="creation-bottom-row">
+        <button className="secondary-button" onClick={onBack}>
+          Back
+        </button>
+        <button
+          className="primary-button"
+          disabled={name.trim().length === 0}
+          onClick={() => onCreate(name.trim(), classId)}
+        >
+          Begin Your Journey
+        </button>
+      </div>
     </div>
   );
 }
