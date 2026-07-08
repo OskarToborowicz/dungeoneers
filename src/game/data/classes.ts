@@ -38,7 +38,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     },
     ability2: {
       name: "Obliterate",
-      description: "A savage blow that deals weapon damage + Strength. If it kills the enemy, restore 10% of your maximum life.",
+      description: "A savage blow that deals weapon damage + 0.5× Strength. If it kills the enemy, restore 10% of your maximum life.",
       short: "A Strength-powered blow. Killing blows restore some life.",
       manaCost: 30,
       cooldown: 3,
