@@ -10,6 +10,8 @@ const STAT_LABEL: Record<string, string> = {
   defense: "Defense",
   life: "Life",
   mana: "Mana",
+  magicDamage: "Magic Damage",
+  goldFind: "% Gold Find",
 };
 
 export function ItemTooltip({ item }: { item: Item }) {
