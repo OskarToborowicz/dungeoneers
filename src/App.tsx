@@ -62,10 +62,19 @@ function App() {
   }, []);
 
   useEffect(() => {
-    if (!loaded || !activeSlotId || !character) return;
-    const save: SaveGame = { character, equipment, inventory, clearedDungeons, consumables, shopStock };
+    if (!dungeonRun) return;
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      e.preventDefault();
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dungeonRun]);
+
+  useEffect(() => {
+    if (!loaded || !activeSlotId || !character || dungeonRun) return;
+    const save: SaveGame = { character, equipment, inventory, clearedDungeons, consumables, shopStock, inCombat: false };
     writeSave(activeSlotId, save);
-  }, [loaded, activeSlotId, character, equipment, inventory, clearedDungeons, consumables, shopStock]);
+  }, [loaded, activeSlotId, character, equipment, inventory, clearedDungeons, consumables, shopStock, dungeonRun]);
 
   if (!loaded) return null;
 
@@ -125,6 +134,19 @@ function App() {
   function handleSelectSlot(slotId: string) {
     const save = getSave(slotId);
     if (!save) return;
+    if (save.inCombat) {
+      deleteSave(slotId);
+      setSlots(getAllSaves());
+      setDeathSummary({
+        characterName: save.character.name,
+        classId: save.character.classId,
+        level: save.character.level,
+        damageDealt: save.character.runStats.damageDealt,
+        goldEarned: save.character.runStats.goldEarned,
+        kills: save.character.runStats.kills,
+      });
+      return;
+    }
     setActiveSlotId(slotId);
     setCharacter(save.character);
     setEquipment(save.equipment);
@@ -133,6 +155,7 @@ function App() {
     setConsumables(save.consumables ?? EMPTY_CONSUMABLES);
     setShopStock(save.shopStock ?? generateShopStock(save.character.level, save.character.classId));
     setDungeonRun(null);
+    setSelectedAct(1);
   }
 
   function handleDeleteSlot(slotId: string) {
@@ -257,6 +280,9 @@ function App() {
     if (!character) return;
     const dungeon = DUNGEONS.find((d) => d.id === dungeonId);
     if (!dungeon) return;
+    if (activeSlotId) {
+      writeSave(activeSlotId, { character, equipment, inventory, clearedDungeons, consumables, shopStock, inCombat: true });
+    }
     setDungeonRun({
       dungeonId,
       queue: [...dungeon.waves, dungeon.boss],

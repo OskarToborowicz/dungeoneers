@@ -159,4 +159,5 @@ export interface SaveGame {
   clearedDungeons: string[];
   consumables: Record<ConsumableId, number>;
   shopStock: Item[];
+  inCombat?: boolean;
 }
