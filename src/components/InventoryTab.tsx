@@ -111,7 +111,6 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
       <div className="paperdoll">
         {EQUIP_SLOTS.map((slot) => {
           const item = equipment[slot];
-          const slotHighlight = hasSelected && dragOver !== slot;
           return (
             <div
               key={slot}
