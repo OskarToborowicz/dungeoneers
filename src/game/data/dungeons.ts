@@ -20,9 +20,12 @@ export const REGULAR_DUNGEON_COUNT_ACT2 = 5;
 export const REGULAR_DUNGEON_COUNT = REGULAR_DUNGEON_COUNT_ACT1;
 
 export function getXpCapLevel(clearedDungeons: string[], currentDungeonId?: string): number {
-  const relevant = currentDungeonId ? [...clearedDungeons, currentDungeonId] : clearedDungeons;
+  if (currentDungeonId) {
+    const dungeon = DUNGEONS.find((d) => d.id === currentDungeonId);
+    if (dungeon) return dungeon.boss.level + 5;
+  }
   const maxBossLevel = DUNGEONS
-    .filter((d) => relevant.includes(d.id))
+    .filter((d) => clearedDungeons.includes(d.id))
     .reduce((max, d) => Math.max(max, d.boss.level), 0);
   const baseLevel = maxBossLevel === 0 ? DUNGEONS[0].boss.level : maxBossLevel;
   return baseLevel + 5;
