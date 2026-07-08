@@ -49,6 +49,8 @@ const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: nu
   { label: "of Protection", stat: "defense", min: 2, max: 10 },
   { label: "of Life", stat: "life", min: 5, max: 20 },
   { label: "of Mana", stat: "mana", min: 5, max: 20 },
+  { label: "of Arcane Power", stat: "magicDamage", min: 1, max: 3 },
+  { label: "of Greed", stat: "goldFind", min: 15, max: 25 },
 ];
 
 function rollRarity(maxRarity: ItemRarity = "unique", minRarity: ItemRarity = "normal"): (typeof RARITY_ROLLS)[number] {
@@ -72,9 +74,18 @@ function shopMaxRarity(characterLevel: number): ItemRarity {
   return "unique";
 }
 
-function rollAffixes(count: number, itemLevel: number): ItemAffix[] {
+const DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = ["weapon", "shield", "ring1", "ring2", "amulet", "gloves"];
+const MAGIC_DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = ["weapon", "shield", "ring1", "ring2", "amulet", "gloves"];
+const GOLD_FIND_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "belt"];
+
+function rollAffixes(count: number, itemLevel: number, slot: EquipmentSlot): ItemAffix[] {
   const affixes: ItemAffix[] = [];
-  const pool = [...AFFIX_POOL];
+  const pool = AFFIX_POOL.filter((a) => {
+    if (a.stat === "damage") return DAMAGE_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "magicDamage") return MAGIC_DAMAGE_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "goldFind") return GOLD_FIND_AFFIX_SLOTS.includes(slot);
+    return true;
+  });
   for (let i = 0; i < count && pool.length > 0; i++) {
     const index = Math.floor(Math.random() * pool.length);
     const [chosen] = pool.splice(index, 1);
@@ -115,7 +126,7 @@ export function generateRandomItem(itemLevel: number, classId?: ClassId, maxRari
     slot,
     rarity: effectiveRarityEntry.rarity,
     itemLevel,
-    affixes: rollAffixes(affixCount, itemLevel),
+    affixes: rollAffixes(affixCount, itemLevel, slot),
   };
 
   if (base.baseDamage) {

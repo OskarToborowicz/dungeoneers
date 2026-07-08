@@ -97,7 +97,7 @@ export function CombatScreen({
       setLog((prev) => [...prev, ...result.log]);
       setStatus(result.status);
       setTotalDamageDealt((d) => d + result.damageDealt);
-      setReward({ xp: monster.xpReward, gold: rollGoldReward(monster) });
+      setReward({ xp: monster.xpReward, gold: rollGoldReward(monster, derived.goldFindBonus) });
       setPlayerAnim("attack");
       setTimeout(() => { setPlayerAnim("idle"); setMonsterAnim("dead"); }, 500);
     } else if (result.status === "defeat") {

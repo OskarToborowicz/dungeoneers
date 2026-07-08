@@ -151,8 +151,9 @@ export function getCritMultiplier(_character: Character): number {
   return DEFAULT_CRIT_MULTIPLIER;
 }
 
-export function rollGoldReward(monster: MonsterDefinition): number {
-  return randomInRange(monster.goldReward);
+export function rollGoldReward(monster: MonsterDefinition, goldFindBonus = 0): number {
+  const base = randomInRange(monster.goldReward);
+  return Math.round(base * (1 + goldFindBonus / 100));
 }
 
 export interface DamagePreview {

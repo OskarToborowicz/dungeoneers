@@ -32,6 +32,8 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
   defenseBonus: number;
   lifeBonus: number;
   manaBonus: number;
+  magicDamageBonus: number;
+  goldFindBonus: number;
   weaponDamage?: [number, number];
 } {
   const stats: BaseStats = { strength: 0, dexterity: 0, vitality: 0, energy: 0 };
@@ -39,6 +41,8 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
   let defenseBonus = 0;
   let lifeBonus = 0;
   let manaBonus = 0;
+  let magicDamageBonus = 0;
+  let goldFindBonus = 0;
   let weaponDamage: [number, number] | undefined;
 
   for (const item of Object.values(equipment)) {
@@ -55,11 +59,13 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
       else if (affix.stat === "defense") defenseBonus += affix.value;
       else if (affix.stat === "life") lifeBonus += affix.value;
       else if (affix.stat === "mana") manaBonus += affix.value;
+      else if (affix.stat === "magicDamage") magicDamageBonus += affix.value;
+      else if (affix.stat === "goldFind") goldFindBonus += affix.value;
       else stats[affix.stat] += affix.value;
     }
   }
 
-  return { stats, damageBonus, defenseBonus, lifeBonus, manaBonus, weaponDamage };
+  return { stats, damageBonus, defenseBonus, lifeBonus, manaBonus, magicDamageBonus, goldFindBonus, weaponDamage };
 }
 
 export interface DerivedStats {
@@ -70,6 +76,7 @@ export interface DerivedStats {
   defense: number;
   critChance: number;
   magicDamageBonus: number;
+  goldFindBonus: number;
 }
 
 export function getDerivedStats(
@@ -99,9 +106,9 @@ export function getDerivedStats(
 
   const defense = Math.round(equip.defenseBonus + stats.dexterity / 4);
   const critChance = Math.min(0.6, 0.05 + stats.dexterity * 0.001);
-  const magicDamageBonus = Math.floor(stats.energy / 5);
+  const magicDamageBonus = Math.floor(stats.energy / 5) + equip.magicDamageBonus;
 
-  return { stats, maxLife, maxMana, damage, defense, critChance, magicDamageBonus };
+  return { stats, maxLife, maxMana, damage, defense, critChance, magicDamageBonus, goldFindBonus: equip.goldFindBonus };
 }
 
 export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {
