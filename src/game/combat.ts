@@ -464,7 +464,7 @@ export function resolveRound(
       } else if (def.ability2.kind === "obliterate") {
         const madnessMult = character.classId === "barbarian" && character.level >= 35 && furyBeforeCost > BARBARIAN_MADNESS_FURY_THRESHOLD ? 1 + BARBARIAN_MADNESS_DAMAGE_BONUS : 1.0;
         const baseDmg = randomInRange(stats.damage);
-        const strBonus = stats.stats.strength;
+        const strBonus = Math.round(stats.stats.strength * 0.5);
         const dmg = Math.round((baseDmg + strBonus) * madnessMult);
         const killingBlow = monsterLife - dmg <= 0;
         monsterLife -= dmg;
@@ -732,7 +732,7 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
     }
-    const defenseAuraBonus = character.classId === "paladin" && character.level >= 20 ? 1.15 : 1.0;
+    const defenseAuraBonus = character.classId === "paladin" && character.level >= 20 ? 1.10 : 1.0;
     const monsterHitChance = rollHitChance(monster.attackRating, Math.round(stats.defense * defenseAuraBonus));
     if (!amazonDodged && Math.random() < monsterHitChance) {
       const isMonsterCrit = Math.random() < MONSTER_CRIT_CHANCE;

@@ -344,7 +344,7 @@ function App() {
       index: nextIndex,
       currentLife: result.endingLife,
       currentMana: getStartingResource(character, derived, result.endingMana),
-      currentCooldown: result.endingCooldown,
+      currentCooldown: 0,
     });
   }
 

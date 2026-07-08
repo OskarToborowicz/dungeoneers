@@ -347,7 +347,7 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Kind**: physical (no magic bonus)
 - **Fury Cost**: 30
 - **Cooldown**: 3 turns
-- **Damage**: `round((randomInRange(damage) + strength) × madnessMult)`
+- **Damage**: `round((randomInRange(damage) + strength × 0.5) × madnessMult)`
 - **Killing Blow**: if the strike kills the enemy, restores **10% of max life**
 - **Madness interaction**: if Fury was above 30 before paying the cost, the Madness 15% damage bonus applies
 
@@ -462,7 +462,7 @@ reduction = floor(missingLifePct / 5) × 2%
 - On every hit taken (physical or spell), heals **15% of the incoming damage**.
 
 ### Paladin — Defensive Aura *(unlocks at level 20)*
-- Increases effective Defense by **15%** when calculating monster physical hit chance.
+- Increases effective Defense by **10%** when calculating monster physical hit chance.
 - Health Potions restore an additional **10% of maximum life** on top of the standard 35%.
 
 ### Paladin — Thorns Aura *(unlocks at level 35)*
