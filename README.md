@@ -30,13 +30,13 @@ Seven classes are available, each with a unique resource type, active ability, a
 
 | Class | Resource | Weapon | Playstyle |
 |---|---|---|---|
-| Barbarian | Fury | Axe | Melee berserker, rage-fueled combatant — 2 active abilities |
+| Barbarian | Fury | Axe | Melee berserker, rage-fueled combatant — 2 active abilities, 3 passives |
 | Necromancer | Mana | Scythe | Poison DoT with lifesteal |
-| Sorceress | Mana | War Staff | Magic burst damage |
-| Amazon | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities |
+| Sorceress | Mana | War Staff | Magic burst damage — 2 active abilities, 3 passives |
+| Amazon | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities, 3 passives |
 | Paladin | Mana | Mace | Tank/sustain with healing aura — 2 active abilities, 3 passives |
 | Druid | Mana | Totem | Dex-scaling melee with lifesteal and damage reduction |
-| Assassin | Mana | Claw | Dex-scaling trap setter; trap detonates after monster's turn |
+| Assassin | Mana | Claw | Dex-scaling trap setter — 2 active abilities, 3 passives |
 
 All classes start with **10 in every base stat** (Strength, Dexterity, Vitality, Energy) and **10 free stat points** to allocate.
 
@@ -78,11 +78,12 @@ maxLife = 30 + (vitality × 3) + (level × 5) + gear life bonuses
 ```
 
 ### Energy
-Adds flat bonus damage to all magic-typed abilities (spells).
+Increases maximum mana and adds flat bonus damage to all magic-typed abilities (spells).
 ```
-magicDamageBonus = floor(energy / 5)
+maxMana          += floor(energy / 5)
+magicDamageBonus  = floor(energy / 2)
 ```
-Every 5 Energy grants +1 flat damage added to each magic ability hit. Non-magic abilities (Barbarian, Amazon, Druid, Assassin) receive no benefit from Energy.
+Every 5 Energy grants +1 max mana. Every 2 Energy grants +1 flat damage added to each magic ability hit. Non-magic abilities (Barbarian, Amazon, Druid, Assassin) receive no damage benefit from Energy, but mana classes still gain mana from it.
 
 ---
 
@@ -96,7 +97,7 @@ maxLife = 30 + (vitality × 3) + (level × 5) + gear life bonuses
 ```
 
 ### Max Mana / Fury
-- **Mana classes**: base 100 + gear mana bonuses.
+- **Mana classes**: base 100 + `floor(energy / 5)` + gear mana bonuses.
 - **Barbarian (Fury)**: fixed at 100. Starts every combat at 20. Gains +10 Fury per basic attack. Never regenerates passively.
 
 ### Damage Range
@@ -119,9 +120,28 @@ critChance = min(0.60, 0.05 + dexterity × 0.001)
 
 ### Magic Damage Bonus
 ```
-magicDamageBonus = floor(energy / 5)
+magicDamageBonus = floor(energy / 2) + gear magicDamage bonuses
 ```
 Added as flat damage to the final result of every magic ability hit (after the power multiplier).
+
+### Magic Damage Multiplier
+The Sorceress passive **Ancient Wisdom** (unlocks at level 20) applies a multiplicative bonus to all magic ability damage:
+```
+magicDamageMult = sorceress && level ≥ 20 ? 1.20 : 1.0
+result = round((base + magicDamageBonus) × magicDamageMult)
+```
+
+### Gold Find Bonus
+Accumulated from "of Greed" affixes on rings and belt. Applied multiplicatively to every gold drop:
+```
+finalGold = round(baseGold × (1 + totalGoldFind% / 100))
+```
+
+### Mind over Matter (Sorceress, level 35)
+Adds bonus maximum life equal to **15% of maximum mana** after all other life calculations:
+```
+maxLife += round(maxMana × 0.15)
+```
 
 ---
 
@@ -203,7 +223,7 @@ Combat is turn-based. The player chooses one action per round; the monster then 
 |---|---|
 | Attack | Basic weapon hit, 98% hit rate, crit possible |
 | Ability | Class active skill (costs mana/fury, has cooldown) |
-| Ability 2 | Second active skill — available on Barbarian and Amazon |
+| Ability 2 | Second active skill — available on Barbarian, Sorceress, Amazon, Paladin, and Assassin |
 | Health Potion | Restores 35% of max life; 3-turn cooldown |
 | Mana Potion | Restores 35% of max mana/fury; 3-turn cooldown |
 | Flee | Spends an Escape Token to end the dungeon run safely |
@@ -228,7 +248,7 @@ Monsters always have at least a 15% chance to hit regardless of the player's def
 
 ### Mana Regeneration
 
-Every round, mana classes regenerate **5% of max mana** regardless of the action taken (including rounds when an ability is used). The Sorceress replaces this with **20% of max mana** on rounds where she uses a basic attack.
+Every round, mana classes regenerate **5% of max mana** regardless of the action taken (including rounds when an ability is used). The Sorceress has a higher passive regen rate: **10% of max mana every turn** regardless of action, courtesy of the **Arcane Flow** passive.
 
 Fury never regenerates. It starts at 20 per fight and builds by +10 per basic attack (+15 at level 35 with the Madness passive).
 
@@ -269,14 +289,20 @@ Active status effects are shown as colored pills below each combatant's HP bar a
 
 **Frozen** prevents the monster from acting entirely for the duration. The monster still appears on its turn in the combat log with a "frozen solid" message, but deals no damage and casts no spells.
 
-**On the player** (applied by boss spells):
+**On the player:**
 
-| Effect | Trigger | Aura | Damage per tick |
-|---|---|---|---|
-| ☠ Poison N | Andariel — Poison Nova | Green glow | `round(spellDmg × 0.4)` × 3 rounds |
-| 🔥 Burn N | Bishibosh — Fire Wall | Orange glow | `round(spellDmg × 0.4)` × 3 rounds |
+| Effect | Trigger | Display |
+|---|---|---|
+| Blood Fury N | Barbarian Blood Fury | Red pill, remaining turns |
+| ✦ Regen Nova N | Paladin Regenerating Nova | Green pill, pulsing green glow |
+| ❄ Frost Shield N | Sorceress Frost Shield | Cyan pill, pulsing icy blue glow |
+| ☠ Poison N | Andariel — Poison Nova | Green pill, green glow |
+| 🔥 Burn N | Bishibosh — Fire Wall | Orange pill, orange glow |
 
-Both DoTs tick at the start of the monster's turn (after the player acts, before the monster attacks).
+Poison and Burn applied to the player tick at the start of the monster's turn (after the player acts, before the monster attacks). Damage per tick:
+```
+round(spellDmg × 0.4)  ×  3 rounds
+```
 
 ### Ability Animations
 
@@ -295,6 +321,7 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 | Druid | Werewolf Bite | Three green claw slashes |
 | Assassin | Fire Trap | Blue trap placed on field; cyan explosion on detonation |
 | Assassin | Blinding Powder | Golden powder pouch flies toward the enemy and bursts into an expanding dust cloud |
+| Sorceress | Frost Shield | Expanding frost rings with ice crystal shards and sparkles radiating from the player |
 
 ### Monster Spells
 
@@ -360,10 +387,20 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Poison ticks**: 3 rounds of `round(randomInRange(damage) × 1.4 × 0.4) + magicDamageBonus` each
 
 ### Sorceress — Fireball
-- **Kind**: burst (magic — gains `magicDamageBonus`)
+- **Kind**: burst (magic — gains `magicDamageBonus` and `magicDamageMult`)
 - **Mana Cost**: 25
 - **Cooldown**: 0 (can cast every turn)
-- **Damage**: `round(randomInRange(damage) × 2.6) + magicDamageBonus`
+- **Damage**: `round((randomInRange(damage) × 1.0 + magicDamageBonus × 2) × magicDamageMult)`
+- Scales equally with weapon damage and doubly with Magic Damage bonus, making Energy investment highly rewarding
+
+### Sorceress — Frost Shield *(Ability 2)*
+- **Kind**: buff (no damage)
+- **Mana Cost**: 75
+- **Cooldown**: 7 turns — **starts after the shield fades**, not on cast
+- **Duration**: 3 turns
+- **Effect**: Reduces all incoming damage (physical and spell) by **60%** for the duration
+- **Special**: While active, the Frost Shield button shows "Active: X turns" and cannot be recast; a cyan status pill and icy blue glow appear on the player sprite
+- **Damage formula while shielded**: `dmg = max(1, round(dmg × 0.40))`
 
 ### Amazon — Multishot
 - **Kind**: multi (physical — no magic bonus, 2 hits)
@@ -424,9 +461,9 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 For `burst`, `dot`, `multi`, and `heal` kinds:
 ```
 base   = round(randomInRange(damage) × power)
-result = magic ? base + magicDamageBonus : base
+result = magic ? round((base + magicDamageBonus × magicPower) × magicDamageMult) : base
 ```
-`randomInRange` picks a uniformly random integer between damage min and max.
+`randomInRange` picks a uniformly random integer between damage min and max. `magicPower` defaults to 1 for all abilities; Fireball sets it to 2. `magicDamageMult` is 1.0 for all classes except the Sorceress at level ≥ 20 (1.20 via Ancient Wisdom).
 
 ---
 
@@ -454,8 +491,17 @@ reduction = floor(missingLifePct / 5) × 2%
 ### Necromancer — Soul Siphon
 - Each poison tick heals the Necromancer for **10% of that tick's damage**.
 
-### Sorceress — Arcane Flow
-- On a basic attack, regenerates **20% of max mana** (replaces the standard 5% regen for that round).
+### Sorceress — Arcane Flow *(always active)*
+- Passively regenerates **10% of max mana every turn**, regardless of the action taken. Replaces the standard 5% mana regen.
+
+### Sorceress — Ancient Wisdom *(unlocks at level 20)*
+- Increases all **Magic Damage by 20%** via a multiplicative multiplier applied after the flat `magicDamageBonus` is added. Affects Fireball and any future magic abilities.
+
+### Sorceress — Mind over Matter *(unlocks at level 35)*
+- Channels arcane reserves into vitality: **maximum life is increased by 15% of maximum mana**.
+```
+maxLife += round(maxMana × 0.15)
+```
 
 ### Amazon — Dodge *(always active)*
 - **15% chance** to completely avoid any incoming attack or spell. Applies to both normal monster attacks and boss spell casts.

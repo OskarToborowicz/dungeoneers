@@ -19,7 +19,8 @@ export function AbilityEffect({ classId, onDone, detonation = false, useAbility2
       <svg viewBox="0 0 200 120" className="ability-effect-svg" overflow="visible">
         {classId === "barbarian"   && <WhirlwindFx />}
         {classId === "necromancer" && <PoisonFx />}
-        {classId === "sorceress"   && <FireballFx />}
+        {classId === "sorceress"   && !useAbility2 && <FireballFx />}
+        {classId === "sorceress"   && useAbility2  && <FrostShieldFx />}
         {classId === "amazon"      && !useAbility2 && <MultishotFx />}
         {classId === "amazon"      && useAbility2  && <FreezingArrowFx />}
         {classId === "paladin"     && !useAbility2 && <HolyBoltFx />}
@@ -249,6 +250,39 @@ function BlindingPowderFx() {
         <circle cx="148" cy="42" r="6"  fill="#ddc060" opacity="0.5"  className="ae-powder-puff ae-pp-5" />
         <circle cx="148" cy="88" r="6"  fill="#bba030" opacity="0.5"  className="ae-powder-puff ae-pp-6" />
       </g>
+    </g>
+  );
+}
+
+function FrostShieldFx() {
+  return (
+    <g style={{ transformOrigin: "70px 60px" }}>
+      {/* Outer expanding frost ring */}
+      <circle className="ae-frost-ring-1" cx="70" cy="60" r="36" fill="none" stroke="#aaeeff" strokeWidth="2.5" opacity="0.8" style={{ transformOrigin: "70px 60px" }}/>
+      {/* Mid ring with slight delay */}
+      <circle className="ae-frost-ring-2" cx="70" cy="60" r="24" fill="none" stroke="#88ccff" strokeWidth="2" opacity="0.9" style={{ transformOrigin: "70px 60px" }}/>
+      {/* Icy glow core around player */}
+      <g className="ae-frost-core" style={{ transformOrigin: "70px 60px" }}>
+        <circle cx="70" cy="60" r="18" fill="#aaeeff" opacity="0.22"/>
+        <circle cx="70" cy="60" r="10" fill="#cceeff" opacity="0.35"/>
+        <circle cx="70" cy="60" r="5"  fill="#eef8ff" opacity="0.75"/>
+      </g>
+      {/* Ice crystal shards radiating out */}
+      <polygon className="ae-frost-shard ae-fs-1" points="70,20 67,33 73,33" fill="#88ccee" opacity="0.85" style={{ transformOrigin: "70px 60px" }}/>
+      <polygon className="ae-frost-shard ae-fs-2" points="110,60 97,57 97,63" fill="#88ccee" opacity="0.85" style={{ transformOrigin: "70px 60px" }}/>
+      <polygon className="ae-frost-shard ae-fs-3" points="70,100 73,87 67,87" fill="#88ccee" opacity="0.85" style={{ transformOrigin: "70px 60px" }}/>
+      <polygon className="ae-frost-shard ae-fs-4" points="30,60 43,63 43,57"  fill="#88ccee" opacity="0.85" style={{ transformOrigin: "70px 60px" }}/>
+      {/* Diagonal shards */}
+      <polygon className="ae-frost-shard ae-fs-5" points="99,31 90,41 96,44" fill="#aaddff" opacity="0.7" style={{ transformOrigin: "70px 60px" }}/>
+      <polygon className="ae-frost-shard ae-fs-6" points="99,89 96,76 90,79" fill="#aaddff" opacity="0.7" style={{ transformOrigin: "70px 60px" }}/>
+      <polygon className="ae-frost-shard ae-fs-7" points="41,89 44,76 50,79" fill="#aaddff" opacity="0.7" style={{ transformOrigin: "70px 60px" }}/>
+      <polygon className="ae-frost-shard ae-fs-8" points="41,31 50,41 44,44" fill="#aaddff" opacity="0.7" style={{ transformOrigin: "70px 60px" }}/>
+      {/* Sparkle dots */}
+      <circle className="ae-frost-spark ae-fsp-1" cx="70" cy="38" r="2" fill="#ddf4ff" opacity="0.9" style={{ transformOrigin: "70px 38px" }}/>
+      <circle className="ae-frost-spark ae-fsp-2" cx="95" cy="48" r="1.8" fill="#bbecff" opacity="0.85" style={{ transformOrigin: "95px 48px" }}/>
+      <circle className="ae-frost-spark ae-fsp-3" cx="45" cy="48" r="1.8" fill="#bbecff" opacity="0.85" style={{ transformOrigin: "45px 48px" }}/>
+      <circle className="ae-frost-spark ae-fsp-4" cx="95" cy="72" r="1.8" fill="#bbecff" opacity="0.8" style={{ transformOrigin: "95px 72px" }}/>
+      <circle className="ae-frost-spark ae-fsp-5" cx="45" cy="72" r="1.8" fill="#bbecff" opacity="0.8" style={{ transformOrigin: "45px 72px" }}/>
     </g>
   );
 }

@@ -32,6 +32,7 @@ export interface BattleState {
   regenRounds: number;
   disorientRounds: number;
   blindRounds: number;
+  frostShieldRounds: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "ability2" | "healthPotion" | "manaPotion";
@@ -72,7 +73,7 @@ const BARBARIAN_IRON_SKIN_REDUCTION_PER_5PCT = 0.02;
 const BARBARIAN_MADNESS_DAMAGE_BONUS = 0.15;
 const BARBARIAN_MADNESS_FURY_BONUS = 5;
 const BARBARIAN_MADNESS_FURY_THRESHOLD = 30;
-const SORCERESS_ATTACK_MANA_REGEN_RATE = 0.2;
+const SORCERESS_MANA_REGEN_RATE = 0.10;
 const PALADIN_DAMAGE_TAKEN_HEAL = 0.15;
 const NECROMANCER_POISON_LIFESTEAL = 0.1;
 
@@ -91,9 +92,9 @@ function randomInRange([min, max]: [number, number]): number {
   return Math.round(min + Math.random() * (max - min));
 }
 
-function rollAbilityDamage(stats: DerivedStats, power: number, magic: boolean): number {
+function rollAbilityDamage(stats: DerivedStats, power: number, magic: boolean, magicPower = 1): number {
   const base = Math.round(randomInRange(stats.damage) * power);
-  return magic ? base + stats.magicDamageBonus : base;
+  return magic ? Math.round((base + stats.magicDamageBonus * magicPower) * stats.magicDamageMult) : base;
 }
 
 export function createBattleState(
@@ -124,6 +125,7 @@ export function createBattleState(
     regenRounds: 0,
     disorientRounds: 0,
     blindRounds: 0,
+    frostShieldRounds: 0,
   };
 }
 
@@ -138,6 +140,7 @@ export function canUseAbility2(character: Character, state: BattleState): boolea
   const def = CLASSES[character.classId];
   if (!def.ability2) return false;
   if (def.ability2.kind === "regen" && state.regenRounds > 0) return false;
+  if (def.ability2.kind === "frost_shield" && state.frostShieldRounds > 0) return false;
   return state.playerMana >= def.ability2.manaCost && state.ability2Cooldown <= 0;
 }
 
@@ -183,10 +186,10 @@ export function getAbilityPreview(character: Character, stats: DerivedStats): Da
   const dmgType = ability.magic ? "Magic" : "Physical";
 
   if (ability.kind === "buff") {
-    return { label: "3 turns", type: "Buff" };
+    return { label: "—", type: "Buff" };
   }
   if (ability.kind === "burst") {
-    const est = Math.round(avg * ability.power + bonus);
+    const est = Math.round((avg * ability.power + bonus * (ability.magicPower ?? 1)) * stats.magicDamageMult);
     return { label: `~${est}`, type: dmgType };
   }
   if (ability.kind === "dot") {
@@ -211,7 +214,7 @@ export function getAbilityPreview(character: Character, stats: DerivedStats): Da
   }
   if (ability.kind === "trap") {
     const est = Math.round(stats.stats.dexterity * ability.power);
-    return { label: `~${est} (3 turn delay)`, type: "Physical" };
+    return { label: `~${est}`, type: "Physical" };
   }
   return { label: "—", type: dmgType };
 }
@@ -222,16 +225,19 @@ export function getAbility2Preview(character: Character, stats: DerivedStats): D
   const ability = def.ability2;
   if (ability.kind === "obliterate") {
     const avg = Math.round((stats.damage[0] + stats.damage[1]) / 2);
-    const est = avg + stats.stats.strength;
-    return { label: `~${est} + kill heal`, type: "Physical" };
+    const est = avg + Math.round(stats.stats.strength * 0.5);
+    return { label: `~${est}`, type: "Physical" };
   }
   if (ability.kind === "freeze") {
     const avg = Math.round((stats.damage[0] + stats.damage[1]) / 2);
     const dexBonus = Math.round(stats.stats.dexterity * 0.5);
-    return { label: `~${avg + dexBonus} + freeze`, type: "Physical" };
+    return { label: `~${avg + dexBonus}`, type: "Physical" };
   }
   if (ability.kind === "blind_powder") {
-    return { label: "Blind 2t + Disorient 4t", type: "Debuff" };
+    return { label: "—", type: "Debuff" };
+  }
+  if (ability.kind === "frost_shield") {
+    return { label: "—", type: "Buff" };
   }
   if (ability.kind === "regen") {
     const healPerTick = Math.round(stats.maxLife * 0.10);
@@ -253,7 +259,7 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds } = state;
   let damageDealt = 0;
   let trapDetonated = false;
 
@@ -358,7 +364,7 @@ export function resolveRound(
         });
         doBasicAttack();
       } else if (def.ability.kind === "burst") {
-        const dmg = rollAbilityDamage(stats, def.ability.power, def.ability.magic);
+        const dmg = rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower);
         monsterLife -= dmg;
         damageDealt += dmg;
         log.push({
@@ -500,6 +506,15 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+      } else if (def.ability2.kind === "frost_shield") {
+        ability2Cooldown = 0; // cooldown set when shield fades, not on cast
+        frostShieldRounds = 3;
+        log.push({
+          actor: "player",
+          message: "Frost Shield encases you in magical ice — incoming damage reduced by 60% for 3 turns!",
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
       } else if (def.ability2.kind === "regen") {
         ability2Cooldown = 0; // cooldown set when buff fades, not on cast
         regenRounds = 3;
@@ -573,8 +588,7 @@ export function resolveRound(
     }
   }
   if (def.resourceType === "mana" && playerMana < stats.maxMana) {
-    const isSorceressAttackRegen = character.classId === "sorceress" && action === "attack";
-    const regenRate = isSorceressAttackRegen ? SORCERESS_ATTACK_MANA_REGEN_RATE : MANA_REGEN_RATE;
+    const regenRate = character.classId === "sorceress" ? SORCERESS_MANA_REGEN_RATE : MANA_REGEN_RATE;
     playerMana = Math.min(stats.maxMana, playerMana + stats.maxMana * regenRate);
   }
 
@@ -600,6 +614,7 @@ export function resolveRound(
       regenRounds,
       disorientRounds,
       blindRounds,
+      frostShieldRounds,
     };
   }
 
@@ -697,6 +712,7 @@ export function resolveRound(
       });
     } else {
     let spellDmg = Math.round(randomInRange(monster.damage) * spell.power * (disorientRounds > 0 ? 0.75 : 1.0));
+    if (frostShieldRounds > 0) spellDmg = Math.max(1, Math.round(spellDmg * 0.40));
     const fadedSpell = character.classId === "assassin" && Math.random() < 0.25;
     if (fadedSpell) spellDmg = Math.max(1, Math.round(spellDmg * 0.55));
     const ironSkinSpell = getIronSkinReduction(character, playerLife, stats.maxLife);
@@ -706,7 +722,7 @@ export function resolveRound(
       playerLife -= spellDmg;
       log.push({
         actor: "monster",
-        message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!`,
+        message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!${frostShieldRounds > 0 ? " Frost Shield absorbs 60%." : ""}`,
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });
@@ -781,6 +797,7 @@ export function resolveRound(
       if (fadedNormal) dmg = Math.max(1, Math.round(dmg * 0.55));
       const ironSkin = getIronSkinReduction(character, playerLife, stats.maxLife);
       if (ironSkin > 0) dmg = Math.max(1, Math.round(dmg * (1 - ironSkin)));
+      if (frostShieldRounds > 0) dmg = Math.max(1, Math.round(dmg * 0.40));
 
       playerLife -= dmg;
 
@@ -794,6 +811,7 @@ export function resolveRound(
       }
       if (fadedNormal) message += " Fade reduces the blow by 45%.";
       if (ironSkin > 0) message += ` Iron Skin absorbs ${Math.round(ironSkin * 100)}%.`;
+      if (frostShieldRounds > 0) message += " Frost Shield absorbs 60%.";
 
       if (character.classId === "paladin") {
         const healBack = Math.round(dmg * PALADIN_DAMAGE_TAKEN_HEAL);
@@ -824,6 +842,14 @@ export function resolveRound(
   }
 
   } // end monsterActsThisTurn
+
+  if (frostShieldRounds > 0) {
+    frostShieldRounds -= 1;
+    if (frostShieldRounds === 0) {
+      ability2Cooldown = def.ability2?.cooldown ?? 7;
+      log.push({ actor: "player", message: "Frost Shield fades.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+    }
+  }
 
   // Fire Trap detonation — after monster acts
   if (trapRounds === 0 && state.trapRounds > 0) {

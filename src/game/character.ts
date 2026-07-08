@@ -76,6 +76,7 @@ export interface DerivedStats {
   defense: number;
   critChance: number;
   magicDamageBonus: number;
+  magicDamageMult: number;
   goldFindBonus: number;
 }
 
@@ -95,7 +96,7 @@ export function getDerivedStats(
   };
 
   const maxLife = Math.round(30 + stats.vitality * 3 + character.level * 5 + equip.lifeBonus);
-  const maxMana = def.resourceType === "fury" ? FURY_MAX : MANA_MAX + equip.manaBonus;
+  const maxMana = def.resourceType === "fury" ? FURY_MAX : MANA_MAX + Math.floor(Math.max(0, stats.energy - 10) / 5) + equip.manaBonus;
 
   const weaponDamage = equip.weaponDamage ?? [1, 3];
   const flatStrengthDamage = stats.strength / 5;
@@ -106,9 +107,11 @@ export function getDerivedStats(
 
   const defense = Math.round(equip.defenseBonus + stats.dexterity / 4);
   const critChance = Math.min(0.6, 0.05 + stats.dexterity * 0.001);
-  const magicDamageBonus = Math.floor(stats.energy / 5) + equip.magicDamageBonus;
+  const magicDamageBonus = Math.floor(stats.energy / 2) + equip.magicDamageBonus;
+  const magicDamageMult = character.classId === "sorceress" && character.level >= 20 ? 1.20 : 1.0;
+  const mindOverMatterBonus = character.classId === "sorceress" && character.level >= 35 ? Math.round(maxMana * 0.15) : 0;
 
-  return { stats, maxLife, maxMana, damage, defense, critChance, magicDamageBonus, goldFindBonus: equip.goldFindBonus };
+  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus };
 }
 
 export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {

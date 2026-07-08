@@ -1,7 +1,7 @@
 import { CLASSES } from "../game/data/classes";
 import type { DerivedStats } from "../game/character";
 import { xpToNextLevel } from "../game/character";
-import { getEffectiveCritChance } from "../game/combat";
+import { getEffectiveCritChance, getAbilityPreview, getAbility2Preview } from "../game/combat";
 import type { BaseStats, Character } from "../game/types";
 
 interface Props {
@@ -14,6 +14,8 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
   const def = CLASSES[character.classId];
   const xpNeeded = xpToNextLevel(character.level);
   const critChance = getEffectiveCritChance(character, derived);
+  const abilityPreview = getAbilityPreview(character, derived);
+  const ability2Preview = getAbility2Preview(character, derived);
 
   return (
     <div className="tab-panel">
@@ -64,6 +66,9 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
           {def.ability.cooldown > 0 ? ` · ${def.ability.cooldown}-turn cooldown` : ""}
         </div>
         <p>{def.ability.description}</p>
+        {abilityPreview.label !== "—" && (
+          <div className="ability-est">Est. {abilityPreview.label} {abilityPreview.type}</div>
+        )}
       </div>
 
       {def.ability2 && (
@@ -73,6 +78,9 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
             {def.resourceName}: {def.ability2.manaCost} · {def.ability2.cooldown}-turn cooldown
           </div>
           <p>{def.ability2.description}</p>
+          {ability2Preview.label !== "—" && (
+            <div className="ability-est">Est. {ability2Preview.label} {ability2Preview.type}</div>
+          )}
         </div>
       )}
 
