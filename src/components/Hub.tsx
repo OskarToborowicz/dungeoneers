@@ -135,6 +135,7 @@ export function Hub({
           {tab === "shop" && (
             <ShopTab
               character={character}
+              equipment={equipment}
               consumables={consumables}
               shopStock={shopStock}
               inventory={inventory}

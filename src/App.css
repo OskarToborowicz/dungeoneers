@@ -904,6 +904,10 @@
   display: block;
 }
 
+.shop-item-cell:hover .compare-group {
+  display: flex;
+}
+
 .buy-button {
   position: absolute;
   bottom: -6px;
@@ -1189,7 +1193,8 @@
 .class-sprite-preview {
   display: flex;
   justify-content: center;
-  padding: 6px 0 4px;
+  padding: 18px 32px 8px;
+  overflow: visible;
 }
 
 .death-sprite {

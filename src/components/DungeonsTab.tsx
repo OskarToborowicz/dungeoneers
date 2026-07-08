@@ -86,8 +86,8 @@ export function DungeonsTab({ clearedDungeons, onStart, selectedAct, onSelectAct
               </div>
               <button className="primary-button small endgame-button" onClick={() => onStart(d.id)}>
                 {act === 1
-                  ? "Enter — All dungeons cleared. You face the Maiden of Anguish."
-                  : "Enter — All dungeons cleared. You face the Core of Hell."}
+                  ? "FACE THE MAIDEN OF ANGUISH"
+                  : "FACE THE CORE OF HELL"}
               </button>
             </div>
           );

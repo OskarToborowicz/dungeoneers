@@ -4,11 +4,13 @@ import { CONSUMABLE_LIST } from "../game/data/consumables";
 import { buyValue, RARITY_COLORS, sellValue } from "../game/data/items";
 import { ItemIcon } from "./ItemIcon";
 import { ItemTooltip } from "./ItemTooltip";
+import { CompareGroup } from "./ComparePanel";
 import { CoinIcon } from "./CoinIcon";
-import type { Character, ConsumableId, Item } from "../game/types";
+import type { Character, ConsumableId, EquipmentSlot, Item } from "../game/types";
 
 interface Props {
   character: Character;
+  equipment: Partial<Record<EquipmentSlot, Item>>;
   consumables: Record<ConsumableId, number>;
   shopStock: Item[];
   inventory: Item[];
@@ -22,6 +24,7 @@ interface Props {
 
 export function ShopTab({
   character,
+  equipment,
   consumables,
   shopStock,
   inventory,
@@ -74,6 +77,7 @@ export function ShopTab({
             <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}>
               <ItemIcon item={item} />
               <ItemTooltip item={item} />
+              <CompareGroup slot={item.slot} equipment={equipment} />
               <button className="buy-button" disabled={character.gold < price} onClick={() => onBuyItem(item)}>
                 <CoinIcon size={9} /> {price}
               </button>
@@ -116,6 +120,7 @@ export function ShopTab({
             <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}>
               <ItemIcon item={item} />
               <ItemTooltip item={item} />
+              <CompareGroup slot={item.slot} equipment={equipment} />
               <button className="sell-button" onClick={() => onSell(item)}>
                 <CoinIcon size={9} /> {sellValue(item)}
               </button>
