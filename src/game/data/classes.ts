@@ -243,10 +243,10 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     },
     ability2: {
       name: "Blinding Powder",
-      description: "Hurl a cloud of blinding dust at the enemy. Disorients them, reducing their damage by 25% for 4 turns, and blinds them so they cannot act for 2 turns.",
-      short: "Blind the enemy for 2 turns and reduce their defense by 50% for 4 turns.",
+      description: "Hurl a cloud of blinding dust at the enemy, blinding them so they cannot act. When the blind fades, they remain disoriented and deal reduced damage.",
+      short: "Blind the enemy, then leave them disoriented with reduced damage.",
       manaCost: 60,
-      cooldown: 6,
+      cooldown: 8,
       kind: "blind_powder",
       power: 0,
       magic: false,

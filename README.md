@@ -414,10 +414,10 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 ### Assassin — Blinding Powder
 - **Kind**: debuff (no damage)
 - **Mana Cost**: 60
-- **Cooldown**: 6 turns
+- **Cooldown**: 8 turns
 - **Blind**: monster **cannot act** for **2 turns**
-- **Disorient**: monster deals **25% reduced damage** for **4 turns**
-- Both statuses are applied simultaneously on cast
+- **Disorient**: when blind expires, monster deals **25% reduced damage** for **4 turns**
+- Total debuff window: 6 turns (2 blind → 4 disorient)
 
 ### General Ability Damage Formula
 

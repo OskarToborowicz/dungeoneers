@@ -489,8 +489,8 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
       } else if (def.ability2.kind === "blind_powder") {
-        disorientRounds = 4;
         blindRounds = 2;
+        disorientRounds = 0;
         log.push({
           actor: "player",
           message: "You hurl Blinding Powder! The enemy is blinded (2 turns) and disoriented (4 turns).",
@@ -666,6 +666,7 @@ export function resolveRound(
     });
   } else if (blindRounds > 0) {
     blindRounds -= 1;
+    if (blindRounds === 0) disorientRounds = 4;
     log.push({
       actor: "monster",
       message: `${monster.name} is blinded and cannot act!`,
