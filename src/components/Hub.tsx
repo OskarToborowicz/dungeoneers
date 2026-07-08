@@ -71,7 +71,7 @@ export function Hub({
   useEffect(() => {
     if (!droppedItem || showPortalMessage) return;
     if (droppedItem.rarity === "unique") {
-      new Audio("/divine_drop.mp3").play().catch(() => {});
+      new Audio(import.meta.env.BASE_URL + "divine_drop.mp3").play().catch(() => {});
     }
     const t = setTimeout(() => onDismissDroppedItem?.(), 3000);
     return () => clearTimeout(t);
