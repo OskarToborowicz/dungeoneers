@@ -33,6 +33,8 @@ export interface BattleState {
   disorientRounds: number;
   blindRounds: number;
   frostShieldRounds: number;
+  igniteRounds: number;
+  igniteDamage: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "ability2" | "healthPotion" | "manaPotion";
@@ -84,7 +86,7 @@ function getIronSkinReduction(character: Character, currentLife: number, maxLife
 }
 
 function rollHitChance(attackRating: number, defense: number): number {
-  const chance = attackRating / (attackRating + defense * 2);
+  const chance = attackRating / (defense * 1.5);
   return Math.max(0.15, Math.min(1 - ALWAYS_MISS_CHANCE, chance));
 }
 
@@ -126,6 +128,8 @@ export function createBattleState(
     disorientRounds: 0,
     blindRounds: 0,
     frostShieldRounds: 0,
+    igniteRounds: 0,
+    igniteDamage: 0,
   };
 }
 
@@ -259,9 +263,17 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, igniteRounds, igniteDamage } = state;
   let damageDealt = 0;
   let trapDetonated = false;
+
+  const tryIgnite = (dmg: number) => {
+    if (stats.igniteChance > 0 && dmg > 0 && monsterLife > 0) {
+      igniteRounds = 2;
+      igniteDamage = Math.round(dmg * 0.30);
+      log.push({ actor: "player", message: `Demon's Tail ignites the enemy — ${igniteDamage} fire per turn for 2 turns!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+    }
+  };
 
   const doBasicAttack = () => {
     const hitChance = 1 - ALWAYS_MISS_CHANCE;
@@ -297,6 +309,7 @@ export function resolveRound(
           attackMsg += ` Life Leech restores ${leeched} life.`;
         }
       }
+      tryIgnite(basicHitDmg);
       log.push({ actor: "player", message: attackMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     } else {
       log.push({ actor: "player", message: "Your attack misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
@@ -345,6 +358,7 @@ export function resolveRound(
             swingMsg += ` Life Leech restores ${leeched2} life.`;
           }
         }
+        tryIgnite(dmg2);
         log.push({ actor: "player", message: swingMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
       } else {
         log.push({ actor: "player", message: "Double Swing! Your second strike misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
@@ -381,6 +395,7 @@ export function resolveRound(
         const dmg = rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower);
         monsterLife -= dmg;
         damageDealt += dmg;
+        tryIgnite(dmg);
         log.push({
           actor: "player",
           message: `You unleash ${def.ability.name} for ${dmg} damage!`,
@@ -391,6 +406,7 @@ export function resolveRound(
         const dmg = rollAbilityDamage(stats, 0.4, def.ability.magic);
         monsterLife -= dmg;
         damageDealt += dmg;
+        tryIgnite(dmg);
         poisonRounds = 3;
         poisonDamage = rollAbilityDamage(stats, def.ability.power * 0.4, def.ability.magic);
         log.push({
@@ -410,6 +426,7 @@ export function resolveRound(
 
           monsterLife -= hitDmg;
           damageDealt += hitDmg;
+          tryIgnite(hitDmg);
 
           log.push({
             actor: "player",
@@ -437,6 +454,7 @@ export function resolveRound(
         const healAmt = Math.round(dmg * 0.35);
         monsterLife -= dmg;
         damageDealt += dmg;
+        tryIgnite(dmg);
         playerLife = Math.min(stats.maxLife, playerLife + healAmt);
         log.push({
           actor: "player",
@@ -451,6 +469,7 @@ export function resolveRound(
         const healAmt = Math.round(dmg * 0.15);
         monsterLife -= dmg;
         damageDealt += dmg;
+        tryIgnite(dmg);
         playerLife = Math.min(stats.maxLife, playerLife + healAmt);
         log.push({
           actor: "player",
@@ -483,6 +502,7 @@ export function resolveRound(
           if (isCrit) dmg = Math.round(dmg * critMultiplier);
           monsterLife -= dmg;
           damageDealt += dmg;
+          tryIgnite(dmg);
           frozenRounds = 2;
           log.push({
             actor: "player",
@@ -501,6 +521,7 @@ export function resolveRound(
         const killingBlow = monsterLife - dmg <= 0;
         monsterLife -= dmg;
         damageDealt += dmg;
+        tryIgnite(dmg);
         const healAmt = killingBlow ? Math.round(stats.maxLife * 0.10) : 0;
         if (healAmt > 0) playerLife = Math.min(stats.maxLife, playerLife + healAmt);
         log.push({
@@ -629,6 +650,8 @@ export function resolveRound(
       disorientRounds,
       blindRounds,
       frostShieldRounds,
+      igniteRounds,
+      igniteDamage,
     };
   }
 
@@ -672,6 +695,22 @@ export function resolveRound(
     log.push({
       actor: "monster",
       message: `${monster.name} suffers ${poisonDamage} poison damage.${necroHeal > 0 ? ` Soul Siphon heals you for ${necroHeal}.` : ""}`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+    if (monsterLife <= 0) {
+      return { state: makeState(), log, status: "victory", damageDealt };
+    }
+  }
+
+  // Ignite tick (Demon's Tail belt)
+  if (igniteRounds > 0) {
+    monsterLife -= igniteDamage;
+    damageDealt += igniteDamage;
+    igniteRounds -= 1;
+    log.push({
+      actor: "player",
+      message: `${monster.name} burns for ${igniteDamage} fire damage. (${igniteRounds} turn${igniteRounds !== 1 ? "s" : ""} remaining)`,
       playerLife: Math.max(0, playerLife),
       monsterLife: Math.max(0, monsterLife),
     });
@@ -874,6 +913,7 @@ export function resolveRound(
     const finalTrapDmg = isCrit ? Math.round(trapDmg * critMultiplier) : trapDmg;
     monsterLife -= finalTrapDmg;
     damageDealt += finalTrapDmg;
+    tryIgnite(finalTrapDmg);
     trapDetonated = true;
     log.push({
       actor: "monster",

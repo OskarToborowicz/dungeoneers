@@ -68,7 +68,7 @@ export type ItemRarity = "normal" | "magic" | "rare" | "very rare" | "unique";
 
 export interface ItemAffix {
   label: string;
-  stat: keyof BaseStats | "damage" | "defense" | "life" | "mana" | "magicDamage" | "goldFind" | "lifeLeech" | "manaRegen" | "magicDmgReduction" | "physDmgReduction";
+  stat: keyof BaseStats | "damage" | "defense" | "life" | "mana" | "magicDamage" | "goldFind" | "lifeLeech" | "manaRegen" | "magicDmgReduction" | "physDmgReduction" | "critChance";
   value: number;
 }
 
@@ -82,6 +82,8 @@ export interface Item {
   baseDefense?: number;
   twoHanded?: boolean;
   affixes: ItemAffix[];
+  mirrorRing?: boolean;
+  demonsTail?: boolean;
 }
 
 export interface RunStats {

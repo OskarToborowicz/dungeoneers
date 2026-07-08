@@ -748,6 +748,22 @@ Each boss casts a unique spell — see the [Monster Spells](#monster-spells) sec
 - Dropped item level equals the monster's level.
 - Items are always appropriate for the active character's class (class-locked weapon filtering applies).
 
+### Unique Items
+
+Unique items have fixed stats and a low drop rate. They are not generated randomly — each has a dedicated drop source.
+
+| Name | Slot | Drop Source | Drop Chance | Stats |
+|---|---|---|---|---|
+| Mirror Ring | Ring | Andariel (Rogue Monastery) | 2% | Mirrors all affixes of the other ring slot |
+| Heavy Stompers | Boots | Any dungeon boss | 1% | +200 Life, +100 Defense, −20 Strength, −20 Dexterity, −20 Energy |
+| Sharp Fangs | Gloves | Any dungeon boss (level 15+) | 1% | +30 Strength, +30 Dexterity, +30 Damage, +30 Magic Damage |
+| The Pentagram | Amulet | Any Act 2 encounter | 1% | +100 Damage, −100 Life |
+| Stone Husk | Armor | Any encounter (level 25+) | 1% | +20–30 Vitality, +40–60 Life, 5–10% Phys Dmg Reduced, 5–10% Magic Dmg Reduced |
+| Peasant Hood | Helm | Blood Moor or Cold Plains boss | 5% | +10 Damage, +10 Vitality, +25% Gold Find |
+| Mask of Twilight | Helm | Any encounter (level 25+) | 0.5% | +25–35 Energy, +25–35 Magic Damage, +5% Crit Chance |
+| Mask of Midnight | Helm | Any encounter (level 25+) | 0.5% | +25–35 Vitality, +25–35 Damage, +5% Crit Chance |
+| Demon's Tail | Belt | Any Act 2 boss | 0.5% | All direct damage ignites the target: 30% of damage dealt per turn for 2 turns (basic attacks and abilities only) |
+
 ### Permadeath
 
 If the player dies during a dungeon run, the character is **permanently deleted**. A death summary screen shows final stats before returning to character selection. Use the Flee action to escape a fight before dying (consumes the one-time Escape Token).

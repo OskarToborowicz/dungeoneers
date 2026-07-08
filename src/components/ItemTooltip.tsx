@@ -16,6 +16,7 @@ const STAT_LABEL: Record<string, string> = {
   manaRegen: "Mana Regen / Turn",
   magicDmgReduction: "% Magic Damage Reduced",
   physDmgReduction: "% Physical Damage Reduced",
+  critChance: "% Crit Chance",
 };
 
 export function ItemTooltip({ item }: { item: Item }) {
@@ -35,11 +36,20 @@ export function ItemTooltip({ item }: { item: Item }) {
         </div>
       )}
       {item.baseDefense && <div className="item-line">Defense: {item.baseDefense}</div>}
-      {item.affixes.map((a, i) => (
-        <div className="item-line affix" key={i}>
-          +{a.value} {STAT_LABEL[a.stat]}
-        </div>
-      ))}
+      {item.mirrorRing
+        ? <div className="item-line mirror-flavor"><em>Mirrors the other ring</em></div>
+        : item.demonsTail
+        ? (
+          <>
+            <div className="item-line mirror-flavor"><em>All your damage ignite the target for 30% of damage dealt for 2 rounds</em></div>
+            <div className="item-line mirror-flavor"><em>Set the world ablaze</em></div>
+          </>
+        )
+        : item.affixes.map((a, i) => (
+          <div className="item-line affix" key={i}>
+            {a.value > 0 ? "+" : ""}{a.value} {STAT_LABEL[a.stat]}
+          </div>
+        ))}
     </div>
   );
 }

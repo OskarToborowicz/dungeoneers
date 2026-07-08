@@ -194,6 +194,151 @@ export function generateStartingEquipment(classId: ClassId): Partial<Record<Equi
   return { weapon };
 }
 
+function randInt(min: number, max: number): number {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+export function generateMirrorRing(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Mirror Ring",
+    slot: "ring1",
+    rarity: "unique",
+    itemLevel: 30,
+    affixes: [],
+    mirrorRing: true,
+  };
+}
+
+export function generateHeavyStompers(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Heavy Stompers",
+    slot: "boots",
+    rarity: "unique",
+    itemLevel: 1,
+    affixes: [
+      { stat: "life", value: 200 },
+      { stat: "defense", value: 100 },
+      { stat: "strength", value: -20 },
+      { stat: "dexterity", value: -20 },
+      { stat: "energy", value: -20 },
+    ],
+  };
+}
+
+export function generateSharpFangs(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Sharp Fangs",
+    slot: "gloves",
+    rarity: "unique",
+    itemLevel: 15,
+    affixes: [
+      { stat: "dexterity", value: 30 },
+      { stat: "strength", value: 30 },
+      { stat: "damage", value: 30 },
+      { stat: "magicDamage", value: 30 },
+    ],
+  };
+}
+
+export function generatePentagram(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "The Pentagram",
+    slot: "amulet",
+    rarity: "unique",
+    itemLevel: 1,
+    affixes: [
+      { stat: "damage", value: 100 },
+      { stat: "life", value: -100 },
+    ],
+  };
+}
+
+export function generateStoneHusk(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Stone Husk",
+    slot: "armor",
+    rarity: "unique",
+    itemLevel: 25,
+    affixes: [
+      { stat: "vitality", value: randInt(20, 30) },
+      { stat: "life", value: randInt(40, 60) },
+      { stat: "physDmgReduction", value: randInt(5, 10) },
+      { stat: "magicDmgReduction", value: randInt(5, 10) },
+    ],
+  };
+}
+
+export function generateMaskOfTwilight(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Mask of Twilight",
+    slot: "helm",
+    rarity: "unique",
+    itemLevel: 25,
+    affixes: [
+      { stat: "energy", value: randInt(25, 35) },
+      { stat: "magicDamage", value: randInt(25, 35) },
+      { stat: "critChance", value: 5 },
+    ],
+  };
+}
+
+export function generateMaskOfMidnight(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Mask of Midnight",
+    slot: "helm",
+    rarity: "unique",
+    itemLevel: 25,
+    affixes: [
+      { stat: "vitality", value: randInt(25, 35) },
+      { stat: "damage", value: randInt(25, 35) },
+      { stat: "critChance", value: 5 },
+    ],
+  };
+}
+
+export function generatePeasantHood(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Peasant Hood",
+    slot: "helm",
+    rarity: "unique",
+    itemLevel: 1,
+    affixes: [
+      { stat: "damage", value: 10 },
+      { stat: "vitality", value: 10 },
+      { stat: "goldFind", value: 25 },
+    ],
+  };
+}
+
+export function generateDemonsTail(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Demon's Tail",
+    slot: "belt",
+    rarity: "unique",
+    itemLevel: 1,
+    affixes: [],
+    demonsTail: true,
+  };
+}
+
 export function generateShopStock(characterLevel: number, classId?: ClassId, count = 4): Item[] {
   const maxRarity = shopMaxRarity(characterLevel);
   const items: Item[] = [];

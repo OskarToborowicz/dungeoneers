@@ -89,9 +89,9 @@ export function CombatScreen({
     function onKey(e: KeyboardEvent) {
       if (e.repeat || (e.target as HTMLElement).tagName === "INPUT") return;
       if (e.key === " " && status !== "ongoing") { e.preventDefault(); handleContinue(); }
-      else if (e.key === "1") handleAction("attack");
-      else if (e.key === "2") handleAction("ability");
-      else if (e.key === "3") handleAction("ability2");
+      else if (e.key === "1" && status === "ongoing" && !isAnimating) handleAction("attack");
+      else if (e.key === "2" && abilityUsable) handleAction("ability");
+      else if (e.key === "3" && ability2Usable) handleAction("ability2");
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);

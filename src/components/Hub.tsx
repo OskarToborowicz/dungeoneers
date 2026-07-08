@@ -71,7 +71,7 @@ export function Hub({
   return (
     <div className="screen hub-screen" style={{ "--class-color": CLASS_COLORS[character.classId] } as CSSProperties}>
       {droppedItem && !showPortalMessage && (
-        <div className="drop-banner" onClick={onDismissDroppedItem}>
+        <div className={`drop-banner${droppedItem.rarity === "unique" ? " drop-banner--unique" : ""}`} onClick={onDismissDroppedItem}>
           <span className="drop-banner-label">Item found</span>
           <span className="drop-banner-icon" style={{ color: RARITY_COLORS[droppedItem.rarity] }}>
             <ItemIcon item={droppedItem} />

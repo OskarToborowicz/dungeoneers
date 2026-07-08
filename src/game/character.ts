@@ -38,6 +38,7 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
   manaRegenBonus: number;
   magicDmgReduction: number;
   physDmgReduction: number;
+  critChanceBonus: number;
   weaponDamage?: [number, number];
 } {
   const stats: BaseStats = { strength: 0, dexterity: 0, vitality: 0, energy: 0 };
@@ -51,6 +52,7 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
   let manaRegenBonus = 0;
   let magicDmgReduction = 0;
   let physDmgReduction = 0;
+  let critChanceBonus = 0;
   let weaponDamage: [number, number] | undefined;
 
   for (const item of Object.values(equipment)) {
@@ -73,11 +75,32 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
       else if (affix.stat === "manaRegen") manaRegenBonus += affix.value;
       else if (affix.stat === "magicDmgReduction") magicDmgReduction += affix.value;
       else if (affix.stat === "physDmgReduction") physDmgReduction += affix.value;
+      else if (affix.stat === "critChance") critChanceBonus += affix.value;
       else stats[affix.stat] += affix.value;
     }
   }
 
-  return { stats, damageBonus, defenseBonus, lifeBonus, manaBonus, magicDamageBonus, goldFindBonus, lifeLeechBonus, manaRegenBonus, magicDmgReduction, physDmgReduction, weaponDamage };
+  const mirrorSource = equipment.ring1?.mirrorRing ? equipment.ring2
+    : equipment.ring2?.mirrorRing ? equipment.ring1
+    : null;
+  if (mirrorSource) {
+    for (const affix of mirrorSource.affixes) {
+      if (affix.stat === "damage") damageBonus += affix.value;
+      else if (affix.stat === "defense") defenseBonus += affix.value;
+      else if (affix.stat === "life") lifeBonus += affix.value;
+      else if (affix.stat === "mana") manaBonus += affix.value;
+      else if (affix.stat === "magicDamage") magicDamageBonus += affix.value;
+      else if (affix.stat === "goldFind") goldFindBonus += affix.value;
+      else if (affix.stat === "lifeLeech") lifeLeechBonus += affix.value;
+      else if (affix.stat === "manaRegen") manaRegenBonus += affix.value;
+      else if (affix.stat === "magicDmgReduction") magicDmgReduction += affix.value;
+      else if (affix.stat === "physDmgReduction") physDmgReduction += affix.value;
+      else if (affix.stat === "critChance") critChanceBonus += affix.value;
+      else stats[affix.stat] += affix.value;
+    }
+  }
+
+  return { stats, damageBonus, defenseBonus, lifeBonus, manaBonus, magicDamageBonus, goldFindBonus, lifeLeechBonus, manaRegenBonus, magicDmgReduction, physDmgReduction, critChanceBonus, weaponDamage };
 }
 
 export interface DerivedStats {
@@ -94,6 +117,7 @@ export interface DerivedStats {
   manaRegenBonus: number;
   magicDmgReduction: number;
   physDmgReduction: number;
+  igniteChance: number;
 }
 
 export function getDerivedStats(
@@ -122,12 +146,13 @@ export function getDerivedStats(
   ];
 
   const defense = Math.round(equip.defenseBonus + stats.vitality / 4);
-  const critChance = Math.min(0.6, 0.05 + stats.dexterity * 0.001);
+  const critChance = Math.min(0.6, 0.05 + stats.dexterity * 0.001 + equip.critChanceBonus / 100);
   const magicDamageBonus = Math.floor(stats.energy / 2) + equip.magicDamageBonus;
   const magicDamageMult = character.classId === "sorceress" && character.level >= 20 ? 1.20 : 1.0;
   const mindOverMatterBonus = character.classId === "sorceress" && character.level >= 35 ? Math.round(maxMana * 0.15) : 0;
 
-  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction };
+  const igniteChance = equipment.belt?.demonsTail ? 20 : 0;
+  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction, igniteChance };
 }
 
 export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {
