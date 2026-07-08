@@ -134,18 +134,29 @@ function App() {
   function handleSelectSlot(slotId: string) {
     const save = getSave(slotId);
     if (!save) return;
-    if (save.inCombat) {
-      deleteSave(slotId);
-      setSlots(getAllSaves());
-      setDeathSummary({
-        characterName: save.character.name,
-        classId: save.character.classId,
-        level: save.character.level,
-        damageDealt: save.character.runStats.damageDealt,
-        goldEarned: save.character.runStats.goldEarned,
-        kills: save.character.runStats.kills,
-      });
-      return;
+    if (save.inCombat && save.activeDungeonRun) {
+      const run = save.activeDungeonRun;
+      const dungeon = DUNGEONS.find((d) => d.id === run.dungeonId);
+      if (dungeon) {
+        setActiveSlotId(slotId);
+        setCharacter(save.character);
+        setEquipment(save.equipment);
+        setInventory(save.inventory);
+        setClearedDungeons(save.clearedDungeons);
+        setConsumables(save.consumables ?? EMPTY_CONSUMABLES);
+        setShopStock(save.shopStock ?? generateShopStock(save.character.level, save.character.classId));
+        setSelectedAct(1);
+        setDungeonRun({
+          dungeonId: run.dungeonId,
+          queue: [...dungeon.waves, dungeon.boss],
+          index: run.index,
+          currentLife: run.currentLife,
+          currentMana: run.currentMana,
+          currentCooldown: run.currentCooldown,
+          currentCooldown2: run.currentCooldown2,
+        });
+        return;
+      }
     }
     setActiveSlotId(slotId);
     setCharacter(save.character);
@@ -280,15 +291,17 @@ function App() {
     if (!character) return;
     const dungeon = DUNGEONS.find((d) => d.id === dungeonId);
     if (!dungeon) return;
+    const startingLife = derived.maxLife;
+    const startingMana = getStartingResource(character, derived);
     if (activeSlotId) {
-      writeSave(activeSlotId, { character, equipment, inventory, clearedDungeons, consumables, shopStock, inCombat: true });
+      writeSave(activeSlotId, { character, equipment, inventory, clearedDungeons, consumables, shopStock, inCombat: true, activeDungeonRun: { dungeonId, index: 0, currentLife: startingLife, currentMana: startingMana, currentCooldown: 0, currentCooldown2: 0 } });
     }
     setDungeonRun({
       dungeonId,
       queue: [...dungeon.waves, dungeon.boss],
       index: 0,
-      currentLife: derived.maxLife,
-      currentMana: getStartingResource(character, derived),
+      currentLife: startingLife,
+      currentMana: startingMana,
       currentCooldown: 0,
       currentCooldown2: 0,
     });
@@ -375,14 +388,18 @@ function App() {
       return;
     }
 
-    setDungeonRun({
+    const nextRunState = {
       ...dungeonRun,
       index: nextIndex,
       currentLife: result.endingLife,
       currentMana: getStartingResource(character, derived, result.endingMana),
       currentCooldown: result.endingCooldown,
       currentCooldown2: result.endingCooldown2,
-    });
+    };
+    if (activeSlotId) {
+      writeSave(activeSlotId, { character, equipment, inventory, clearedDungeons, consumables, shopStock, inCombat: true, activeDungeonRun: { dungeonId: nextRunState.dungeonId, index: nextRunState.index, currentLife: nextRunState.currentLife, currentMana: nextRunState.currentMana, currentCooldown: nextRunState.currentCooldown, currentCooldown2: nextRunState.currentCooldown2 } });
+    }
+    setDungeonRun(nextRunState);
   }
 
   if (dungeonRun) {

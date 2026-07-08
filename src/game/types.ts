@@ -160,4 +160,12 @@ export interface SaveGame {
   consumables: Record<ConsumableId, number>;
   shopStock: Item[];
   inCombat?: boolean;
+  activeDungeonRun?: {
+    dungeonId: string;
+    index: number;
+    currentLife: number;
+    currentMana: number;
+    currentCooldown: number;
+    currentCooldown2: number;
+  };
 }
