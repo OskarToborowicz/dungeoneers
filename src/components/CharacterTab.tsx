@@ -95,10 +95,11 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
             <span className="stat-name">
               {stat}
               {STAT_ICONS[stat] && (
-                <span className="stat-icon" title={STAT_ICONS[stat].tip}>
+                <span className="stat-icon">
                   <svg viewBox="0 0 12 12" width="13" height="13" style={{ background: STAT_ICONS[stat].bg, borderRadius: 2 }}>
                     {STAT_ICONS[stat].svg}
                   </svg>
+                  <div className="game-tooltip">{STAT_ICONS[stat].tip}</div>
                 </span>
               )}
             </span>
@@ -115,7 +116,7 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
       </div>
 
       <div className="ability-box">
-        <strong>{def.ability.name}{def.ability.magic && <span className="spell-tag" title="This ability scales with Magic Damage bonus"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 1 L6.7 4.5 L10 3 L7.5 5.8 L11 6 L7.5 6.2 L10 9 L6.7 7.5 L6 11 L5.3 7.5 L2 9 L4.5 6.2 L1 6 L4.5 5.8 L2 3 L5.3 4.5 Z" fill="#88aaff"/></svg></span>}</strong>
+        <strong>{def.ability.name}{def.ability.magic && <span className="spell-tag"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 1 L6.7 4.5 L10 3 L7.5 5.8 L11 6 L7.5 6.2 L10 9 L6.7 7.5 L6 11 L5.3 7.5 L2 9 L4.5 6.2 L1 6 L4.5 5.8 L2 3 L5.3 4.5 Z" fill="#88aaff"/></svg><div className="game-tooltip">Scales with Magic Damage bonus</div></span>}</strong>
         <div className="ability-cost">
           {def.resourceName}: {def.ability.manaCost}
           {def.ability.cooldown > 0 ? ` · ${def.ability.cooldown}-turn cooldown` : ""}
@@ -128,7 +129,7 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
 
       {def.ability2 && (
         <div className="ability-box">
-          <strong>{def.ability2.name}{def.ability2.magic && <span className="spell-tag" title="This ability scales with Magic Damage bonus"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 1 L6.7 4.5 L10 3 L7.5 5.8 L11 6 L7.5 6.2 L10 9 L6.7 7.5 L6 11 L5.3 7.5 L2 9 L4.5 6.2 L1 6 L4.5 5.8 L2 3 L5.3 4.5 Z" fill="#88aaff"/></svg></span>}</strong>
+          <strong>{def.ability2.name}{def.ability2.magic && <span className="spell-tag"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 1 L6.7 4.5 L10 3 L7.5 5.8 L11 6 L7.5 6.2 L10 9 L6.7 7.5 L6 11 L5.3 7.5 L2 9 L4.5 6.2 L1 6 L4.5 5.8 L2 3 L5.3 4.5 Z" fill="#88aaff"/></svg><div className="game-tooltip">Scales with Magic Damage bonus</div></span>}</strong>
           <div className="ability-cost">
             {def.resourceName}: {def.ability2.manaCost} · {def.ability2.cooldown}-turn cooldown
           </div>
