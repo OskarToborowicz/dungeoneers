@@ -653,7 +653,7 @@
   top: 50%;
   left: calc(100% + 10px);
   transform: translateY(-50%);
-  z-index: 20;
+  z-index: 1000;
   width: 170px;
   background: var(--bg-panel);
   border: 1px solid;
