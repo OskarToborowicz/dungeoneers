@@ -608,7 +608,7 @@ Affixes are random bonuses rolled when an item generates. Items can have 0–4 a
 | of Protection | Flat Defense | +2–10 | — |
 | of Life | Max Life | +5–20 | — |
 | of Mana | Max Mana | +5–20 | — |
-| of Arcane Power | Magic Damage Bonus | +1–3 | Weapons, shields, rings, amulets, gloves only |
+| of Arcane Power | Magic Damage Bonus | +2–6 | Weapons, shields, rings, amulets, gloves only |
 | of Greed | Gold Find % | +15–25% | Rings, belts only |
 
 **Gold Find** is a percentage bonus applied to every monster gold drop:

@@ -49,7 +49,7 @@ const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: nu
   { label: "of Protection", stat: "defense", min: 2, max: 10 },
   { label: "of Life", stat: "life", min: 5, max: 20 },
   { label: "of Mana", stat: "mana", min: 5, max: 20 },
-  { label: "of Arcane Power", stat: "magicDamage", min: 1, max: 3 },
+  { label: "of Arcane Power", stat: "magicDamage", min: 2, max: 6 },
   { label: "of Greed", stat: "goldFind", min: 15, max: 25 },
 ];
 
