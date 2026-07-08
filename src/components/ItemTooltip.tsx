@@ -19,6 +19,24 @@ const STAT_LABEL: Record<string, string> = {
   critChance: "% Crit Chance",
 };
 
+const AFFIX_ORDER: Record<string, number> = {
+  defense: 0,
+  damage: 1,
+  magicDamage: 2,
+  strength: 3,
+  dexterity: 4,
+  vitality: 5,
+  energy: 6,
+};
+
+export function sortAffixes(affixes: Item["affixes"]) {
+  return [...affixes].sort((a, b) => {
+    const oa = AFFIX_ORDER[a.stat] ?? 99;
+    const ob = AFFIX_ORDER[b.stat] ?? 99;
+    return oa - ob;
+  });
+}
+
 export function ItemTooltip({ item }: { item: Item }) {
   const color = RARITY_COLORS[item.rarity];
   return (
@@ -47,7 +65,7 @@ export function ItemTooltip({ item }: { item: Item }) {
         )
         : (
           <>
-            {item.affixes.map((a, i) => (
+            {sortAffixes(item.affixes).map((a, i) => (
               <div className="item-line affix" key={i}>
                 {a.value > 0 ? "+" : ""}{a.value} {STAT_LABEL[a.stat]}
               </div>

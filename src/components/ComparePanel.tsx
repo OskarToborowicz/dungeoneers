@@ -1,4 +1,5 @@
 import { RARITY_COLORS } from "../game/data/items";
+import { sortAffixes } from "./ItemTooltip";
 import type { EquipmentSlot, Item } from "../game/types";
 
 const STAT_LABEL: Record<string, string> = {
@@ -41,7 +42,7 @@ function ComparePanel({ item, label }: { item: Item; label: string }) {
       <div className="item-meta">{item.slot} &middot; ilvl {item.itemLevel}</div>
       {item.baseDamage && <div className="item-line">Damage: {item.baseDamage[0]}-{item.baseDamage[1]}{item.twoHanded ? " (2H)" : ""}</div>}
       {item.baseDefense && <div className="item-line">Defense: {item.baseDefense}</div>}
-      {item.affixes.map((a, i) => (
+      {sortAffixes(item.affixes).map((a, i) => (
         <div className="item-line affix" key={i}>+{a.value} {STAT_LABEL[a.stat]}</div>
       ))}
     </div>
