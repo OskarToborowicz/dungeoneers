@@ -2144,3 +2144,139 @@
   font-family: var(--heading-font);
   font-size: 18px;
 }
+
+/* ---------- Mobile ---------- */
+
+@media (max-width: 600px) {
+  .screen {
+    padding: 12px;
+  }
+
+  /* Title */
+  .game-title {
+    font-size: 36px;
+    letter-spacing: 3px;
+  }
+
+  /* Hub: stack sidebar above content */
+  .hub-layout {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .hub-sidebar {
+    width: 100%;
+    min-height: unset;
+    position: static;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-gold);
+    padding-bottom: 10px;
+  }
+
+  .hub-sprite svg {
+    width: 48px !important;
+    height: 72px !important;
+  }
+
+  .gold-display {
+    font-size: 15px;
+  }
+
+  /* Tab bar: horizontal row */
+  .tab-bar {
+    flex-direction: row;
+    flex-wrap: wrap;
+    border-right: none;
+    border-bottom: none;
+    padding-right: 0;
+    gap: 2px;
+    width: 100%;
+    order: 10;
+  }
+
+  .tab-bar button {
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 4px 4px 0 0;
+    padding: 7px 12px;
+    font-size: 13px;
+    text-align: center;
+    flex: 1;
+  }
+
+  .tab-bar button.active {
+    border-left: none;
+    border-bottom-color: var(--border-gold-bright);
+  }
+
+  .hub-screen .tab-bar button.active {
+    border-left-color: transparent;
+    border-bottom-color: var(--class-color);
+  }
+
+  .reset-button {
+    margin-top: 0;
+    font-size: 11px;
+    padding: 5px 10px;
+  }
+
+  /* Smaller tab panel padding */
+  .tab-panel {
+    padding: 14px 12px;
+  }
+
+  /* Stats grid: 2 cols */
+  .derived-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  /* Hero header: stack name + level */
+  .hero-header {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  /* Character creation */
+  .class-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Combat screen */
+  .combat-bars {
+    gap: 12px;
+  }
+
+  .combat-log {
+    max-height: 160px;
+    font-size: 13px;
+  }
+
+  .combat-actions {
+    gap: 8px;
+  }
+
+  .combat-button {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  /* Inventory */
+  .equipment-grid {
+    gap: 8px;
+  }
+
+  /* Dungeons */
+  .dungeon-list {
+    gap: 8px;
+  }
+
+  /* Select screen */
+  .select-panel {
+    max-width: 100%;
+  }
+}
+

@@ -51,10 +51,14 @@ SaveSlot {
   lastPlayedAt: number
   save: SaveGame {
     character, equipment, inventory,
-    clearedDungeons, consumables, shopStock
+    clearedDungeons, consumables, shopStock,
+    inCombat?: boolean,
+    activeDungeonRun?: { dungeonId, index, currentLife, currentMana, currentCooldown, currentCooldown2 }
   }
 }
 ```
+
+On load: if `inCombat && activeDungeonRun` → resume from checkpoint. F5 during combat shows `beforeunload` confirmation.
 
 To inject a test save in the browser console:
 ```js
@@ -120,12 +124,44 @@ Currently only Amazon uses passive3. All classes can be extended to use it.
 
 ## Sprites
 
-### CharacterSprite (`src/components/sprites/CharacterSprite.tsx`)
+### CharacterSprite system (V2)
 
-SVG sprites in a `64×96` viewBox. Each class has:
-- `BODY_AND_ARMS` — body silhouette
-- `WEAPON_BASE` — normal weapon (class color)
-- `WEAPON_UNIQUE` — unique weapon (gold color)
+SVG sprites in a `64×96` viewBox with `overflow="visible"` (weapons extend outside).
+
+```
+src/components/sprites/
+  CharacterSprite.tsx        pure assembler — no SVG art inside
+  shared/
+    colors.ts                CLASS_COLORS, UNIQUE_COLOR, BODY_FILL
+    sharedTypes.ts           SpriteState, ClassSpriteModule interface
+  classes/
+    barbarian.tsx            all bezier paths
+    necromancer.tsx
+    sorceress.tsx
+    amazon.tsx
+    paladin.tsx
+    assassin.tsx
+    druid.tsx
+  weapons/
+    axe.tsx                  parametric Axe component
+    staff.tsx                StaffShaft, OrbHead, ScytheBlade, TotemHead
+    bow.tsx                  Bow component
+    claws.tsx                Claws component
+    mace.tsx                 Mace component
+```
+
+Each class file exports three **named** functions (import style is `import * as barbarian`):
+- `body(): ReactNode` — body silhouette, uses `currentColor` / parent group fill
+- `weapon(color: string): ReactNode` — normal weapon
+- `uniqueWeapon(color: string): ReactNode` — very rare / unique weapon
+
+`CharacterSprite.tsx` re-exports `CLASS_COLORS` and `SpriteState` for API compatibility.
+
+**Design language (V2):** bold filled paths, colored stroke with drop-shadow glow, `overflow="visible"` for weapons. No `rect`/`polygon` for body shapes — bezier curves only.
+
+**Barbarian weapons render BEFORE body** (axes behind character). All other classes render weapons AFTER body.
+
+**XP cap per dungeon:** `getXpCapLevel(clearedDungeons, currentDungeonId)` returns `currentDungeon.boss.level + 5`.
 
 ### MonsterSprite (`src/components/sprites/MonsterSprite.tsx`)
 
@@ -145,3 +181,7 @@ All Act 1 and Act 2 monsters have unique sprites. New monsters need entries in a
 - CSS class names use kebab-case matching the component name (e.g. `.combat-screen`, `.flee-modal`)
 - All new overlay/modal elements need `position: relative` on their parent container
 - Dark theme only — all colors are hardcoded dark palette values in App.css
+- Mobile responsive breakpoint at `@media (max-width: 600px)` at the bottom of App.css:
+  - Hub sidebar collapses to a horizontal top bar (sprite shrinks, tabs go horizontal)
+  - `derived-grid` switches from 3-col to 2-col
+  - Padding reduced to 12px
