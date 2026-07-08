@@ -220,11 +220,11 @@ export function generateHeavyStompers(): Item {
     rarity: "unique",
     itemLevel: 1,
     affixes: [
-      { stat: "life", value: 200 },
-      { stat: "defense", value: 100 },
-      { stat: "strength", value: -20 },
-      { stat: "dexterity", value: -20 },
-      { stat: "energy", value: -20 },
+      { label: "", stat: "life", value: 200 },
+      { label: "", stat: "defense", value: 100 },
+      { label: "", stat: "strength", value: -20 },
+      { label: "", stat: "dexterity", value: -20 },
+      { label: "", stat: "energy", value: -20 },
     ],
   };
 }
@@ -238,10 +238,10 @@ export function generateSharpFangs(): Item {
     rarity: "unique",
     itemLevel: 15,
     affixes: [
-      { stat: "dexterity", value: 30 },
-      { stat: "strength", value: 30 },
-      { stat: "damage", value: 30 },
-      { stat: "magicDamage", value: 30 },
+      { label: "", stat: "dexterity", value: 30 },
+      { label: "", stat: "strength", value: 30 },
+      { label: "", stat: "damage", value: 30 },
+      { label: "", stat: "magicDamage", value: 30 },
     ],
   };
 }
@@ -255,8 +255,8 @@ export function generatePentagram(): Item {
     rarity: "unique",
     itemLevel: 1,
     affixes: [
-      { stat: "damage", value: 100 },
-      { stat: "life", value: -100 },
+      { label: "", stat: "damage", value: 100 },
+      { label: "", stat: "life", value: -100 },
     ],
   };
 }
@@ -270,10 +270,10 @@ export function generateStoneHusk(): Item {
     rarity: "unique",
     itemLevel: 25,
     affixes: [
-      { stat: "vitality", value: randInt(20, 30) },
-      { stat: "life", value: randInt(40, 60) },
-      { stat: "physDmgReduction", value: randInt(5, 10) },
-      { stat: "magicDmgReduction", value: randInt(5, 10) },
+      { label: "", stat: "vitality", value: randInt(20, 30) },
+      { label: "", stat: "life", value: randInt(40, 60) },
+      { label: "", stat: "physDmgReduction", value: randInt(5, 10) },
+      { label: "", stat: "magicDmgReduction", value: randInt(5, 10) },
     ],
   };
 }
@@ -287,9 +287,9 @@ export function generateMaskOfTwilight(): Item {
     rarity: "unique",
     itemLevel: 25,
     affixes: [
-      { stat: "energy", value: randInt(25, 35) },
-      { stat: "magicDamage", value: randInt(25, 35) },
-      { stat: "critChance", value: 5 },
+      { label: "", stat: "energy", value: randInt(25, 35) },
+      { label: "", stat: "magicDamage", value: randInt(25, 35) },
+      { label: "", stat: "critChance", value: 5 },
     ],
   };
 }
@@ -303,9 +303,9 @@ export function generateMaskOfMidnight(): Item {
     rarity: "unique",
     itemLevel: 25,
     affixes: [
-      { stat: "vitality", value: randInt(25, 35) },
-      { stat: "damage", value: randInt(25, 35) },
-      { stat: "critChance", value: 5 },
+      { label: "", stat: "vitality", value: randInt(25, 35) },
+      { label: "", stat: "damage", value: randInt(25, 35) },
+      { label: "", stat: "critChance", value: 5 },
     ],
   };
 }
@@ -319,9 +319,9 @@ export function generatePeasantHood(): Item {
     rarity: "unique",
     itemLevel: 1,
     affixes: [
-      { stat: "damage", value: 10 },
-      { stat: "vitality", value: 10 },
-      { stat: "goldFind", value: 25 },
+      { label: "", stat: "damage", value: 10 },
+      { label: "", stat: "vitality", value: 10 },
+      { label: "", stat: "goldFind", value: 25 },
     ],
   };
 }
