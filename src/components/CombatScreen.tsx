@@ -113,7 +113,7 @@ export function CombatScreen({
       setLog((prev) => [...prev, ...result.log]);
       setStatus(result.status);
       setTotalDamageDealt((d) => d + result.damageDealt);
-      setReward({ xp: Math.round(monster.xpReward * xpMultiplier), gold: rollGoldReward(monster, derived.goldFindBonus) });
+      setReward({ xp: monster.xpReward, gold: rollGoldReward(monster, derived.goldFindBonus) });
       setPlayerAnim("attack");
       setTimeout(() => { setPlayerAnim("idle"); setMonsterAnim("dead"); }, 500);
     } else if (result.status === "defeat") {
@@ -430,7 +430,7 @@ export function CombatScreen({
           </h3>
           {status === "victory" && reward && (
             <p>
-              {!xpCapped && <>+{reward.xp} XP &middot; </>}+{reward.gold} gold
+              {!xpCapped && <>+{Math.round(reward.xp * xpMultiplier)} XP &middot; </>}+{reward.gold} gold
             </p>
           )}
           {status === "defeat" && <p>Your journey ends here. All progress will be lost.</p>}
