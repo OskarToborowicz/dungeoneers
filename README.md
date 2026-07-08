@@ -389,7 +389,7 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 
 ### Sorceress — Fireball
 - **Kind**: burst (magic — gains `magicDamageBonus` and `magicDamageMult`)
-- **Mana Cost**: 25
+- **Mana Cost**: 30
 - **Cooldown**: 0 (can cast every turn)
 - **Damage**: `round((randomInRange(damage) × 1.0 + magicDamageBonus × 2) × magicDamageMult)`
 - Scales equally with weapon damage and doubly with Magic Damage bonus, making Energy investment highly rewarding
@@ -598,18 +598,22 @@ Affixes are random bonuses rolled when an item generates. Items can have 0–4 a
 
 **Jewelry (amulets, rings)** always drops at minimum **Magic** rarity, so it always has at least 1 affix. White jewelry does not exist in drops or shops.
 
-| Affix Label | Stat Affected | Base Range | Slot Restriction |
-|---|---|---|---|
-| of Strength | Strength | +2–8 | — |
-| of Dexterity | Dexterity | +2–8 | — |
-| of Vitality | Vitality | +2–8 | — |
-| of Energy | Energy | +2–8 | — |
-| of Power | Flat Damage | +2–10 | Weapons, shields, rings, amulets, gloves only |
-| of Protection | Flat Defense | +2–10 | — |
-| of Life | Max Life | +5–20 | — |
-| of Mana | Max Mana | +5–20 | — |
-| of Arcane Power | Magic Damage Bonus | +2–6 | Weapons, shields, rings, amulets, gloves only |
-| of Greed | Gold Find % | +15–25% | Rings, belts only |
+| Affix Label | Stat Affected | Base Range | Slot Restriction | Notes |
+|---|---|---|---|---|
+| of Strength | Strength | +2–8 | — | Scales with item level |
+| of Dexterity | Dexterity | +2–8 | — | Scales with item level |
+| of Vitality | Vitality | +2–8 | — | Scales with item level |
+| of Energy | Energy | +2–8 | — | Scales with item level |
+| of Power | Flat Damage | +2–10 | Weapons, shields, rings, amulets, gloves | Scales with item level |
+| of Protection | Flat Defense | +2–10 | — | Scales with item level |
+| of Life | Max Life | +5–20 | — | Scales with item level |
+| of Mana | Max Mana | +5–20 | — | Scales with item level |
+| of Arcane Power | Magic Damage Bonus | +2–6 | Weapons, shields, rings, amulets, gloves | Scales with item level |
+| of Greed | Gold Find % | +15–25% | Rings, belt | Fixed range |
+| of Vampirism | Life Leech % | +3–9% | Rings, gloves | Fixed range |
+| of Clarity | Mana Regen / Turn | +3–7 | Rings, belt | Fixed range |
+| of Warding | Magic Damage Reduced % | +3–6% | Helms, armors, boots | Item level 25+ only; scales to 12% max at item level 50 |
+| of Fortitude | Physical Damage Reduced % | +3–6% | Helms, armors, boots | Item level 25+ only; scales to 12% max at item level 50 |
 
 **Gold Find** is a percentage bonus applied to every monster gold drop:
 ```
@@ -617,7 +621,17 @@ finalGold = round(baseGold × (1 + totalGoldFind% / 100))
 ```
 Multiple "of Greed" affixes across equipped rings and belts stack additively before the multiplier is applied.
 
-Affix values scale with item level:
+**Life Leech** heals the player for a percentage of physical damage dealt on basic attacks (including Barbarian Double Swing).
+
+**Mana Regen** adds flat mana per turn on top of the class percentage regeneration.
+
+**Warding / Fortitude** use custom item-level scaling starting from item level 25:
+```
+scale = 1 + (itemLevel − 25) × 0.04     [only for itemLevel ≥ 25]
+finalValue = round(baseRoll × scale)
+```
+
+Most affix values scale with item level using the standard formula:
 ```
 finalAffixValue = round(baseRoll × (1 + itemLevel × 0.08))
 ```

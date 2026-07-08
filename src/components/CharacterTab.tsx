@@ -19,7 +19,7 @@ const STAT_ICONS: Record<string, { bg: string; tip: string; svg: React.ReactNode
   },
   dexterity: {
     bg: "#1a7230",
-    tip: "Increases physical damage and critical strike chance",
+    tip: "Slightly increases physical damage and critical strike chance",
     svg: (
       <>
         <path d="M6 1 C2 4 2 8 6 11" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" />

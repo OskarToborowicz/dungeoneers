@@ -68,7 +68,7 @@ export type ItemRarity = "normal" | "magic" | "rare" | "unique";
 
 export interface ItemAffix {
   label: string;
-  stat: keyof BaseStats | "damage" | "defense" | "life" | "mana" | "magicDamage" | "goldFind";
+  stat: keyof BaseStats | "damage" | "defense" | "life" | "mana" | "magicDamage" | "goldFind" | "lifeLeech" | "manaRegen" | "magicDmgReduction" | "physDmgReduction";
   value: number;
 }
 

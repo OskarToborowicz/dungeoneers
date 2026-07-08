@@ -290,6 +290,13 @@ export function resolveRound(
           attackMsg += ` Blood Fury steals ${stolen} life.`;
         }
       }
+      if (stats.lifeLeechBonus > 0) {
+        const leeched = Math.round(dmg * stats.lifeLeechBonus / 100);
+        if (leeched > 0) {
+          playerLife = Math.min(stats.maxLife, playerLife + leeched);
+          attackMsg += ` Life Leech restores ${leeched} life.`;
+        }
+      }
       log.push({ actor: "player", message: attackMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     } else {
       log.push({ actor: "player", message: "Your attack misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
@@ -329,6 +336,13 @@ export function resolveRound(
           if (stolen2 > 0) {
             playerLife = Math.min(stats.maxLife, playerLife + stolen2);
             swingMsg += ` Blood Fury steals ${stolen2} life.`;
+          }
+        }
+        if (stats.lifeLeechBonus > 0) {
+          const leeched2 = Math.round(dmg2 * stats.lifeLeechBonus / 100);
+          if (leeched2 > 0) {
+            playerLife = Math.min(stats.maxLife, playerLife + leeched2);
+            swingMsg += ` Life Leech restores ${leeched2} life.`;
           }
         }
         log.push({ actor: "player", message: swingMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
@@ -589,7 +603,7 @@ export function resolveRound(
   }
   if (def.resourceType === "mana" && playerMana < stats.maxMana) {
     const regenRate = character.classId === "sorceress" ? SORCERESS_MANA_REGEN_RATE : MANA_REGEN_RATE;
-    playerMana = Math.min(stats.maxMana, playerMana + stats.maxMana * regenRate);
+    playerMana = Math.min(stats.maxMana, playerMana + stats.maxMana * regenRate + stats.manaRegenBonus);
   }
 
   function makeState() {
@@ -717,6 +731,7 @@ export function resolveRound(
     if (fadedSpell) spellDmg = Math.max(1, Math.round(spellDmg * 0.55));
     const ironSkinSpell = getIronSkinReduction(character, playerLife, stats.maxLife);
     if (ironSkinSpell > 0) spellDmg = Math.max(1, Math.round(spellDmg * (1 - ironSkinSpell)));
+    if (stats.magicDmgReduction > 0) spellDmg = Math.max(1, Math.round(spellDmg * (1 - stats.magicDmgReduction / 100)));
 
     if (spell.kind === "burst") {
       playerLife -= spellDmg;
@@ -797,6 +812,7 @@ export function resolveRound(
       if (fadedNormal) dmg = Math.max(1, Math.round(dmg * 0.55));
       const ironSkin = getIronSkinReduction(character, playerLife, stats.maxLife);
       if (ironSkin > 0) dmg = Math.max(1, Math.round(dmg * (1 - ironSkin)));
+      if (stats.physDmgReduction > 0) dmg = Math.max(1, Math.round(dmg * (1 - stats.physDmgReduction / 100)));
       if (frostShieldRounds > 0) dmg = Math.max(1, Math.round(dmg * 0.40));
 
       playerLife -= dmg;

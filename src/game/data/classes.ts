@@ -97,7 +97,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       name: "Fireball",
       description: "A searing bolt of fire dealing weapon damage plus twice your Magic Damage bonus.",
       short: "A searing bolt of fire dealing magic damage.",
-      manaCost: 25,
+      manaCost: 30,
       cooldown: 0,
       kind: "burst",
       power: 1.0,

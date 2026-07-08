@@ -12,6 +12,10 @@ const STAT_LABEL: Record<string, string> = {
   mana: "Mana",
   magicDamage: "Magic Damage",
   goldFind: "% Gold Find",
+  lifeLeech: "% Life Leech",
+  manaRegen: "Mana Regen / Turn",
+  magicDmgReduction: "% Magic Damage Reduced",
+  physDmgReduction: "% Physical Damage Reduced",
 };
 
 export function ItemTooltip({ item }: { item: Item }) {

@@ -43,6 +43,10 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
   let manaBonus = 0;
   let magicDamageBonus = 0;
   let goldFindBonus = 0;
+  let lifeLeechBonus = 0;
+  let manaRegenBonus = 0;
+  let magicDmgReduction = 0;
+  let physDmgReduction = 0;
   let weaponDamage: [number, number] | undefined;
 
   for (const item of Object.values(equipment)) {
@@ -61,11 +65,15 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
       else if (affix.stat === "mana") manaBonus += affix.value;
       else if (affix.stat === "magicDamage") magicDamageBonus += affix.value;
       else if (affix.stat === "goldFind") goldFindBonus += affix.value;
+      else if (affix.stat === "lifeLeech") lifeLeechBonus += affix.value;
+      else if (affix.stat === "manaRegen") manaRegenBonus += affix.value;
+      else if (affix.stat === "magicDmgReduction") magicDmgReduction += affix.value;
+      else if (affix.stat === "physDmgReduction") physDmgReduction += affix.value;
       else stats[affix.stat] += affix.value;
     }
   }
 
-  return { stats, damageBonus, defenseBonus, lifeBonus, manaBonus, magicDamageBonus, goldFindBonus, weaponDamage };
+  return { stats, damageBonus, defenseBonus, lifeBonus, manaBonus, magicDamageBonus, goldFindBonus, lifeLeechBonus, manaRegenBonus, magicDmgReduction, physDmgReduction, weaponDamage };
 }
 
 export interface DerivedStats {
@@ -78,6 +86,10 @@ export interface DerivedStats {
   magicDamageBonus: number;
   magicDamageMult: number;
   goldFindBonus: number;
+  lifeLeechBonus: number;
+  manaRegenBonus: number;
+  magicDmgReduction: number;
+  physDmgReduction: number;
 }
 
 export function getDerivedStats(
@@ -111,7 +123,7 @@ export function getDerivedStats(
   const magicDamageMult = character.classId === "sorceress" && character.level >= 20 ? 1.20 : 1.0;
   const mindOverMatterBonus = character.classId === "sorceress" && character.level >= 35 ? Math.round(maxMana * 0.15) : 0;
 
-  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus };
+  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction };
 }
 
 export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {

@@ -40,7 +40,7 @@ const RARITY_ROLLS: { rarity: ItemRarity; weight: number; affixCount: number; mu
   { rarity: "unique", weight: 3, affixCount: 4, multiplier: 1.5 },
 ];
 
-const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: number }[] = [
+const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: number; noScale?: boolean; itemLevelMin?: number; scaleFromLevel?: number; scaleRate?: number }[] = [
   { label: "of Strength", stat: "strength", min: 2, max: 8 },
   { label: "of Dexterity", stat: "dexterity", min: 2, max: 8 },
   { label: "of Vitality", stat: "vitality", min: 2, max: 8 },
@@ -51,6 +51,10 @@ const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: nu
   { label: "of Mana", stat: "mana", min: 5, max: 20 },
   { label: "of Arcane Power", stat: "magicDamage", min: 2, max: 6 },
   { label: "of Greed", stat: "goldFind", min: 15, max: 25 },
+  { label: "of Vampirism", stat: "lifeLeech", min: 3, max: 9, noScale: true },
+  { label: "of Clarity", stat: "manaRegen", min: 3, max: 7, noScale: true },
+  { label: "of Warding", stat: "magicDmgReduction", min: 3, max: 6, itemLevelMin: 25, scaleFromLevel: 25, scaleRate: 0.04 },
+  { label: "of Fortitude", stat: "physDmgReduction", min: 3, max: 6, itemLevelMin: 25, scaleFromLevel: 25, scaleRate: 0.04 },
 ];
 
 function rollRarity(maxRarity: ItemRarity = "unique", minRarity: ItemRarity = "normal"): (typeof RARITY_ROLLS)[number] {
@@ -77,6 +81,9 @@ function shopMaxRarity(characterLevel: number): ItemRarity {
 const DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = ["weapon", "shield", "ring1", "ring2", "amulet", "gloves"];
 const MAGIC_DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = ["weapon", "shield", "ring1", "ring2", "amulet", "gloves"];
 const GOLD_FIND_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "belt"];
+const LIFE_LEECH_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "gloves"];
+const MANA_REGEN_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "belt"];
+const MAGIC_RESIST_AFFIX_SLOTS: EquipmentSlot[] = ["helm", "armor", "boots"];
 
 function rollAffixes(count: number, itemLevel: number, slot: EquipmentSlot): ItemAffix[] {
   const affixes: ItemAffix[] = [];
@@ -84,12 +91,18 @@ function rollAffixes(count: number, itemLevel: number, slot: EquipmentSlot): Ite
     if (a.stat === "damage") return DAMAGE_AFFIX_SLOTS.includes(slot);
     if (a.stat === "magicDamage") return MAGIC_DAMAGE_AFFIX_SLOTS.includes(slot);
     if (a.stat === "goldFind") return GOLD_FIND_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "lifeLeech") return LIFE_LEECH_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "manaRegen") return MANA_REGEN_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "magicDmgReduction") return MAGIC_RESIST_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
+    if (a.stat === "physDmgReduction") return MAGIC_RESIST_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
     return true;
   });
   for (let i = 0; i < count && pool.length > 0; i++) {
     const index = Math.floor(Math.random() * pool.length);
     const [chosen] = pool.splice(index, 1);
-    const scale = 1 + itemLevel * 0.08;
+    const effectiveLevel = chosen.scaleFromLevel != null ? Math.max(0, itemLevel - chosen.scaleFromLevel) : itemLevel;
+    const rate = chosen.scaleRate ?? 0.08;
+    const scale = chosen.noScale ? 1 : 1 + effectiveLevel * rate;
     const value = Math.round((chosen.min + Math.random() * (chosen.max - chosen.min)) * scale);
     affixes.push({ label: chosen.label, stat: chosen.stat, value });
   }
