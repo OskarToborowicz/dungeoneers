@@ -333,7 +333,7 @@ export function resolveRound(
 
     if (character.classId === "assassin" && character.level >= 20 && basicHitDmg > 0) {
       poisonRounds = 2;
-      poisonDamage = Math.round(basicHitDmg * 0.30);
+      poisonDamage = Math.round(basicHitDmg * 0.30 * stats.poisonDamageMult);
       log.push({ actor: "player", message: `Venom seeps in — ${poisonDamage} poison per turn for 2 turns.`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     }
 
@@ -375,9 +375,7 @@ export function resolveRound(
 
     if (useAbility) {
       playerMana -= def.ability.manaCost;
-      if (def.ability.kind !== "buff") {
-        abilityCooldown = def.ability.cooldown;
-      }
+      abilityCooldown = def.ability.cooldown;
 
       if (def.ability.canMiss !== false && Math.random() < ALWAYS_MISS_CHANCE) {
         log.push({
@@ -412,7 +410,7 @@ export function resolveRound(
         damageDealt += dmg;
         tryIgnite(dmg);
         poisonRounds = 3;
-        poisonDamage = rollAbilityDamage(stats, def.ability.power * 0.4, def.ability.magic);
+        poisonDamage = Math.round(rollAbilityDamage(stats, def.ability.power * 0.4, def.ability.magic) * stats.poisonDamageMult);
         log.push({
           actor: "player",
           message: `You strike with ${def.ability.name} for ${dmg} damage, poisoning the enemy!`,
@@ -454,7 +452,7 @@ export function resolveRound(
           }
         }
       } else if (def.ability.kind === "heal") {
-        const dmg = rollAbilityDamage(stats, def.ability.power, def.ability.magic);
+        const dmg = rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower ?? 1);
         const healAmt = Math.round(dmg * 0.35);
         monsterLife -= dmg;
         damageDealt += dmg;
@@ -546,7 +544,6 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
       } else if (def.ability2.kind === "frost_shield") {
-        ability2Cooldown = 0; // cooldown set when shield fades, not on cast
         frostShieldRounds = 3;
         log.push({
           actor: "player",
@@ -555,7 +552,6 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
       } else if (def.ability2.kind === "regen") {
-        ability2Cooldown = 0; // cooldown set when buff fades, not on cast
         regenRounds = 3;
         const firstHeal = Math.round(stats.maxLife * 0.10);
         playerLife = Math.min(stats.maxLife, playerLife + firstHeal);
@@ -603,7 +599,6 @@ export function resolveRound(
   if (manaPotionCooldown > 0) manaPotionCooldown -= 1;
   if (bloodFuryRounds > 0) {
     bloodFuryRounds -= 1;
-    if (bloodFuryRounds === 0) abilityCooldown = def.ability.cooldown;
   }
   if (regenRounds > 0) {
     regenRounds -= 1;
@@ -617,7 +612,6 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
     } else {
-      if (def.ability2 && def.ability2.kind === "regen") ability2Cooldown = def.ability2.cooldown;
       log.push({
         actor: "player",
         message: "Regenerating Nova fades.",
@@ -628,7 +622,7 @@ export function resolveRound(
   }
   if (def.resourceType === "mana" && playerMana < stats.maxMana) {
     const regenRate = character.classId === "sorceress" ? SORCERESS_MANA_REGEN_RATE : MANA_REGEN_RATE;
-    playerMana = Math.min(stats.maxMana, playerMana + stats.maxMana * regenRate + stats.manaRegenBonus);
+    playerMana = Math.min(stats.maxMana, playerMana + stats.maxMana * regenRate * stats.manaRegenMult + stats.manaRegenBonus);
   }
 
   function makeState() {
@@ -827,6 +821,12 @@ export function resolveRound(
         log.push({ actor: "player", message: `Thorns Aura reflects ${thornsDmg} damage back!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
       }
     }
+    if (stats.thornReflect > 0 && spellDmg > 0) {
+      const reflectDmg = Math.round(spellDmg * stats.thornReflect);
+      monsterLife -= reflectDmg;
+      damageDealt += reflectDmg;
+      log.push({ actor: "player", message: `Thornback reflects ${reflectDmg} damage!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+    }
     } // end !amazonDodgedSpell
   } else {
     // Normal attack
@@ -857,6 +857,8 @@ export function resolveRound(
       if (ironSkin > 0) dmg = Math.max(1, Math.round(dmg * (1 - ironSkin)));
       if (stats.physDmgReduction > 0) dmg = Math.max(1, Math.round(dmg * (1 - stats.physDmgReduction / 100)));
       if (frostShieldRounds > 0) dmg = Math.max(1, Math.round(dmg * 0.40));
+      const boneweaveBlocked = stats.blockChance > 0 && Math.random() < stats.blockChance / 100;
+      if (boneweaveBlocked) dmg = 1;
 
       playerLife -= dmg;
 
@@ -871,6 +873,7 @@ export function resolveRound(
       if (fadedNormal) message += " Fade reduces the blow by 45%.";
       if (ironSkin > 0) message += ` Iron Skin absorbs ${Math.round(ironSkin * 100)}%.`;
       if (frostShieldRounds > 0) message += " Frost Shield absorbs 60%.";
+      if (boneweaveBlocked) message += " Boneweave Gloves block the blow!";
 
       if (character.classId === "paladin") {
         const healBack = Math.round(dmg * PALADIN_DAMAGE_TAKEN_HEAL);
@@ -882,6 +885,12 @@ export function resolveRound(
           damageDealt += thornsDmg;
           message += ` Thorns Aura reflects ${thornsDmg} damage!`;
         }
+      }
+      if (stats.thornReflect > 0) {
+        const reflectDmg = Math.round(dmg * stats.thornReflect);
+        monsterLife -= reflectDmg;
+        damageDealt += reflectDmg;
+        message += ` Thornback reflects ${reflectDmg} damage!`;
       }
 
       log.push({
@@ -905,7 +914,6 @@ export function resolveRound(
   if (frostShieldRounds > 0) {
     frostShieldRounds -= 1;
     if (frostShieldRounds === 0) {
-      ability2Cooldown = def.ability2?.cooldown ?? 7;
       log.push({ actor: "player", message: "Frost Shield fades.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     }
   }

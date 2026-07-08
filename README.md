@@ -243,7 +243,7 @@ Press `Space` to continue after a victory or defeat screen.
 
 **Monster attacks** use a rating-vs-defense formula:
 ```
-hitChance = attackRating / (attackRating + defense × 2)
+hitChance = attackRating / (defense × 1.5)
 hitChance = clamp(hitChance, 0.15, 0.98)
 ```
 Monsters always have at least a 15% chance to hit regardless of the player's defense.
@@ -375,7 +375,7 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 ### Barbarian — Blood Fury
 - **Kind**: buff (no damage roll — activates a combat stance)
 - **Fury Cost**: 40
-- **Cooldown**: 3 turns — **starts after the buff expires**, not on cast
+- **Cooldown**: 6 turns — starts immediately on cast
 - **Duration**: 3 turns
 - **Effect**: While active, grants +20% Life Steal on all hits, +25% Double Swing chance (stacks with the base 25%), and +20% bonus damage on all attacks
 - **Special**: Does **not** end the turn — the player also attacks on the activation turn
@@ -405,7 +405,7 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 ### Sorceress — Frost Shield *(Ability 2)*
 - **Kind**: buff (no damage)
 - **Mana Cost**: 75
-- **Cooldown**: 7 turns — **starts after the shield fades**, not on cast
+- **Cooldown**: 8 turns — starts immediately on cast
 - **Duration**: 3 turns
 - **Effect**: Reduces all incoming damage (physical and spell) by **60%** for the duration
 - **Special**: While active, the Frost Shield button shows "Active: X turns" and cannot be recast; a cyan status pill and icy blue glow appear on the player sprite
@@ -428,16 +428,17 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Status display**: ❄ Frozen N pill appears below the monster's HP bar while frozen
 
 ### Paladin — Holy Bolt
-- **Kind**: heal (magic — gains `magicDamageBonus`)
+- **Kind**: heal (magic — gains `magicDamageBonus` and `magicDamageMult`)
 - **Mana Cost**: 20
 - **Cooldown**: 3 turns
-- **Damage**: `round(randomInRange(damage) × 1.6) + magicDamageBonus`
+- **Damage**: `round((round(randomInRange(damage) × 1.2) + magicDamageBonus × 1.5) × magicDamageMult)`
 - **Heal**: `round(damage × 0.35)` life restored to the player
+- Scales with both weapon damage (1.2×) and Magic Damage bonus (1.5×, affected by Ancient Wisdom if cross-classing is ever added)
 
 ### Paladin — Regenerating Nova *(Ability 2)*
 - **Kind**: regen (no damage roll)
 - **Mana Cost**: 50
-- **Cooldown**: 3 turns — **starts after the aura fades**, not on cast
+- **Cooldown**: 6 turns — starts immediately on cast
 - **Duration**: 3 turns
 - **Heal per turn**: `round(maxLife × 0.10)` — 10% of maximum life
 - **Special**: Does **not** end the turn — the player also attacks on the activation turn
@@ -752,19 +753,25 @@ Each boss casts a unique spell — see the [Monster Spells](#monster-spells) sec
 
 Unique items have fixed stats and a low drop rate. They are not generated randomly — each has a dedicated drop source.
 
-| Name | Slot | Drop Source | Drop Chance | Stats |
+| Name | Slot | Drop Source | Drop Chance | Stats / Effect |
 |---|---|---|---|---|
-| Mirror Ring | Ring | Andariel (Rogue Monastery) | 2% | Mirrors all affixes of the other ring slot |
-| Heavy Stompers | Boots | Any dungeon boss | 1% | +200 Life, +100 Defense, −20 Strength, −20 Dexterity, −20 Energy |
-| Sharp Fangs | Gloves | Any dungeon boss (level 15+) | 1% | +30 Strength, +30 Dexterity, +30 Damage, +30 Magic Damage |
-| The Pentagram | Amulet | Any Act 2 boss | 1% | +100 Damage, −100 Life |
-| Stone Husk | Armor | Any boss (level 25+) | 1% | +20–30 Vitality, +40–60 Life, 5–10% Phys Dmg Reduced, 5–10% Magic Dmg Reduced |
 | Peasant Hood | Helm | Blood Moor or Cold Plains boss | 5% | +10 Damage, +10 Vitality, +25% Gold Find |
-| Mask of Twilight | Helm | Any boss (level 25+) | 0.5% | +25–35 Energy, +25–35 Magic Damage, +5% Crit Chance |
-| Mask of Midnight | Helm | Any boss (level 25+) | 0.5% | +25–35 Vitality, +25–35 Damage, +5% Crit Chance |
-| Demon's Tail | Belt | Any Act 2 boss | 0.5% | All direct damage ignites the target: 30% of damage dealt per turn for 2 turns (basic attacks and abilities only) |
-| Reaper's Hood | Helm | The Reaper (Lower Hell) | 5% | +7–12% Life Leech, +35–50 Vitality, +35–50 Damage, 20% chance to disorient on attack for 2 turns |
-| Harvester | Weapon | The Reaper (Lower Hell, Necromancer only) | 12% | Base 18–28 dmg (two-handed), +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
+| Ragpicker's Sash | Belt | Any boss | 0.25% | +5 Vitality, +20% Gold Find |
+| Cracked Lens | Helm | Any boss (level 5+) | 0.25% | +15 Magic Damage, +10 Energy, −10 Defense |
+| Thornback | Armor | Any boss (level 12+) | 0.25% | +30 Defense; reflects 10% of all physical damage taken back to the attacker |
+| Sharp Fangs | Gloves | Any boss (level 15+) | 0.5% | +30 Strength, +30 Dexterity, +30 Damage, +30 Magic Damage |
+| Venomweave Wrap | Belt | Stony Field / Dark Wood / Tristram boss (level 15+) | 3% | +20 Dexterity; +25% Poison Damage (boosts Poison Dagger ticks and Venom passive) |
+| Mirror Ring | Ring | Andariel (Rogue Monastery) | 1% | Mirrors all affixes of the other ring slot |
+| Eye of the Storm | Ring | Any boss (level 18+) | 0.25% | +25 Energy, −15 Strength; +15% Mana Regeneration |
+| Boneweave Gloves | Gloves | Any boss (level 20+) | 0.25% | +20 Vitality, +15 Defense; 5% chance to reduce an incoming hit to 1 damage |
+| Stone Husk | Armor | Any boss (level 25+) | 0.5% | +20–30 Vitality, +40–60 Life, 5–10% Phys Dmg Reduced, 5–10% Magic Dmg Reduced |
+| Mask of Twilight | Helm | Any boss (level 25+) | 0.25% | +25–35 Energy, +25–35 Magic Damage, +5% Crit Chance |
+| Mask of Midnight | Helm | Any boss (level 25+) | 0.25% | +25–35 Vitality, +25–35 Damage, +5% Crit Chance |
+| Heavy Stompers | Boots | Any boss | 0.5% | +200 Life, +100 Defense, −20 Strength, −20 Dexterity, −20 Energy |
+| The Pentagram | Amulet | Any Act 2 boss | 0.5% | +100 Damage, −100 Life |
+| Demon's Tail | Belt | Any Act 2 boss | 0.25% | All direct damage (basic attacks and abilities) ignites the target for 30% of damage dealt per turn for 2 turns |
+| Reaper's Hood | Helm | The Reaper (Lower Hell) | 2.5% | +7–12% Life Leech, +35–50 Vitality, +35–50 Damage; 20% chance to disorient on attack for 2 turns |
+| Harvester | Weapon | The Reaper (Lower Hell, Necromancer only) | 6% | Base 18–28 dmg (two-handed), +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
 
 ### Permadeath
 

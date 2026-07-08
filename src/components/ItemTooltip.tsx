@@ -58,6 +58,18 @@ export function ItemTooltip({ item }: { item: Item }) {
             {item.harvester && (
               <div className="item-line mirror-flavor"><em>It's time to die.</em></div>
             )}
+            {item.venomweaveWrap && (
+              <div className="item-line mirror-flavor"><em>+25% Poison Damage</em></div>
+            )}
+            {item.thornback && (
+              <div className="item-line mirror-flavor"><em>Reflects 10% of physical damage taken back to the attacker</em></div>
+            )}
+            {item.eyeOfTheStorm && (
+              <div className="item-line mirror-flavor"><em>+15% Mana Regeneration</em></div>
+            )}
+            {item.boneweaveGloves && (
+              <div className="item-line mirror-flavor"><em>5% chance to reduce an incoming hit to 1 damage</em></div>
+            )}
           </>
         )}
     </div>

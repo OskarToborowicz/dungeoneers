@@ -7,7 +7,7 @@ import { GameOverScreen } from "./components/GameOverScreen";
 import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
 import { CONSUMABLES, EMPTY_CONSUMABLES } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
-import { buyValue, generateDemonsTail, generateHarvester, generateHeavyStompers, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePentagram, generateReapersHood, generateSharpFangs, generateStoneHusk, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
+import { buyValue, generateBoneweaveGloves, generateCrackedLens, generateDemonsTail, generateEyeOfTheStorm, generateHarvester, generateHeavyStompers, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePentagram, generateRagpickersSash, generateReapersHood, generateSharpFangs, generateStoneHusk, generateThornback, generateVenomweaveWrap, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
 import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
 import type { CombatResult } from "./game/combat";
@@ -371,12 +371,12 @@ function App() {
     const isBoss = dungeonRun.index === dungeonRun.queue.length - 1;
     const isAndariel = isBoss && dungeonRun.dungeonId === "diablo";
     const isReaper = isBoss && dungeonRun.dungeonId === "lower-hell";
-    if (isReaper && Math.random() < 0.05) {
+    if (isReaper && Math.random() < 0.025) {
       const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
       const hood = generateReapersHood();
       setInventory((prev) => [...prev, hood]);
       setDroppedItem((prev) => rarityOrder.indexOf(hood.rarity) >= rarityOrder.indexOf(prev?.rarity ?? "normal") ? hood : prev);
-      if (character.classId === "necromancer" && Math.random() < 0.12) {
+      if (character.classId === "necromancer" && Math.random() < 0.06) {
         const harvester = generateHarvester();
         setInventory((prev) => [...prev, harvester]);
         setDroppedItem((prev) => rarityOrder.indexOf(harvester.rarity) >= rarityOrder.indexOf(prev?.rarity ?? "normal") ? harvester : prev);
@@ -391,9 +391,58 @@ function App() {
         return prev === null || rarityOrder.indexOf(hood.rarity) >= rarityOrder.indexOf(prev.rarity) ? hood : prev;
       });
     }
+    if (isBoss && Math.random() < 0.0025) {
+      const sash = generateRagpickersSash();
+      setInventory((prev) => [...prev, sash]);
+      setDroppedItem((prev) => {
+        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+        return prev === null || rarityOrder.indexOf(sash.rarity) >= rarityOrder.indexOf(prev.rarity) ? sash : prev;
+      });
+    }
+    if (isBoss && character.level >= 5 && Math.random() < 0.0025) {
+      const lens = generateCrackedLens();
+      setInventory((prev) => [...prev, lens]);
+      setDroppedItem((prev) => {
+        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+        return prev === null || rarityOrder.indexOf(lens.rarity) >= rarityOrder.indexOf(prev.rarity) ? lens : prev;
+      });
+    }
+    if (isBoss && character.level >= 12 && Math.random() < 0.0025) {
+      const armor = generateThornback();
+      setInventory((prev) => [...prev, armor]);
+      setDroppedItem((prev) => {
+        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+        return prev === null || rarityOrder.indexOf(armor.rarity) >= rarityOrder.indexOf(prev.rarity) ? armor : prev;
+      });
+    }
+    if (isBoss && character.level >= 18 && Math.random() < 0.0025) {
+      const ring = generateEyeOfTheStorm();
+      setInventory((prev) => [...prev, ring]);
+      setDroppedItem((prev) => {
+        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+        return prev === null || rarityOrder.indexOf(ring.rarity) >= rarityOrder.indexOf(prev.rarity) ? ring : prev;
+      });
+    }
+    if (isBoss && character.level >= 20 && Math.random() < 0.0025) {
+      const gloves = generateBoneweaveGloves();
+      setInventory((prev) => [...prev, gloves]);
+      setDroppedItem((prev) => {
+        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+        return prev === null || rarityOrder.indexOf(gloves.rarity) >= rarityOrder.indexOf(prev.rarity) ? gloves : prev;
+      });
+    }
+    const venomweaveWrapBosses = new Set(["stony-field", "dark-wood", "tristram"]);
+    if (isBoss && venomweaveWrapBosses.has(dungeonRun.dungeonId) && character.level >= 15 && Math.random() < 0.0025) {
+      const wrap = generateVenomweaveWrap();
+      setInventory((prev) => [...prev, wrap]);
+      setDroppedItem((prev) => {
+        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+        return prev === null || rarityOrder.indexOf(wrap.rarity) >= rarityOrder.indexOf(prev.rarity) ? wrap : prev;
+      });
+    }
     const act2DungeonIds = new Set(["imp-field", "lava-river", "ashen-caves", "higher-hell", "lower-hell", "hellcore"]);
     const isAct2 = act2DungeonIds.has(dungeonRun.dungeonId);
-    if (isBoss && isAct2 && Math.random() < 0.005) {
+    if (isBoss && isAct2 && Math.random() < 0.0025) {
       const tail = generateDemonsTail();
       setInventory((prev) => [...prev, tail]);
       setDroppedItem((prev) => {
@@ -401,7 +450,7 @@ function App() {
         return prev === null || rarityOrder.indexOf(tail.rarity) >= rarityOrder.indexOf(prev.rarity) ? tail : prev;
       });
     }
-    if (isBoss && isAct2 && Math.random() < 0.01) {
+    if (isBoss && isAct2 && Math.random() < 0.005) {
       const pentagram = generatePentagram();
       setInventory((prev) => [...prev, pentagram]);
       setDroppedItem((prev) => {
@@ -410,12 +459,12 @@ function App() {
       });
     }
     const dropChance = isBoss ? 1 : 0.35;
-    if (isAndariel && Math.random() < 0.02) {
+    if (isAndariel && Math.random() < 0.01) {
       const mirrorRing = generateMirrorRing();
       setInventory((prev) => [...prev, mirrorRing]);
       setDroppedItem(() => mirrorRing);
     }
-    if (isBoss && character.level >= 25 && Math.random() < 0.005) {
+    if (isBoss && character.level >= 25 && Math.random() < 0.0025) {
       const mask = generateMaskOfMidnight();
       setInventory((prev) => [...prev, mask]);
       setDroppedItem((prev) => {
@@ -423,7 +472,7 @@ function App() {
         return prev === null || rarityOrder.indexOf(mask.rarity) >= rarityOrder.indexOf(prev.rarity) ? mask : prev;
       });
     }
-    if (isBoss && character.level >= 25 && Math.random() < 0.005) {
+    if (isBoss && character.level >= 25 && Math.random() < 0.0025) {
       const mask = generateMaskOfTwilight();
       setInventory((prev) => [...prev, mask]);
       setDroppedItem((prev) => {
@@ -431,7 +480,7 @@ function App() {
         return prev === null || rarityOrder.indexOf(mask.rarity) >= rarityOrder.indexOf(prev.rarity) ? mask : prev;
       });
     }
-    if (isBoss && character.level >= 25 && Math.random() < 0.01) {
+    if (isBoss && character.level >= 25 && Math.random() < 0.005) {
       const husk = generateStoneHusk();
       setInventory((prev) => [...prev, husk]);
       setDroppedItem((prev) => {
@@ -439,7 +488,7 @@ function App() {
         return prev === null || rarityOrder.indexOf(husk.rarity) >= rarityOrder.indexOf(prev.rarity) ? husk : prev;
       });
     }
-    if (isBoss && character.level >= 15 && Math.random() < 0.01) {
+    if (isBoss && character.level >= 15 && Math.random() < 0.005) {
       const fangs = generateSharpFangs();
       setInventory((prev) => [...prev, fangs]);
       setDroppedItem((prev) => {
@@ -447,7 +496,7 @@ function App() {
         return prev === null || rarityOrder.indexOf(fangs.rarity) >= rarityOrder.indexOf(prev.rarity) ? fangs : prev;
       });
     }
-    if (isBoss && Math.random() < 0.01) {
+    if (isBoss && Math.random() < 0.005) {
       const stompers = generateHeavyStompers();
       setInventory((prev) => [...prev, stompers]);
       setDroppedItem((prev) => {

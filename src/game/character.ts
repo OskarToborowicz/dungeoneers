@@ -119,6 +119,10 @@ export interface DerivedStats {
   physDmgReduction: number;
   igniteChance: number;
   disorientOnAttackChance: number;
+  poisonDamageMult: number;
+  thornReflect: number;
+  manaRegenMult: number;
+  blockChance: number;
 }
 
 export function getDerivedStats(
@@ -154,7 +158,11 @@ export function getDerivedStats(
 
   const igniteChance = equipment.belt?.demonsTail ? 20 : 0;
   const disorientOnAttackChance = equipment.helm?.reapersHood ? 20 : 0;
-  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction, igniteChance, disorientOnAttackChance };
+  const poisonDamageMult = equipment.belt?.venomweaveWrap ? 1.25 : 1.0;
+  const thornReflect = equipment.armor?.thornback ? 0.10 : 0;
+  const manaRegenMult = (equipment.ring1?.eyeOfTheStorm || equipment.ring2?.eyeOfTheStorm) ? 1.15 : 1.0;
+  const blockChance = equipment.gloves?.boneweaveGloves ? 5 : 0;
+  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction, igniteChance, disorientOnAttackChance, poisonDamageMult, thornReflect, manaRegenMult, blockChance };
 }
 
 export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {

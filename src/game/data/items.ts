@@ -326,6 +326,99 @@ export function generatePeasantHood(): Item {
   };
 }
 
+export function generateRagpickersSash(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Ragpicker's Sash",
+    slot: "belt",
+    rarity: "unique",
+    itemLevel: 1,
+    affixes: [
+      { label: "", stat: "vitality", value: 5 },
+      { label: "", stat: "goldFind", value: 20 },
+    ],
+  };
+}
+
+export function generateCrackedLens(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Cracked Lens",
+    slot: "helm",
+    rarity: "unique",
+    itemLevel: 5,
+    affixes: [
+      { label: "", stat: "magicDamage", value: 15 },
+      { label: "", stat: "energy", value: 10 },
+      { label: "", stat: "defense", value: -10 },
+    ],
+  };
+}
+
+export function generateThornback(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Thornback",
+    slot: "armor",
+    rarity: "unique",
+    itemLevel: 12,
+    affixes: [
+      { label: "", stat: "defense", value: 30 },
+    ],
+    thornback: true,
+  };
+}
+
+export function generateEyeOfTheStorm(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Eye of the Storm",
+    slot: "ring1",
+    rarity: "unique",
+    itemLevel: 18,
+    affixes: [
+      { label: "", stat: "energy", value: 25 },
+      { label: "", stat: "strength", value: -15 },
+    ],
+    eyeOfTheStorm: true,
+  };
+}
+
+export function generateBoneweaveGloves(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Boneweave Gloves",
+    slot: "gloves",
+    rarity: "unique",
+    itemLevel: 20,
+    affixes: [
+      { label: "", stat: "vitality", value: 20 },
+      { label: "", stat: "defense", value: 15 },
+    ],
+    boneweaveGloves: true,
+  };
+}
+
+export function generateVenomweaveWrap(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Venomweave Wrap",
+    slot: "belt",
+    rarity: "unique",
+    itemLevel: 15,
+    affixes: [
+      { label: "", stat: "dexterity", value: 20 },
+    ],
+    venomweaveWrap: true,
+  };
+}
+
 export function generateDemonsTail(): Item {
   itemCounter += 1;
   return {

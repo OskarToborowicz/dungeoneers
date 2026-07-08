@@ -86,6 +86,10 @@ export interface Item {
   demonsTail?: boolean;
   reapersHood?: boolean;
   harvester?: boolean;
+  venomweaveWrap?: boolean;
+  thornback?: boolean;
+  eyeOfTheStorm?: boolean;
+  boneweaveGloves?: boolean;
 }
 
 export interface RunStats {
