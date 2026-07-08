@@ -7,7 +7,7 @@ import { GameOverScreen } from "./components/GameOverScreen";
 import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
 import { CONSUMABLES, EMPTY_CONSUMABLES } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
-import { buyValue, generateBoneweaveGloves, generateCrackedLens, generateDemonsTail, generateEyeOfTheStorm, generateHarvester, generateHeavyStompers, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePentagram, generateRagpickersSash, generateReapersHood, generateSharpFangs, generateStoneHusk, generateThornback, generateVenomweaveWrap, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
+import { buyValue, generateBoneweaveGloves, generateCrackedLens, generateCrownOfTheFallen, generateDemonsTail, generateEyeOfTheStorm, generateHarvester, generateHeavyStompers, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePentagram, generateRagpickersSash, generateReapersHood, generateSharpFangs, generateStoneHusk, generateThornback, generateVenomweaveWrap, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
 import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
 import type { CombatResult } from "./game/combat";
@@ -389,6 +389,14 @@ function App() {
       setDroppedItem((prev) => {
         const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
         return prev === null || rarityOrder.indexOf(hood.rarity) >= rarityOrder.indexOf(prev.rarity) ? hood : prev;
+      });
+    }
+    if (isBoss && character.level >= 45 && Math.random() < 0.0025) {
+      const crown = generateCrownOfTheFallen();
+      setInventory((prev) => [...prev, crown]);
+      setDroppedItem((prev) => {
+        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+        return prev === null || rarityOrder.indexOf(crown.rarity) >= rarityOrder.indexOf(prev.rarity) ? crown : prev;
       });
     }
     if (isBoss && Math.random() < 0.0025) {

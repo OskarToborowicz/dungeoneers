@@ -326,6 +326,22 @@ export function generatePeasantHood(): Item {
   };
 }
 
+export function generateCrownOfTheFallen(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Crown of the Fallen",
+    slot: "helm",
+    rarity: "unique",
+    itemLevel: 45,
+    affixes: [
+      { label: "", stat: "vitality", value: randInt(40, 55) },
+      { label: "", stat: "defense", value: randInt(15, 25) },
+    ],
+    crownOfTheFallen: true,
+  };
+}
+
 export function generateRagpickersSash(): Item {
   itemCounter += 1;
   return {

@@ -90,6 +90,7 @@ export interface Item {
   thornback?: boolean;
   eyeOfTheStorm?: boolean;
   boneweaveGloves?: boolean;
+  crownOfTheFallen?: boolean;
 }
 
 export interface RunStats {

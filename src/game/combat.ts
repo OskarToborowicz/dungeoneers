@@ -266,6 +266,7 @@ export function resolveRound(
   let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, igniteRounds, igniteDamage } = state;
   let damageDealt = 0;
   let trapDetonated = false;
+  const lowLifeMult = stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.30 ? 1 + stats.lowLifeDamageBonus : 1.0;
 
   const tryIgnite = (dmg: number) => {
     if (stats.igniteChance > 0 && dmg > 0 && monsterLife > 0) {
@@ -281,6 +282,7 @@ export function resolveRound(
     if (bloodFuryRounds > 0) damageMult *= 1 + BARBARIAN_BLOOD_FURY_DAMAGE_BONUS;
     if (character.classId === "barbarian" && character.level >= 35 && playerMana > BARBARIAN_MADNESS_FURY_THRESHOLD) damageMult *= 1 + BARBARIAN_MADNESS_DAMAGE_BONUS;
     if (character.classId === "assassin" && character.level >= 35) damageMult *= 1.10;
+    if (lowLifeMult > 1.0) damageMult *= lowLifeMult;
     const assassinAdvantageCrit = character.classId === "assassin" && character.level >= 35 && poisonRounds > 0 ? 0.05 : 0;
     let basicHitDmg = 0;
     let basicHitCrit = false;
@@ -394,7 +396,7 @@ export function resolveRound(
         });
         doBasicAttack();
       } else if (def.ability.kind === "burst") {
-        const dmg = rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower);
+        const dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower) * lowLifeMult);
         monsterLife -= dmg;
         damageDealt += dmg;
         tryIgnite(dmg);
@@ -405,7 +407,7 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
       } else if (def.ability.kind === "dot") {
-        const dmg = rollAbilityDamage(stats, 0.4, def.ability.magic);
+        const dmg = Math.round(rollAbilityDamage(stats, 0.4, def.ability.magic) * lowLifeMult);
         monsterLife -= dmg;
         damageDealt += dmg;
         tryIgnite(dmg);
@@ -422,7 +424,7 @@ export function resolveRound(
         for (let i = 0; i < hitCount; i++) {
           if (monsterLife <= 0) break;
 
-          let hitDmg = rollAbilityDamage(stats, def.ability.power, def.ability.magic);
+          let hitDmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic) * lowLifeMult);
           const isHitCrit = Math.random() < critChance;
           if (isHitCrit) hitDmg = Math.round(hitDmg * critMultiplier);
 
@@ -452,7 +454,7 @@ export function resolveRound(
           }
         }
       } else if (def.ability.kind === "heal") {
-        const dmg = rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower ?? 1);
+        const dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower ?? 1) * lowLifeMult);
         const healAmt = Math.round(dmg * 0.35);
         monsterLife -= dmg;
         damageDealt += dmg;
@@ -467,7 +469,7 @@ export function resolveRound(
       } else if (def.ability.kind === "bite") {
         const baseDmg = randomInRange(stats.damage);
         const dexBonus = Math.round(stats.stats.dexterity * 1.5);
-        const dmg = baseDmg + dexBonus;
+        const dmg = Math.round((baseDmg + dexBonus) * lowLifeMult);
         const healAmt = Math.round(dmg * 0.15);
         monsterLife -= dmg;
         damageDealt += dmg;
@@ -500,7 +502,7 @@ export function resolveRound(
           const baseDmg = randomInRange(stats.damage);
           const dexBonus = Math.round(stats.stats.dexterity * 0.5);
           const isCrit = Math.random() < critChance;
-          let dmg = baseDmg + dexBonus;
+          let dmg = Math.round((baseDmg + dexBonus) * lowLifeMult);
           if (isCrit) dmg = Math.round(dmg * critMultiplier);
           monsterLife -= dmg;
           damageDealt += dmg;
@@ -519,7 +521,7 @@ export function resolveRound(
         const madnessMult = character.classId === "barbarian" && character.level >= 35 && furyBeforeCost > BARBARIAN_MADNESS_FURY_THRESHOLD ? 1 + BARBARIAN_MADNESS_DAMAGE_BONUS : 1.0;
         const baseDmg = randomInRange(stats.damage);
         const strBonus = Math.round(stats.stats.strength * 0.5);
-        const dmg = Math.round((baseDmg + strBonus) * madnessMult);
+        const dmg = Math.round((baseDmg + strBonus) * madnessMult * lowLifeMult);
         const killingBlow = monsterLife - dmg <= 0;
         monsterLife -= dmg;
         damageDealt += dmg;
@@ -920,7 +922,8 @@ export function resolveRound(
 
   // Fire Trap detonation — after monster acts
   if (trapRounds === 0 && state.trapRounds > 0) {
-    const trapDmg = Math.round(stats.stats.dexterity * def.ability.power);
+    const trapLowLifeMult = stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.30 ? 1 + stats.lowLifeDamageBonus : 1.0;
+    const trapDmg = Math.round(stats.stats.dexterity * def.ability.power * trapLowLifeMult);
     const isCrit = Math.random() < critChance;
     const finalTrapDmg = isCrit ? Math.round(trapDmg * critMultiplier) : trapDmg;
     monsterLife -= finalTrapDmg;

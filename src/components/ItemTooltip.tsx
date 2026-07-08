@@ -70,6 +70,9 @@ export function ItemTooltip({ item }: { item: Item }) {
             {item.boneweaveGloves && (
               <div className="item-line mirror-flavor"><em>5% chance to reduce an incoming hit to 1 damage</em></div>
             )}
+            {item.crownOfTheFallen && (
+              <div className="item-line mirror-flavor"><em>While below 30% life, all damage dealt is increased by 25%</em></div>
+            )}
           </>
         )}
     </div>
