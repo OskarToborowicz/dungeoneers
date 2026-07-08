@@ -374,7 +374,8 @@ function App() {
         startingCooldown2={dungeonRun.currentCooldown2}
         consumables={consumables}
         escapeTokens={character.escapeTokens ?? 0}
-        xpCapped={character.level >= getXpCapLevel(clearedDungeons)}
+        xpCapped={character.level >= getXpCapLevel(clearedDungeons, dungeonRun.dungeonId)}
+        xpMultiplier={clearedDungeons.includes(dungeonRun.dungeonId) && new Set(["diablo","imp-field","lava-river","ashen-caves","higher-hell","lower-hell","hellcore"]).has(dungeonRun.dungeonId) ? 0.25 : 1}
         onUsePotion={handleUsePotion}
         onFinished={handleFightFinished}
         onEscape={handleEscape}
