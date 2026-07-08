@@ -99,13 +99,13 @@ export function getDerivedStats(
   const maxMana = def.resourceType === "fury" ? FURY_MAX : MANA_MAX + Math.floor(Math.max(0, stats.energy - 10) / 5) + equip.manaBonus;
 
   const weaponDamage = equip.weaponDamage ?? [1, 3];
-  const flatStrengthDamage = stats.strength / 5;
+  const flatPhysicalDamage = (stats.strength * 2 + stats.dexterity) / 5;
   const damage: [number, number] = [
-    Math.round(weaponDamage[0] + flatStrengthDamage + equip.damageBonus),
-    Math.round(weaponDamage[1] + flatStrengthDamage + equip.damageBonus),
+    Math.round(weaponDamage[0] + flatPhysicalDamage + equip.damageBonus),
+    Math.round(weaponDamage[1] + flatPhysicalDamage + equip.damageBonus),
   ];
 
-  const defense = Math.round(equip.defenseBonus + stats.dexterity / 4);
+  const defense = Math.round(equip.defenseBonus + stats.vitality / 4);
   const critChance = Math.min(0.6, 0.05 + stats.dexterity * 0.001);
   const magicDamageBonus = Math.floor(stats.energy / 2) + equip.magicDamageBonus;
   const magicDamageMult = character.classId === "sorceress" && character.level >= 20 ? 1.20 : 1.0;

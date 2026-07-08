@@ -493,6 +493,21 @@
 .stat-name {
   text-transform: capitalize;
   color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stat-icon {
+  display: inline-flex;
+  align-items: center;
+  cursor: help;
+  flex-shrink: 0;
+}
+
+.stat-icon svg {
+  border-radius: 2px;
+  display: block;
 }
 
 .stat-value {

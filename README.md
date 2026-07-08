@@ -53,28 +53,29 @@ All classes start with **10 in every base stat** (Strength, Dexterity, Vitality,
 Every character has four base stats. Their final value is `classBase + allocatedPoints + gearAffixes`.
 
 ### Strength
-Increases physical damage output.
+Increases physical damage output at double the rate of Dexterity.
 ```
-flatStrengthDamage = strength / 5
+flatStrengthDamage = strength × 2 / 5
 ```
-Every 5 Strength adds +1 to both minimum and maximum weapon damage.
+Every 2.5 Strength adds +1 to both minimum and maximum weapon damage.
 
 ### Dexterity
-Increases defense and critical strike chance, and powers the Druid's and Assassin's abilities.
+Increases physical damage and critical strike chance, and powers the Druid's and Assassin's abilities.
 ```
-defense      += dexterity / 4
+flatDexDamage = dexterity / 5
 critChance    = min(0.60, 0.05 + dexterity × 0.001)
 ```
-Base crit chance is 5% and scales to a soft cap of 60%. The Barbarian's passive adds 10% on top (recapped at 90%).
+Every 5 Dexterity adds +1 to both minimum and maximum weapon damage. Base crit chance is 5% and scales to a soft cap of 60%. The Barbarian's passive adds 10% on top (recapped at 90%).
 
 - Druid passive (Thick Hide): `reduction = min(0.25, dexterity × 0.002)` — caps at 25% damage reduction at 125 Dexterity.
 - Druid ability (Werewolf Bite): deals `dexterity × 1.5` flat bonus damage on top of weapon damage.
 - Assassin ability (Fire Trap): deals `dexterity × 2.5` damage when the trap detonates.
 
 ### Vitality
-Directly increases maximum life.
+Increases maximum life and defense.
 ```
 maxLife = 30 + (vitality × 3) + (level × 5) + gear life bonuses
+defense += vitality / 4
 ```
 
 ### Energy
@@ -102,15 +103,15 @@ maxLife = 30 + (vitality × 3) + (level × 5) + gear life bonuses
 
 ### Damage Range
 ```
-weaponDamage  = equipped weapon [min, max], or [1, 3] if unarmed
-flatStrBonus  = strength / 5
-damage[min]   = round(weaponDamage[min] + flatStrBonus + gear damage bonuses)
-damage[max]   = round(weaponDamage[max] + flatStrBonus + gear damage bonuses)
+weaponDamage      = equipped weapon [min, max], or [1, 3] if unarmed
+flatPhysicalBonus = (strength × 2 + dexterity) / 5
+damage[min]       = round(weaponDamage[min] + flatPhysicalBonus + gear damage bonuses)
+damage[max]       = round(weaponDamage[max] + flatPhysicalBonus + gear damage bonuses)
 ```
 
 ### Defense
 ```
-defense = round(gear defense bonuses + dexterity / 4)
+defense = round(gear defense bonuses + vitality / 4)
 ```
 
 ### Crit Chance

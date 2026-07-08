@@ -4,6 +4,52 @@ import { xpToNextLevel } from "../game/character";
 import { getEffectiveCritChance, getAbilityPreview, getAbility2Preview } from "../game/combat";
 import type { BaseStats, Character } from "../game/types";
 
+const STAT_ICONS: Record<string, { bg: string; tip: string; svg: React.ReactNode }> = {
+  strength: {
+    bg: "#b84a14",
+    tip: "Increases physical damage",
+    svg: (
+      <>
+        <polygon points="6,0.5 7,7 5,7" fill="white" />
+        <rect x="2" y="7" width="8" height="1.2" rx="0.4" fill="white" />
+        <rect x="5.3" y="8.2" width="1.4" height="2.5" rx="0.5" fill="white" />
+        <circle cx="6" cy="11.2" r="0.8" fill="white" />
+      </>
+    ),
+  },
+  dexterity: {
+    bg: "#1a7230",
+    tip: "Increases physical damage and critical strike chance",
+    svg: (
+      <>
+        <path d="M6 1 C2 4 2 8 6 11" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
+        <line x1="6" y1="1" x2="6" y2="11" stroke="white" strokeWidth="0.8" />
+        <line x1="1" y1="6" x2="11" y2="6" stroke="white" strokeWidth="1" strokeLinecap="round" />
+        <polygon points="11,6 9.5,5 9.5,7" fill="white" />
+        <path d="M1 6 L2.5 4.5 M1 6 L2.5 7.5" stroke="white" strokeWidth="1" strokeLinecap="round" fill="none" />
+      </>
+    ),
+  },
+  vitality: {
+    bg: "#9a1515",
+    tip: "Increases maximum life and defense",
+    svg: (
+      <path d="M6 10.5 C5 9 1.5 6.5 1.5 4 A2.6 2.6 0 0 1 6 3.5 A2.6 2.6 0 0 1 10.5 4 C10.5 6.5 7 9 6 10.5Z" fill="white" />
+    ),
+  },
+  energy: {
+    bg: "#1a3a9a",
+    tip: "Increases maximum mana and magic damage",
+    svg: (
+      <>
+        <path d="M6 2 C3.5 2 2 3.5 2 5 C2 6.2 2.8 7 4 7.3 C3 7.8 2 8.8 2 9.8 C2 10.8 3 11.5 4.5 11.5 L6 11.5" fill="none" stroke="white" strokeWidth="1.1" strokeLinecap="round" />
+        <path d="M6 2 C8.5 2 10 3.5 10 5 C10 6.2 9.2 7 8 7.3 C9 7.8 10 8.8 10 9.8 C10 10.8 9 11.5 7.5 11.5 L6 11.5" fill="none" stroke="white" strokeWidth="1.1" strokeLinecap="round" />
+        <line x1="6" y1="3" x2="6" y2="10.5" stroke="white" strokeWidth="0.7" strokeDasharray="1.5 1" />
+      </>
+    ),
+  },
+};
+
 interface Props {
   character: Character;
   derived: DerivedStats;
@@ -46,7 +92,16 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
       <div className="allocate-grid">
         {(["strength", "dexterity", "vitality", "energy"] as const).map((stat) => (
           <div className="allocate-row" key={stat}>
-            <span className="stat-name">{stat}</span>
+            <span className="stat-name">
+              {stat}
+              {STAT_ICONS[stat] && (
+                <span className="stat-icon" title={STAT_ICONS[stat].tip}>
+                  <svg viewBox="0 0 12 12" width="13" height="13" style={{ background: STAT_ICONS[stat].bg, borderRadius: 2 }}>
+                    {STAT_ICONS[stat].svg}
+                  </svg>
+                </span>
+              )}
+            </span>
             <span className="stat-value">{Math.round(derived.stats[stat])}</span>
             <button
               disabled={character.unspentStatPoints <= 0}
