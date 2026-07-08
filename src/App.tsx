@@ -7,7 +7,7 @@ import { GameOverScreen } from "./components/GameOverScreen";
 import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
 import { CONSUMABLES, EMPTY_CONSUMABLES } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
-import { buyValue, generateDemonsTail, generateHeavyStompers, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePentagram, generateSharpFangs, generateStoneHusk, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
+import { buyValue, generateDemonsTail, generateHarvester, generateHeavyStompers, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePentagram, generateReapersHood, generateSharpFangs, generateStoneHusk, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
 import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
 import type { CombatResult } from "./game/combat";
@@ -370,6 +370,18 @@ function App() {
 
     const isBoss = dungeonRun.index === dungeonRun.queue.length - 1;
     const isAndariel = isBoss && dungeonRun.dungeonId === "diablo";
+    const isReaper = isBoss && dungeonRun.dungeonId === "lower-hell";
+    if (isReaper) {
+      const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+      const hood = generateReapersHood();
+      setInventory((prev) => [...prev, hood]);
+      setDroppedItem((prev) => rarityOrder.indexOf(hood.rarity) >= rarityOrder.indexOf(prev?.rarity ?? "normal") ? hood : prev);
+      if (character.classId === "necromancer") {
+        const harvester = generateHarvester();
+        setInventory((prev) => [...prev, harvester]);
+        setDroppedItem((prev) => rarityOrder.indexOf(harvester.rarity) >= rarityOrder.indexOf(prev?.rarity ?? "normal") ? harvester : prev);
+      }
+    }
     const peasantHoodBosses = new Set(["blood-moor", "cold-plains"]);
     if (isBoss && peasantHoodBosses.has(dungeonRun.dungeonId) && Math.random() < 0.05) {
       const hood = generatePeasantHood();

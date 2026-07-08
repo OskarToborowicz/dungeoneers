@@ -45,11 +45,21 @@ export function ItemTooltip({ item }: { item: Item }) {
             <div className="item-line mirror-flavor"><em>Set the world ablaze</em></div>
           </>
         )
-        : item.affixes.map((a, i) => (
-          <div className="item-line affix" key={i}>
-            {a.value > 0 ? "+" : ""}{a.value} {STAT_LABEL[a.stat]}
-          </div>
-        ))}
+        : (
+          <>
+            {item.affixes.map((a, i) => (
+              <div className="item-line affix" key={i}>
+                {a.value > 0 ? "+" : ""}{a.value} {STAT_LABEL[a.stat]}
+              </div>
+            ))}
+            {item.reapersHood && (
+              <div className="item-line mirror-flavor"><em>20% chance to disorient on attack for 2 turns</em></div>
+            )}
+            {item.harvester && (
+              <div className="item-line mirror-flavor"><em>It's time to die.</em></div>
+            )}
+          </>
+        )}
     </div>
   );
 }

@@ -339,6 +339,43 @@ export function generateDemonsTail(): Item {
   };
 }
 
+export function generateReapersHood(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Reaper's Hood",
+    slot: "helm",
+    rarity: "unique",
+    itemLevel: 57,
+    affixes: [
+      { label: "", stat: "lifeLeech", value: randInt(7, 12) },
+      { label: "", stat: "vitality", value: randInt(35, 50) },
+      { label: "", stat: "damage", value: randInt(35, 50) },
+    ],
+    reapersHood: true,
+  };
+}
+
+export function generateHarvester(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Harvester",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 58,
+    baseDamage: [18, 28],
+    twoHanded: true,
+    affixes: [
+      { label: "", stat: "damage", value: randInt(50, 75) },
+      { label: "", stat: "magicDamage", value: randInt(50, 75) },
+      { label: "", stat: "vitality", value: randInt(25, 40) },
+      { label: "", stat: "energy", value: randInt(25, 40) },
+    ],
+    harvester: true,
+  };
+}
+
 export function generateShopStock(characterLevel: number, classId?: ClassId, count = 4): Item[] {
   const maxRarity = shopMaxRarity(characterLevel);
   const items: Item[] = [];

@@ -763,6 +763,8 @@ Unique items have fixed stats and a low drop rate. They are not generated random
 | Mask of Twilight | Helm | Any encounter (level 25+) | 0.5% | +25–35 Energy, +25–35 Magic Damage, +5% Crit Chance |
 | Mask of Midnight | Helm | Any encounter (level 25+) | 0.5% | +25–35 Vitality, +25–35 Damage, +5% Crit Chance |
 | Demon's Tail | Belt | Any Act 2 boss | 0.5% | All direct damage ignites the target: 30% of damage dealt per turn for 2 turns (basic attacks and abilities only) |
+| Reaper's Hood | Helm | The Reaper (Lower Hell) | 100% | +7–12% Life Leech, +35–50 Vitality, +35–50 Damage, 20% chance to disorient on attack for 2 turns |
+| Harvester | Weapon | The Reaper (Lower Hell, Necromancer only) | 100% | Base 18–28 dmg (two-handed), +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
 
 ### Permadeath
 

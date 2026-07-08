@@ -310,6 +310,10 @@ export function resolveRound(
         }
       }
       tryIgnite(basicHitDmg);
+      if (stats.disorientOnAttackChance > 0 && Math.random() < stats.disorientOnAttackChance / 100) {
+        disorientRounds = 2;
+        attackMsg += ` Reaper's Hood disorients the enemy!`;
+      }
       log.push({ actor: "player", message: attackMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     } else {
       log.push({ actor: "player", message: "Your attack misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });

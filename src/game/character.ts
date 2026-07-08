@@ -118,6 +118,7 @@ export interface DerivedStats {
   magicDmgReduction: number;
   physDmgReduction: number;
   igniteChance: number;
+  disorientOnAttackChance: number;
 }
 
 export function getDerivedStats(
@@ -152,7 +153,8 @@ export function getDerivedStats(
   const mindOverMatterBonus = character.classId === "sorceress" && character.level >= 35 ? Math.round(maxMana * 0.15) : 0;
 
   const igniteChance = equipment.belt?.demonsTail ? 20 : 0;
-  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction, igniteChance };
+  const disorientOnAttackChance = equipment.helm?.reapersHood ? 20 : 0;
+  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction, igniteChance, disorientOnAttackChance };
 }
 
 export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {

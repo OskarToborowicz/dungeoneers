@@ -84,6 +84,8 @@ export interface Item {
   affixes: ItemAffix[];
   mirrorRing?: boolean;
   demonsTail?: boolean;
+  reapersHood?: boolean;
+  harvester?: boolean;
 }
 
 export interface RunStats {
