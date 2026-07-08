@@ -76,9 +76,21 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
   function tapItem(item: Item, from: Location) {
     if (selected?.id === item.id && selected.from === from) {
       setSelected(null);
-    } else {
-      setSelected({ id: item.id, from });
+      return;
     }
+    if (selected) {
+      if (selected.from === "inventory" && from !== "inventory") {
+        onMoveItem(selected.id, "inventory", from as EquipmentSlot);
+        setSelected(null);
+        return;
+      }
+      if (selected.from !== "inventory" && from === "inventory") {
+        onMoveItem(item.id, "inventory", selected.from as EquipmentSlot);
+        setSelected(null);
+        return;
+      }
+    }
+    setSelected({ id: item.id, from });
   }
 
   function tapSlot(slot: EquipmentSlot) {
