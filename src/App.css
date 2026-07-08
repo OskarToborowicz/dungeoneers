@@ -2005,6 +2005,21 @@
   gap: 4px;
 }
 
+.hotkey-badge {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  font-size: 10px;
+  color: var(--text-dim);
+  opacity: 0.6;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.action-button {
+  position: relative;
+}
+
 .action-button:hover:not(:disabled) {
   border-color: var(--border-gold-bright);
   color: var(--text-heading);

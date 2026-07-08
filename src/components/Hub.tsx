@@ -37,6 +37,8 @@ interface Props {
   onDismissPortal?: () => void;
   droppedItem?: Item | null;
   onDismissDroppedItem?: () => void;
+  selectedAct: 1 | 2;
+  onSelectAct: (act: 1 | 2) => void;
 }
 
 export function Hub({
@@ -61,9 +63,10 @@ export function Hub({
   onDismissPortal,
   droppedItem,
   onDismissDroppedItem,
+  selectedAct,
+  onSelectAct,
 }: Props) {
   const [tab, setTab] = useState<TabId>("character");
-  const [selectedAct, setSelectedAct] = useState<1 | 2>(1);
 
   return (
     <div className="screen hub-screen" style={{ "--class-color": CLASS_COLORS[character.classId] } as CSSProperties}>
@@ -148,7 +151,7 @@ export function Hub({
             />
           )}
           {tab === "dungeons" && (
-            <DungeonsTab clearedDungeons={clearedDungeons} onStart={onStartDungeon} selectedAct={selectedAct} onSelectAct={setSelectedAct} />
+            <DungeonsTab clearedDungeons={clearedDungeons} onStart={onStartDungeon} selectedAct={selectedAct} onSelectAct={onSelectAct} />
           )}
         </div>
       </div>

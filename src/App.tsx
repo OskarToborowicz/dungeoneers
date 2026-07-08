@@ -50,6 +50,7 @@ function App() {
   const [consumables, setConsumables] = useState<Record<ConsumableId, number>>(EMPTY_CONSUMABLES);
   const [shopStock, setShopStock] = useState<Item[]>([]);
   const [dungeonRun, setDungeonRun] = useState<DungeonRunState | null>(null);
+  const [selectedAct, setSelectedAct] = useState<1 | 2>(1);
   const [deathSummary, setDeathSummary] = useState<DeathSummary | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [showPortalMessage, setShowPortalMessage] = useState(false);
@@ -316,11 +317,14 @@ function App() {
       return;
     }
 
-    const xpCap = getXpCapLevel(clearedDungeons);
+    const xpCap = getXpCapLevel(clearedDungeons, dungeonRun.dungeonId);
+    const isReclear = clearedDungeons.includes(dungeonRun.dungeonId);
+    const reducedReclearIds = new Set(["diablo", "imp-field", "lava-river", "ashen-caves", "higher-hell", "lower-hell", "hellcore"]);
+    const reclearMult = isReclear && reducedReclearIds.has(dungeonRun.dungeonId) ? 0.25 : 1;
     setCharacter((prev) => {
       if (!prev) return prev;
       const withGold = { ...prev, gold: prev.gold + result.goldReward, runStats: updatedRunStats };
-      const cappedXp = prev.level >= xpCap ? 0 : result.xpReward;
+      const cappedXp = prev.level >= xpCap ? 0 : Math.round(result.xpReward * reclearMult);
       const { character: withXp } = grantXp(withGold, cappedXp);
       return withXp;
     });
@@ -398,6 +402,8 @@ function App() {
       onDismissPortal={() => setShowPortalMessage(false)}
       droppedItem={droppedItem}
       onDismissDroppedItem={() => setDroppedItem(null)}
+      selectedAct={selectedAct}
+      onSelectAct={setSelectedAct}
     />
   );
 }

@@ -83,6 +83,18 @@ export function CombatScreen({
     }
   }, [log]);
 
+  useEffect(() => {
+    function onKey(e: KeyboardEvent) {
+      if (e.repeat || (e.target as HTMLElement).tagName === "INPUT") return;
+      if (e.key === " " && status !== "ongoing") { e.preventDefault(); handleContinue(); }
+      else if (e.key === "1") handleAction("attack");
+      else if (e.key === "2") handleAction("ability");
+      else if (e.key === "3") handleAction("ability2");
+    }
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  });
+
   function handleAction(action: PlayerActionKind) {
     if (status !== "ongoing" || isAnimating) return;
     if (action === "healthPotion" && (consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0)) return;
@@ -352,6 +364,7 @@ export function CombatScreen({
       {status === "ongoing" && (
         <div className="combat-actions">
           <button className="action-button" disabled={isAnimating} onClick={() => handleAction("attack")}>
+            <span className="hotkey-badge">1</span>
             Attack
             <span className="action-cost">{attackPreview.label}</span>
             <span className="action-dmg-type">{attackPreview.type}</span>
@@ -362,6 +375,7 @@ export function CombatScreen({
             onClick={() => handleAction("ability")}
             title={def.ability.description}
           >
+            <span className="hotkey-badge">2</span>
             {def.ability.name}
             <span className="action-cost">
               {battle.trapRounds > 0
@@ -381,6 +395,7 @@ export function CombatScreen({
               onClick={() => handleAction("ability2")}
               title={def.ability2.description}
             >
+              <span className="hotkey-badge">3</span>
               {def.ability2.name}
               <span className="action-cost">
                 {battle.regenRounds > 0 && def.ability2.kind === "regen"

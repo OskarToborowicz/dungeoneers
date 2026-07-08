@@ -19,9 +19,10 @@ export const REGULAR_DUNGEON_COUNT_ACT2 = 5;
 /** @deprecated use REGULAR_DUNGEON_COUNT_ACT1 */
 export const REGULAR_DUNGEON_COUNT = REGULAR_DUNGEON_COUNT_ACT1;
 
-export function getXpCapLevel(clearedDungeons: string[]): number {
+export function getXpCapLevel(clearedDungeons: string[], currentDungeonId?: string): number {
+  const relevant = currentDungeonId ? [...clearedDungeons, currentDungeonId] : clearedDungeons;
   const maxBossLevel = DUNGEONS
-    .filter((d) => clearedDungeons.includes(d.id))
+    .filter((d) => relevant.includes(d.id))
     .reduce((max, d) => Math.max(max, d.boss.level), 0);
   const baseLevel = maxBossLevel === 0 ? DUNGEONS[0].boss.level : maxBossLevel;
   return baseLevel + 5;
@@ -116,11 +117,11 @@ export const DUNGEONS: DungeonDefinition[] = [
     act: 2,
     description: "A scorched plain swarming with imps of every rank.",
     waves: [
-      monster("Imp Farmer", 30, 800, [55, 80], 55, 110, 400, [80, 130]),
-      monster("Imp Guard", 31, 900, [60, 88], 60, 115, 450, [90, 145]),
-      monster("Imp Soldier", 32, 1000, [65, 95], 65, 120, 500, [100, 160]),
+      monster("Imp Farmer", 30, 640, [44, 64], 55, 110, 400, [80, 130]),
+      monster("Imp Guard", 31, 720, [48, 70], 60, 115, 450, [90, 145]),
+      monster("Imp Soldier", 32, 800, [52, 76], 65, 120, 500, [100, 160]),
     ],
-    boss: monster("Queen of Imps", 33, 2500, [90, 130], 80, 140, 15000, [1000, 1800],
+    boss: monster("Queen of Imps", 33, 2000, [72, 104], 80, 140, 15000, [1000, 1800],
       { name: "Imp Swarm", kind: "burst", power: 2.0, chance: 0.35, cooldown: 3 }),
   },
   {
@@ -129,13 +130,13 @@ export const DUNGEONS: DungeonDefinition[] = [
     act: 2,
     description: "Molten channels carved through volcanic rock, home to fire-born beasts.",
     waves: [
-      monster("Magma Snail", 34, 1100, [70, 100], 70, 125, 550, [110, 175]),
-      monster("Lava Golem", 35, 1300, [78, 110], 80, 130, 620, [125, 195]),
-      monster("Fire Elemental", 36, 1200, [82, 115], 75, 135, 660, [130, 205],
+      monster("Magma Snail", 34, 880, [56, 80], 70, 125, 550, [110, 175]),
+      monster("Lava Golem", 35, 1040, [62, 88], 80, 130, 620, [125, 195]),
+      monster("Fire Elemental", 36, 960, [66, 92], 75, 135, 660, [130, 205],
         { name: "Fireball", kind: "burn", power: 1.8, chance: 0.30, cooldown: 3 }),
-      monster("Volcanic Boar", 37, 1500, [88, 125], 85, 138, 700, [140, 220]),
+      monster("Volcanic Boar", 37, 1200, [70, 100], 85, 138, 700, [140, 220]),
     ],
-    boss: monster("Emberfire", 38, 3500, [110, 155], 95, 155, 20000, [1400, 2200],
+    boss: monster("Emberfire", 38, 2800, [88, 124], 95, 155, 20000, [1400, 2200],
       { name: "Lava Burst", kind: "burn", power: 2.2, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -144,12 +145,12 @@ export const DUNGEONS: DungeonDefinition[] = [
     act: 2,
     description: "Deep tunnels choked with toxic smoke and the stench of sulfur.",
     waves: [
-      monster("Fire Bat", 39, 1400, [85, 120], 72, 140, 720, [145, 225]),
-      monster("Cloud of Dense Smoke", 40, 1600, [90, 128], 78, 145, 780, [155, 240],
+      monster("Fire Bat", 39, 1120, [68, 96], 72, 140, 720, [145, 225]),
+      monster("Cloud of Dense Smoke", 40, 1280, [72, 102], 78, 145, 780, [155, 240],
         { name: "Asphyxiate", kind: "dot", power: 1.6, chance: 0.30, cooldown: 3 }),
-      monster("Rock Hound", 41, 1800, [98, 138], 90, 148, 840, [165, 255]),
+      monster("Rock Hound", 41, 1440, [78, 110], 90, 148, 840, [165, 255]),
     ],
-    boss: monster("It", 43, 4750, [130, 180], 110, 165, 28000, [1800, 2800],
+    boss: monster("It", 43, 3800, [104, 144], 110, 165, 28000, [1800, 2800],
       { name: "Suffocating Cloud", kind: "dot", power: 2.0, chance: 0.35, cooldown: 3 }),
   },
   {
@@ -158,13 +159,13 @@ export const DUNGEONS: DungeonDefinition[] = [
     act: 2,
     description: "The upper reaches of the Burning Hells, commanded by a demonic warlord.",
     waves: [
-      monster("Lesser Devil", 44, 2000, [105, 145], 95, 155, 900, [180, 275]),
-      monster("Obsidian Skeleton", 46, 2200, [115, 158], 105, 160, 980, [195, 300]),
-      monster("Hell Wyrm", 47, 2500, [125, 172], 110, 165, 1060, [210, 325]),
-      monster("Chaos Warlock", 48, 2300, [120, 165], 100, 168, 1020, [205, 315],
+      monster("Lesser Devil", 44, 1600, [84, 116], 95, 155, 900, [180, 275]),
+      monster("Obsidian Skeleton", 46, 1760, [92, 126], 105, 160, 980, [195, 300]),
+      monster("Hell Wyrm", 47, 2000, [100, 138], 110, 165, 1060, [210, 325]),
+      monster("Chaos Warlock", 48, 1840, [96, 132], 100, 168, 1020, [205, 315],
         { name: "Chaos Bolt", kind: "burst", power: 2.1, chance: 0.30, cooldown: 3 }),
     ],
-    boss: monster("Reltih", 50, 6500, [155, 215], 130, 185, 38000, [2400, 3600],
+    boss: monster("Reltih", 50, 5200, [124, 172], 130, 185, 38000, [2400, 3600],
       { name: "Hellfire", kind: "burn", power: 2.5, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -173,12 +174,12 @@ export const DUNGEONS: DungeonDefinition[] = [
     act: 2,
     description: "The deepest pits, where the damned serve an unstoppable reaper.",
     waves: [
-      monster("Hell Spawn", 51, 2800, [135, 185], 115, 175, 1100, [220, 340]),
-      monster("Ghost", 52, 2600, [140, 192], 108, 178, 1080, [215, 335],
+      monster("Hell Spawn", 51, 2240, [108, 148], 115, 175, 1100, [220, 340]),
+      monster("Ghost", 52, 2080, [112, 154], 108, 178, 1080, [215, 335],
         { name: "Soul Drain", kind: "drain", power: 1.6, chance: 0.35, cooldown: 3 }),
-      monster("Demon", 54, 3200, [150, 205], 125, 182, 1200, [240, 370]),
+      monster("Demon", 54, 2560, [120, 164], 125, 182, 1200, [240, 370]),
     ],
-    boss: monster("The Reaper", 57, 9000, [180, 255], 150, 205, 55000, [3200, 5000],
+    boss: monster("The Reaper", 57, 7200, [144, 204], 150, 205, 55000, [3200, 5000],
       { name: "Death Chill", kind: "dot", power: 2.3, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -188,14 +189,14 @@ export const DUNGEONS: DungeonDefinition[] = [
     description: "The living heart of Hell itself. Three prophets guard the pulsating Core — the Prime Evil made flesh.",
     endgame: true,
     waves: [
-      monster("The Third Prophet", 60, 5000, [180, 240], 155, 210, 4000, [600, 900],
+      monster("The Third Prophet", 60, 4000, [144, 192], 155, 210, 4000, [600, 900],
         { name: "Dark Prophecy", kind: "burst", power: 2.2, chance: 0.35, cooldown: 3 }),
-      monster("The Second Prophet", 62, 5800, [195, 260], 162, 218, 4600, [700, 1050],
+      monster("The Second Prophet", 62, 4640, [156, 208], 162, 218, 4600, [700, 1050],
         { name: "Flame Curse", kind: "burn", power: 2.0, chance: 0.35, cooldown: 3 }),
-      monster("The First Prophet", 65, 6500, [210, 280], 170, 225, 5400, [800, 1200],
+      monster("The First Prophet", 65, 5200, [168, 224], 170, 225, 5400, [800, 1200],
         { name: "Soul Drain", kind: "drain", power: 1.8, chance: 0.35, cooldown: 3 }),
     ],
-    boss: monster("Core of Hell", 70, 25000, [240, 340], 190, 255, 120000, [8000, 14000],
+    boss: monster("Core of Hell", 70, 20000, [192, 272], 190, 255, 120000, [8000, 14000],
       { name: "Hellstorm", kind: "burn", power: 3.0, chance: 0.45, cooldown: 3 }),
   },
 ];
