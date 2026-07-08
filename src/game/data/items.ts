@@ -37,7 +37,7 @@ const RARITY_ROLLS: { rarity: ItemRarity; weight: number; affixCount: number; mu
   { rarity: "normal", weight: 55, affixCount: 0, multiplier: 1 },
   { rarity: "magic", weight: 30, affixCount: 1, multiplier: 1.15 },
   { rarity: "rare", weight: 12, affixCount: 3, multiplier: 1.3 },
-  { rarity: "unique", weight: 3, affixCount: 4, multiplier: 1.5 },
+  { rarity: "very rare", weight: 3, affixCount: 4, multiplier: 1.5 },
 ];
 
 const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: number; noScale?: boolean; itemLevelMin?: number; scaleFromLevel?: number; scaleRate?: number }[] = [
@@ -57,8 +57,8 @@ const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: nu
   { label: "of Fortitude", stat: "physDmgReduction", min: 3, max: 6, itemLevelMin: 25, scaleFromLevel: 25, scaleRate: 0.04 },
 ];
 
-function rollRarity(maxRarity: ItemRarity = "unique", minRarity: ItemRarity = "normal"): (typeof RARITY_ROLLS)[number] {
-  const order: ItemRarity[] = ["normal", "magic", "rare", "unique"];
+function rollRarity(maxRarity: ItemRarity = "very rare", minRarity: ItemRarity = "normal"): (typeof RARITY_ROLLS)[number] {
+  const order: ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
   const allowed = RARITY_ROLLS.filter((r) => {
     const idx = order.indexOf(r.rarity);
     return idx >= order.indexOf(minRarity) && idx <= order.indexOf(maxRarity);
@@ -75,7 +75,7 @@ function rollRarity(maxRarity: ItemRarity = "unique", minRarity: ItemRarity = "n
 function shopMaxRarity(characterLevel: number): ItemRarity {
   if (characterLevel < 5) return "magic";
   if (characterLevel < 10) return "rare";
-  return "unique";
+  return "very rare";
 }
 
 const DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = ["weapon", "shield", "ring1", "ring2", "amulet", "gloves"];
@@ -135,7 +135,7 @@ export function generateRandomItem(itemLevel: number, classId?: ClassId, maxRari
 
   const item: Item = {
     id,
-    name: effectiveRarityEntry.rarity === "normal" ? base.name : `${base.name} ${effectiveRarityEntry.rarity === "unique" ? "of the Ancients" : ""}`.trim(),
+    name: effectiveRarityEntry.rarity === "normal" ? base.name : `${base.name} ${effectiveRarityEntry.rarity === "very rare" ? "of the Ancients" : ""}`.trim(),
     slot,
     rarity: effectiveRarityEntry.rarity,
     itemLevel,
@@ -162,7 +162,7 @@ export function generateRandomItem(itemLevel: number, classId?: ClassId, maxRari
 }
 
 export function sellValue(item: Item): number {
-  const rarityMult = { normal: 1, magic: 2, rare: 4, unique: 8 }[item.rarity];
+  const rarityMult = { normal: 1, magic: 2, rare: 4, "very rare": 8, unique: 12 }[item.rarity];
   return Math.max(1, Math.round(item.itemLevel * 2 * rarityMult));
 }
 
@@ -207,5 +207,6 @@ export const RARITY_COLORS: Record<ItemRarity, string> = {
   normal: "#c7c7c7",
   magic: "#6f8fff",
   rare: "#ffd54a",
-  unique: "#c99a4b",
+  "very rare": "#c99a4b",
+  unique: "#ff6a00",
 };

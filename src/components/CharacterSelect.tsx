@@ -59,7 +59,7 @@ export function CharacterSelect({ slots, onSelect, onDelete, onNew }: Props) {
                   classId={character.classId}
                   size={32}
                   state="idle"
-                  isUnique={equipment.weapon?.rarity === "unique"}
+                  isUnique={equipment.weapon?.rarity === "very rare" || equipment.weapon?.rarity === "unique"}
                 />
               </div>
               <div className="hero-card-info">

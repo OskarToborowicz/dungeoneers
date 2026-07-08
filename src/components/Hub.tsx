@@ -99,7 +99,7 @@ export function Hub({
                 classId={character.classId}
                 size={90}
                 state="idle"
-                isUnique={equipment.weapon?.rarity === "unique"}
+                isUnique={equipment.weapon?.rarity === "very rare" || equipment.weapon?.rarity === "unique"}
               />
           </div>
           <div className="gold-display"><CoinIcon size={15} /> {character.gold}</div>

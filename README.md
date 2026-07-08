@@ -175,8 +175,10 @@ To prevent infinite farming before advancing to harder content, XP is capped bas
 
 The maximum player level before XP stops is:
 ```
-xpCapLevel = highestClearedDungeonBossLevel + 5
+xpCapLevel = max(highestClearedDungeonBossLevel, currentDungeonBossLevel) + 5
 ```
+
+The current dungeon's boss level is included so that entering a new dungeon immediately raises the cap — preventing the situation where a player clears one act's endgame and then earns 0 XP in the next act's first dungeon.
 
 If no dungeons have been cleared yet, the cap uses the first dungeon's boss level (Blood Moor, boss level 3):
 ```
@@ -184,6 +186,10 @@ xpCapLevel = 3 + 5 = 8
 ```
 
 When `character.level >= xpCapLevel`, battles award **0 XP**. Gold drops and item drops are unaffected.
+
+### Reclear XP reduction
+
+Replaying **Rogue Monastery or any Act 2 dungeon** after it has already been cleared awards only **25% of the normal XP**. Act 1 regular dungeons (Blood Moor through Ruins of Tristram) are not affected and give full XP on every run.
 
 ### Cap progression table — Act 1
 
@@ -220,14 +226,16 @@ Combat is turn-based. The player chooses one action per round; the monster then 
 
 ### Player Actions
 
-| Action | Effect |
-|---|---|
-| Attack | Basic weapon hit, 98% hit rate, crit possible |
-| Ability | Class active skill (costs mana/fury, has cooldown) |
-| Ability 2 | Second active skill — available on Barbarian, Sorceress, Amazon, Paladin, and Assassin |
-| Health Potion | Restores 35% of max life; 3-turn cooldown |
-| Mana Potion | Restores 35% of max mana/fury; 3-turn cooldown |
-| Flee | Spends an Escape Token to end the dungeon run safely |
+| Action | Hotkey | Effect |
+|---|---|---|
+| Attack | `1` | Basic weapon hit, 98% hit rate, crit possible |
+| Ability | `2` | Class active skill (costs mana/fury, has cooldown) |
+| Ability 2 | `3` | Second active skill — available on Barbarian, Sorceress, Amazon, Paladin, and Assassin |
+| Health Potion | — | Restores 35% of max life; 3-turn cooldown |
+| Mana Potion | — | Restores 35% of max mana/fury; 3-turn cooldown |
+| Flee | — | Spends an Escape Token to end the dungeon run safely |
+
+Press `Space` to continue after a victory or defeat screen.
 
 ### Hit Chance
 
@@ -724,12 +732,12 @@ Unlocked after clearing Rogue Monastery. Select via the Act 1 / Act 2 toggle in 
 
 | Dungeon | Monster Levels | Boss | Boss Life |
 |---|---|---|---|
-| Imp Field | 30–33 | Queen of Imps | 5,000 |
-| Lava River | 34–38 | Emberfire | 7,000 |
-| Ashen Caves | 39–43 | It | 9,500 |
-| Higher Hell | 44–50 | Reltih | 13,000 |
-| Lower Hell | 51–57 | The Reaper | 18,000 |
-| Hellcore *(endgame)* | 60–70 | Core of Hell | 50,000 |
+| Imp Field | 30–33 | Queen of Imps | 2,000 |
+| Lava River | 34–38 | Emberfire | 2,800 |
+| Ashen Caves | 39–43 | It | 3,800 |
+| Higher Hell | 44–50 | Reltih | 5,200 |
+| Lower Hell | 51–57 | The Reaper | 7,200 |
+| Hellcore *(endgame)* | 60–70 | Core of Hell | 20,000 |
 
 Each boss casts a unique spell — see the [Monster Spells](#monster-spells) section.
 

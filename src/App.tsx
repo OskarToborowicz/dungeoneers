@@ -334,7 +334,10 @@ function App() {
     if (Math.random() < dropChance) {
       const item = generateRandomItem(monster.level, character.classId);
       setInventory((prev) => [...prev, item]);
-      setDroppedItem(item);
+      const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+      setDroppedItem((prev) =>
+        prev === null || rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity) ? item : prev
+      );
     }
 
     const nextIndex = dungeonRun.index + 1;

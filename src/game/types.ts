@@ -64,7 +64,7 @@ export type EquipmentSlot =
   | "ring1"
   | "ring2";
 
-export type ItemRarity = "normal" | "magic" | "rare" | "unique";
+export type ItemRarity = "normal" | "magic" | "rare" | "very rare" | "unique";
 
 export interface ItemAffix {
   label: string;
