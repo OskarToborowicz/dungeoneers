@@ -193,9 +193,9 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       manaCost: 20,
       cooldown: 3,
       kind: "heal",
-      power: 1.4,
+      power: 1.5,
       magic: true,
-      magicPower: 1.8,
+      magicPower: 2.0,
     },
     ability2: {
       name: "Regenerating Nova",
