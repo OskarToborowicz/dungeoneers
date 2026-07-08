@@ -294,6 +294,7 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 | Paladin | Regenerating Nova | Green healing rings expand from the player with rising sparkles |
 | Druid | Werewolf Bite | Three green claw slashes |
 | Assassin | Fire Trap | Blue trap placed on field; cyan explosion on detonation |
+| Assassin | Blinding Powder | Golden powder pouch flies toward the enemy and bursts into an expanding dust cloud |
 
 ### Monster Spells
 
@@ -410,6 +411,14 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Damage**: `round(dexterity × 2.5)` — scales entirely with Dexterity
 - **Timing**: trap is placed this turn; detonates after the monster attacks next turn
 
+### Assassin — Blinding Powder
+- **Kind**: debuff (no damage)
+- **Mana Cost**: 60
+- **Cooldown**: 6 turns
+- **Blind**: monster **cannot act** for **2 turns**
+- **Disorient**: monster deals **25% reduced damage** for **4 turns**
+- Both statuses are applied simultaneously on cast
+
 ### General Ability Damage Formula
 
 For `burst`, `dot`, `multi`, and `heal` kinds:
@@ -482,6 +491,10 @@ At 50 Dex: 10% reduction. At 100 Dex: 20%. The 25% cap is reached at 125 Dex.
 
 ### Assassin — Venom *(unlocks at level 20)*
 - Basic attacks **poison the enemy for 2 turns**, dealing **30% of the hit's damage** per tick. Replaces any existing poison on the target.
+
+### Assassin — Assassin's Advantage *(unlocks at level 35)*
+- Basic attacks deal **+10% increased damage**.
+- When the enemy is **poisoned** (Venom active), basic attacks gain an additional **+5% Critical Hit chance**.
 
 ---
 

@@ -316,13 +316,19 @@ export function CombatScreen({
               {battle.monsterLife}/{monster.life}
             </span>
           </div>
-          {(battle.poisonRounds > 0 || battle.frozenRounds > 0) && (
+          {(battle.poisonRounds > 0 || battle.frozenRounds > 0 || battle.blindRounds > 0 || battle.disorientRounds > 0) && (
             <div className="status-effects">
               {battle.poisonRounds > 0 && (
                 <span className="status-pill poison">☠ Poison {battle.poisonRounds}</span>
               )}
               {battle.frozenRounds > 0 && (
                 <span className="status-pill frozen">❄ Frozen {battle.frozenRounds}</span>
+              )}
+              {battle.blindRounds > 0 && (
+                <span className="status-pill blind">◉ Blind {battle.blindRounds}</span>
+              )}
+              {battle.disorientRounds > 0 && (
+                <span className="status-pill disorient">◌ Disorient {battle.disorientRounds}</span>
               )}
             </div>
           )}

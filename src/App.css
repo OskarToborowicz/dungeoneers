@@ -1465,6 +1465,17 @@
   50%       { box-shadow: 0 0 7px #66cc6699; }
 }
 
+.status-pill.disorient {
+  background: rgba(180, 130, 20, 0.2);
+  border: 1px solid #c8a030;
+  color: #e8cc70;
+}
+.status-pill.blind {
+  background: rgba(30, 20, 60, 0.35);
+  border: 1px solid #7755cc;
+  color: #bb99ff;
+}
+
 /* Regenerating Nova animation */
 .ae-regen-ring-1 {
   animation: ae-regen-ring-expand 0.7s ease-out forwards;
@@ -1525,6 +1536,48 @@
   0%   { transform: scale(0.05); opacity: 0; }
   60%  { transform: scale(1.18); opacity: 1; }
   100% { transform: scale(1); opacity: 0.9; }
+}
+
+/* Blinding Powder ability effect */
+.ae-powder-travel {
+  animation: ae-powder-fly 0.42s cubic-bezier(0.15, 0, 0.65, 1) forwards;
+}
+@keyframes ae-powder-fly {
+  0%   { transform: translateX(0px);   opacity: 1; }
+  80%  { transform: translateX(68px);  opacity: 1; }
+  100% { transform: translateX(72px);  opacity: 0; }
+}
+.ae-powder-trail {
+  animation: ae-powder-trail-fade 0.35s ease-out both;
+}
+.ae-pt-1 { animation-delay: 0.04s; }
+.ae-pt-2 { animation-delay: 0.08s; }
+.ae-pt-3 { animation-delay: 0.12s; }
+@keyframes ae-powder-trail-fade {
+  0%   { opacity: 0.6; transform: scale(1); }
+  100% { opacity: 0;   transform: scale(1.6); }
+}
+.ae-powder-burst {
+  animation: ae-powder-burst-expand 0.52s 0.38s ease-out both;
+}
+@keyframes ae-powder-burst-expand {
+  0%   { transform: scale(0.05); opacity: 0; }
+  50%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1);    opacity: 0.85; }
+}
+.ae-powder-puff {
+  animation: ae-powder-puff-out 0.55s ease-out both;
+}
+.ae-pp-1 { animation-delay: 0.42s; }
+.ae-pp-2 { animation-delay: 0.46s; }
+.ae-pp-3 { animation-delay: 0.50s; }
+.ae-pp-4 { animation-delay: 0.44s; }
+.ae-pp-5 { animation-delay: 0.48s; }
+.ae-pp-6 { animation-delay: 0.52s; }
+@keyframes ae-powder-puff-out {
+  0%   { transform: scale(0.2); opacity: 0; }
+  40%  { transform: scale(1.3); opacity: 0.75; }
+  100% { transform: scale(1.8); opacity: 0; }
 }
 
 /* Status effect auras on character sprite */

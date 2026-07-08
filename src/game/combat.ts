@@ -30,6 +30,8 @@ export interface BattleState {
   ability2Cooldown: number;
   frozenRounds: number;
   regenRounds: number;
+  disorientRounds: number;
+  blindRounds: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "ability2" | "healthPotion" | "manaPotion";
@@ -118,6 +120,8 @@ export function createBattleState(
     ability2Cooldown: 0,
     frozenRounds: 0,
     regenRounds: 0,
+    disorientRounds: 0,
+    blindRounds: 0,
   };
 }
 
@@ -223,6 +227,9 @@ export function getAbility2Preview(character: Character, stats: DerivedStats): D
     const dexBonus = Math.round(stats.stats.dexterity * 0.5);
     return { label: `~${avg + dexBonus} + freeze`, type: "Physical" };
   }
+  if (ability.kind === "blind_powder") {
+    return { label: "Blind 2t + Disorient 4t", type: "Debuff" };
+  }
   if (ability.kind === "regen") {
     const healPerTick = Math.round(stats.maxLife * 0.10);
     return { label: `3× ${healPerTick} heal`, type: "Heal" };
@@ -243,7 +250,7 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds } = state;
   let damageDealt = 0;
   let trapDetonated = false;
 
@@ -252,11 +259,13 @@ export function resolveRound(
     let damageMult = 1.0;
     if (bloodFuryRounds > 0) damageMult *= 1 + BARBARIAN_BLOOD_FURY_DAMAGE_BONUS;
     if (character.classId === "barbarian" && character.level >= 35 && playerMana > BARBARIAN_MADNESS_FURY_THRESHOLD) damageMult *= 1 + BARBARIAN_MADNESS_DAMAGE_BONUS;
+    if (character.classId === "assassin" && character.level >= 35) damageMult *= 1.10;
+    const assassinAdvantageCrit = character.classId === "assassin" && character.level >= 35 && poisonRounds > 0 ? 0.05 : 0;
     let basicHitDmg = 0;
     let basicHitCrit = false;
 
     if (Math.random() < hitChance) {
-      const isCrit = Math.random() < critChance;
+      const isCrit = Math.random() < critChance + assassinAdvantageCrit;
       basicHitCrit = isCrit;
       let dmg = Math.round(randomInRange(stats.damage) * damageMult);
       if (isCrit) dmg = Math.round(dmg * critMultiplier);
@@ -479,6 +488,15 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+      } else if (def.ability2.kind === "blind_powder") {
+        disorientRounds = 4;
+        blindRounds = 2;
+        log.push({
+          actor: "player",
+          message: "You hurl Blinding Powder! The enemy is blinded (2 turns) and disoriented (4 turns).",
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
       } else if (def.ability2.kind === "regen") {
         ability2Cooldown = 0; // cooldown set when buff fades, not on cast
         regenRounds = 3;
@@ -577,6 +595,8 @@ export function resolveRound(
       ability2Cooldown,
       frozenRounds,
       regenRounds,
+      disorientRounds,
+      blindRounds,
     };
   }
 
@@ -634,8 +654,8 @@ export function resolveRound(
 
   let monsterSpellCastName: string | undefined;
 
-  // Frozen — monster skips its action entirely
-  const monsterActsThisTurn = frozenRounds <= 0;
+  // Frozen or blinded — monster skips its action entirely
+  const monsterActsThisTurn = frozenRounds <= 0 && blindRounds <= 0;
   if (frozenRounds > 0) {
     frozenRounds -= 1;
     log.push({
@@ -644,7 +664,16 @@ export function resolveRound(
       playerLife: Math.max(0, playerLife),
       monsterLife: Math.max(0, monsterLife),
     });
+  } else if (blindRounds > 0) {
+    blindRounds -= 1;
+    log.push({
+      actor: "monster",
+      message: `${monster.name} is blinded and cannot act!`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
   }
+  if (disorientRounds > 0) disorientRounds -= 1;
 
   if (monsterActsThisTurn) {
 
@@ -663,7 +692,7 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
     } else {
-    let spellDmg = Math.round(randomInRange(monster.damage) * spell.power);
+    let spellDmg = Math.round(randomInRange(monster.damage) * spell.power * (disorientRounds > 0 ? 0.75 : 1.0));
     const fadedSpell = character.classId === "assassin" && Math.random() < 0.25;
     if (fadedSpell) spellDmg = Math.max(1, Math.round(spellDmg * 0.55));
     const ironSkinSpell = getIronSkinReduction(character, playerLife, stats.maxLife);
@@ -736,7 +765,7 @@ export function resolveRound(
     const monsterHitChance = rollHitChance(monster.attackRating, Math.round(stats.defense * defenseAuraBonus));
     if (!amazonDodged && Math.random() < monsterHitChance) {
       const isMonsterCrit = Math.random() < MONSTER_CRIT_CHANCE;
-      let dmg = randomInRange(monster.damage);
+      let dmg = Math.round(randomInRange(monster.damage) * (disorientRounds > 0 ? 0.75 : 1.0));
       if (isMonsterCrit) dmg = Math.round(dmg * 1.75);
 
       if (character.classId === "druid") {

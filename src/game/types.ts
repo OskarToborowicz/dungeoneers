@@ -22,7 +22,7 @@ export interface ClassPassive {
   short?: string;
 }
 
-export type AbilityKind = "burst" | "dot" | "multi" | "heal" | "bite" | "trap" | "buff" | "obliterate" | "freeze" | "regen";
+export type AbilityKind = "burst" | "dot" | "multi" | "heal" | "bite" | "trap" | "buff" | "obliterate" | "freeze" | "regen" | "blind_powder";
 
 export interface AbilityDefinition {
   name: string;

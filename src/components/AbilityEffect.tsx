@@ -25,8 +25,9 @@ export function AbilityEffect({ classId, onDone, detonation = false, useAbility2
         {classId === "paladin"     && !useAbility2 && <HolyBoltFx />}
         {classId === "paladin"     && useAbility2  && <RegenNovaFx />}
         {classId === "druid"       && <BiteFx />}
-        {classId === "assassin"    && !detonation && <TrapPlantFx />}
+        {classId === "assassin"    && !detonation && !useAbility2 && <TrapPlantFx />}
         {classId === "assassin"    && detonation  && <TrapDetonateFx />}
+        {classId === "assassin"    && useAbility2  && <BlindingPowderFx />}
       </svg>
     </div>
   );
@@ -219,6 +220,35 @@ function RegenNovaFx() {
       <circle className="ae-regen-spark ae-rs-3" cx="86" cy="50" r="1.8" fill="#ccff88" opacity="0.85" style={{ transformOrigin: "86px 50px" }}/>
       <circle className="ae-regen-spark ae-rs-4" cx="60" cy="36" r="1.5" fill="#eeffcc" opacity="0.8" style={{ transformOrigin: "60px 36px" }}/>
       <circle className="ae-regen-spark ae-rs-5" cx="80" cy="36" r="1.5" fill="#eeffcc" opacity="0.8" style={{ transformOrigin: "80px 36px" }}/>
+    </g>
+  );
+}
+
+function BlindingPowderFx() {
+  return (
+    <g>
+      {/* Powder pouch traveling toward the monster */}
+      <g className="ae-powder-travel" style={{ transformOrigin: "80px 65px" }}>
+        <ellipse cx="80" cy="65" rx="9" ry="7" fill="#d4aa55" opacity="0.92" />
+        <ellipse cx="80" cy="61" rx="5" ry="3" fill="#e8cc88" opacity="0.8" />
+        {/* Trailing dust puffs */}
+        <circle cx="62" cy="60" r="5" fill="#c9a040" opacity="0.55" className="ae-powder-trail ae-pt-1" />
+        <circle cx="50" cy="63" r="4" fill="#b89030" opacity="0.4"  className="ae-powder-trail ae-pt-2" />
+        <circle cx="38" cy="61" r="3" fill="#a07820" opacity="0.28" className="ae-powder-trail ae-pt-3" />
+      </g>
+      {/* Impact dust cloud on monster side */}
+      <g className="ae-powder-burst" style={{ transformOrigin: "148px 65px" }}>
+        <circle cx="148" cy="65" r="22" fill="#d4aa55" opacity="0.75" />
+        <circle cx="148" cy="65" r="14" fill="#e8cc88" opacity="0.85" />
+        <circle cx="148" cy="65" r="7"  fill="#fff8e0" opacity="0.9"  />
+        {/* Dust particle puffs expanding outward */}
+        <circle cx="126" cy="53" r="8"  fill="#c9a040" opacity="0.6" className="ae-powder-puff ae-pp-1" />
+        <circle cx="170" cy="50" r="7"  fill="#d4b050" opacity="0.55" className="ae-powder-puff ae-pp-2" />
+        <circle cx="174" cy="75" r="9"  fill="#c09030" opacity="0.58" className="ae-powder-puff ae-pp-3" />
+        <circle cx="128" cy="80" r="8"  fill="#ccaa44" opacity="0.55" className="ae-powder-puff ae-pp-4" />
+        <circle cx="148" cy="42" r="6"  fill="#ddc060" opacity="0.5"  className="ae-powder-puff ae-pp-5" />
+        <circle cx="148" cy="88" r="6"  fill="#bba030" opacity="0.5"  className="ae-powder-puff ae-pp-6" />
+      </g>
     </g>
   );
 }
