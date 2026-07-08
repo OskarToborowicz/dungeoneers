@@ -757,14 +757,14 @@ Unique items have fixed stats and a low drop rate. They are not generated random
 | Mirror Ring | Ring | Andariel (Rogue Monastery) | 2% | Mirrors all affixes of the other ring slot |
 | Heavy Stompers | Boots | Any dungeon boss | 1% | +200 Life, +100 Defense, −20 Strength, −20 Dexterity, −20 Energy |
 | Sharp Fangs | Gloves | Any dungeon boss (level 15+) | 1% | +30 Strength, +30 Dexterity, +30 Damage, +30 Magic Damage |
-| The Pentagram | Amulet | Any Act 2 encounter | 1% | +100 Damage, −100 Life |
-| Stone Husk | Armor | Any encounter (level 25+) | 1% | +20–30 Vitality, +40–60 Life, 5–10% Phys Dmg Reduced, 5–10% Magic Dmg Reduced |
+| The Pentagram | Amulet | Any Act 2 boss | 1% | +100 Damage, −100 Life |
+| Stone Husk | Armor | Any boss (level 25+) | 1% | +20–30 Vitality, +40–60 Life, 5–10% Phys Dmg Reduced, 5–10% Magic Dmg Reduced |
 | Peasant Hood | Helm | Blood Moor or Cold Plains boss | 5% | +10 Damage, +10 Vitality, +25% Gold Find |
-| Mask of Twilight | Helm | Any encounter (level 25+) | 0.5% | +25–35 Energy, +25–35 Magic Damage, +5% Crit Chance |
-| Mask of Midnight | Helm | Any encounter (level 25+) | 0.5% | +25–35 Vitality, +25–35 Damage, +5% Crit Chance |
+| Mask of Twilight | Helm | Any boss (level 25+) | 0.5% | +25–35 Energy, +25–35 Magic Damage, +5% Crit Chance |
+| Mask of Midnight | Helm | Any boss (level 25+) | 0.5% | +25–35 Vitality, +25–35 Damage, +5% Crit Chance |
 | Demon's Tail | Belt | Any Act 2 boss | 0.5% | All direct damage ignites the target: 30% of damage dealt per turn for 2 turns (basic attacks and abilities only) |
-| Reaper's Hood | Helm | The Reaper (Lower Hell) | 100% | +7–12% Life Leech, +35–50 Vitality, +35–50 Damage, 20% chance to disorient on attack for 2 turns |
-| Harvester | Weapon | The Reaper (Lower Hell, Necromancer only) | 100% | Base 18–28 dmg (two-handed), +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
+| Reaper's Hood | Helm | The Reaper (Lower Hell) | 5% | +7–12% Life Leech, +35–50 Vitality, +35–50 Damage, 20% chance to disorient on attack for 2 turns |
+| Harvester | Weapon | The Reaper (Lower Hell, Necromancer only) | 12% | Base 18–28 dmg (two-handed), +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
 
 ### Permadeath
 
