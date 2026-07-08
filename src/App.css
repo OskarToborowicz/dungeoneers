@@ -1314,6 +1314,24 @@
   opacity: 0.45;
   border-color: #3a3228 !important;
 }
+.spell-tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: 5px;
+  padding: 2px;
+  background: rgba(68, 119, 255, 0.15);
+  border: 1px solid #4477ff;
+  border-radius: 3px;
+  vertical-align: middle;
+  cursor: default;
+}
+
+.spell-tag svg {
+  display: block;
+  filter: drop-shadow(0 0 3px #4477ff);
+}
+
 .passive-lock-level {
   font-size: 10px;
   color: var(--text-dim);
