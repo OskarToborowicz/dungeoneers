@@ -34,6 +34,10 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
   manaBonus: number;
   magicDamageBonus: number;
   goldFindBonus: number;
+  lifeLeechBonus: number;
+  manaRegenBonus: number;
+  magicDmgReduction: number;
+  physDmgReduction: number;
   weaponDamage?: [number, number];
 } {
   const stats: BaseStats = { strength: 0, dexterity: 0, vitality: 0, energy: 0 };
