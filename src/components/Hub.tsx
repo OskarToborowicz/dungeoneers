@@ -144,7 +144,7 @@ export function Hub({
         <div className="hub-content">
           {tab === "character" && <CharacterTab character={character} derived={derived} onAllocate={onAllocate} />}
           {tab === "inventory" && (
-            <InventoryTab equipment={equipment} inventory={inventory} onMoveItem={onMoveItem} />
+            <InventoryTab equipment={equipment} inventory={inventory} classId={character.classId} onMoveItem={onMoveItem} />
           )}
           {tab === "shop" && (
             <ShopTab

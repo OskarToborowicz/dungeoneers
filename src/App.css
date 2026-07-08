@@ -588,6 +588,11 @@
   box-shadow: 0 0 10px rgba(201, 162, 75, 0.6), inset 0 2px 6px rgba(0, 0, 0, 0.7);
 }
 
+.doll-slot.drag-over-invalid {
+  border-color: #c23a3a;
+  box-shadow: 0 0 10px rgba(194, 58, 58, 0.5), inset 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
 .doll-slot-label {
   font-size: 9px;
   text-transform: uppercase;
@@ -612,6 +617,30 @@
 .slot-item.dragging,
 .inv-cell.dragging {
   opacity: 0.35;
+}
+
+.slot-item.tap-selected,
+.inv-cell.tap-selected {
+  box-shadow: 0 0 0 2px var(--border-gold-bright), inset 0 2px 6px rgba(0, 0, 0, 0.7);
+}
+
+.inv-cell.dragging .item-tooltip,
+.inv-cell.dragging .compare-group,
+.slot-item.dragging .item-tooltip {
+  display: none !important;
+}
+
+.is-dragging .item-tooltip,
+.is-dragging .compare-group,
+.is-selecting .item-tooltip,
+.is-selecting .compare-group {
+  display: none !important;
+}
+
+.doll-slot.tap-target {
+  border-color: var(--border-gold-bright);
+  border-style: dashed;
+  opacity: 0.85;
 }
 
 .item-icon {
@@ -639,6 +668,11 @@
 .slot-item:hover .item-tooltip,
 .inv-cell:hover .item-tooltip {
   display: block;
+}
+
+.slot-item:hover,
+.inv-cell:hover {
+  z-index: 30;
 }
 
 .compare-group {
