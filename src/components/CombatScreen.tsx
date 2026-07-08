@@ -33,6 +33,7 @@ interface Props {
   startingLife: number;
   startingMana: number;
   startingCooldown: number;
+  startingCooldown2: number;
   consumables: Record<ConsumableId, number>;
   escapeTokens: number;
   xpCapped: boolean;
@@ -49,6 +50,7 @@ export function CombatScreen({
   startingLife,
   startingMana,
   startingCooldown,
+  startingCooldown2,
   consumables,
   escapeTokens,
   xpCapped,
@@ -60,7 +62,7 @@ export function CombatScreen({
   const logRef = useRef<HTMLDivElement | null>(null);
 
   const [battle, setBattle] = useState<BattleState>(() =>
-    createBattleState(monster, startingLife, startingMana, startingCooldown)
+    createBattleState(monster, startingLife, startingMana, startingCooldown, startingCooldown2)
   );
   const [log, setLog] = useState<CombatLogEntry[]>([]);
   const [status, setStatus] = useState<BattleStatus>("ongoing");
@@ -169,6 +171,7 @@ export function CombatScreen({
       endingLife: battle.playerLife,
       endingMana: battle.playerMana,
       endingCooldown: battle.abilityCooldown,
+      endingCooldown2: battle.ability2Cooldown,
       damageDealt: totalDamageDealt,
     });
   }

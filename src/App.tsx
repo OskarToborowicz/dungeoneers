@@ -36,6 +36,7 @@ interface DungeonRunState {
   currentLife: number;
   currentMana: number;
   currentCooldown: number;
+  currentCooldown2: number;
 }
 
 function App() {
@@ -262,6 +263,7 @@ function App() {
       currentLife: derived.maxLife,
       currentMana: getStartingResource(character, derived),
       currentCooldown: 0,
+      currentCooldown2: 0,
     });
   }
 
@@ -345,7 +347,8 @@ function App() {
       index: nextIndex,
       currentLife: result.endingLife,
       currentMana: getStartingResource(character, derived, result.endingMana),
-      currentCooldown: 0,
+      currentCooldown: result.endingCooldown,
+      currentCooldown2: result.endingCooldown2,
     });
   }
 
@@ -361,6 +364,7 @@ function App() {
         startingLife={dungeonRun.currentLife}
         startingMana={dungeonRun.currentMana}
         startingCooldown={dungeonRun.currentCooldown}
+        startingCooldown2={dungeonRun.currentCooldown2}
         consumables={consumables}
         escapeTokens={character.escapeTokens ?? 0}
         xpCapped={character.level >= getXpCapLevel(clearedDungeons)}

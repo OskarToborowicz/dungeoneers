@@ -45,6 +45,7 @@ export interface CombatResult {
   endingLife: number;
   endingMana: number;
   endingCooldown: number;
+  endingCooldown2: number;
   damageDealt: number;
 }
 
@@ -99,7 +100,8 @@ export function createBattleState(
   monster: MonsterDefinition,
   startingLife: number,
   startingMana: number,
-  startingCooldown: number
+  startingCooldown: number,
+  startingCooldown2 = 0
 ): BattleState {
   return {
     playerLife: startingLife,
@@ -117,7 +119,7 @@ export function createBattleState(
     playerBurnDamage: 0,
     trapRounds: 0,
     bloodFuryRounds: 0,
-    ability2Cooldown: 0,
+    ability2Cooldown: startingCooldown2,
     frozenRounds: 0,
     regenRounds: 0,
     disorientRounds: 0,
