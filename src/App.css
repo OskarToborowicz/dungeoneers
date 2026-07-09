@@ -2390,7 +2390,9 @@
   }
 
   .class-sprite-preview {
-    display: none;
+    overflow: hidden;
+    padding: 4px 0 0;
+    height: 72px;
   }
 
   /* Combat screen */
