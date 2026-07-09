@@ -66,9 +66,6 @@ function InvCellDnd({
   });
   return (
     <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
       className={`inv-cell${isDragging ? " dragging" : ""}${isSelected ? " tap-selected" : ""}`}
       style={{ color: RARITY_COLORS[item.rarity] }}
       onClick={(e) => { e.stopPropagation(); onTap(); onShowTooltip(e.currentTarget as HTMLElement); }}
@@ -76,7 +73,9 @@ function InvCellDnd({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <ItemIcon item={item} />
+      <div ref={setNodeRef} {...listeners} {...attributes} style={{ display: "contents" }}>
+        <ItemIcon item={item} />
+      </div>
     </div>
   );
 }
@@ -97,15 +96,14 @@ function SlotItemDnd({
   });
   return (
     <div
-      ref={setNodeRef}
-      {...listeners}
-      {...attributes}
       className={`slot-item${isDragging ? " dragging" : ""}${isSelected ? " tap-selected" : ""}`}
       style={{ color: RARITY_COLORS[item.rarity] }}
       onClick={(e) => { e.stopPropagation(); onTap(); }}
       onDoubleClick={onDoubleClick}
     >
-      <ItemIcon item={item} />
+      <div ref={setNodeRef} {...listeners} {...attributes} style={{ display: "contents" }}>
+        <ItemIcon item={item} />
+      </div>
       <ItemTooltip item={item} />
     </div>
   );
