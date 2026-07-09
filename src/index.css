@@ -62,6 +62,19 @@ body {
   flex-direction: column;
 }
 
+@media (max-width: 600px) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #root {
+    height: 100%;
+    min-height: unset;
+    overflow: hidden;
+  }
+}
+
 h1, h2, h3 {
   font-family: var(--heading-font);
   color: var(--text-heading);
