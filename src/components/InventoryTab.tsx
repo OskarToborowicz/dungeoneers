@@ -284,7 +284,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
           {hasSelected ? "Tap a slot to equip — tap item again to deselect." : "Tap to select · tap slot to equip · double-tap to equip/unequip."}
         </p>
 
-        {hovered && !draggingId && !hasSelected && (
+        {hovered && !draggingId && (
           <>
             <div ref={tooltipRef} style={tooltipStyle()!}>
               <ItemTooltip item={hovered.item} />
