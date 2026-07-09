@@ -81,7 +81,7 @@ export function ShopTab({
               onMouseLeave={onMouseLeave}
             >
               <ItemIcon item={item} />
-              <button className="buy-button" disabled={character.gold < price} onClick={() => onBuyItem(item)}>
+              <button className="buy-button" disabled={character.gold < price} onClick={() => { onBuyItem(item); clearHover(); }}>
                 <CoinIcon size={9} /> {price}
               </button>
             </div>
