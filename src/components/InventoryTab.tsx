@@ -49,7 +49,7 @@ function bestSlot(item: Item, equipment: Partial<Record<EquipmentSlot, Item>>): 
 
 function InvCellDnd({
   item, isDragging, isSelected, onTap, onDoubleTap,
-  onMouseEnter, onMouseLeave,
+  onMouseEnter, onMouseLeave, onShowTooltip,
 }: {
   item: Item;
   isDragging: boolean;
@@ -58,6 +58,7 @@ function InvCellDnd({
   onDoubleTap: () => void;
   onMouseEnter: (e: React.MouseEvent) => void;
   onMouseLeave: () => void;
+  onShowTooltip: (el: HTMLElement) => void;
 }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: item.id,
@@ -70,7 +71,7 @@ function InvCellDnd({
       {...attributes}
       className={`inv-cell${isDragging ? " dragging" : ""}${isSelected ? " tap-selected" : ""}`}
       style={{ color: RARITY_COLORS[item.rarity] }}
-      onClick={(e) => { e.stopPropagation(); onTap(); }}
+      onClick={(e) => { e.stopPropagation(); onTap(); onShowTooltip(e.currentTarget as HTMLElement); }}
       onDoubleClick={onDoubleTap}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
@@ -148,7 +149,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [selected, setSelected] = useState<{ id: string; from: Location } | null>(null);
-  const { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover, tooltipRef, compareRef } = useItemHover();
+  const { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover, showTooltip, tooltipRef, compareRef } = useItemHover();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
@@ -275,6 +276,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
                 onDoubleTap={() => onMoveItem(item.id, "inventory", bestSlot(item, equipment))}
                 onMouseEnter={(e) => onMouseEnter(item, e)}
                 onMouseLeave={onMouseLeave}
+                onShowTooltip={(el) => showTooltip(item, el)}
               />
             ))}
           </div>

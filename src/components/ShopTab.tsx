@@ -37,7 +37,7 @@ export function ShopTab({
   onSellAll,
 }: Props) {
   const [confirmSellAll, setConfirmSellAll] = useState(false);
-  const { hovered: shopHovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover, tooltipRef, compareRef } = useItemHover();
+  const { hovered: shopHovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover, showTooltip, tooltipRef, compareRef } = useItemHover();
   const classDef = CLASSES[character.classId];
   const availableConsumables = CONSUMABLE_LIST.filter(
     (c) => c.id !== "manaPotion" || classDef.resourceType === "mana"
@@ -79,9 +79,10 @@ export function ShopTab({
             <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}
               onMouseEnter={(e) => onMouseEnter(item, e)}
               onMouseLeave={onMouseLeave}
+              onClick={(e) => showTooltip(item, e.currentTarget as HTMLElement)}
             >
               <ItemIcon item={item} />
-              <button className="buy-button" disabled={character.gold < price} onClick={() => { onBuyItem(item); clearHover(); }}>
+              <button className="buy-button" disabled={character.gold < price} onClick={(e) => { e.stopPropagation(); onBuyItem(item); clearHover(); }}>
                 <CoinIcon size={9} /> {price}
               </button>
             </div>
@@ -123,9 +124,10 @@ export function ShopTab({
             <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}
               onMouseEnter={(e) => onMouseEnter(item, e)}
               onMouseLeave={onMouseLeave}
+              onClick={(e) => showTooltip(item, e.currentTarget as HTMLElement)}
             >
               <ItemIcon item={item} />
-              <button className="sell-button" onClick={() => { onSell(item); clearHover(); }}>
+              <button className="sell-button" onClick={(e) => { e.stopPropagation(); onSell(item); clearHover(); }}>
                 <CoinIcon size={9} /> {sellValue(item)}
               </button>
             </div>

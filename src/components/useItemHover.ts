@@ -119,5 +119,10 @@ export function useItemHover() {
     setHovered(null);
   }
 
-  return { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover, tooltipRef, compareRef };
+  function showTooltip(item: Item, el: HTMLElement) {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    setHovered({ item, rect: el.getBoundingClientRect() });
+  }
+
+  return { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover, showTooltip, tooltipRef, compareRef };
 }
