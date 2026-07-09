@@ -28,7 +28,10 @@ export function useItemHover() {
 
   useEffect(() => {
     if (!hovered) return;
-    const handler = () => setHovered(null);
+    const handler = (e: TouchEvent) => {
+      if ((e.target as Element).closest(".inv-cell, .shop-item-cell")) return;
+      setHovered(null);
+    };
     document.addEventListener("touchstart", handler, { passive: true });
     return () => document.removeEventListener("touchstart", handler);
   }, [hovered]);
