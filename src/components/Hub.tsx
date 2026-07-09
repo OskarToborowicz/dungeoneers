@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import type { CSSProperties } from "react";
-import { motion } from "framer-motion";
 import { CharacterSprite, CLASS_COLORS } from "./sprites/CharacterSprite";
 import { CoinIcon } from "./CoinIcon";
 import { PotionIcon } from "./PotionIcon";
