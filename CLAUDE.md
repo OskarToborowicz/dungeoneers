@@ -25,6 +25,7 @@ Build check: `npx tsc --noEmit`
 | `src/game/storage.ts` | localStorage read/write (`SaveSlot[]` array — NOT an object) |
 | `src/App.tsx` | Root state, routing between screens |
 | `src/App.css` | All styles |
+| `src/components/useItemHover.ts` | Shared hook for fixed-position item tooltip + compare panel on hover |
 
 ### Component tree
 
@@ -88,6 +89,13 @@ To clear all saves: `localStorage.clear(); location.reload();`
 3. Monster spell or normal attack
 4. Trap detonation (when `trapRounds` hits 0)
 5. Player DoT ticks (poison / burn)
+6. Monster burn stacks tick (`burnStacks[]` — each stack independent)
+
+### Burn stacks (`burnStacks`)
+
+`BattleState.burnStacks` is `{ rounds: number; damage: number; source: string }[]`. Each source of ignite pushes its own entry — they are completely independent. Every turn each active stack ticks, deals its damage, decrements rounds, then expired stacks are filtered out. The log message and badge both show the source name and remaining rounds. Currently only `Demon's Tail` calls `tryIgnite()`, but any future item or skill can pass a different `source` string.
+
+**Log order rule:** ignite message always appears AFTER the attack/skill damage line that triggered it.
 
 ### Ability `canMiss` flag
 
@@ -185,3 +193,27 @@ All Act 1 and Act 2 monsters have unique sprites. New monsters need entries in a
   - Hub sidebar collapses to a horizontal top bar (sprite shrinks, tabs go horizontal)
   - `derived-grid` switches from 3-col to 2-col
   - Padding reduced to 12px
+
+### Item tooltip system
+
+**Never use `position: absolute` for inventory/shop tooltips** — `.hub-content` has `overflow-y: auto` which also clips horizontal overflow, cutting off any absolute-positioned child that goes outside the scroll container.
+
+Instead use `useItemHover` hook (`src/components/useItemHover.ts`):
+- Tracks hovered item + its `DOMRect` via `onMouseEnter`/`onMouseLeave`
+- Returns `tooltipStyle()` → `position: fixed`, tooltip to the **right** of the cell
+- Returns `compareStyle()` → `position: fixed`, compare panel to the **left** of the cell
+- Both use `z-index: 9999` so they always render above everything
+
+**Paperdoll equipped items** (`.slot-item`) use plain CSS absolute positioning — they live inside the paperdoll which is not scroll-clipped, so no hook needed.
+
+### Affix display order (tooltips)
+
+`sortAffixes()` in `ItemTooltip.tsx` controls display order:
+```
+defense → damage → magicDamage → strength → dexterity → vitality → energy → (rest)
+```
+This is render-only — it never mutates the stored `item.affixes` array.
+
+### Drop banner
+
+Auto-dismisses after **3 seconds** via `setTimeout` in Hub's `useEffect`. Unique item drops also play `divine_drop.mp3` at volume 0.3. Asset path must use `import.meta.env.BASE_URL` prefix (Vite base is `/dungeoneers/`).

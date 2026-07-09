@@ -36,10 +36,13 @@ export function useItemHover() {
   function compareStyle(): CSSProperties | null {
     if (!hovered) return null;
     const midY = hovered.rect.top + hovered.rect.height / 2;
+    const panelWidth = 170;
+    const rawLeft = hovered.rect.left - panelWidth - 10;
+    const clampedLeft = Math.max(4, rawLeft);
     return {
       position: "fixed",
       top: midY,
-      right: window.innerWidth - hovered.rect.left + 10,
+      left: clampedLeft,
       transform: "translateY(-50%)",
       zIndex: 9999,
       pointerEvents: "none",

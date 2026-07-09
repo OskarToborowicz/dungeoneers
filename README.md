@@ -296,6 +296,9 @@ Active status effects are shown as colored pills below each combatant's HP bar a
 | ☠ Poison N | Necromancer Poison Dagger | Green pill, remaining tick count |
 | ❄ Frozen N | Amazon Freezing Shot | Blue pill, remaining frozen turns |
 | ⚡ Electrocute N | Amazon — Stormstring bow on hit | Yellow pill, remaining turns; enemy takes 20% increased damage from all sources |
+| 🔥 Burn N | Demon's Tail belt — every hit/ability | Orange pill per active stack; hovering shows source and damage per turn |
+
+**Burn stacks independently** — each hit with Demon's Tail equipped pushes a new `{ rounds, damage, source }` entry. Multiple stacks can be active simultaneously, each with its own timer and damage value (30% of the triggering hit). A separate 🔥 Burn badge appears for each active stack.
 
 **Frozen** prevents the monster from acting entirely for the duration. The monster still appears on its turn in the combat log with a "frozen solid" message, but deals no damage and casts no spells.
 
@@ -772,7 +775,7 @@ Unique items have fixed stats and a low drop rate. They are not generated random
 | Mask of Midnight | Helm | Any boss (level 25+) | 0.25% | +25–35 Vitality, +25–35 Damage, +5% Crit Chance |
 | Heavy Stompers | Boots | Any boss | 0.5% | +200 Life, +100 Defense, −20 Strength, −20 Dexterity, −20 Energy |
 | The Pentagram | Amulet | Any Act 2 boss | 0.5% | +100 Damage, −100 Life |
-| Demon's Tail | Belt | Any Act 2 boss | 0.25% | All direct damage (basic attacks and abilities) ignites the target for 30% of damage dealt per turn for 2 turns |
+| Demon's Tail | Belt | Any Act 2 boss | 0.25% | Every direct hit (basic attacks and abilities) pushes an independent burn stack: 30% of that hit's damage per turn for 2 turns. Multiple hits → multiple stacks active simultaneously |
 | Reaper's Hood | Helm | The Reaper (Lower Hell) | 2.5% | +7–12% Life Leech, +35–50 Vitality, +35–50 Damage; 20% chance to disorient on attack for 2 turns |
 | Harvester | Weapon | The Reaper (Lower Hell, Necromancer only) | 6% | Base 18–28 dmg (two-handed), +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
 | Blooddrinker | Weapon | Any boss (Barbarian only, level 10+) | 0.15% | Base 6–14 dmg; 8–12% Life Leech, +15–20 Strength, −8 Defense |
