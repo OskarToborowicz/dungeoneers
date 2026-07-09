@@ -7,7 +7,7 @@ import { GameOverScreen } from "./components/GameOverScreen";
 import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
 import { CONSUMABLES, EMPTY_CONSUMABLES } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
-import { buyValue, generateBoneweaveGloves, generateCrackedLens, generateCrownOfTheFallen, generateDemonsTail, generateEyeOfTheStorm, generateHarvester, generateHeavyStompers, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePentagram, generateRagpickersSash, generateReapersHood, generateSharpFangs, generateStoneHusk, generateThornback, generateVenomweaveWrap, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
+import { buyValue, generateBlooddrinker, generateBoneweaveGloves, generateCrackedLens, generateCrownOfTheFallen, generateDemonsTail, generateDoomcrier, generateEyeOfTheStorm, generateHarvester, generateHeavyStompers, generateIronjaw, generateJusticar, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePenitentsGrace, generatePentagram, generateRagpickersSash, generateReapersHood, generateSanctifier, generateSharpFangs, generateStoneHusk, generateStormstring, generateThornback, generateVenomweaveWrap, generateWhisper, generateWorldbreaker, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
 import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
 import type { CombatResult } from "./game/combat";
@@ -51,6 +51,7 @@ function App() {
   const [shopStock, setShopStock] = useState<Item[]>([]);
   const [dungeonRun, setDungeonRun] = useState<DungeonRunState | null>(null);
   const [selectedAct, setSelectedAct] = useState<1 | 2>(1);
+  const [hubTab, setHubTab] = useState<"character" | "inventory" | "dungeons" | "shop">("character");
   const [deathSummary, setDeathSummary] = useState<DeathSummary | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [showPortalMessage, setShowPortalMessage] = useState(false);
@@ -466,6 +467,52 @@ function App() {
         return prev === null || rarityOrder.indexOf(pentagram.rarity) >= rarityOrder.indexOf(prev.rarity) ? pentagram : prev;
       });
     }
+    const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+    if (isBoss && character.classId === "paladin" && character.level >= 10 && Math.random() < 0.0015) {
+      const mace = generatePenitentsGrace();
+      setInventory((prev) => [...prev, mace]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(mace.rarity) >= rarityOrder.indexOf(prev.rarity) ? mace : prev);
+    }
+    if (isBoss && character.classId === "paladin" && character.level >= 28 && Math.random() < 0.0015) {
+      const mace = generateJusticar();
+      setInventory((prev) => [...prev, mace]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(mace.rarity) >= rarityOrder.indexOf(prev.rarity) ? mace : prev);
+    }
+    if (isBoss && character.classId === "paladin" && character.level >= 50 && Math.random() < 0.0015) {
+      const mace = generateSanctifier();
+      setInventory((prev) => [...prev, mace]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(mace.rarity) >= rarityOrder.indexOf(prev.rarity) ? mace : prev);
+    }
+    if (isBoss && character.classId === "barbarian" && character.level >= 10 && Math.random() < 0.0015) {
+      const axe = generateBlooddrinker();
+      setInventory((prev) => [...prev, axe]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(axe.rarity) >= rarityOrder.indexOf(prev.rarity) ? axe : prev);
+    }
+    if (isBoss && character.classId === "barbarian" && character.level >= 28 && Math.random() < 0.0015) {
+      const axe = generateIronjaw();
+      setInventory((prev) => [...prev, axe]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(axe.rarity) >= rarityOrder.indexOf(prev.rarity) ? axe : prev);
+    }
+    if (isBoss && character.classId === "barbarian" && character.level >= 50 && Math.random() < 0.0015) {
+      const axe = generateWorldbreaker();
+      setInventory((prev) => [...prev, axe]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(axe.rarity) >= rarityOrder.indexOf(prev.rarity) ? axe : prev);
+    }
+    if (isBoss && character.classId === "amazon" && character.level >= 8 && Math.random() < 0.0015) {
+      const bow = generateWhisper();
+      setInventory((prev) => [...prev, bow]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(bow.rarity) >= rarityOrder.indexOf(prev.rarity) ? bow : prev);
+    }
+    if (isBoss && character.classId === "amazon" && character.level >= 28 && Math.random() < 0.0015) {
+      const bow = generateStormstring();
+      setInventory((prev) => [...prev, bow]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(bow.rarity) >= rarityOrder.indexOf(prev.rarity) ? bow : prev);
+    }
+    if (isBoss && character.classId === "amazon" && character.level >= 50 && Math.random() < 0.0015) {
+      const bow = generateDoomcrier();
+      setInventory((prev) => [...prev, bow]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(bow.rarity) >= rarityOrder.indexOf(prev.rarity) ? bow : prev);
+    }
     const dropChance = isBoss ? 1 : 0.35;
     if (isAndariel && Math.random() < 0.01) {
       const mirrorRing = generateMirrorRing();
@@ -526,6 +573,9 @@ function App() {
       const wasNew = !clearedDungeons.includes(dungeonRun.dungeonId);
       setClearedDungeons((prev) => (prev.includes(dungeonRun.dungeonId) ? prev : [...prev, dungeonRun.dungeonId]));
       if (wasNew && dungeonRun.dungeonId === "diablo") setShowPortalMessage(true);
+      const completedDungeon = DUNGEONS.find((d) => d.id === dungeonRun.dungeonId);
+      setSelectedAct((completedDungeon?.act ?? 1) as 1 | 2);
+      setHubTab("dungeons");
       setDungeonRun(null);
       return;
     }
@@ -593,6 +643,8 @@ function App() {
       onDismissDroppedItem={() => setDroppedItem(null)}
       selectedAct={selectedAct}
       onSelectAct={setSelectedAct}
+      selectedTab={hubTab}
+      onSelectTab={setHubTab}
     />
   );
 }

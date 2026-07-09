@@ -91,6 +91,8 @@ export interface Item {
   eyeOfTheStorm?: boolean;
   boneweaveGloves?: boolean;
   crownOfTheFallen?: boolean;
+  stormstring?: boolean;
+  doomcrier?: boolean;
 }
 
 export interface RunStats {

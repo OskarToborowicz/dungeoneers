@@ -91,6 +91,12 @@ export function ItemTooltip({ item }: { item: Item }) {
             {item.crownOfTheFallen && (
               <div className="item-line mirror-flavor"><em>While below 30% life, all damage dealt is increased by 25%</em></div>
             )}
+            {item.stormstring && (
+              <div className="item-line mirror-flavor"><em>100% chance to Electrocute on hit — enemy takes 20% increased damage for 2 turns</em></div>
+            )}
+            {item.doomcrier && (
+              <div className="item-line mirror-flavor"><em>Heartseeker fires at 70% of damage dealt instead of 50%</em></div>
+            )}
           </>
         )}
     </div>
