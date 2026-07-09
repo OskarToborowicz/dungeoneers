@@ -579,7 +579,7 @@ function App() {
         return prev === null || rarityOrder.indexOf(husk.rarity) >= rarityOrder.indexOf(prev.rarity) ? husk : prev;
       });
     }
-    if (isBoss && character.level >= 15 && Math.random() < 0.005) {
+    if (isBoss && character.level >= 15 && Math.random() < 0.002) {
       const fangs = generateSharpFangs();
       setInventory((prev) => [...prev, fangs]);
       setDroppedItem((prev) => {
