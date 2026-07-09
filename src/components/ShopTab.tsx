@@ -138,7 +138,7 @@ export function ShopTab({
             <ItemTooltip item={shopHovered.item} />
           </div>
           <div style={compareStyle()!}>
-            <CompareGroup slot={shopHovered.item.slot} equipment={equipment} />
+            <CompareGroup slot={shopHovered.item.slot} equipment={equipment} hoveredItem={shopHovered.item} />
           </div>
         </>
       )}

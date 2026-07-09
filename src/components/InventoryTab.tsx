@@ -187,7 +187,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
             <ItemTooltip item={hovered.item} />
           </div>
           <div style={compareStyle()!}>
-            <CompareGroup slot={hovered.item.slot} equipment={equipment} />
+            <CompareGroup slot={hovered.item.slot} equipment={equipment} hoveredItem={hovered.item} />
           </div>
         </>
       )}

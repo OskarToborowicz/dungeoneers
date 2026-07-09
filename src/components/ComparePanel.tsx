@@ -10,19 +10,25 @@ const STAT_LABEL: Record<string, string> = {
   physDmgReduction: "% Physical Damage Reduced",
 };
 
-export function getComparisons(slot: EquipmentSlot, equipment: Partial<Record<EquipmentSlot, Item>>): { item: Item; label: string }[] {
+export function getComparisons(slot: EquipmentSlot, equipment: Partial<Record<EquipmentSlot, Item>>, hoveredItem?: { twoHanded?: boolean }): { item: Item; label: string }[] {
   if (slot === "ring1" || slot === "ring2") {
     const result: { item: Item; label: string }[] = [];
     if (equipment.ring1) result.push({ item: equipment.ring1, label: "Ring slot 1" });
     if (equipment.ring2) result.push({ item: equipment.ring2, label: "Ring slot 2" });
     return result;
   }
+  if (slot === "weapon" && !hoveredItem?.twoHanded) {
+    const result: { item: Item; label: string }[] = [];
+    if (equipment.weapon) result.push({ item: equipment.weapon, label: "Main hand" });
+    if (equipment.shield) result.push({ item: equipment.shield, label: "Off hand" });
+    return result;
+  }
   const equipped = equipment[slot];
   return equipped ? [{ item: equipped, label: "Equipped" }] : [];
 }
 
-export function CompareGroup({ slot, equipment }: { slot: EquipmentSlot; equipment: Partial<Record<EquipmentSlot, Item>> }) {
-  const comparisons = getComparisons(slot, equipment);
+export function CompareGroup({ slot, equipment, hoveredItem }: { slot: EquipmentSlot; equipment: Partial<Record<EquipmentSlot, Item>>; hoveredItem?: { twoHanded?: boolean } }) {
+  const comparisons = getComparisons(slot, equipment, hoveredItem);
   if (comparisons.length === 0) return null;
   return (
     <div className="compare-group">
