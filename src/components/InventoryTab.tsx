@@ -124,7 +124,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
   }
 
   return (
-    <div className={`tab-panel${dragging ? " is-dragging" : ""}${hasSelected ? " is-selecting" : ""}`}>
+    <div className={`tab-panel${dragging ? " is-dragging" : ""}${hasSelected ? " is-selecting" : ""}`} onClick={() => { if (hasSelected) setSelected(null); }}>
       <div className="paperdoll">
         {EQUIP_SLOTS.map((slot) => {
           const item = equipment[slot];
@@ -132,14 +132,14 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
             <div
               key={slot}
               className={`doll-slot doll-${slot} ${dragOver === slot ? (isValidTarget(slot) ? "drag-over" : "drag-over-invalid") : ""} ${isValidTarget(slot) ? "tap-target" : ""}`}
-              onClick={() => { if (hasSelected) tapSlot(slot); }}
+              onClick={(e) => { e.stopPropagation(); if (hasSelected) { if (isValidTarget(slot)) tapSlot(slot); else setSelected(null); } }}
               {...dropZoneProps(slot)}
             >
               {item ? (
                 <div
                   className={`slot-item ${dragging === item.id ? "dragging" : ""} ${isSelected(item.id, slot) ? "tap-selected" : ""}`}
                   style={{ color: RARITY_COLORS[item.rarity] }}
-                  onClick={(e) => { e.stopPropagation(); hasSelected ? tapSlot(slot) : tapItem(item, slot); }}
+                  onClick={(e) => { e.stopPropagation(); if (hasSelected) { if (isValidTarget(slot)) tapSlot(slot); else setSelected(null); } else tapItem(item, slot); }}
                   onDoubleClick={() => onMoveItem(item.id, slot, "inventory")}
                   {...dragHandleProps(item, slot)}
                 >
@@ -158,7 +158,6 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
       {inventory.length === 0 && <p className="empty-note">No items yet. Clear dungeons to find loot.</p>}
       <div
         className={`inventory-dropzone ${dragOver === "inventory" ? "drag-over" : ""}`}
-        onClick={() => { if (hasSelected) setSelected(null); }}
         {...dropZoneProps("inventory")}
       >
         <div className="inventory-grid">
@@ -169,7 +168,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
               style={{ color: RARITY_COLORS[item.rarity] }}
               onClick={(e) => { e.stopPropagation(); tapItem(item, "inventory"); }}
               onDoubleClick={() => onMoveItem(item.id, "inventory", bestSlot(item, equipment))}
-              onMouseEnter={(e) => { if (hasSelected) setSelected(null); onMouseEnter(item, e); }}
+              onMouseEnter={(e) => onMouseEnter(item, e)}
               onMouseLeave={onMouseLeave}
               {...dragHandleProps(item, "inventory")}
             >
