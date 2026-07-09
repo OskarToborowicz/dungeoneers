@@ -2356,6 +2356,35 @@
     grid-template-columns: repeat(2, 1fr);
   }
 
+  .creation-screen {
+    overflow-y: auto;
+  }
+
+  .creation-panel {
+    flex-direction: column;
+    max-width: 100%;
+  }
+
+  .class-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: unset;
+  }
+
+  .class-button {
+    flex: 1 1 auto;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .class-detail {
+    border-left: none;
+    border-top: 1px solid var(--border-gold);
+    padding-left: 0;
+    padding-top: 14px;
+    overflow-y: visible;
+  }
+
   /* Combat screen */
   .combat-bars {
     gap: 12px;
