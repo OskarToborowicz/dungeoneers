@@ -124,6 +124,8 @@ export interface DerivedStats {
   manaRegenMult: number;
   blockChance: number;
   lowLifeDamageBonus: number;
+  electrocuteOnHit: boolean;
+  heartseekerBoost: boolean;
 }
 
 export function getDerivedStats(
@@ -164,7 +166,9 @@ export function getDerivedStats(
   const manaRegenMult = (equipment.ring1?.eyeOfTheStorm || equipment.ring2?.eyeOfTheStorm) ? 1.15 : 1.0;
   const blockChance = equipment.gloves?.boneweaveGloves ? 5 : 0;
   const lowLifeDamageBonus = equipment.helm?.crownOfTheFallen ? 0.25 : 0;
-  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction, igniteChance, disorientOnAttackChance, poisonDamageMult, thornReflect, manaRegenMult, blockChance, lowLifeDamageBonus };
+  const electrocuteOnHit = equipment.weapon?.stormstring === true;
+  const heartseekerBoost = equipment.weapon?.doomcrier === true;
+  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction, igniteChance, disorientOnAttackChance, poisonDamageMult, thornReflect, manaRegenMult, blockChance, lowLifeDamageBonus, electrocuteOnHit, heartseekerBoost };
 }
 
 export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {

@@ -295,8 +295,11 @@ Active status effects are shown as colored pills below each combatant's HP bar a
 |---|---|---|
 | ☠ Poison N | Necromancer Poison Dagger | Green pill, remaining tick count |
 | ❄ Frozen N | Amazon Freezing Shot | Blue pill, remaining frozen turns |
+| ⚡ Electrocute N | Amazon — Stormstring bow on hit | Yellow pill, remaining turns; enemy takes 20% increased damage from all sources |
 
 **Frozen** prevents the monster from acting entirely for the duration. The monster still appears on its turn in the combat log with a "frozen solid" message, but deals no damage and casts no spells.
+
+**Electrocute** increases all damage the monster receives by 20% for 2 turns. Applied on every successful basic attack with Stormstring equipped; does not stack — refreshes the duration instead.
 
 **On the player:**
 
@@ -520,7 +523,7 @@ maxLife += round(maxMana × 0.15)
 - Increases Critical Strike Chance by **+15%** (stacks with the Dexterity-based base crit, recapped at 90%).
 
 ### Amazon — Heartseeker *(unlocks at level 35)*
-- After any Critical Strike, fires a **bonus follow-up arrow** dealing **50% of the crit's damage**. The follow-up arrow cannot itself critically strike.
+- After any Critical Strike, fires a **bonus follow-up arrow** dealing **50% of the crit's damage** (70% with the Doomcrier unique bow equipped). The follow-up arrow cannot itself critically strike.
 - Triggers on basic attacks and on each individual Multishot arrow that crits.
 
 ### Paladin — Divine Retribution *(always active)*
@@ -733,12 +736,12 @@ Unlocked after clearing Rogue Monastery. Select via the Act 1 / Act 2 toggle in 
 
 | Dungeon | Monster Levels | Boss | Boss Life |
 |---|---|---|---|
-| Imp Field | 30–33 | Queen of Imps | 2,000 |
-| Lava River | 34–38 | Emberfire | 2,800 |
-| Ashen Caves | 39–43 | It | 3,800 |
-| Higher Hell | 44–50 | Reltih | 5,200 |
-| Lower Hell | 51–57 | The Reaper | 7,200 |
-| Hellcore *(endgame)* | 60–70 | Core of Hell | 20,000 |
+| Imp Field | 30–33 | Queen of Imps | 1,700 |
+| Lava River | 34–38 | Emberfire | 2,430 |
+| Ashen Caves | 39–43 | It | 3,360 |
+| Higher Hell | 44–50 | Reltih | 4,680 |
+| Lower Hell | 51–57 | The Reaper | 6,570 |
+| Hellcore *(endgame)* | 60–70 | Core of Hell | 18,570 |
 
 Each boss casts a unique spell — see the [Monster Spells](#monster-spells) section.
 
@@ -772,6 +775,15 @@ Unique items have fixed stats and a low drop rate. They are not generated random
 | Demon's Tail | Belt | Any Act 2 boss | 0.25% | All direct damage (basic attacks and abilities) ignites the target for 30% of damage dealt per turn for 2 turns |
 | Reaper's Hood | Helm | The Reaper (Lower Hell) | 2.5% | +7–12% Life Leech, +35–50 Vitality, +35–50 Damage; 20% chance to disorient on attack for 2 turns |
 | Harvester | Weapon | The Reaper (Lower Hell, Necromancer only) | 6% | Base 18–28 dmg (two-handed), +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
+| Blooddrinker | Weapon | Any boss (Barbarian only, level 10+) | 0.15% | Base 6–14 dmg; 8–12% Life Leech, +15–20 Strength, −8 Defense |
+| Ironjaw | Weapon | Any boss (Barbarian only, level 28+) | 0.15% | Base 16–26 dmg; +35–50 Damage, +25–35 Vitality, +5% Crit Chance |
+| Worldbreaker | Weapon | Any boss (Barbarian only, level 50+) | 0.15% | Base 28–44 dmg; +55–75 Damage, +40–55 Strength, +30–45 Vitality, −25 Dexterity |
+| Penitent's Grace | Weapon | Any boss (Paladin only, level 10+) | 0.15% | Base 5–10 dmg; +10–15 Energy, +8–12 Mana Regen/Turn, +10–15 Magic Damage, +10–15 Vitality |
+| Justicar | Weapon | Any boss (Paladin only, level 28+) | 0.15% | Base 14–22 dmg; +30–45 Damage, +20–30 Energy, +15–25 Magic Damage, −15 Strength |
+| Sanctifier | Weapon | Any boss (Paladin only, level 50+) | 0.15% | Base 24–38 dmg; +50–70 Magic Damage, +35–45 Damage, +40–55 Vitality, +6% Crit Chance |
+| Whisper | Weapon | Any boss (Amazon only, level 8+) | 0.15% | Base 5–12 dmg (two-handed); +10–15 Dexterity, +10–15 Vitality, +10–15 Damage |
+| Stormstring | Weapon | Any boss (Amazon only, level 28+) | 0.15% | Base 16–28 dmg (two-handed); +30–45 Dexterity, +25–35 Damage, −15 Strength; **Electrocute on hit** — enemy takes 20% increased damage for 2 turns |
+| Doomcrier | Weapon | Any boss (Amazon only, level 50+) | 0.15% | Base 28–46 dmg (two-handed); +55–75 Damage, +40–55 Dexterity, +8% Crit Chance; **Heartseeker fires at 70%** instead of 50% |
 
 ### Permadeath
 

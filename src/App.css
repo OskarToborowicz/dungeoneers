@@ -337,6 +337,30 @@
 .hub-content {
   flex: 1;
   min-width: 0;
+  max-height: calc(100svh - 96px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--class-color) #1a1208;
+}
+
+.hub-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hub-content::-webkit-scrollbar-track {
+  background: #1a1208;
+  border-radius: 3px;
+}
+
+.hub-content::-webkit-scrollbar-thumb {
+  background: var(--class-color);
+  border-radius: 3px;
+  opacity: 0.7;
+}
+
+.hub-content::-webkit-scrollbar-thumb:hover {
+  background: var(--class-color);
+  filter: brightness(1.4);
 }
 
 .gold-display {
@@ -346,6 +370,12 @@
   color: var(--text-heading);
   font-family: var(--heading-font);
   font-size: 18px;
+}
+
+.level-display {
+  font-size: 15px;
+  color: var(--text-muted, #888);
+  font-family: var(--heading-font);
 }
 
 .potions-display {
@@ -1230,10 +1260,33 @@
 
 /* ---------- Sprites ---------- */
 
+.hub-sprite-wrap {
+  position: relative;
+}
+
 .hub-sprite {
   display: flex;
   justify-content: center;
   padding: 12px 0 4px;
+}
+
+.stat-point-arrow {
+  position: absolute;
+  left: 8px;
+  top: 2px;
+  pointer-events: none;
+}
+
+.stat-point-arrow span {
+  display: block;
+  color: var(--class-color);
+  font-size: 28px;
+  font-weight: 900;
+  font-family: Georgia, serif;
+  line-height: 1;
+  text-shadow:
+    -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
+    0 0 8px var(--class-color), 0 0 20px var(--class-color);
 }
 
 .class-sprite-preview {
@@ -2218,6 +2271,22 @@
 
   .gold-display {
     font-size: 15px;
+  }
+
+  .hub-sprite-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .stat-point-arrow {
+    position: static;
+    margin-bottom: 36px;
+  }
+
+  .stat-point-arrow span {
+    font-size: 22px;
   }
 
   /* Tab bar: horizontal row */

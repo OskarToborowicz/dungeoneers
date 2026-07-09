@@ -219,6 +219,7 @@ export function generateHeavyStompers(): Item {
     slot: "boots",
     rarity: "unique",
     itemLevel: 1,
+    baseDefense: 5,
     affixes: [
       { label: "", stat: "life", value: 200 },
       { label: "", stat: "defense", value: 100 },
@@ -237,6 +238,7 @@ export function generateSharpFangs(): Item {
     slot: "gloves",
     rarity: "unique",
     itemLevel: 15,
+    baseDefense: 8,
     affixes: [
       { label: "", stat: "dexterity", value: 30 },
       { label: "", stat: "strength", value: 30 },
@@ -269,6 +271,7 @@ export function generateStoneHusk(): Item {
     slot: "armor",
     rarity: "unique",
     itemLevel: 25,
+    baseDefense: 20,
     affixes: [
       { label: "", stat: "vitality", value: randInt(20, 30) },
       { label: "", stat: "life", value: randInt(40, 60) },
@@ -286,6 +289,7 @@ export function generateMaskOfTwilight(): Item {
     slot: "helm",
     rarity: "unique",
     itemLevel: 25,
+    baseDefense: 12,
     affixes: [
       { label: "", stat: "energy", value: randInt(25, 35) },
       { label: "", stat: "magicDamage", value: randInt(25, 35) },
@@ -302,6 +306,7 @@ export function generateMaskOfMidnight(): Item {
     slot: "helm",
     rarity: "unique",
     itemLevel: 25,
+    baseDefense: 12,
     affixes: [
       { label: "", stat: "vitality", value: randInt(25, 35) },
       { label: "", stat: "damage", value: randInt(25, 35) },
@@ -318,6 +323,7 @@ export function generatePeasantHood(): Item {
     slot: "helm",
     rarity: "unique",
     itemLevel: 1,
+    baseDefense: 6,
     affixes: [
       { label: "", stat: "damage", value: 10 },
       { label: "", stat: "vitality", value: 10 },
@@ -334,6 +340,7 @@ export function generateCrownOfTheFallen(): Item {
     slot: "helm",
     rarity: "unique",
     itemLevel: 45,
+    baseDefense: 20,
     affixes: [
       { label: "", stat: "vitality", value: randInt(40, 55) },
       { label: "", stat: "defense", value: randInt(15, 25) },
@@ -350,6 +357,7 @@ export function generateRagpickersSash(): Item {
     slot: "belt",
     rarity: "unique",
     itemLevel: 1,
+    baseDefense: 3,
     affixes: [
       { label: "", stat: "vitality", value: 5 },
       { label: "", stat: "goldFind", value: 20 },
@@ -365,6 +373,7 @@ export function generateCrackedLens(): Item {
     slot: "helm",
     rarity: "unique",
     itemLevel: 5,
+    baseDefense: 7,
     affixes: [
       { label: "", stat: "magicDamage", value: 15 },
       { label: "", stat: "energy", value: 10 },
@@ -381,6 +390,7 @@ export function generateThornback(): Item {
     slot: "armor",
     rarity: "unique",
     itemLevel: 12,
+    baseDefense: 18,
     affixes: [
       { label: "", stat: "defense", value: 30 },
     ],
@@ -412,6 +422,7 @@ export function generateBoneweaveGloves(): Item {
     slot: "gloves",
     rarity: "unique",
     itemLevel: 20,
+    baseDefense: 10,
     affixes: [
       { label: "", stat: "vitality", value: 20 },
       { label: "", stat: "defense", value: 15 },
@@ -428,6 +439,7 @@ export function generateVenomweaveWrap(): Item {
     slot: "belt",
     rarity: "unique",
     itemLevel: 15,
+    baseDefense: 7,
     affixes: [
       { label: "", stat: "dexterity", value: 20 },
     ],
@@ -443,6 +455,7 @@ export function generateDemonsTail(): Item {
     slot: "belt",
     rarity: "unique",
     itemLevel: 1,
+    baseDefense: 18,
     affixes: [],
     demonsTail: true,
   };
@@ -456,6 +469,7 @@ export function generateReapersHood(): Item {
     slot: "helm",
     rarity: "unique",
     itemLevel: 57,
+    baseDefense: 32,
     affixes: [
       { label: "", stat: "lifeLeech", value: randInt(7, 12) },
       { label: "", stat: "vitality", value: randInt(35, 50) },
@@ -475,6 +489,7 @@ export function generateHarvester(): Item {
     itemLevel: 58,
     baseDamage: [18, 28],
     twoHanded: true,
+    weaponType: "scythe",
     affixes: [
       { label: "", stat: "damage", value: randInt(50, 75) },
       { label: "", stat: "magicDamage", value: randInt(50, 75) },
@@ -482,6 +497,183 @@ export function generateHarvester(): Item {
       { label: "", stat: "energy", value: randInt(25, 40) },
     ],
     harvester: true,
+  };
+}
+
+export function generatePenitentsGrace(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Penitent's Grace",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 10,
+    baseDamage: [5, 10],
+    twoHanded: false,
+    weaponType: "mace",
+    affixes: [
+      { label: "", stat: "energy", value: randInt(10, 15) },
+      { label: "", stat: "manaRegen", value: randInt(8, 12) },
+      { label: "", stat: "magicDamage", value: randInt(10, 15) },
+      { label: "", stat: "vitality", value: randInt(10, 15) },
+    ],
+  };
+}
+
+export function generateJusticar(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Justicar",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 28,
+    baseDamage: [14, 22],
+    twoHanded: false,
+    weaponType: "mace",
+    affixes: [
+      { label: "", stat: "damage", value: randInt(30, 45) },
+      { label: "", stat: "energy", value: randInt(20, 30) },
+      { label: "", stat: "magicDamage", value: randInt(15, 25) },
+      { label: "", stat: "strength", value: -15 },
+    ],
+  };
+}
+
+export function generateSanctifier(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Sanctifier",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 50,
+    baseDamage: [24, 38],
+    twoHanded: false,
+    weaponType: "mace",
+    affixes: [
+      { label: "", stat: "magicDamage", value: randInt(50, 70) },
+      { label: "", stat: "damage", value: randInt(35, 45) },
+      { label: "", stat: "vitality", value: randInt(40, 55) },
+      { label: "", stat: "critChance", value: 6 },
+    ],
+  };
+}
+
+export function generateBlooddrinker(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Blooddrinker",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 10,
+    baseDamage: [6, 14],
+    twoHanded: false,
+    weaponType: "axe",
+    affixes: [
+      { label: "", stat: "lifeLeech", value: randInt(8, 12) },
+      { label: "", stat: "strength", value: randInt(15, 20) },
+      { label: "", stat: "defense", value: -8 },
+    ],
+  };
+}
+
+export function generateIronjaw(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Ironjaw",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 28,
+    baseDamage: [16, 26],
+    twoHanded: false,
+    weaponType: "axe",
+    affixes: [
+      { label: "", stat: "damage", value: randInt(35, 50) },
+      { label: "", stat: "vitality", value: randInt(25, 35) },
+      { label: "", stat: "critChance", value: 5 },
+    ],
+  };
+}
+
+export function generateWorldbreaker(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Worldbreaker",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 50,
+    baseDamage: [28, 44],
+    twoHanded: false,
+    weaponType: "axe",
+    affixes: [
+      { label: "", stat: "damage", value: randInt(55, 75) },
+      { label: "", stat: "strength", value: randInt(40, 55) },
+      { label: "", stat: "vitality", value: randInt(30, 45) },
+      { label: "", stat: "dexterity", value: -25 },
+    ],
+  };
+}
+
+export function generateWhisper(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Whisper",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 8,
+    baseDamage: [5, 12],
+    twoHanded: true,
+    weaponType: "bow",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(10, 15) },
+      { label: "", stat: "vitality", value: randInt(10, 15) },
+      { label: "", stat: "damage", value: randInt(10, 15) },
+    ],
+  };
+}
+
+export function generateStormstring(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Stormstring",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 28,
+    baseDamage: [16, 28],
+    twoHanded: true,
+    weaponType: "bow",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(30, 45) },
+      { label: "", stat: "damage", value: randInt(25, 35) },
+      { label: "", stat: "strength", value: -15 },
+    ],
+    stormstring: true,
+  };
+}
+
+export function generateDoomcrier(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Doomcrier",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 50,
+    baseDamage: [28, 46],
+    twoHanded: true,
+    weaponType: "bow",
+    affixes: [
+      { label: "", stat: "damage", value: randInt(55, 75) },
+      { label: "", stat: "dexterity", value: randInt(40, 55) },
+      { label: "", stat: "critChance", value: 8 },
+    ],
+    doomcrier: true,
   };
 }
 

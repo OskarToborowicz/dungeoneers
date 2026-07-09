@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import type { CSSProperties } from "react";
 import { CharacterSprite, CLASS_COLORS } from "./sprites/CharacterSprite";
 import { CoinIcon } from "./CoinIcon";
@@ -39,6 +39,8 @@ interface Props {
   onDismissDroppedItem?: () => void;
   selectedAct: 1 | 2;
   onSelectAct: (act: 1 | 2) => void;
+  selectedTab: TabId;
+  onSelectTab: (tab: TabId) => void;
 }
 
 export function Hub({
@@ -65,8 +67,9 @@ export function Hub({
   onDismissDroppedItem,
   selectedAct,
   onSelectAct,
+  selectedTab: tab,
+  onSelectTab: setTab,
 }: Props) {
-  const [tab, setTab] = useState<TabId>("character");
 
   useEffect(() => {
     if (!droppedItem || showPortalMessage) return;
@@ -105,14 +108,22 @@ export function Hub({
       )}
       <div className="hub-layout">
         <div className="hub-sidebar">
-          <div className="hub-sprite">
-            <CharacterSprite
+          <div className="hub-sprite-wrap">
+            <div className="hub-sprite">
+              <CharacterSprite
                 classId={character.classId}
                 size={90}
                 state="idle"
                 isUnique={equipment.weapon?.rarity === "very rare" || equipment.weapon?.rarity === "unique"}
               />
+            </div>
+            {character.unspentStatPoints > 0 && (
+              <div className="stat-point-arrow">
+                <span>+</span>
+              </div>
+            )}
           </div>
+          <div className="level-display">Level {character.level}</div>
           <div className="gold-display"><CoinIcon size={15} /> {character.gold}</div>
           <div className="potions-display">
             <span><PotionIcon type="health" size={18} /> {consumables.healthPotion}</span>

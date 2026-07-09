@@ -81,6 +81,7 @@ export interface Item {
   baseDamage?: [number, number];
   baseDefense?: number;
   twoHanded?: boolean;
+  weaponType?: string;
   affixes: ItemAffix[];
   mirrorRing?: boolean;
   demonsTail?: boolean;
@@ -91,6 +92,8 @@ export interface Item {
   eyeOfTheStorm?: boolean;
   boneweaveGloves?: boolean;
   crownOfTheFallen?: boolean;
+  stormstring?: boolean;
+  doomcrier?: boolean;
 }
 
 export interface RunStats {

@@ -35,6 +35,7 @@ export interface BattleState {
   frostShieldRounds: number;
   igniteRounds: number;
   igniteDamage: number;
+  electrocuteRounds: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "ability2" | "healthPotion" | "manaPotion";
@@ -130,6 +131,7 @@ export function createBattleState(
     frostShieldRounds: 0,
     igniteRounds: 0,
     igniteDamage: 0,
+    electrocuteRounds: 0,
   };
 }
 
@@ -263,7 +265,9 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, igniteRounds, igniteDamage } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, igniteRounds, igniteDamage, electrocuteRounds } = state;
+  const electrocuteMult = electrocuteRounds > 0 ? 1.20 : 1.0;
+  const heartseekerMult = stats.heartseekerBoost ? 0.70 : 0.50;
   let damageDealt = 0;
   let trapDetonated = false;
   const lowLifeMult = stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.30 ? 1 + stats.lowLifeDamageBonus : 1.0;
@@ -290,7 +294,7 @@ export function resolveRound(
     if (Math.random() < hitChance) {
       const isCrit = Math.random() < critChance + assassinAdvantageCrit;
       basicHitCrit = isCrit;
-      let dmg = Math.round(randomInRange(stats.damage) * damageMult);
+      let dmg = Math.round(randomInRange(stats.damage) * damageMult * electrocuteMult);
       if (isCrit) dmg = Math.round(dmg * critMultiplier);
       monsterLife -= dmg;
       damageDealt += dmg;
@@ -312,6 +316,10 @@ export function resolveRound(
         }
       }
       tryIgnite(basicHitDmg);
+      if (stats.electrocuteOnHit) {
+        electrocuteRounds = 2;
+        attackMsg += ` Electrocute! Enemy takes 20% more damage for 2 turns.`;
+      }
       if (stats.disorientOnAttackChance > 0 && Math.random() < stats.disorientOnAttackChance / 100) {
         disorientRounds = 2;
         attackMsg += ` Reaper's Hood disorients the enemy!`;
@@ -327,7 +335,7 @@ export function resolveRound(
     }
 
     if (character.classId === "amazon" && character.level >= 35 && basicHitCrit && basicHitDmg > 0 && monsterLife > 0) {
-      const heartseekerDmg = Math.round(basicHitDmg * 0.5);
+      const heartseekerDmg = Math.round(basicHitDmg * heartseekerMult);
       monsterLife -= heartseekerDmg;
       damageDealt += heartseekerDmg;
       log.push({ actor: "player", message: `Heartseeker fires for ${heartseekerDmg} damage!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
@@ -396,7 +404,7 @@ export function resolveRound(
         });
         doBasicAttack();
       } else if (def.ability.kind === "burst") {
-        const dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower) * lowLifeMult);
+        const dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower) * lowLifeMult * electrocuteMult);
         monsterLife -= dmg;
         damageDealt += dmg;
         tryIgnite(dmg);
@@ -407,7 +415,7 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
       } else if (def.ability.kind === "dot") {
-        const dmg = Math.round(rollAbilityDamage(stats, 0.4, def.ability.magic) * lowLifeMult);
+        const dmg = Math.round(rollAbilityDamage(stats, 0.4, def.ability.magic) * lowLifeMult * electrocuteMult);
         monsterLife -= dmg;
         damageDealt += dmg;
         tryIgnite(dmg);
@@ -424,7 +432,7 @@ export function resolveRound(
         for (let i = 0; i < hitCount; i++) {
           if (monsterLife <= 0) break;
 
-          let hitDmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic) * lowLifeMult);
+          let hitDmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic) * lowLifeMult * electrocuteMult);
           const isHitCrit = Math.random() < critChance;
           if (isHitCrit) hitDmg = Math.round(hitDmg * critMultiplier);
 
@@ -442,7 +450,7 @@ export function resolveRound(
           });
 
           if (character.classId === "amazon" && character.level >= 35 && isHitCrit && monsterLife > 0) {
-            const heartseekerDmg = Math.round(hitDmg * 0.5);
+            const heartseekerDmg = Math.round(hitDmg * heartseekerMult);
             monsterLife -= heartseekerDmg;
             damageDealt += heartseekerDmg;
             log.push({
@@ -454,7 +462,7 @@ export function resolveRound(
           }
         }
       } else if (def.ability.kind === "heal") {
-        const dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower ?? 1) * lowLifeMult);
+        const dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower ?? 1) * lowLifeMult * electrocuteMult);
         const healAmt = Math.round(dmg * 0.35);
         monsterLife -= dmg;
         damageDealt += dmg;
@@ -469,7 +477,7 @@ export function resolveRound(
       } else if (def.ability.kind === "bite") {
         const baseDmg = randomInRange(stats.damage);
         const dexBonus = Math.round(stats.stats.dexterity * 1.5);
-        const dmg = Math.round((baseDmg + dexBonus) * lowLifeMult);
+        const dmg = Math.round((baseDmg + dexBonus) * lowLifeMult * electrocuteMult);
         const healAmt = Math.round(dmg * 0.15);
         monsterLife -= dmg;
         damageDealt += dmg;
@@ -502,7 +510,7 @@ export function resolveRound(
           const baseDmg = randomInRange(stats.damage);
           const dexBonus = Math.round(stats.stats.dexterity * 0.5);
           const isCrit = Math.random() < critChance;
-          let dmg = Math.round((baseDmg + dexBonus) * lowLifeMult);
+          let dmg = Math.round((baseDmg + dexBonus) * lowLifeMult * electrocuteMult);
           if (isCrit) dmg = Math.round(dmg * critMultiplier);
           monsterLife -= dmg;
           damageDealt += dmg;
@@ -521,7 +529,7 @@ export function resolveRound(
         const madnessMult = character.classId === "barbarian" && character.level >= 35 && furyBeforeCost > BARBARIAN_MADNESS_FURY_THRESHOLD ? 1 + BARBARIAN_MADNESS_DAMAGE_BONUS : 1.0;
         const baseDmg = randomInRange(stats.damage);
         const strBonus = Math.round(stats.stats.strength * 0.5);
-        const dmg = Math.round((baseDmg + strBonus) * madnessMult * lowLifeMult);
+        const dmg = Math.round((baseDmg + strBonus) * madnessMult * lowLifeMult * electrocuteMult);
         const killingBlow = monsterLife - dmg <= 0;
         monsterLife -= dmg;
         damageDealt += dmg;
@@ -602,6 +610,9 @@ export function resolveRound(
   if (bloodFuryRounds > 0) {
     bloodFuryRounds -= 1;
   }
+  if (electrocuteRounds > 0) {
+    electrocuteRounds -= 1;
+  }
   if (regenRounds > 0) {
     regenRounds -= 1;
     if (regenRounds > 0) {
@@ -652,6 +663,7 @@ export function resolveRound(
       frostShieldRounds,
       igniteRounds,
       igniteDamage,
+      electrocuteRounds,
     };
   }
 
@@ -923,7 +935,8 @@ export function resolveRound(
   // Fire Trap detonation — after monster acts
   if (trapRounds === 0 && state.trapRounds > 0) {
     const trapLowLifeMult = stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.30 ? 1 + stats.lowLifeDamageBonus : 1.0;
-    const trapDmg = Math.round(stats.stats.dexterity * def.ability.power * trapLowLifeMult);
+    const trapElectrocuteMult = electrocuteRounds > 0 ? 1.20 : 1.0;
+    const trapDmg = Math.round(stats.stats.dexterity * def.ability.power * trapLowLifeMult * trapElectrocuteMult);
     const isCrit = Math.random() < critChance;
     const finalTrapDmg = isCrit ? Math.round(trapDmg * critMultiplier) : trapDmg;
     monsterLife -= finalTrapDmg;

@@ -3,11 +3,15 @@ import type { Item } from "../game/types";
 
 function iconKind(item: Item): string {
   if (item.slot === "weapon") {
+    if (item.weaponType) return item.weaponType;
     const name = item.name.toLowerCase();
     if (name.includes("axe")) return "axe";
+    if (name.includes("scythe")) return "scythe";
     if (name.includes("mace")) return "mace";
     if (name.includes("staff")) return "staff";
     if (name.includes("bow")) return "bow";
+    if (name.includes("totem")) return "totem";
+    if (name.includes("claw")) return "claw";
     return "sword";
   }
   if (item.slot === "ring1" || item.slot === "ring2") return "ring";
@@ -24,12 +28,33 @@ export function ItemIcon({ item, size = 34 }: { item: Item; size?: number }) {
 }
 
 const ICONS: Record<string, ReactNode> = {
+  scythe: (
+    <g strokeLinecap="round" strokeLinejoin="round">
+      <line x1="30" y1="38" x2="10" y2="10" stroke="currentColor" strokeWidth="2" fill="none" />
+      <path d="M10 10 C14 2 34 2 32 18 C28 12 18 8 10 10 Z" fill="currentColor" stroke="currentColor" strokeWidth="1.5" />
+    </g>
+  ),
   sword: (
     <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="12" y1="30" x2="30" y2="12" />
-      <line x1="24" y1="8" x2="34" y2="18" />
-      <line x1="9" y1="24" x2="16" y2="31" />
-      <line x1="7" y1="33" x2="12" y2="28" />
+      <line x1="10" y1="34" x2="30" y2="8" />
+      <line x1="12" y1="22" x2="20" y2="30" />
+      <circle cx="8" cy="36" r="2.5" fill="currentColor" stroke="none" />
+    </g>
+  ),
+  totem: (
+    <g strokeLinecap="round" strokeLinejoin="round">
+      <line x1="20" y1="38" x2="20" y2="23" stroke="currentColor" strokeWidth="2.5" fill="none" />
+      <polygon points="20,6 30,15 20,24 10,15" fill="currentColor" stroke="currentColor" strokeWidth="1.5" />
+      <line x1="10" y1="28" x2="30" y2="28" stroke="currentColor" strokeWidth="2" fill="none" />
+      <line x1="13" y1="32" x2="27" y2="32" stroke="currentColor" strokeWidth="2" fill="none" />
+    </g>
+  ),
+  claw: (
+    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+      <path d="M10 34 C8 26 12 14 14 5" />
+      <path d="M20 37 C20 28 22 16 22 5" />
+      <path d="M30 34 C32 26 32 14 28 5" />
+      <line x1="8" y1="32" x2="32" y2="37" />
     </g>
   ),
   axe: (
@@ -39,22 +64,28 @@ const ICONS: Record<string, ReactNode> = {
     </g>
   ),
   mace: (
-    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <circle cx="24" cy="14" r="7" />
-      <circle cx="24" cy="14" r="2.2" fill="currentColor" stroke="none" />
-      <line x1="19" y1="19" x2="11" y2="32" />
+    <g strokeLinecap="round">
+      <line x1="9" y1="36" x2="19" y2="26" stroke="currentColor" strokeWidth="2.5" fill="none" />
+      <circle cx="26" cy="15" r="7" fill="currentColor" stroke="currentColor" strokeWidth="1" />
+      <line x1="26" y1="8" x2="26" y2="3" stroke="currentColor" strokeWidth="2" />
+      <line x1="33" y1="15" x2="38" y2="15" stroke="currentColor" strokeWidth="2" />
+      <line x1="31" y1="9" x2="34" y2="5" stroke="currentColor" strokeWidth="2" />
+      <line x1="21" y1="9" x2="18" y2="5" stroke="currentColor" strokeWidth="2" />
+      <line x1="19" y1="15" x2="14" y2="15" stroke="currentColor" strokeWidth="2" />
+      <line x1="21" y1="21" x2="18" y2="25" stroke="currentColor" strokeWidth="2" />
+      <line x1="31" y1="21" x2="34" y2="25" stroke="currentColor" strokeWidth="2" />
     </g>
   ),
   staff: (
-    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="14" y1="32" x2="28" y2="8" />
-      <circle cx="29" cy="7" r="3.4" />
+    <g strokeLinecap="round">
+      <line x1="10" y1="36" x2="23" y2="15" stroke="currentColor" strokeWidth="2" fill="none" />
+      <circle cx="27" cy="9" r="6" fill="currentColor" stroke="currentColor" strokeWidth="1.5" />
     </g>
   ),
   bow: (
     <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <path d="M14 8 C24 14 24 26 14 32" />
-      <line x1="14" y1="8" x2="14" y2="32" />
+      <path d="M10 3 C36 3 38 37 10 37" />
+      <line x1="10" y1="3" x2="10" y2="37" strokeWidth="1" />
     </g>
   ),
   shield: (
