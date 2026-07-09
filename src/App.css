@@ -2361,8 +2361,10 @@
   }
 
   .creation-panel {
+    flex: 0 0 auto;
     flex-direction: column;
     max-width: 100%;
+    min-height: unset;
   }
 
   .class-list {
@@ -2378,11 +2380,17 @@
   }
 
   .class-detail {
+    flex: 0 0 auto;
+    min-height: unset;
     border-left: none;
     border-top: 1px solid var(--border-gold);
     padding-left: 0;
     padding-top: 14px;
     overflow-y: visible;
+  }
+
+  .class-sprite-preview {
+    display: none;
   }
 
   /* Combat screen */
