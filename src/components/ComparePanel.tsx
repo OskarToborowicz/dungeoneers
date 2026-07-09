@@ -1,5 +1,5 @@
 import { RARITY_COLORS } from "../game/data/items";
-import { sortAffixes } from "./ItemTooltip";
+import { sortAffixes, UniqueEffectLines } from "./ItemTooltip";
 import type { EquipmentSlot, Item } from "../game/types";
 
 const STAT_LABEL: Record<string, string> = {
@@ -45,6 +45,7 @@ function ComparePanel({ item, label }: { item: Item; label: string }) {
       {sortAffixes(item.affixes).map((a, i) => (
         <div className="item-line affix" key={i}>+{a.value} {STAT_LABEL[a.stat]}</div>
       ))}
+      <UniqueEffectLines item={item} />
     </div>
   );
 }

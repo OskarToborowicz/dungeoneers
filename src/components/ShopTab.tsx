@@ -37,7 +37,7 @@ export function ShopTab({
   onSellAll,
 }: Props) {
   const [confirmSellAll, setConfirmSellAll] = useState(false);
-  const { hovered: shopHovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle } = useItemHover();
+  const { hovered: shopHovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover } = useItemHover();
   const classDef = CLASSES[character.classId];
   const availableConsumables = CONSUMABLE_LIST.filter(
     (c) => c.id !== "manaPotion" || classDef.resourceType === "mana"
@@ -125,7 +125,7 @@ export function ShopTab({
               onMouseLeave={onMouseLeave}
             >
               <ItemIcon item={item} />
-              <button className="sell-button" onClick={() => onSell(item)}>
+              <button className="sell-button" onClick={() => { onSell(item); clearHover(); }}>
                 <CoinIcon size={9} /> {sellValue(item)}
               </button>
             </div>
