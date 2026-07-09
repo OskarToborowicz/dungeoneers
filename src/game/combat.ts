@@ -33,8 +33,7 @@ export interface BattleState {
   disorientRounds: number;
   blindRounds: number;
   frostShieldRounds: number;
-  igniteRounds: number;
-  igniteDamage: number;
+  burnStacks: { rounds: number; damage: number; source: string }[];
   electrocuteRounds: number;
 }
 
@@ -129,8 +128,7 @@ export function createBattleState(
     disorientRounds: 0,
     blindRounds: 0,
     frostShieldRounds: 0,
-    igniteRounds: 0,
-    igniteDamage: 0,
+    burnStacks: [],
     electrocuteRounds: 0,
   };
 }
@@ -265,18 +263,19 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, igniteRounds, igniteDamage, electrocuteRounds } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, electrocuteRounds } = state;
+  let burnStacks = state.burnStacks.map(s => ({ ...s }));
   const electrocuteMult = electrocuteRounds > 0 ? 1.20 : 1.0;
   const heartseekerMult = stats.heartseekerBoost ? 0.70 : 0.50;
   let damageDealt = 0;
   let trapDetonated = false;
   const lowLifeMult = stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.30 ? 1 + stats.lowLifeDamageBonus : 1.0;
 
-  const tryIgnite = (dmg: number) => {
+  const tryIgnite = (dmg: number, source = "Demon's Tail") => {
     if (stats.igniteChance > 0 && dmg > 0 && monsterLife > 0) {
-      igniteRounds = 2;
-      igniteDamage = Math.round(dmg * 0.30);
-      log.push({ actor: "player", message: `Demon's Tail ignites the enemy — ${igniteDamage} fire per turn for 2 turns!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+      const igniteDmg = Math.round(dmg * 0.30);
+      burnStacks.push({ rounds: 2, damage: igniteDmg, source });
+      log.push({ actor: "player", message: `${source} ignites the enemy — ${igniteDmg} fire per turn for 2 turns!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     }
   };
 
@@ -315,7 +314,6 @@ export function resolveRound(
           attackMsg += ` Life Leech restores ${leeched} life.`;
         }
       }
-      tryIgnite(basicHitDmg);
       if (stats.electrocuteOnHit) {
         electrocuteRounds = 2;
         attackMsg += ` Electrocute! Enemy takes 20% more damage for 2 turns.`;
@@ -325,6 +323,7 @@ export function resolveRound(
         attackMsg += ` Reaper's Hood disorients the enemy!`;
       }
       log.push({ actor: "player", message: attackMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+      tryIgnite(basicHitDmg);
     } else {
       log.push({ actor: "player", message: "Your attack misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     }
@@ -372,8 +371,8 @@ export function resolveRound(
             swingMsg += ` Life Leech restores ${leeched2} life.`;
           }
         }
-        tryIgnite(dmg2);
         log.push({ actor: "player", message: swingMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+        tryIgnite(dmg2);
       } else {
         log.push({ actor: "player", message: "Double Swing! Your second strike misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
       }
@@ -407,18 +406,17 @@ export function resolveRound(
         const dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower) * lowLifeMult * electrocuteMult);
         monsterLife -= dmg;
         damageDealt += dmg;
-        tryIgnite(dmg);
         log.push({
           actor: "player",
           message: `You unleash ${def.ability.name} for ${dmg} damage!`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+        tryIgnite(dmg);
       } else if (def.ability.kind === "dot") {
         const dmg = Math.round(rollAbilityDamage(stats, 0.4, def.ability.magic) * lowLifeMult * electrocuteMult);
         monsterLife -= dmg;
         damageDealt += dmg;
-        tryIgnite(dmg);
         poisonRounds = 3;
         poisonDamage = Math.round(rollAbilityDamage(stats, def.ability.power * 0.4, def.ability.magic) * stats.poisonDamageMult);
         log.push({
@@ -427,6 +425,7 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+        tryIgnite(dmg);
       } else if (def.ability.kind === "multi") {
         const hitCount = def.ability.hits ?? 3;
         for (let i = 0; i < hitCount; i++) {
@@ -438,7 +437,6 @@ export function resolveRound(
 
           monsterLife -= hitDmg;
           damageDealt += hitDmg;
-          tryIgnite(hitDmg);
 
           log.push({
             actor: "player",
@@ -448,6 +446,7 @@ export function resolveRound(
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
+          tryIgnite(hitDmg);
 
           if (character.classId === "amazon" && character.level >= 35 && isHitCrit && monsterLife > 0) {
             const heartseekerDmg = Math.round(hitDmg * heartseekerMult);
@@ -466,7 +465,6 @@ export function resolveRound(
         const healAmt = Math.round(dmg * 0.35);
         monsterLife -= dmg;
         damageDealt += dmg;
-        tryIgnite(dmg);
         playerLife = Math.min(stats.maxLife, playerLife + healAmt);
         log.push({
           actor: "player",
@@ -474,6 +472,7 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+        tryIgnite(dmg);
       } else if (def.ability.kind === "bite") {
         const baseDmg = randomInRange(stats.damage);
         const dexBonus = Math.round(stats.stats.dexterity * 1.5);
@@ -481,7 +480,6 @@ export function resolveRound(
         const healAmt = Math.round(dmg * 0.15);
         monsterLife -= dmg;
         damageDealt += dmg;
-        tryIgnite(dmg);
         playerLife = Math.min(stats.maxLife, playerLife + healAmt);
         log.push({
           actor: "player",
@@ -489,6 +487,7 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+        tryIgnite(dmg);
       } else if (def.ability.kind === "trap") {
         trapRounds = 3;
         log.push({
@@ -514,7 +513,6 @@ export function resolveRound(
           if (isCrit) dmg = Math.round(dmg * critMultiplier);
           monsterLife -= dmg;
           damageDealt += dmg;
-          tryIgnite(dmg);
           frozenRounds = 2;
           log.push({
             actor: "player",
@@ -524,6 +522,7 @@ export function resolveRound(
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
+          tryIgnite(dmg);
         }
       } else if (def.ability2.kind === "obliterate") {
         const madnessMult = character.classId === "barbarian" && character.level >= 35 && furyBeforeCost > BARBARIAN_MADNESS_FURY_THRESHOLD ? 1 + BARBARIAN_MADNESS_DAMAGE_BONUS : 1.0;
@@ -533,7 +532,6 @@ export function resolveRound(
         const killingBlow = monsterLife - dmg <= 0;
         monsterLife -= dmg;
         damageDealt += dmg;
-        tryIgnite(dmg);
         const healAmt = killingBlow ? Math.round(stats.maxLife * 0.10) : 0;
         if (healAmt > 0) playerLife = Math.min(stats.maxLife, playerLife + healAmt);
         log.push({
@@ -544,6 +542,7 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+        tryIgnite(dmg);
       } else if (def.ability2.kind === "blind_powder") {
         blindRounds = 2;
         disorientRounds = 0;
@@ -661,8 +660,7 @@ export function resolveRound(
       disorientRounds,
       blindRounds,
       frostShieldRounds,
-      igniteRounds,
-      igniteDamage,
+      burnStacks,
       electrocuteRounds,
     };
   }
@@ -715,21 +713,25 @@ export function resolveRound(
     }
   }
 
-  // Ignite tick (Demon's Tail belt)
-  if (igniteRounds > 0) {
-    monsterLife -= igniteDamage;
-    damageDealt += igniteDamage;
-    igniteRounds -= 1;
-    log.push({
-      actor: "player",
-      message: `${monster.name} burns for ${igniteDamage} fire damage. (${igniteRounds} turn${igniteRounds !== 1 ? "s" : ""} remaining)`,
-      playerLife: Math.max(0, playerLife),
-      monsterLife: Math.max(0, monsterLife),
-    });
-    if (monsterLife <= 0) {
-      return { state: makeState(), log, status: "victory", damageDealt };
+  // Burn stacks tick
+  for (const stack of burnStacks) {
+    if (stack.rounds > 0) {
+      monsterLife -= stack.damage;
+      damageDealt += stack.damage;
+      stack.rounds -= 1;
+      log.push({
+        actor: "player",
+        message: `${monster.name} burns for ${stack.damage} fire damage. (${stack.rounds} turn${stack.rounds !== 1 ? "s" : ""} remaining)`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+      if (monsterLife <= 0) {
+        burnStacks = burnStacks.filter(s => s.rounds > 0);
+        return { state: makeState(), log, status: "victory", damageDealt };
+      }
     }
   }
+  burnStacks = burnStacks.filter(s => s.rounds > 0);
 
   if (trapRounds > 0) trapRounds -= 1;
 
@@ -941,7 +943,6 @@ export function resolveRound(
     const finalTrapDmg = isCrit ? Math.round(trapDmg * critMultiplier) : trapDmg;
     monsterLife -= finalTrapDmg;
     damageDealt += finalTrapDmg;
-    tryIgnite(finalTrapDmg);
     trapDetonated = true;
     log.push({
       actor: "monster",
@@ -951,6 +952,7 @@ export function resolveRound(
       playerLife: Math.max(0, playerLife),
       monsterLife: Math.max(0, monsterLife),
     });
+    tryIgnite(finalTrapDmg);
     if (monsterLife <= 0) {
       return { state: makeState(), log, status: "victory", damageDealt, trapDetonated };
     }

@@ -336,7 +336,7 @@ export function CombatScreen({
               {battle.monsterLife}/{monster.life}
             </span>
           </div>
-          {(battle.poisonRounds > 0 || battle.frozenRounds > 0 || battle.blindRounds > 0 || battle.disorientRounds > 0) && (
+          {(battle.poisonRounds > 0 || battle.frozenRounds > 0 || battle.blindRounds > 0 || battle.disorientRounds > 0 || battle.burnStacks.some(s => s.rounds > 0) || battle.electrocuteRounds > 0) && (
             <div className="status-effects">
               {battle.poisonRounds > 0 && (
                 <span className="status-pill poison">☠ Poison {battle.poisonRounds}</span>
@@ -349,6 +349,12 @@ export function CombatScreen({
               )}
               {battle.disorientRounds > 0 && (
                 <span className="status-pill disorient">◌ Disorient {battle.disorientRounds}</span>
+              )}
+              {battle.burnStacks.map((s, i) => s.rounds > 0 && (
+                <span key={i} className="status-pill burn" title={`${s.source}: ${s.damage} fire/turn · ${s.rounds} turn${s.rounds !== 1 ? "s" : ""} remaining`}>🔥 Burn {s.rounds}</span>
+              ))}
+              {battle.electrocuteRounds > 0 && (
+                <span className="status-pill electrocute">⚡ Electrocute {battle.electrocuteRounds}</span>
               )}
             </div>
           )}

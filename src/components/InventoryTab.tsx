@@ -3,6 +3,7 @@ import { ItemIcon } from "./ItemIcon";
 import { ItemTooltip } from "./ItemTooltip";
 import { CompareGroup } from "./ComparePanel";
 import { RARITY_COLORS } from "../game/data/items";
+import { useItemHover } from "./useItemHover";
 import type { ClassId, EquipmentSlot, Item } from "../game/types";
 
 type Location = EquipmentSlot | "inventory";
@@ -40,6 +41,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
   const [dragOver, setDragOver] = useState<Location | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
   const [selected, setSelected] = useState<{ id: string; from: Location } | null>(null);
+  const { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle } = useItemHover();
 
   function handleDrop(e: DragEvent, target: Location) {
     e.preventDefault();
@@ -164,11 +166,11 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
               style={{ color: RARITY_COLORS[item.rarity] }}
               onClick={(e) => { e.stopPropagation(); tapItem(item, "inventory"); }}
               onDoubleClick={() => onMoveItem(item.id, "inventory", bestSlot(item, equipment))}
+              onMouseEnter={(e) => onMouseEnter(item, e)}
+              onMouseLeave={onMouseLeave}
               {...dragHandleProps(item, "inventory")}
             >
               <ItemIcon item={item} />
-              <ItemTooltip item={item} />
-              <CompareGroup slot={item.slot} equipment={equipment} />
             </div>
           ))}
         </div>
@@ -176,6 +178,17 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
       <p className="empty-note">
         {hasSelected ? "Tap a slot to equip — tap item again to deselect." : "Tap to select · tap slot to equip · double-tap to equip/unequip."}
       </p>
+
+      {hovered && !dragging && !hasSelected && (
+        <>
+          <div style={tooltipStyle()!}>
+            <ItemTooltip item={hovered.item} />
+          </div>
+          <div style={compareStyle()!}>
+            <CompareGroup slot={hovered.item.slot} equipment={equipment} />
+          </div>
+        </>
+      )}
     </div>
   );
 }

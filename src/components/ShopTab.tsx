@@ -6,6 +6,7 @@ import { ItemIcon } from "./ItemIcon";
 import { ItemTooltip } from "./ItemTooltip";
 import { CompareGroup } from "./ComparePanel";
 import { CoinIcon } from "./CoinIcon";
+import { useItemHover } from "./useItemHover";
 import type { Character, ConsumableId, EquipmentSlot, Item } from "../game/types";
 
 interface Props {
@@ -36,6 +37,7 @@ export function ShopTab({
   onSellAll,
 }: Props) {
   const [confirmSellAll, setConfirmSellAll] = useState(false);
+  const { hovered: shopHovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle } = useItemHover();
   const classDef = CLASSES[character.classId];
   const availableConsumables = CONSUMABLE_LIST.filter(
     (c) => c.id !== "manaPotion" || classDef.resourceType === "mana"
@@ -74,10 +76,11 @@ export function ShopTab({
         {shopStock.map((item) => {
           const price = buyValue(item);
           return (
-            <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}>
+            <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}
+              onMouseEnter={(e) => onMouseEnter(item, e)}
+              onMouseLeave={onMouseLeave}
+            >
               <ItemIcon item={item} />
-              <ItemTooltip item={item} />
-              <CompareGroup slot={item.slot} equipment={equipment} />
               <button className="buy-button" disabled={character.gold < price} onClick={() => onBuyItem(item)}>
                 <CoinIcon size={9} /> {price}
               </button>
@@ -117,16 +120,27 @@ export function ShopTab({
       ) : (
         <div className="shop-grid">
           {inventory.map((item) => (
-            <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}>
+            <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}
+              onMouseEnter={(e) => onMouseEnter(item, e)}
+              onMouseLeave={onMouseLeave}
+            >
               <ItemIcon item={item} />
-              <ItemTooltip item={item} />
-              <CompareGroup slot={item.slot} equipment={equipment} />
               <button className="sell-button" onClick={() => onSell(item)}>
                 <CoinIcon size={9} /> {sellValue(item)}
               </button>
             </div>
           ))}
         </div>
+      )}
+      {shopHovered && (
+        <>
+          <div style={tooltipStyle()!}>
+            <ItemTooltip item={shopHovered.item} />
+          </div>
+          <div style={compareStyle()!}>
+            <CompareGroup slot={shopHovered.item.slot} equipment={equipment} />
+          </div>
+        </>
       )}
     </div>
   );
