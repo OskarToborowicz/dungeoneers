@@ -1,5 +1,5 @@
 import { CLASSES } from "./data/classes";
-import { POTION_COOLDOWN, POTION_RESTORE_RATE, getPotionRestoreRate } from "./data/consumables";
+import { POTION_COOLDOWN, getPotionRestoreRate } from "./data/consumables";
 import { FURY_PER_ATTACK } from "./character";
 import type { DerivedStats } from "./character";
 import type { Character, MonsterDefinition } from "./types";
