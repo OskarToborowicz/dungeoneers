@@ -73,7 +73,7 @@ function InvCellDnd({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <div ref={setNodeRef} {...listeners} {...attributes} style={{ display: "contents" }}>
+      <div ref={setNodeRef} {...listeners} {...attributes} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", touchAction: "none" }}>
         <ItemIcon item={item} />
       </div>
     </div>
@@ -101,7 +101,7 @@ function SlotItemDnd({
       onClick={(e) => { e.stopPropagation(); onTap(); }}
       onDoubleClick={onDoubleClick}
     >
-      <div ref={setNodeRef} {...listeners} {...attributes} style={{ display: "contents" }}>
+      <div ref={setNodeRef} {...listeners} {...attributes} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", touchAction: "none" }}>
         <ItemIcon item={item} />
       </div>
       <ItemTooltip item={item} />
