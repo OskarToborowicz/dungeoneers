@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import type { CSSProperties } from "react";
+import { motion } from "framer-motion";
 import { CharacterSprite, CLASS_COLORS } from "./sprites/CharacterSprite";
 import { CoinIcon } from "./CoinIcon";
 import { PotionIcon } from "./PotionIcon";
@@ -119,12 +120,11 @@ export function Hub({
             </div>
             {character.unspentStatPoints > 0 && (
               <div className="stat-point-arrow">
-                <span>▲</span>
-                <span>▲</span>
-                <span>▲</span>
+                <span>+</span>
               </div>
             )}
           </div>
+          <div className="level-display">Level {character.level}</div>
           <div className="gold-display"><CoinIcon size={15} /> {character.gold}</div>
           <div className="potions-display">
             <span><PotionIcon type="health" size={18} /> {consumables.healthPotion}</span>

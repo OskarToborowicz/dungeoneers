@@ -348,6 +348,12 @@
   font-size: 18px;
 }
 
+.level-display {
+  font-size: 15px;
+  color: var(--text-muted, #888);
+  font-family: var(--heading-font);
+}
+
 .potions-display {
   display: flex;
   align-items: center;
@@ -1242,32 +1248,21 @@
 
 .stat-point-arrow {
   position: absolute;
-  left: 42px;
-  top: 0px;
-  display: flex;
-  flex-direction: column;
-  gap: 0px;
+  left: 8px;
+  top: 2px;
   pointer-events: none;
 }
 
 .stat-point-arrow span {
-  color: #fff;
-  font-size: 11px;
-  line-height: 1.1;
+  display: block;
+  color: var(--class-color);
+  font-size: 28px;
+  font-weight: 900;
+  font-family: Georgia, serif;
+  line-height: 1;
   text-shadow:
     -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
-    0 0 6px var(--class-color), 0 0 14px var(--class-color),
-    0 0 22px #e8a820, 0 0 36px #e8a820;
-  animation: stat-arrow-bob 1.1s ease-in-out infinite;
-}
-
-.stat-point-arrow span:nth-child(1) { opacity: 1; }
-.stat-point-arrow span:nth-child(2) { opacity: 0.6; }
-.stat-point-arrow span:nth-child(3) { opacity: 0.3; }
-
-@keyframes stat-arrow-bob {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-3px); }
+    0 0 8px var(--class-color), 0 0 20px var(--class-color);
 }
 
 .class-sprite-preview {
@@ -2252,6 +2247,22 @@
 
   .gold-display {
     font-size: 15px;
+  }
+
+  .hub-sprite-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .stat-point-arrow {
+    position: static;
+    margin-bottom: 36px;
+  }
+
+  .stat-point-arrow span {
+    font-size: 22px;
   }
 
   /* Tab bar: horizontal row */
