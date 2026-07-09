@@ -1,4 +1,4 @@
-import { useState, useRef, useLayoutEffect, type CSSProperties } from "react";
+import { useState, useRef, useLayoutEffect, useEffect, type CSSProperties } from "react";
 import type { Item } from "../game/types";
 
 interface HoveredItem {
@@ -24,6 +24,13 @@ export function useItemHover() {
   useLayoutEffect(() => {
     setTooltipHeight(tooltipRef.current?.offsetHeight ?? 0);
     setCompareHeight(compareRef.current?.offsetHeight ?? 0);
+  }, [hovered]);
+
+  useEffect(() => {
+    if (!hovered) return;
+    const handler = () => setHovered(null);
+    document.addEventListener("touchstart", handler, { passive: true });
+    return () => document.removeEventListener("touchstart", handler);
   }, [hovered]);
 
   function onMouseEnter(item: Item, e: React.MouseEvent) {
