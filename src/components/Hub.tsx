@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import type { CSSProperties } from "react";
 import { CharacterSprite, CLASS_COLORS } from "./sprites/CharacterSprite";
 import { CoinIcon } from "./CoinIcon";
@@ -71,6 +71,9 @@ export function Hub({
   onSelectTab: setTab,
 }: Props) {
 
+  const dismissRef = useRef(onDismissDroppedItem);
+  dismissRef.current = onDismissDroppedItem;
+
   useEffect(() => {
     if (!droppedItem || showPortalMessage) return;
     if (droppedItem.rarity === "unique") {
@@ -78,9 +81,9 @@ export function Hub({
       sfx.volume = 0.3;
       sfx.play().catch(() => {});
     }
-    const t = setTimeout(() => onDismissDroppedItem?.(), 3000);
+    const t = setTimeout(() => dismissRef.current?.(), 3000);
     return () => clearTimeout(t);
-  }, [droppedItem, showPortalMessage, onDismissDroppedItem]);
+  }, [droppedItem, showPortalMessage]);
 
   return (
     <div className="screen hub-screen" style={{ "--class-color": CLASS_COLORS[character.classId] } as CSSProperties}>
