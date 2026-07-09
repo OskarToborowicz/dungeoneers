@@ -1330,24 +1330,95 @@
 }
 .ae-whirlwind { animation: ae-spin-fade 0.75s ease-out forwards; }
 
-/* Poison Dagger – Necromancer */
-@keyframes ae-dagger-thrust {
-  0%   { transform: translateX(-22px) scale(0.8); opacity: 0; }
-  20%  { transform: translateX(0)     scale(1);   opacity: 1; }
-  65%  { transform: translateX(0)     scale(1);   opacity: 1; }
-  100% { transform: translateX(8px)   scale(0.95); opacity: 0; }
+/* Poison Cloud – Necromancer */
+@keyframes ae-pcloud-fly {
+  0%   { transform: translateX(-60px) scale(0.5); opacity: 0; }
+  20%  { transform: translateX(-10px) scale(1);   opacity: 0.85; }
+  65%  { transform: translateX(50px)  scale(1.1); opacity: 0.8; }
+  100% { transform: translateX(90px)  scale(0.8); opacity: 0; }
 }
-.ae-dagger-group { animation: ae-dagger-thrust 0.75s ease-out forwards; }
-
-@keyframes ae-cloud-billow {
+@keyframes ae-pcloud-impact {
   0%   { transform: scale(0.1); opacity: 0;   }
-  30%  { transform: scale(1);   opacity: 0.85; }
-  70%  { transform: scale(1.2); opacity: 0.6; }
-  100% { transform: scale(1.6); opacity: 0;   }
+  30%  { transform: scale(1);   opacity: 0.82; }
+  65%  { transform: scale(1.3); opacity: 0.65; }
+  100% { transform: scale(1.8); opacity: 0;   }
 }
-.ae-cloud-1 { animation: ae-cloud-billow 0.75s ease-out 0.12s forwards; }
-.ae-cloud-2 { animation: ae-cloud-billow 0.75s ease-out 0.22s forwards; }
-.ae-cloud-3 { animation: ae-cloud-billow 0.75s ease-out 0.18s forwards; }
+.ae-pcloud-travel { animation: ae-pcloud-fly    0.75s ease-out forwards; }
+.ae-pcloud-burst  { animation: ae-pcloud-impact 0.75s ease-out 0.2s forwards; opacity: 0; }
+
+/* Golem on field */
+@keyframes golem-field-pulse {
+  0%, 100% { opacity: 0.92; }
+  50%       { opacity: 0.7;  }
+}
+@keyframes golem-eye-glow {
+  0%, 100% { opacity: 0.95; r: 2.5; }
+  50%       { opacity: 0.5;  r: 1.8; }
+}
+.golem-on-field {
+  position: absolute;
+  left: 28%;
+  bottom: 18px;
+  z-index: 2;
+  filter: drop-shadow(0 0 6px #88cc44);
+  pointer-events: none;
+}
+.golem-on-field svg {
+  width: 64px;
+  height: 80px;
+  overflow: visible;
+}
+.golem-field-body { animation: golem-field-pulse 1.4s ease-in-out infinite; }
+.golem-field-eye  { animation: golem-eye-glow    1.4s ease-in-out infinite; }
+
+/* Golem summon effect */
+@keyframes ae-golem-appear {
+  0%   { transform: scale(0.3) translateY(20px); opacity: 0; }
+  40%  { transform: scale(1.1) translateY(-4px); opacity: 0.95; }
+  70%  { transform: scale(1)   translateY(0);    opacity: 0.95; }
+  100% { transform: scale(0.9) translateY(4px);  opacity: 0; }
+}
+@keyframes ae-golem-ring-expand {
+  0%   { transform: scale(0.3); opacity: 0; }
+  40%  { transform: scale(1);   opacity: 0.7; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+@keyframes ae-golem-rock-fly {
+  0%   { transform: translate(0, 0) scale(0); opacity: 0; }
+  30%  { transform: translate(0, 0) scale(1); opacity: 0.75; }
+  100% { transform: translate(-10px, -18px) scale(0.5); opacity: 0; }
+}
+.ae-golem-summon { animation: ae-golem-appear 0.85s ease-out forwards; }
+.ae-golem-ring   { animation: ae-golem-ring-expand 0.85s ease-out forwards; }
+.ae-golem-eye    { animation: golem-eye-glow 0.85s ease-in-out infinite; }
+.ae-gr-1 { animation: ae-golem-rock-fly 0.85s ease-out 0.1s forwards; }
+.ae-gr-2 { animation: ae-golem-rock-fly 0.85s ease-out 0.18s forwards; }
+.ae-gr-3 { animation: ae-golem-rock-fly 0.85s ease-out 0.06s forwards; }
+
+/* Golem detonation */
+@keyframes ae-golem-det-explode {
+  0%   { transform: scale(0.2); opacity: 0; }
+  25%  { transform: scale(1.1); opacity: 0.9; }
+  60%  { transform: scale(1);   opacity: 0.85; }
+  100% { transform: scale(1.6); opacity: 0; }
+}
+@keyframes ae-golem-det-shards-out {
+  0%   { transform: scale(0); opacity: 0; }
+  30%  { transform: scale(0); opacity: 0; }
+  55%  { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+@keyframes ae-golem-dust-expand {
+  0%   { transform: scale(0.1); opacity: 0; }
+  40%  { transform: scale(1);   opacity: 0.6; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+.ae-golem-det-core   { animation: ae-golem-det-explode  0.8s ease-out forwards; }
+.ae-golem-det-shards { animation: ae-golem-det-shards-out 0.8s ease-out forwards; }
+.ae-gd-1 { animation: ae-golem-dust-expand 0.8s ease-out 0.1s forwards; }
+.ae-gd-2 { animation: ae-golem-dust-expand 0.8s ease-out 0.18s forwards; }
+.ae-gd-3 { animation: ae-golem-dust-expand 0.8s ease-out 0.08s forwards; }
+.ae-gd-4 { animation: ae-golem-dust-expand 0.8s ease-out 0.15s forwards; }
 
 /* Fireball – Sorceress */
 @keyframes ae-fireball-burst {
@@ -1572,7 +1643,9 @@
   border: 1px solid var(--border-gold);
   border-radius: 3px;
   overflow: hidden;
+  position: relative;
 }
+
 
 .hp-bar-fill {
   height: 100%;
@@ -1586,6 +1659,7 @@
 .hp-bar-fill.monster {
   background: linear-gradient(90deg, #7a1c1c, #c23a3a);
 }
+
 
 .resource-bar {
   height: 10px;
@@ -2008,6 +2082,12 @@
 }
 
 .combat-stat.hp { color: #cc5555; }
+
+.overheal-badge {
+  color: #60a0ff;
+  font-size: 10px;
+  margin-left: 2px;
+}
 .combat-stat.mana { color: #6f8fff; }
 .combat-stat.fury { color: var(--accent-red-bright); }
 

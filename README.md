@@ -31,7 +31,7 @@ Seven classes are available, each with a unique resource type, active ability, a
 | Class | Resource | Weapon | Playstyle |
 |---|---|---|---|
 | Barbarian | Fury | Axe | Melee berserker, rage-fueled combatant — 2 active abilities, 3 passives |
-| Necromancer | Mana | Scythe | Poison DoT with lifesteal |
+| Necromancer | Mana | Scythe | Poison DoT with magic lifesteal and golem tank — 2 active abilities, 3 passives |
 | Sorceress | Mana | War Staff | Magic burst damage — 2 active abilities, 3 passives |
 | Amazon | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities, 3 passives |
 | Paladin | Mana | Mace | Tank/sustain with healing aura — 2 active abilities, 3 passives |
@@ -255,7 +255,7 @@ Monsters always have at least a 15% chance to hit regardless of the player's def
 | Player (base) | 5% + dex×0.001 (cap 60%) | ×1.50 |
 | Monster | 10% | ×1.75 |
 
-Basic attacks always roll for crits. The following abilities also crit on their direct-damage roll: **Fireball** (Sorceress), **Holy Bolt** damage (Paladin), and **Poison Dagger initial hit** (Necromancer). DoT ticks, burn stacks, and the Paladin's heal component never crit independently — if Holy Bolt's damage crits, the `round(dmg × 0.35)` heal is derived from the already-critted value and scales up naturally.
+Basic attacks always roll for crits. The following abilities also crit on their direct-damage roll: **Fireball** (Sorceress), **Holy Bolt** damage (Paladin), **Poison Cloud initial hit** (Necromancer), and **Golem Defense detonation** (Necromancer). DoT ticks, burn stacks, and the Paladin's heal component never crit independently — if Holy Bolt's damage crits, the `round(dmg × 0.35)` heal is derived from the already-critted value and scales up naturally.
 
 ### Mana Regeneration
 
@@ -273,11 +273,12 @@ Potions share an individual cooldown per type. After drinking a Health or Mana P
 
 ### Poison (Necromancer)
 
-When Poison Dagger hits, the target is poisoned for 3 rounds. Each round the poison ticks at the **start of the monster's turn** (after the player acts, before the monster attacks). Poison damage is fixed at cast time:
+When Poison Cloud hits, the target is poisoned for 3 rounds. Each round the poison ticks at the **start of the monster's turn** (after the player acts, before the monster attacks). Poison damage is fixed at cast time:
 ```
 poisonDamage = round(randomInRange(damage) × ability.power × 0.4) + magicDamageBonus
+             × virulenceMult  (×1.25 at level 20+)
 ```
-The Necromancer's Soul Siphon passive heals 10% of every poison tick. The heal amount is shown in the combat log.
+The Necromancer's Soul Siphon passive heals **15% of every magic damage instance** — both the initial hit and each tick. The heal can overheal up to 25% of max life once Blood Barrier (lv.35) is active.
 
 ### Fire Trap (Assassin)
 
@@ -329,7 +330,8 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 |---|---|---|
 | Barbarian | Blood Fury | Red spinning vortex |
 | Barbarian | Obliterate | Red spinning vortex |
-| Necromancer | Poison Dagger | Dagger thrust + green/purple poison clouds |
+| Necromancer | Poison Cloud | Green toxic cloud flies toward the enemy and billows on impact |
+| Necromancer | Golem Defense | Stone golem rises from the ground; explodes into rock shards on detonation |
 | Sorceress | Fireball | Expanding fireball with rays |
 | Amazon | Multishot | Two green arrows flying toward the enemy |
 | Amazon | Freezing Shot | Icy blue arrow flying toward the enemy + frost explosion on impact |
@@ -396,12 +398,22 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Killing Blow**: if the strike kills the enemy, restores **10% of max life**
 - **Madness interaction**: if Fury was above 30 before paying the cost, the Madness 15% damage bonus applies
 
-### Necromancer — Poison Dagger
+### Necromancer — Poison Cloud
 - **Kind**: dot (magic — gains `magicDamageBonus` per tick)
 - **Mana Cost**: 20
 - **Cooldown**: 2 turns
 - **Initial hit**: `round(randomInRange(damage) × 0.4) + magicDamageBonus` — **can crit**
 - **Poison ticks**: 3 rounds of `round(randomInRange(damage) × 1.4 × 0.4) + magicDamageBonus` each — cannot crit
+- With Virulence (lv.20): all tick damage multiplied by 1.25
+
+### Necromancer — Golem Defense *(Ability 2)*
+- **Kind**: golem (physical, `canMiss: false`)
+- **Mana Cost**: 40
+- **Cooldown**: 6 turns
+- **Duration**: 3 turns while the golem is active
+- **Absorption**: Each turn the golem is active, 20% of all incoming damage is redirected to an absorbed pool rather than dealing full damage to the player
+- **Detonation**: When the golem's 2-turn duration expires, it hurls itself at the enemy for the total absorbed damage — can critically strike
+- **Display**: Golem appears on the battlefield as an SVG with a round countdown badge, just like the Assassin's Fire Trap
 
 ### Sorceress — Fireball
 - **Kind**: burst (magic — gains `magicDamageBonus` and `magicDamageMult`)
@@ -506,8 +518,15 @@ reduction = floor(missingLifePct / 5) × 2%
 - Basic attacks generate **+5 Fury** (15 total per attack instead of 10).
 - The Fury check for the damage bonus is evaluated at the moment the attack or ability fires (before cost is deducted for Obliterate, which captures the pre-spend value).
 
-### Necromancer — Soul Siphon
-- Each poison tick heals the Necromancer for **10% of that tick's damage**.
+### Necromancer — Soul Siphon *(always active)*
+- All magic damage heals the Necromancer for **15% of the damage dealt** — applies to Poison Cloud's initial hit and every poison tick.
+
+### Necromancer — Virulence *(unlocks at level 20)*
+- All damage-over-time effects deal **25% increased damage** (multiplicative multiplier applied at cast time).
+
+### Necromancer — Blood Barrier *(unlocks at level 35)*
+- Soul Siphon heals can overheal up to **25% of maximum life**, creating a temporary buffer. Does not apply to health potions.
+- Overheal is shown as a **blue glow** on the HP bar (scales with how full the buffer is) and a **+X** badge next to the HP display.
 
 ### Sorceress — Arcane Flow *(always active)*
 - Passively regenerates **10% of max mana every turn**, regardless of the action taken. Replaces the standard 5% mana regen.

@@ -6,9 +6,10 @@ interface Props {
   onDone: () => void;
   detonation?: boolean;
   useAbility2?: boolean;
+  golemDetonation?: boolean;
 }
 
-export function AbilityEffect({ classId, onDone, detonation = false, useAbility2 = false }: Props) {
+export function AbilityEffect({ classId, onDone, detonation = false, useAbility2 = false, golemDetonation = false }: Props) {
   useEffect(() => {
     const t = setTimeout(onDone, 800);
     return () => clearTimeout(t);
@@ -18,7 +19,8 @@ export function AbilityEffect({ classId, onDone, detonation = false, useAbility2
     <div className="ability-effect-overlay">
       <svg viewBox="0 0 200 120" className="ability-effect-svg" overflow="visible">
         {classId === "barbarian"   && <WhirlwindFx />}
-        {classId === "necromancer" && <PoisonFx />}
+        {classId === "necromancer" && !useAbility2 && <PoisonCloudFx />}
+        {classId === "necromancer" && useAbility2 && <GolemSummonFx />}
         {classId === "sorceress"   && !useAbility2 && <FireballFx />}
         {classId === "sorceress"   && useAbility2  && <FrostShieldFx />}
         {classId === "amazon"      && !useAbility2 && <MultishotFx />}
@@ -29,6 +31,7 @@ export function AbilityEffect({ classId, onDone, detonation = false, useAbility2
         {classId === "assassin"    && !detonation && !useAbility2 && <TrapPlantFx />}
         {classId === "assassin"    && detonation  && <TrapDetonateFx />}
         {classId === "assassin"    && useAbility2  && <BlindingPowderFx />}
+        {golemDetonation && <GolemDetonateFx />}
       </svg>
     </div>
   );
@@ -50,31 +53,85 @@ function WhirlwindFx() {
   );
 }
 
-function PoisonFx() {
+function PoisonCloudFx() {
   return (
     <g>
-      {/* Dagger rotated 90° pointing right toward enemy */}
-      <g className="ae-dagger-group" style={{ transformOrigin: "135px 60px" }}>
-        <polygon points="168,60 124,56 124,64" fill="#aa55ee" stroke="#cc77ff" strokeWidth="0.8"/>
-        <rect x="119" y="52" width="5" height="16" rx="1" fill="#aa55ee"/>
-        <rect x="103" y="57" width="16" height="6" rx="2" fill="#7a3aaa"/>
+      {/* Main cloud body traveling right toward enemy */}
+      <g className="ae-pcloud-travel" style={{ transformOrigin: "80px 60px" }}>
+        <circle cx="80"  cy="60" r="18" fill="#33bb22" opacity="0.78"/>
+        <circle cx="68"  cy="54" r="13" fill="#44cc33" opacity="0.7"/>
+        <circle cx="94"  cy="52" r="12" fill="#22aa11" opacity="0.65"/>
+        <circle cx="78"  cy="74" r="10" fill="#55dd44" opacity="0.6"/>
+        <circle cx="96"  cy="68" r="9"  fill="#33bb22" opacity="0.58"/>
+        {/* Dripping toxic drops */}
+        <circle cx="72"  cy="82" r="3"  fill="#77ee55" opacity="0.7"/>
+        <circle cx="90"  cy="80" r="2.5" fill="#66dd44" opacity="0.65"/>
+        <circle cx="82"  cy="86" r="2"  fill="#55cc33" opacity="0.6"/>
       </g>
-      {/* Poison cloud puffs */}
-      <g className="ae-cloud-1" style={{ transformOrigin: "148px 52px" }}>
-        <circle cx="148" cy="52" r="11" fill="#44cc33" opacity="0.72"/>
-        <circle cx="140" cy="47" r="8"  fill="#55dd44" opacity="0.6"/>
-        <circle cx="156" cy="46" r="7"  fill="#33aa22" opacity="0.55"/>
+      {/* Impact billow on monster side */}
+      <g className="ae-pcloud-burst" style={{ transformOrigin: "148px 60px" }}>
+        <circle cx="148" cy="60" r="22" fill="#33bb22" opacity="0.75"/>
+        <circle cx="136" cy="50" r="16" fill="#44cc33" opacity="0.7"/>
+        <circle cx="162" cy="48" r="14" fill="#22aa11" opacity="0.65"/>
+        <circle cx="148" cy="78" r="13" fill="#55dd44" opacity="0.6"/>
+        <circle cx="166" cy="70" r="11" fill="#33bb22" opacity="0.58"/>
+        {/* Toxic wisps */}
+        <circle cx="128" cy="42" r="7"  fill="#66ee44" opacity="0.5"/>
+        <circle cx="172" cy="40" r="6"  fill="#44cc22" opacity="0.48"/>
+        <circle cx="178" cy="65" r="8"  fill="#33bb11" opacity="0.5"/>
       </g>
-      <g className="ae-cloud-2" style={{ transformOrigin: "163px 63px" }}>
-        <circle cx="163" cy="63" r="9"  fill="#aa55ee" opacity="0.65"/>
-        <circle cx="155" cy="59" r="6"  fill="#bb66ff" opacity="0.5"/>
-        <circle cx="169" cy="57" r="6"  fill="#8833cc" opacity="0.5"/>
+    </g>
+  );
+}
+
+function GolemSummonFx() {
+  return (
+    <g className="ae-golem-summon" style={{ transformOrigin: "70px 60px" }}>
+      {/* Stone body */}
+      <rect x="54" y="38" width="32" height="38" rx="6" fill="#7a7060" opacity="0.9"/>
+      {/* Head */}
+      <rect x="60" y="26" width="20" height="18" rx="4" fill="#8a8070" opacity="0.9"/>
+      {/* Eyes glowing */}
+      <circle cx="65" cy="34" r="3" fill="#aadd88" opacity="0.95" className="ae-golem-eye"/>
+      <circle cx="75" cy="34" r="3" fill="#aadd88" opacity="0.95" className="ae-golem-eye"/>
+      {/* Stone cracks */}
+      <line x1="66" y1="44" x2="70" y2="56" stroke="#4a4030" strokeWidth="1.5" opacity="0.7"/>
+      <line x1="74" y1="42" x2="71" y2="55" stroke="#4a4030" strokeWidth="1.2" opacity="0.6"/>
+      {/* Ground ring */}
+      <ellipse cx="70" cy="78" rx="26" ry="6" fill="none" stroke="#8a8070" strokeWidth="2" opacity="0.6" className="ae-golem-ring"/>
+      {/* Rock particles rising */}
+      <circle cx="48" cy="66" r="4" fill="#8a8070" opacity="0.7" className="ae-golem-rock ae-gr-1"/>
+      <circle cx="94" cy="62" r="3.5" fill="#9a9080" opacity="0.65" className="ae-golem-rock ae-gr-2"/>
+      <circle cx="58" cy="82" r="3" fill="#7a7060" opacity="0.6" className="ae-golem-rock ae-gr-3"/>
+    </g>
+  );
+}
+
+function GolemDetonateFx() {
+  return (
+    <g>
+      {/* Stone explosion on monster side */}
+      <g className="ae-golem-det-core" style={{ transformOrigin: "145px 62px" }}>
+        <circle cx="145" cy="62" r="22" fill="#8a8070" opacity="0.85"/>
+        <circle cx="145" cy="62" r="13" fill="#aaa090" opacity="0.9"/>
+        <circle cx="145" cy="62" r="6"  fill="#d4c8a8" opacity="0.95"/>
       </g>
-      <g className="ae-cloud-3" style={{ transformOrigin: "150px 74px" }}>
-        <circle cx="150" cy="74" r="10" fill="#44cc33" opacity="0.68"/>
-        <circle cx="142" cy="70" r="7"  fill="#55dd44" opacity="0.55"/>
-        <circle cx="158" cy="71" r="6"  fill="#33aa22" opacity="0.5"/>
+      {/* Rock shards flying out */}
+      <g className="ae-golem-det-shards" style={{ transformOrigin: "145px 62px" }}>
+        <polygon points="145,38 141,54 149,54" fill="#7a7060" opacity="0.88"/>
+        <polygon points="169,62 155,58 155,66" fill="#7a7060" opacity="0.88"/>
+        <polygon points="145,86 149,70 141,70" fill="#7a7060" opacity="0.88"/>
+        <polygon points="121,62 135,66 135,58" fill="#7a7060" opacity="0.88"/>
+        <polygon points="166,43 156,54 162,47" fill="#9a9080" opacity="0.75"/>
+        <polygon points="166,81 162,68 156,72" fill="#9a9080" opacity="0.75"/>
+        <polygon points="124,81 128,68 134,72" fill="#9a9080" opacity="0.75"/>
+        <polygon points="124,43 134,54 128,47" fill="#9a9080" opacity="0.75"/>
       </g>
+      {/* Dust cloud */}
+      <circle className="ae-golem-dust ae-gd-1" cx="120" cy="50" r="9" fill="#c8b898" opacity="0.55"/>
+      <circle className="ae-golem-dust ae-gd-2" cx="172" cy="48" r="8" fill="#b8a888" opacity="0.5"/>
+      <circle className="ae-golem-dust ae-gd-3" cx="174" cy="74" r="10" fill="#c0b090" opacity="0.52"/>
+      <circle className="ae-golem-dust ae-gd-4" cx="120" cy="76" r="9" fill="#b8a888" opacity="0.5"/>
     </g>
   );
 }

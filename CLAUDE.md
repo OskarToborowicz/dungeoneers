@@ -99,7 +99,23 @@ To clear all saves: `localStorage.clear(); location.reload();`
 
 ### Ability `canMiss` flag
 
-All abilities have a 2% `ALWAYS_MISS_CHANCE`. Set `canMiss: false` on an ability to bypass it. Currently only Fire Trap uses this.
+All abilities have a 2% `ALWAYS_MISS_CHANCE`. Set `canMiss: false` on an ability to bypass it. Currently Fire Trap and Golem Defense use this.
+
+### Necromancer abilities and passives
+
+**Poison Cloud** (`kind: "dot"`, magic): DoT ability — initial hit + 3 poison ticks. `power: 1.4`, `magic: true`.
+
+**Golem Defense** (`kind: "golem"`, `canMiss: false`): Summons a stone golem that absorbs 20% of all incoming damage (physical + spell) for 3 turns, then detonates on the enemy for total absorbed damage. Can crit on detonation.
+- BattleState fields: `golemRounds: number` (countdown), `golemAbsorbed: number` (damage absorbed so far)
+- Shown on the battlefield like the Assassin's Fire Trap — SVG with countdown badge
+- `canUseAbility2` blocks re-summoning while `golemRounds > 0`
+- Detonation fires after monster attacks on the turn the counter hits 0
+
+**Soul Siphon** (always active): All magic damage heals 15% of damage dealt — applies to Poison Cloud's initial hit AND every poison tick. Constant: `NECROMANCER_SOUL_SIPHON = 0.15`.
+
+**Virulence** (lv.20): DoT deals 25% increased damage. Applied as `virulenceMult = 1.25` multiplied into `poisonDamage` at cast time. Constant: `NECROMANCER_VIRULENCE_MULT = 1.25`.
+
+**Blood Barrier** (lv.35): Soul Siphon heals can exceed max life by up to 25% (heal cap: `stats.maxLife * 1.25`). Does NOT apply to health potions. Overheal is shown as a blue glow on the HP bar (scales with overheal fraction 0–25%) and a `+X` badge next to the HP number (class `overheal-badge`).
 
 ### Amazon passives (3-passive system)
 
@@ -126,7 +142,7 @@ Heartseeker fires after crits from both basic attack and each Multishot arrow.
 - `passive2?: { levelRequirement: number }` — unlocks at given level
 - `passive3?: { levelRequirement: number }` — unlocks at given level
 
-Currently only Amazon uses passive3. All classes can be extended to use it.
+Amazon and Necromancer both use passive3. All classes can be extended to use it.
 
 ---
 

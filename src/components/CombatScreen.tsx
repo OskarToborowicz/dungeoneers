@@ -38,6 +38,7 @@ interface Props {
   escapeTokens: number;
   xpCapped: boolean;
   xpMultiplier: number;
+  clearedDungeons: string[];
   onUsePotion: (id: ConsumableId) => void;
   onFinished: (result: CombatResult) => void;
   onEscape: () => void;
@@ -56,6 +57,7 @@ export function CombatScreen({
   escapeTokens,
   xpCapped,
   xpMultiplier,
+  clearedDungeons,
   onUsePotion,
   onFinished,
   onEscape,
@@ -75,6 +77,7 @@ export function CombatScreen({
   const [abilityEffect, setAbilityEffect] = useState(false);
   const [ability2Effect, setAbility2Effect] = useState(false);
   const [trapDetonateEffect, setTrapDetonateEffect] = useState(false);
+  const [golemDetonateEffect, setGolemDetonateEffect] = useState(false);
   const [monsterSpellEffect, setMonsterSpellEffect] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showFleePrompt, setShowFleePrompt] = useState(false);
@@ -104,7 +107,7 @@ export function CombatScreen({
 
     const wasAbility = action === "ability" && canUseAbility(character, battle);
     const wasAbility2 = action === "ability2" && canUseAbility2(character, battle);
-    const result = resolveRound(character, derived, monster, battle, action);
+    const result = resolveRound(character, derived, monster, battle, action, clearedDungeons);
 
     if (result.status === "victory") {
       if (wasAbility) setAbilityEffect(true);
@@ -150,6 +153,7 @@ export function CombatScreen({
           setMonsterAnim("attack");
           if (result.monsterSpellCast) setMonsterSpellEffect(result.monsterSpellCast);
           if (result.trapDetonated) setTrapDetonateEffect(true);
+          if (result.golemDetonated) setGolemDetonateEffect(true);
           // Player HP drops as monster starts attacking
           if (lastMonster) {
             setBattle((b) => ({ ...b, playerLife: lastMonster.playerLife, monsterLife: lastMonster.monsterLife }));
@@ -164,6 +168,7 @@ export function CombatScreen({
           }, 550);
         } else {
           if (result.trapDetonated) setTrapDetonateEffect(true);
+          if (result.golemDetonated) setGolemDetonateEffect(true);
           setBattle(result.state);
           setStatus(result.status);
           setTotalDamageDealt((d) => d + result.damageDealt);
@@ -213,6 +218,36 @@ export function CombatScreen({
         {trapDetonateEffect && (
           <AbilityEffect classId="assassin" detonation={true} onDone={() => setTrapDetonateEffect(false)} />
         )}
+        {golemDetonateEffect && (
+          <AbilityEffect classId="necromancer" golemDetonation={true} onDone={() => setGolemDetonateEffect(false)} />
+        )}
+        {battle.golemRounds > 0 && !golemDetonateEffect && (
+          <div className="golem-on-field">
+            <svg viewBox="0 0 60 76" overflow="visible">
+              <g className="golem-field-body">
+                {/* shoulders / arms */}
+                <rect x="4" y="34" width="12" height="20" rx="4" fill="#6a6050" opacity="0.88"/>
+                <rect x="44" y="34" width="12" height="20" rx="4" fill="#6a6050" opacity="0.88"/>
+                {/* torso */}
+                <rect x="12" y="28" width="36" height="36" rx="7" fill="#7a7060" opacity="0.94"/>
+                {/* chest crack detail */}
+                <path d="M27 34 L30 42 L33 34" fill="none" stroke="#4a4030" strokeWidth="1.2" opacity="0.5"/>
+                {/* head */}
+                <rect x="16" y="10" width="28" height="22" rx="5" fill="#8a8070" opacity="0.95"/>
+                {/* eyes */}
+                <circle cx="24" cy="21" r="4" fill="#aadd88" opacity="0.97" className="golem-field-eye"/>
+                <circle cx="36" cy="21" r="4" fill="#aadd88" opacity="0.97" className="golem-field-eye"/>
+                {/* eye glow */}
+                <circle cx="24" cy="21" r="2.2" fill="#ccff99" opacity="0.8" className="golem-field-eye"/>
+                <circle cx="36" cy="21" r="2.2" fill="#ccff99" opacity="0.8" className="golem-field-eye"/>
+                {/* legs */}
+                <rect x="16" y="62" width="11" height="10" rx="3" fill="#6a6050" opacity="0.88"/>
+                <rect x="33" y="62" width="11" height="10" rx="3" fill="#6a6050" opacity="0.88"/>
+              </g>
+              <text x="30" y="74" textAnchor="middle" fill="#aadd88" fontSize="9" fontWeight="bold">{battle.golemRounds}</text>
+            </svg>
+          </div>
+        )}
         {battle.trapRounds > 0 && !trapDetonateEffect && (
           <div className="trap-on-field">
             <svg viewBox="0 0 44 28" overflow="visible">
@@ -247,12 +282,23 @@ export function CombatScreen({
       <div className="combat-bars">
         <div className="combat-bar-block">
           <div className="combat-bar-label">{character.name} <span className="monster-level">Lv.{character.level}</span></div>
-          <div className="hp-bar">
-            <div
-              className="hp-bar-fill player"
-              style={{ width: `${Math.max(0, (battle.playerLife / derived.maxLife) * 100)}%` }}
-            />
-          </div>
+          {(() => {
+            const overhealFrac = Math.max(0, Math.min(0.25, (battle.playerLife - derived.maxLife) / derived.maxLife));
+            const glowT = overhealFrac / 0.25;
+            const glowPx = Math.round(glowT * 14);
+            const glowAlpha = (0.4 + glowT * 0.6).toFixed(2);
+            const barStyle = overhealFrac > 0
+              ? { boxShadow: `0 0 ${glowPx}px rgba(80,160,255,0.75), inset 0 0 ${Math.round(glowT * 8)}px rgba(80,160,255,0.25)`, borderColor: `rgba(80,160,255,${glowAlpha})` }
+              : {};
+            return (
+              <div className="hp-bar" style={barStyle}>
+                <div
+                  className="hp-bar-fill player"
+                  style={{ width: `${Math.max(0, Math.min(100, (battle.playerLife / derived.maxLife) * 100))}%` }}
+                />
+              </div>
+            );
+          })()}
           <div className={`resource-bar ${def.resourceType}`}>
             <div
               className={`resource-bar-fill ${def.resourceType}`}
@@ -269,7 +315,10 @@ export function CombatScreen({
           <div className="combat-stat-row">
             <span className="combat-stat hp">
               <svg viewBox="0 0 10 9" width="10" height="9"><path d="M5 8 C5 8 1 5 1 3a2 2 0 0 1 4-1 2 2 0 0 1 4 1c0 2-4 5-4 5z" fill="#cc3333"/></svg>
-              {battle.playerLife}/{derived.maxLife}
+              {Math.min(battle.playerLife, derived.maxLife)}/{derived.maxLife}
+              {battle.playerLife > derived.maxLife && (
+                <span className="overheal-badge">+{battle.playerLife - derived.maxLife}</span>
+              )}
             </span>
             <span className={`combat-stat ${def.resourceType}`}>
               {def.resourceType === "mana"
@@ -410,6 +459,8 @@ export function CombatScreen({
                   ? `Active: ${battle.regenRounds} turns`
                   : battle.frostShieldRounds > 0 && def.ability2.kind === "frost_shield"
                   ? `Active: ${battle.frostShieldRounds} turns`
+                  : battle.golemRounds > 0 && def.ability2.kind === "golem"
+                  ? `Golem: ${battle.golemRounds} turns left`
                   : battle.ability2Cooldown > 0
                   ? `Cooldown: ${battle.ability2Cooldown}`
                   : `${def.ability2.manaCost} ${def.resourceName.toLowerCase()}`}

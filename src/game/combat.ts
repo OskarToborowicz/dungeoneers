@@ -1,5 +1,5 @@
 import { CLASSES } from "./data/classes";
-import { POTION_COOLDOWN, POTION_RESTORE_RATE } from "./data/consumables";
+import { POTION_COOLDOWN, POTION_RESTORE_RATE, getPotionRestoreRate } from "./data/consumables";
 import { FURY_PER_ATTACK } from "./character";
 import type { DerivedStats } from "./character";
 import type { Character, MonsterDefinition } from "./types";
@@ -35,6 +35,8 @@ export interface BattleState {
   frostShieldRounds: number;
   burnStacks: { rounds: number; damage: number; source: string }[];
   electrocuteRounds: number;
+  golemRounds: number;
+  golemAbsorbed: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "ability2" | "healthPotion" | "manaPotion";
@@ -59,6 +61,7 @@ export interface RoundResult {
   damageDealt: number;
   monsterSpellCast?: string;
   trapDetonated?: boolean;
+  golemDetonated?: boolean;
 }
 
 const ALWAYS_MISS_CHANCE = 0.02;
@@ -77,7 +80,8 @@ const BARBARIAN_MADNESS_FURY_BONUS = 5;
 const BARBARIAN_MADNESS_FURY_THRESHOLD = 30;
 const SORCERESS_MANA_REGEN_RATE = 0.10;
 const PALADIN_DAMAGE_TAKEN_HEAL = 0.15;
-const NECROMANCER_POISON_LIFESTEAL = 0.1;
+const NECROMANCER_SOUL_SIPHON = 0.15;
+const NECROMANCER_VIRULENCE_MULT = 1.25;
 
 function getIronSkinReduction(character: Character, currentLife: number, maxLife: number): number {
   if (character.classId !== "barbarian" || character.level < 20) return 0;
@@ -130,6 +134,8 @@ export function createBattleState(
     frostShieldRounds: 0,
     burnStacks: [],
     electrocuteRounds: 0,
+    golemRounds: 0,
+    golemAbsorbed: 0,
   };
 }
 
@@ -145,6 +151,7 @@ export function canUseAbility2(character: Character, state: BattleState): boolea
   if (!def.ability2) return false;
   if (def.ability2.kind === "regen" && state.regenRounds > 0) return false;
   if (def.ability2.kind === "frost_shield" && state.frostShieldRounds > 0) return false;
+  if (def.ability2.kind === "golem" && state.golemRounds > 0) return false;
   return state.playerMana >= def.ability2.manaCost && state.ability2Cooldown <= 0;
 }
 
@@ -247,6 +254,9 @@ export function getAbility2Preview(character: Character, stats: DerivedStats): D
     const healPerTick = Math.round(stats.maxLife * 0.10);
     return { label: `3× ${healPerTick} heal`, type: "Heal" };
   }
+  if (ability.kind === "golem") {
+    return { label: "20% absorb × 3", type: "Buff" };
+  }
   return { label: "—", type: "Physical" };
 }
 
@@ -255,7 +265,8 @@ export function resolveRound(
   stats: DerivedStats,
   monster: MonsterDefinition,
   state: BattleState,
-  action: PlayerActionKind
+  action: PlayerActionKind,
+  clearedDungeons: string[] = []
 ): RoundResult {
   const def = CLASSES[character.classId];
   const log: CombatLogEntry[] = [];
@@ -263,7 +274,7 @@ export function resolveRound(
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, electrocuteRounds } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, electrocuteRounds, golemRounds, golemAbsorbed } = state;
   let burnStacks = state.burnStacks.map(s => ({ ...s }));
   const electrocuteMult = electrocuteRounds > 0 ? 1.20 : 1.0;
   const deathwhisperMult = stats.deathwhisperBoost && (blindRounds > 0 || disorientRounds > 0) ? 1.30 : 1.0;
@@ -443,10 +454,18 @@ export function resolveRound(
         monsterLife -= dmg;
         damageDealt += dmg;
         poisonRounds = 3;
-        poisonDamage = Math.round(rollAbilityDamage(stats, def.ability.power * 0.4, def.ability.magic) * stats.poisonDamageMult);
+        const virulenceMult = character.classId === "necromancer" && character.level >= 20 ? NECROMANCER_VIRULENCE_MULT : 1.0;
+        poisonDamage = Math.round(rollAbilityDamage(stats, def.ability.power * 0.4, def.ability.magic) * stats.poisonDamageMult * virulenceMult);
+        const siphonHitHeal = character.classId === "necromancer" ? Math.round(dmg * NECROMANCER_SOUL_SIPHON) : 0;
+        if (siphonHitHeal > 0) {
+          const healCap = character.classId === "necromancer" && character.level >= 35 ? stats.maxLife * 1.25 : stats.maxLife;
+          playerLife = Math.min(healCap, playerLife + siphonHitHeal);
+        }
         log.push({
           actor: "player",
-          message: isCrit ? `Critical hit! ${def.ability.name} strikes for ${dmg} damage, poisoning the enemy!` : `You strike with ${def.ability.name} for ${dmg} damage, poisoning the enemy!`,
+          message: isCrit
+            ? `Critical hit! ${def.ability.name} strikes for ${dmg} damage, poisoning the enemy!${siphonHitHeal > 0 ? ` Soul Siphon heals ${siphonHitHeal}.` : ""}`
+            : `You strike with ${def.ability.name} for ${dmg} damage, poisoning the enemy!${siphonHitHeal > 0 ? ` Soul Siphon heals ${siphonHitHeal}.` : ""}`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
@@ -598,12 +617,22 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
         doBasicAttack();
+      } else if (def.ability2.kind === "golem") {
+        golemRounds = 3;
+        golemAbsorbed = 0;
+        log.push({
+          actor: "player",
+          message: "You summon a Stone Golem! It will absorb 20% of incoming damage for 3 turns.",
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
       }
     } else if (action === "healthPotion" && healthPotionCooldown <= 0) {
       const before = playerLife;
+      const potionRate = getPotionRestoreRate(clearedDungeons);
       const defensiveAuraPotionBonus = character.classId === "paladin" && character.level >= 20
         ? Math.round(stats.maxLife * 0.10) : 0;
-      playerLife = Math.min(stats.maxLife, playerLife + Math.round(stats.maxLife * POTION_RESTORE_RATE) + defensiveAuraPotionBonus);
+      playerLife = Math.min(stats.maxLife, playerLife + Math.round(stats.maxLife * potionRate) + defensiveAuraPotionBonus);
       healthPotionCooldown = POTION_COOLDOWN;
       const potionRestored = playerLife - before;
       log.push({
@@ -616,7 +645,7 @@ export function resolveRound(
       });
     } else if (action === "manaPotion" && manaPotionCooldown <= 0) {
       const before = playerMana;
-      playerMana = Math.min(stats.maxMana, playerMana + Math.round(stats.maxMana * POTION_RESTORE_RATE));
+      playerMana = Math.min(stats.maxMana, playerMana + Math.round(stats.maxMana * getPotionRestoreRate(clearedDungeons)));
       manaPotionCooldown = POTION_COOLDOWN;
       log.push({
         actor: "player",
@@ -689,6 +718,8 @@ export function resolveRound(
       frostShieldRounds,
       burnStacks,
       electrocuteRounds,
+      golemRounds,
+      golemAbsorbed,
     };
   }
 
@@ -726,9 +757,12 @@ export function resolveRound(
     damageDealt += poisonDamage;
     poisonRounds -= 1;
     const necroHeal = character.classId === "necromancer"
-      ? Math.round(poisonDamage * NECROMANCER_POISON_LIFESTEAL)
+      ? Math.round(poisonDamage * NECROMANCER_SOUL_SIPHON)
       : 0;
-    if (necroHeal > 0) playerLife = Math.min(stats.maxLife, playerLife + necroHeal);
+    if (necroHeal > 0) {
+      const healCap = character.classId === "necromancer" && character.level >= 35 ? stats.maxLife * 1.25 : stats.maxLife;
+      playerLife = Math.min(healCap, playerLife + necroHeal);
+    }
     log.push({
       actor: "monster",
       message: `${monster.name} suffers ${poisonDamage} poison damage.${necroHeal > 0 ? ` Soul Siphon heals you for ${necroHeal}.` : ""}`,
@@ -761,6 +795,7 @@ export function resolveRound(
   burnStacks = burnStacks.filter(s => s.rounds > 0);
 
   if (trapRounds > 0) trapRounds -= 1;
+  if (golemRounds > 0) golemRounds -= 1;
 
   if (monsterSpellCooldown > 0) monsterSpellCooldown -= 1;
 
@@ -807,6 +842,11 @@ export function resolveRound(
     } else {
     let spellDmg = Math.round(randomInRange(monster.damage) * spell.power * (disorientRounds > 0 ? 0.75 : 1.0));
     if (frostShieldRounds > 0) spellDmg = Math.max(1, Math.round(spellDmg * 0.40));
+    if (golemRounds > 0) {
+      const absorbed = Math.round(spellDmg * 0.20);
+      golemAbsorbed += absorbed;
+      spellDmg = Math.max(1, spellDmg - absorbed);
+    }
     const fadedSpell = character.classId === "assassin" && Math.random() < 0.25;
     if (fadedSpell) spellDmg = Math.max(1, Math.round(spellDmg * 0.55));
     const ironSkinSpell = getIronSkinReduction(character, playerLife, stats.maxLife);
@@ -817,7 +857,7 @@ export function resolveRound(
       playerLife -= spellDmg;
       log.push({
         actor: "monster",
-        message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!${frostShieldRounds > 0 ? " Frost Shield absorbs 60%." : ""}`,
+        message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!${frostShieldRounds > 0 ? " Frost Shield absorbs 60%." : ""}${golemRounds > 0 ? " Stone Golem absorbs 20%." : ""}`,
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });
@@ -902,6 +942,11 @@ export function resolveRound(
       if (frostShieldRounds > 0) dmg = Math.max(1, Math.round(dmg * 0.40));
       const boneweaveBlocked = stats.blockChance > 0 && Math.random() < stats.blockChance / 100;
       if (boneweaveBlocked) dmg = 1;
+      if (golemRounds > 0) {
+        const absorbed = Math.round(dmg * 0.20);
+        golemAbsorbed += absorbed;
+        dmg = Math.max(1, dmg - absorbed);
+      }
 
       playerLife -= dmg;
 
@@ -916,6 +961,7 @@ export function resolveRound(
       if (fadedNormal) message += " Fade reduces the blow by 45%.";
       if (ironSkin > 0) message += ` Iron Skin absorbs ${Math.round(ironSkin * 100)}%.`;
       if (frostShieldRounds > 0) message += " Frost Shield absorbs 60%.";
+      if (golemRounds > 0) message += " Stone Golem absorbs 20%.";
       if (boneweaveBlocked) message += " Boneweave Gloves block the blow!";
 
       if (character.classId === "paladin") {
@@ -986,6 +1032,27 @@ export function resolveRound(
     }
   }
 
+  // Golem detonation — after monster acts
+  let golemDetonated = false;
+  if (golemRounds === 0 && state.golemRounds > 0 && golemAbsorbed > 0) {
+    const isCrit = Math.random() < critChance;
+    const finalGolemDmg = isCrit ? Math.round(golemAbsorbed * critMultiplier) : golemAbsorbed;
+    monsterLife -= finalGolemDmg;
+    damageDealt += finalGolemDmg;
+    golemDetonated = true;
+    log.push({
+      actor: "monster",
+      message: isCrit
+        ? `Critical! The Stone Golem explodes for ${finalGolemDmg} damage!`
+        : `The Stone Golem explodes for ${finalGolemDmg} damage!`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+    if (monsterLife <= 0) {
+      return { state: makeState(), log, status: "victory", damageDealt, golemDetonated };
+    }
+  }
+
   const status: BattleStatus = playerLife <= 0 ? "defeat" : "ongoing";
-  return { state: makeState(), log, status, damageDealt, monsterSpellCast: monsterSpellCastName, trapDetonated };
+  return { state: makeState(), log, status, damageDealt, monsterSpellCast: monsterSpellCastName, trapDetonated, golemDetonated };
 }

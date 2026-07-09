@@ -5,7 +5,7 @@ import { Hub } from "./components/Hub";
 import { CombatScreen } from "./components/CombatScreen";
 import { GameOverScreen } from "./components/GameOverScreen";
 import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
-import { CONSUMABLES, EMPTY_CONSUMABLES } from "./game/data/consumables";
+import { CONSUMABLES, EMPTY_CONSUMABLES, getPotionCost } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
 import { buyValue, generateApprenticesFocus, generateBlooddrinker, generateDeathwhisper, generateBoneweaveGloves, generateCrackedLens, generateCrownOfTheFallen, generateDemonsTail, generateDoomcrier, generateEternitysEdge, generateEyeOfTheStorm, generateHarvester, generateHeavyStompers, generateIronjaw, generateJusticar, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePenitentsGrace, generatePentagram, generateRagpickersSash, generateReapersHood, generateSanctifier, generateSharpFangs, generateStoneHusk, generateStormstring, generateShadowfang, generateTheArcanist, generateThornback, generateVenomweaveWrap, generateVipersKiss, generateWhisper, generateWorldbreaker, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
 import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
@@ -261,9 +261,9 @@ function App() {
   function handleBuyConsumable(id: ConsumableId) {
     if (!character) return;
     if (consumables[id] >= POTION_STACK_LIMIT) return;
-    const def = CONSUMABLES[id];
-    if (character.gold < def.cost) return;
-    setCharacter({ ...character, gold: character.gold - def.cost });
+    const cost = getPotionCost(clearedDungeons);
+    if (character.gold < cost) return;
+    setCharacter({ ...character, gold: character.gold - cost });
     setConsumables({ ...consumables, [id]: consumables[id] + 1 });
   }
 
@@ -647,6 +647,7 @@ function App() {
         escapeTokens={character.escapeTokens ?? 0}
         xpCapped={character.level >= getXpCapLevel(clearedDungeons, dungeonRun.dungeonId)}
         xpMultiplier={clearedDungeons.includes(dungeonRun.dungeonId) && new Set(["diablo","imp-field","lava-river","ashen-caves","higher-hell","lower-hell","hellcore"]).has(dungeonRun.dungeonId) ? 0.25 : 1}
+        clearedDungeons={clearedDungeons}
         onUsePotion={handleUsePotion}
         onFinished={handleFightFinished}
         onEscape={handleEscape}

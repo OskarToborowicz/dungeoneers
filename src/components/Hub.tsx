@@ -78,7 +78,7 @@ export function Hub({
     if (!droppedItem || showPortalMessage) return;
     if (droppedItem.rarity === "unique") {
       const sfx = new Audio(import.meta.env.BASE_URL + "divine_drop.mp3");
-      sfx.volume = 0.3;
+      sfx.volume = 0.05;
       sfx.play().catch(() => {});
     }
     const t = setTimeout(() => dismissRef.current?.(), 3000);
@@ -167,6 +167,7 @@ export function Hub({
               consumables={consumables}
               shopStock={shopStock}
               inventory={inventory}
+              clearedDungeons={clearedDungeons}
               onBuyConsumable={onBuyConsumable}
               onBuyItem={onBuyItem}
               onRestock={onRestockShop}

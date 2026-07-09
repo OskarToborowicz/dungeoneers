@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { CLASSES } from "../game/data/classes";
-import { CONSUMABLE_LIST } from "../game/data/consumables";
+import { CONSUMABLE_LIST, getPotionCost, getPotionRestoreRate } from "../game/data/consumables";
 import { buyValue, RARITY_COLORS, sellValue } from "../game/data/items";
 import { ItemIcon } from "./ItemIcon";
 import { ItemTooltip } from "./ItemTooltip";
@@ -15,6 +15,7 @@ interface Props {
   consumables: Record<ConsumableId, number>;
   shopStock: Item[];
   inventory: Item[];
+  clearedDungeons: string[];
   onBuyConsumable: (id: ConsumableId) => void;
   onBuyItem: (item: Item) => void;
   onRestock: () => void;
@@ -29,6 +30,7 @@ export function ShopTab({
   consumables,
   shopStock,
   inventory,
+  clearedDungeons,
   onBuyConsumable,
   onBuyItem,
   onRestock,
@@ -43,6 +45,8 @@ export function ShopTab({
     (c) => c.id !== "manaPotion" || classDef.resourceType === "mana"
   );
   const totalSellValue = inventory.reduce((sum, item) => sum + sellValue(item), 0);
+  const potionCost = getPotionCost(clearedDungeons);
+  const potionRestorePct = Math.round(getPotionRestoreRate(clearedDungeons) * 100);
 
   return (
     <div className="tab-panel">
@@ -51,15 +55,19 @@ export function ShopTab({
         {availableConsumables.map((def) => (
           <div className="shop-potion-card" key={def.id}>
             <div className="shop-potion-name">{def.name}</div>
-            <p className="shop-potion-desc">{def.description}</p>
+            <p className="shop-potion-desc">
+              {def.id === "healthPotion"
+                ? `Restores ${potionRestorePct}% of max life instantly. 3-turn cooldown.`
+                : `Restores ${potionRestorePct}% of max mana instantly. 3-turn cooldown.`}
+            </p>
             <div className="shop-potion-footer">
               <span className="owned-count">Owned: {consumables[def.id]}</span>
               <button
                 className="primary-button small"
-                disabled={character.gold < def.cost || consumables[def.id] >= 5}
+                disabled={character.gold < potionCost || consumables[def.id] >= 5}
                 onClick={() => onBuyConsumable(def.id)}
               >
-                {consumables[def.id] >= 5 ? "Full (5/5)" : `Buy for ${def.cost}g`}
+                {consumables[def.id] >= 5 ? "Full (5/5)" : `Buy for ${potionCost}g`}
               </button>
             </div>
           </div>
