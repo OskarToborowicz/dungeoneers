@@ -266,6 +266,7 @@ export function resolveRound(
   let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, electrocuteRounds } = state;
   let burnStacks = state.burnStacks.map(s => ({ ...s }));
   const electrocuteMult = electrocuteRounds > 0 ? 1.20 : 1.0;
+  const deathwhisperMult = stats.deathwhisperBoost && (blindRounds > 0 || disorientRounds > 0) ? 1.30 : 1.0;
   const heartseekerMult = stats.heartseekerBoost ? 0.70 : 0.50;
   let damageDealt = 0;
   let trapDetonated = false;
@@ -293,7 +294,7 @@ export function resolveRound(
     if (Math.random() < hitChance) {
       const isCrit = Math.random() < critChance + assassinAdvantageCrit;
       basicHitCrit = isCrit;
-      let dmg = Math.round(randomInRange(stats.damage) * damageMult * electrocuteMult);
+      let dmg = Math.round(randomInRange(stats.damage) * damageMult * electrocuteMult * deathwhisperMult);
       if (isCrit) dmg = Math.round(dmg * critMultiplier);
       monsterLife -= dmg;
       damageDealt += dmg;
@@ -344,6 +345,13 @@ export function resolveRound(
       poisonRounds = 2;
       poisonDamage = Math.round(basicHitDmg * 0.30 * stats.poisonDamageMult);
       log.push({ actor: "player", message: `Venom seeps in — ${poisonDamage} poison per turn for 2 turns.`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+    }
+
+    if (stats.shadowfangProc && basicHitDmg > 0 && monsterLife > 0 && Math.random() < 0.20) {
+      const phantomDmg = Math.round(basicHitDmg * 0.50);
+      monsterLife -= phantomDmg;
+      damageDealt += phantomDmg;
+      log.push({ actor: "player", message: `Shadowfang — a phantom strikes for ${phantomDmg} damage!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     }
 
     const doubleSwingChance = BARBARIAN_DOUBLE_SWING_CHANCE + (bloodFuryRounds > 0 ? BARBARIAN_BLOOD_FURY_DOUBLE_SWING_BONUS : 0);
@@ -403,25 +411,42 @@ export function resolveRound(
         });
         doBasicAttack();
       } else if (def.ability.kind === "burst") {
-        const dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower) * lowLifeMult * electrocuteMult);
+        const isCrit = Math.random() < critChance;
+        const arcanistMult = stats.arcanistStaff && frostShieldRounds > 0 ? 1.40 : 1.0;
+        let dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower) * lowLifeMult * electrocuteMult * deathwhisperMult * arcanistMult);
+        if (isCrit) dmg = Math.round(dmg * critMultiplier);
         monsterLife -= dmg;
         damageDealt += dmg;
+        const arcanistNote = arcanistMult > 1.0 ? " Frost Shield channels the arcane!" : "";
         log.push({
           actor: "player",
-          message: `You unleash ${def.ability.name} for ${dmg} damage!`,
+          message: isCrit ? `Critical hit! ${def.ability.name} strikes for ${dmg} damage!${arcanistNote}` : `You unleash ${def.ability.name} for ${dmg} damage!${arcanistNote}`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
         tryIgnite(dmg);
+        if (stats.burstEchoChance > 0 && monsterLife > 0 && Math.random() < stats.burstEchoChance) {
+          const echoDmg = Math.round(dmg * 0.50);
+          monsterLife -= echoDmg;
+          damageDealt += echoDmg;
+          log.push({
+            actor: "player",
+            message: `Eternity's Edge echoes the spell for ${echoDmg} damage!`,
+            playerLife: Math.max(0, playerLife),
+            monsterLife: Math.max(0, monsterLife),
+          });
+        }
       } else if (def.ability.kind === "dot") {
-        const dmg = Math.round(rollAbilityDamage(stats, 0.4, def.ability.magic) * lowLifeMult * electrocuteMult);
+        const isCrit = Math.random() < critChance;
+        let dmg = Math.round(rollAbilityDamage(stats, 0.4, def.ability.magic) * lowLifeMult * electrocuteMult * deathwhisperMult);
+        if (isCrit) dmg = Math.round(dmg * critMultiplier);
         monsterLife -= dmg;
         damageDealt += dmg;
         poisonRounds = 3;
         poisonDamage = Math.round(rollAbilityDamage(stats, def.ability.power * 0.4, def.ability.magic) * stats.poisonDamageMult);
         log.push({
           actor: "player",
-          message: `You strike with ${def.ability.name} for ${dmg} damage, poisoning the enemy!`,
+          message: isCrit ? `Critical hit! ${def.ability.name} strikes for ${dmg} damage, poisoning the enemy!` : `You strike with ${def.ability.name} for ${dmg} damage, poisoning the enemy!`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
@@ -431,7 +456,7 @@ export function resolveRound(
         for (let i = 0; i < hitCount; i++) {
           if (monsterLife <= 0) break;
 
-          let hitDmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic) * lowLifeMult * electrocuteMult);
+          let hitDmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic) * lowLifeMult * electrocuteMult * deathwhisperMult);
           const isHitCrit = Math.random() < critChance;
           if (isHitCrit) hitDmg = Math.round(hitDmg * critMultiplier);
 
@@ -461,14 +486,16 @@ export function resolveRound(
           }
         }
       } else if (def.ability.kind === "heal") {
-        const dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower ?? 1) * lowLifeMult * electrocuteMult);
+        const isCrit = Math.random() < critChance;
+        let dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower ?? 1) * lowLifeMult * electrocuteMult * deathwhisperMult);
+        if (isCrit) dmg = Math.round(dmg * critMultiplier);
         const healAmt = Math.round(dmg * 0.35);
         monsterLife -= dmg;
         damageDealt += dmg;
         playerLife = Math.min(stats.maxLife, playerLife + healAmt);
         log.push({
           actor: "player",
-          message: `You call upon ${def.ability.name}, dealing ${dmg} damage and healing ${healAmt} life!`,
+          message: isCrit ? `Critical hit! ${def.ability.name} strikes for ${dmg} damage and heals ${healAmt} life!` : `You call upon ${def.ability.name}, dealing ${dmg} damage and healing ${healAmt} life!`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
@@ -476,7 +503,7 @@ export function resolveRound(
       } else if (def.ability.kind === "bite") {
         const baseDmg = randomInRange(stats.damage);
         const dexBonus = Math.round(stats.stats.dexterity * 1.5);
-        const dmg = Math.round((baseDmg + dexBonus) * lowLifeMult * electrocuteMult);
+        const dmg = Math.round((baseDmg + dexBonus) * lowLifeMult * electrocuteMult * deathwhisperMult);
         const healAmt = Math.round(dmg * 0.15);
         monsterLife -= dmg;
         damageDealt += dmg;
@@ -509,7 +536,7 @@ export function resolveRound(
           const baseDmg = randomInRange(stats.damage);
           const dexBonus = Math.round(stats.stats.dexterity * 0.5);
           const isCrit = Math.random() < critChance;
-          let dmg = Math.round((baseDmg + dexBonus) * lowLifeMult * electrocuteMult);
+          let dmg = Math.round((baseDmg + dexBonus) * lowLifeMult * electrocuteMult * deathwhisperMult);
           if (isCrit) dmg = Math.round(dmg * critMultiplier);
           monsterLife -= dmg;
           damageDealt += dmg;
@@ -528,7 +555,7 @@ export function resolveRound(
         const madnessMult = character.classId === "barbarian" && character.level >= 35 && furyBeforeCost > BARBARIAN_MADNESS_FURY_THRESHOLD ? 1 + BARBARIAN_MADNESS_DAMAGE_BONUS : 1.0;
         const baseDmg = randomInRange(stats.damage);
         const strBonus = Math.round(stats.stats.strength * 0.5);
-        const dmg = Math.round((baseDmg + strBonus) * madnessMult * lowLifeMult * electrocuteMult);
+        const dmg = Math.round((baseDmg + strBonus) * madnessMult * lowLifeMult * electrocuteMult * deathwhisperMult);
         const killingBlow = monsterLife - dmg <= 0;
         monsterLife -= dmg;
         damageDealt += dmg;
@@ -938,7 +965,8 @@ export function resolveRound(
   if (trapRounds === 0 && state.trapRounds > 0) {
     const trapLowLifeMult = stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.30 ? 1 + stats.lowLifeDamageBonus : 1.0;
     const trapElectrocuteMult = electrocuteRounds > 0 ? 1.20 : 1.0;
-    const trapDmg = Math.round(stats.stats.dexterity * def.ability.power * trapLowLifeMult * trapElectrocuteMult);
+    const trapDeathwhisperMult = stats.deathwhisperBoost && (blindRounds > 0 || disorientRounds > 0) ? 1.30 : 1.0;
+    const trapDmg = Math.round(stats.stats.dexterity * def.ability.power * trapLowLifeMult * trapElectrocuteMult * trapDeathwhisperMult);
     const isCrit = Math.random() < critChance;
     const finalTrapDmg = isCrit ? Math.round(trapDmg * critMultiplier) : trapDmg;
     monsterLife -= finalTrapDmg;

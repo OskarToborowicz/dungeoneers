@@ -7,7 +7,7 @@ import { GameOverScreen } from "./components/GameOverScreen";
 import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
 import { CONSUMABLES, EMPTY_CONSUMABLES } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
-import { buyValue, generateBlooddrinker, generateBoneweaveGloves, generateCrackedLens, generateCrownOfTheFallen, generateDemonsTail, generateDoomcrier, generateEyeOfTheStorm, generateHarvester, generateHeavyStompers, generateIronjaw, generateJusticar, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePenitentsGrace, generatePentagram, generateRagpickersSash, generateReapersHood, generateSanctifier, generateSharpFangs, generateStoneHusk, generateStormstring, generateThornback, generateVenomweaveWrap, generateWhisper, generateWorldbreaker, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
+import { buyValue, generateApprenticesFocus, generateBlooddrinker, generateDeathwhisper, generateBoneweaveGloves, generateCrackedLens, generateCrownOfTheFallen, generateDemonsTail, generateDoomcrier, generateEternitysEdge, generateEyeOfTheStorm, generateHarvester, generateHeavyStompers, generateIronjaw, generateJusticar, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePenitentsGrace, generatePentagram, generateRagpickersSash, generateReapersHood, generateSanctifier, generateSharpFangs, generateStoneHusk, generateStormstring, generateShadowfang, generateTheArcanist, generateThornback, generateVenomweaveWrap, generateVipersKiss, generateWhisper, generateWorldbreaker, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
 import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
 import type { CombatResult } from "./game/combat";
@@ -512,6 +512,42 @@ function App() {
       const bow = generateDoomcrier();
       setInventory((prev) => [...prev, bow]);
       setDroppedItem((prev) => prev === null || rarityOrder.indexOf(bow.rarity) >= rarityOrder.indexOf(prev.rarity) ? bow : prev);
+    }
+    const apprenticesFocusDungeons = new Set(["blood-moor", "cold-plains", "stony-field", "dark-wood", "tristram"]);
+    if (isBoss && character.classId === "sorceress" && apprenticesFocusDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.002) {
+      const staff = generateApprenticesFocus();
+      setInventory((prev) => [...prev, staff]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(staff.rarity) >= rarityOrder.indexOf(prev.rarity) ? staff : prev);
+    }
+    const arcanistDungeons = new Set(["diablo", "imp-field", "lava-river", "ashen-caves"]);
+    if (isBoss && character.classId === "sorceress" && arcanistDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.001) {
+      const staff = generateTheArcanist();
+      setInventory((prev) => [...prev, staff]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(staff.rarity) >= rarityOrder.indexOf(prev.rarity) ? staff : prev);
+    }
+    const eternitysEdgeDungeons = new Set(["higher-hell", "lower-hell", "hellcore"]);
+    if (isBoss && character.classId === "sorceress" && eternitysEdgeDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.001) {
+      const staff = generateEternitysEdge();
+      setInventory((prev) => [...prev, staff]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(staff.rarity) >= rarityOrder.indexOf(prev.rarity) ? staff : prev);
+    }
+    const vipersKissDungeons = new Set(["blood-moor", "cold-plains", "stony-field", "dark-wood", "tristram"]);
+    if (isBoss && character.classId === "assassin" && vipersKissDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.002) {
+      const claw = generateVipersKiss();
+      setInventory((prev) => [...prev, claw]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(claw.rarity) >= rarityOrder.indexOf(prev.rarity) ? claw : prev);
+    }
+    const shadowfangDungeons = new Set(["diablo", "imp-field", "lava-river", "ashen-caves"]);
+    if (isBoss && character.classId === "assassin" && shadowfangDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.002) {
+      const claw = generateShadowfang();
+      setInventory((prev) => [...prev, claw]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(claw.rarity) >= rarityOrder.indexOf(prev.rarity) ? claw : prev);
+    }
+    const deathwhisperDungeons = new Set(["higher-hell", "lower-hell", "hellcore"]);
+    if (isBoss && character.classId === "assassin" && deathwhisperDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.002) {
+      const claw = generateDeathwhisper();
+      setInventory((prev) => [...prev, claw]);
+      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(claw.rarity) >= rarityOrder.indexOf(prev.rarity) ? claw : prev);
     }
     const dropChance = isBoss ? 1 : 0.35;
     if (isAndariel && Math.random() < 0.01) {

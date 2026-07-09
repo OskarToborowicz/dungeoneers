@@ -94,6 +94,12 @@ export interface Item {
   crownOfTheFallen?: boolean;
   stormstring?: boolean;
   doomcrier?: boolean;
+  arcanist?: boolean;
+  eternitysEdge?: boolean;
+  apprenticesFocus?: boolean;
+  vipersKiss?: boolean;
+  shadowfang?: boolean;
+  deathwhisper?: boolean;
 }
 
 export interface RunStats {

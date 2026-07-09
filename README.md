@@ -255,6 +255,8 @@ Monsters always have at least a 15% chance to hit regardless of the player's def
 | Player (base) | 5% + dex×0.001 (cap 60%) | ×1.50 |
 | Monster | 10% | ×1.75 |
 
+Basic attacks always roll for crits. The following abilities also crit on their direct-damage roll: **Fireball** (Sorceress), **Holy Bolt** damage (Paladin), and **Poison Dagger initial hit** (Necromancer). DoT ticks, burn stacks, and the Paladin's heal component never crit independently — if Holy Bolt's damage crits, the `round(dmg × 0.35)` heal is derived from the already-critted value and scales up naturally.
+
 ### Mana Regeneration
 
 Every round, mana classes regenerate **5% of max mana** regardless of the action taken (including rounds when an ability is used). The Sorceress has a higher passive regen rate: **10% of max mana every turn** regardless of action, courtesy of the **Arcane Flow** passive.
@@ -398,14 +400,14 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Kind**: dot (magic — gains `magicDamageBonus` per tick)
 - **Mana Cost**: 20
 - **Cooldown**: 2 turns
-- **Initial hit**: `round(randomInRange(damage) × 0.4) + magicDamageBonus`
-- **Poison ticks**: 3 rounds of `round(randomInRange(damage) × 1.4 × 0.4) + magicDamageBonus` each
+- **Initial hit**: `round(randomInRange(damage) × 0.4) + magicDamageBonus` — **can crit**
+- **Poison ticks**: 3 rounds of `round(randomInRange(damage) × 1.4 × 0.4) + magicDamageBonus` each — cannot crit
 
 ### Sorceress — Fireball
 - **Kind**: burst (magic — gains `magicDamageBonus` and `magicDamageMult`)
 - **Mana Cost**: 30
 - **Cooldown**: 0 (can cast every turn)
-- **Damage**: `round((randomInRange(damage) × 1.0 + magicDamageBonus × 2) × magicDamageMult)`
+- **Damage**: `round((randomInRange(damage) × 1.0 + magicDamageBonus × 2) × magicDamageMult)` — **can crit**
 - Scales equally with weapon damage and doubly with Magic Damage bonus, making Energy investment highly rewarding
 
 ### Sorceress — Frost Shield *(Ability 2)*
@@ -437,8 +439,8 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Kind**: heal (magic — gains `magicDamageBonus` and `magicDamageMult`)
 - **Mana Cost**: 20
 - **Cooldown**: 3 turns
-- **Damage**: `round((round(randomInRange(damage) × 1.2) + magicDamageBonus × 1.5) × magicDamageMult)`
-- **Heal**: `round(damage × 0.35)` life restored to the player
+- **Damage**: `round((round(randomInRange(damage) × 1.2) + magicDamageBonus × 1.5) × magicDamageMult)` — **can crit**
+- **Heal**: `round(damage × 0.35)` life restored — always derived from the final damage value, so a crit naturally increases the heal; the heal itself does not roll crit independently
 - Scales with both weapon damage (1.2×) and Magic Damage bonus (1.5×, affected by Ancient Wisdom if cross-classing is ever added)
 
 ### Paladin — Regenerating Nova *(Ability 2)*
@@ -776,7 +778,7 @@ Unique items have fixed stats and a low drop rate. They are not generated random
 | Heavy Stompers | Boots | Any boss | 0.5% | +200 Life, +100 Defense, −20 Strength, −20 Dexterity, −20 Energy |
 | The Pentagram | Amulet | Any Act 2 boss | 0.5% | +100 Damage, −100 Life |
 | Demon's Tail | Belt | Any Act 2 boss | 0.25% | Every direct hit (basic attacks and abilities) pushes an independent burn stack: 30% of that hit's damage per turn for 2 turns. Multiple hits → multiple stacks active simultaneously |
-| Reaper's Hood | Helm | The Reaper (Lower Hell) | 2.5% | +7–12% Life Leech, +35–50 Vitality, +35–50 Damage; 20% chance to disorient on attack for 2 turns |
+| Reaper's Hood | Helm | The Reaper (Lower Hell) | 2.5% | +4–7% Life Leech, +35–50 Vitality, +35–50 Damage; 20% chance to disorient on attack for 2 turns |
 | Harvester | Weapon | The Reaper (Lower Hell, Necromancer only) | 6% | Base 18–28 dmg (two-handed), +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
 | Blooddrinker | Weapon | Any boss (Barbarian only, level 10+) | 0.15% | Base 6–14 dmg; 8–12% Life Leech, +15–20 Strength, −8 Defense |
 | Ironjaw | Weapon | Any boss (Barbarian only, level 28+) | 0.15% | Base 16–26 dmg; +35–50 Damage, +25–35 Vitality, +5% Crit Chance |
@@ -787,6 +789,12 @@ Unique items have fixed stats and a low drop rate. They are not generated random
 | Whisper | Weapon | Any boss (Amazon only, level 8+) | 0.15% | Base 5–12 dmg (two-handed); +10–15 Dexterity, +10–15 Vitality, +10–15 Damage |
 | Stormstring | Weapon | Any boss (Amazon only, level 28+) | 0.15% | Base 16–28 dmg (two-handed); +30–45 Dexterity, +25–35 Damage, −15 Strength; **Electrocute on hit** — enemy takes 20% increased damage for 2 turns |
 | Doomcrier | Weapon | Any boss (Amazon only, level 50+) | 0.15% | Base 28–46 dmg (two-handed); +55–75 Damage, +40–55 Dexterity, +8% Crit Chance; **Heartseeker fires at 70%** instead of 50% |
+| Apprentice's Focus | Weapon | Act 1 bosses: Blood Moor → Ruins of Tristram (Sorceress only) | 0.2% | Base 4–11 dmg (two-handed); +12–18 Energy, +12–18 Magic Damage, +8–12 Mana |
+| The Arcanist | Weapon | Rogue Monastery, Imp Field, Lava River, Ashen Caves (Sorceress only) | 0.2% | Base 9–18 dmg (two-handed); +30–45 Magic Damage, +20–30 Energy, −15 Vitality; **Fireball deals +40% damage while Frost Shield is active** |
+| Eternity's Edge | Weapon | Higher Hell, Lower Hell, Hellcore (Sorceress only) | 0.2% | Base 15–26 dmg (two-handed); +55–75 Magic Damage, +40–55 Energy, +6% Crit Chance; **30% chance for Fireball to echo at 50% power** |
+| Viper's Kiss | Weapon | Act 1 bosses: Blood Moor → Ruins of Tristram (Assassin only) | 0.2% | Base 4–8 dmg; +12–18 Dexterity, +10–15 Damage, +8–12 Vitality |
+| Shadowfang | Weapon | Rogue Monastery, Imp Field, Lava River, Ashen Caves (Assassin only) | 0.2% | Base 9–15 dmg; +30–45 Dexterity, +20–30 Damage, −15 Vitality; **20% chance after each hit to call a phantom strike at 50% damage** |
+| Deathwhisper | Weapon | Higher Hell, Lower Hell, Hellcore (Assassin only) | 0.2% | Base 15–23 dmg; +55–75 Dexterity, +35–50 Damage, +6% Crit Chance; **all damage +30% while the enemy is blinded or disoriented** |
 
 ### Permadeath
 

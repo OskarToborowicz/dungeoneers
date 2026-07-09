@@ -126,6 +126,10 @@ export interface DerivedStats {
   lowLifeDamageBonus: number;
   electrocuteOnHit: boolean;
   heartseekerBoost: boolean;
+  arcanistStaff: boolean;
+  burstEchoChance: number;
+  shadowfangProc: boolean;
+  deathwhisperBoost: boolean;
 }
 
 export function getDerivedStats(
@@ -168,7 +172,11 @@ export function getDerivedStats(
   const lowLifeDamageBonus = equipment.helm?.crownOfTheFallen ? 0.25 : 0;
   const electrocuteOnHit = equipment.weapon?.stormstring === true;
   const heartseekerBoost = equipment.weapon?.doomcrier === true;
-  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction, igniteChance, disorientOnAttackChance, poisonDamageMult, thornReflect, manaRegenMult, blockChance, lowLifeDamageBonus, electrocuteOnHit, heartseekerBoost };
+  const arcanistStaff = equipment.weapon?.arcanist === true;
+  const burstEchoChance = equipment.weapon?.eternitysEdge ? 0.30 : 0;
+  const shadowfangProc = equipment.weapon?.shadowfang === true || equipment.shield?.shadowfang === true;
+  const deathwhisperBoost = equipment.weapon?.deathwhisper === true;
+  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction, igniteChance, disorientOnAttackChance, poisonDamageMult, thornReflect, manaRegenMult, blockChance, lowLifeDamageBonus, electrocuteOnHit, heartseekerBoost, arcanistStaff, burstEchoChance, shadowfangProc, deathwhisperBoost };
 }
 
 export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {

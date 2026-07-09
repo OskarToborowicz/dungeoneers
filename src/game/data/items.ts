@@ -471,7 +471,7 @@ export function generateReapersHood(): Item {
     itemLevel: 57,
     baseDefense: 32,
     affixes: [
-      { label: "", stat: "lifeLeech", value: randInt(7, 12) },
+      { label: "", stat: "lifeLeech", value: randInt(4, 7) },
       { label: "", stat: "vitality", value: randInt(35, 50) },
       { label: "", stat: "damage", value: randInt(35, 50) },
     ],
@@ -674,6 +674,132 @@ export function generateDoomcrier(): Item {
       { label: "", stat: "critChance", value: 8 },
     ],
     doomcrier: true,
+  };
+}
+
+export function generateApprenticesFocus(): Item {
+  itemCounter += 1;
+  const ilvl = 8;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Apprentice's Focus",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: ilvl,
+    baseDamage: [4, 11],
+    twoHanded: true,
+    weaponType: "staff",
+    affixes: [
+      { label: "", stat: "energy", value: randInt(12, 18) },
+      { label: "", stat: "magicDamage", value: randInt(12, 18) },
+      { label: "", stat: "mana", value: randInt(8, 12) },
+    ],
+    apprenticesFocus: true,
+  };
+}
+
+export function generateTheArcanist(): Item {
+  itemCounter += 1;
+  const ilvl = 28;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "The Arcanist",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: ilvl,
+    baseDamage: [9, 18],
+    twoHanded: true,
+    weaponType: "staff",
+    affixes: [
+      { label: "", stat: "magicDamage", value: randInt(30, 45) },
+      { label: "", stat: "energy", value: randInt(20, 30) },
+      { label: "", stat: "vitality", value: -15 },
+    ],
+    arcanist: true,
+  };
+}
+
+export function generateEternitysEdge(): Item {
+  itemCounter += 1;
+  const ilvl = 50;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Eternity's Edge",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: ilvl,
+    baseDamage: [15, 26],
+    twoHanded: true,
+    weaponType: "staff",
+    affixes: [
+      { label: "", stat: "magicDamage", value: randInt(55, 75) },
+      { label: "", stat: "energy", value: randInt(40, 55) },
+      { label: "", stat: "critChance", value: 6 },
+    ],
+    eternitysEdge: true,
+  };
+}
+
+export function generateVipersKiss(): Item {
+  itemCounter += 1;
+  const ilvl = 8;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Viper's Kiss",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: ilvl,
+    baseDamage: [4, 8],
+    twoHanded: false,
+    weaponType: "claw",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(12, 18) },
+      { label: "", stat: "damage", value: randInt(10, 15) },
+      { label: "", stat: "vitality", value: randInt(8, 12) },
+    ],
+    vipersKiss: true,
+  };
+}
+
+export function generateShadowfang(): Item {
+  itemCounter += 1;
+  const ilvl = 28;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Shadowfang",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: ilvl,
+    baseDamage: [9, 15],
+    twoHanded: false,
+    weaponType: "claw",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(30, 45) },
+      { label: "", stat: "damage", value: randInt(20, 30) },
+      { label: "", stat: "vitality", value: -15 },
+    ],
+    shadowfang: true,
+  };
+}
+
+export function generateDeathwhisper(): Item {
+  itemCounter += 1;
+  const ilvl = 50;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Deathwhisper",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: ilvl,
+    baseDamage: [15, 23],
+    twoHanded: false,
+    weaponType: "claw",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(55, 75) },
+      { label: "", stat: "damage", value: randInt(35, 50) },
+      { label: "", stat: "critChance", value: 6 },
+    ],
+    deathwhisper: true,
   };
 }
 
