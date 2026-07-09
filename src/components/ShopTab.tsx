@@ -37,7 +37,7 @@ export function ShopTab({
   onSellAll,
 }: Props) {
   const [confirmSellAll, setConfirmSellAll] = useState(false);
-  const { hovered: shopHovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover } = useItemHover();
+  const { hovered: shopHovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover, tooltipRef, compareRef } = useItemHover();
   const classDef = CLASSES[character.classId];
   const availableConsumables = CONSUMABLE_LIST.filter(
     (c) => c.id !== "manaPotion" || classDef.resourceType === "mana"
@@ -134,10 +134,10 @@ export function ShopTab({
       )}
       {shopHovered && (
         <>
-          <div style={tooltipStyle()!}>
+          <div ref={tooltipRef} style={tooltipStyle()!}>
             <ItemTooltip item={shopHovered.item} />
           </div>
-          <div style={compareStyle()!}>
+          <div ref={compareRef} style={compareStyle()!}>
             <CompareGroup slot={shopHovered.item.slot} equipment={equipment} hoveredItem={shopHovered.item} />
           </div>
         </>

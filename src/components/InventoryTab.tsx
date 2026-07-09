@@ -41,7 +41,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
   const [dragOver, setDragOver] = useState<Location | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
   const [selected, setSelected] = useState<{ id: string; from: Location } | null>(null);
-  const { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover } = useItemHover();
+  const { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover, tooltipRef, compareRef } = useItemHover();
 
   function handleDrop(e: DragEvent, target: Location) {
     e.preventDefault();
@@ -183,10 +183,10 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
 
       {hovered && !dragging && !hasSelected && (
         <>
-          <div style={tooltipStyle()!}>
+          <div ref={tooltipRef} style={tooltipStyle()!}>
             <ItemTooltip item={hovered.item} />
           </div>
-          <div style={compareStyle()!}>
+          <div ref={compareRef} style={compareStyle()!}>
             <CompareGroup slot={hovered.item.slot} equipment={equipment} hoveredItem={hovered.item} />
           </div>
         </>
