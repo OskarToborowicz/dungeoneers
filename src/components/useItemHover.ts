@@ -52,5 +52,10 @@ export function useItemHover() {
     };
   }
 
-  return { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle };
+  function clearHover() {
+    if (hideTimer.current) clearTimeout(hideTimer.current);
+    setHovered(null);
+  }
+
+  return { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover };
 }

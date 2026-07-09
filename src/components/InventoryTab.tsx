@@ -41,7 +41,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
   const [dragOver, setDragOver] = useState<Location | null>(null);
   const [dragging, setDragging] = useState<string | null>(null);
   const [selected, setSelected] = useState<{ id: string; from: Location } | null>(null);
-  const { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle } = useItemHover();
+  const { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover } = useItemHover();
 
   function handleDrop(e: DragEvent, target: Location) {
     e.preventDefault();
@@ -68,10 +68,11 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
         e.dataTransfer.setData("application/json", encode(item.id, from));
         e.dataTransfer.effectAllowed = "move";
         setDragging(item.id);
+        clearHover();
         const icon = (e.currentTarget as HTMLElement).querySelector<SVGElement>(".item-icon");
         if (icon) e.dataTransfer.setDragImage(icon, 17, 17);
       },
-      onDragEnd: () => setDragging(null),
+      onDragEnd: () => { setDragging(null); clearHover(); },
     };
   }
 
@@ -80,6 +81,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
       setSelected(null);
       return;
     }
+    if (!selected && from !== "inventory") return;
     if (selected) {
       if (selected.from === "inventory" && from !== "inventory") {
         onMoveItem(selected.id, "inventory", from as EquipmentSlot);
@@ -99,6 +101,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
     if (!selected) return;
     onMoveItem(selected.id, selected.from, slot);
     setSelected(null);
+    clearHover();
   }
 
   const isSelected = (id: string, from: Location) => selected?.id === id && selected.from === from;
@@ -166,7 +169,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
               style={{ color: RARITY_COLORS[item.rarity] }}
               onClick={(e) => { e.stopPropagation(); tapItem(item, "inventory"); }}
               onDoubleClick={() => onMoveItem(item.id, "inventory", bestSlot(item, equipment))}
-              onMouseEnter={(e) => onMouseEnter(item, e)}
+              onMouseEnter={(e) => { if (hasSelected) setSelected(null); onMouseEnter(item, e); }}
               onMouseLeave={onMouseLeave}
               {...dragHandleProps(item, "inventory")}
             >
