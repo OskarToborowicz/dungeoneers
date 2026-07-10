@@ -82,8 +82,8 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     },
     ability2: {
       name: "Golem Defense",
-      description: "Summon a stone golem that absorbs 20% of incoming damage for 3 turns, then hurls itself at the enemy for the total absorbed damage.",
-      short: "Golem absorbs 20% of damage for 3 turns, then explodes on the enemy.",
+      description: "The Stone Golem rolls in and stuns the enemy for 1 turn, then stands guard for 3 turns — redirecting 30% of all incoming damage back at the enemy.",
+      short: "Stuns enemy 1 turn. Golem guards for 3 turns, reflecting 30% of incoming damage back.",
       manaCost: 40,
       cooldown: 6,
       kind: "golem",

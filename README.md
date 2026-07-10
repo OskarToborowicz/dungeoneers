@@ -297,11 +297,14 @@ Active status effects are shown as colored pills below each combatant's HP bar a
 | Effect | Trigger | Display |
 |---|---|---|
 | ☠ Poison N | Necromancer Poison Dagger | Green pill, remaining tick count |
+| 💫 Stunned N | Necromancer Golem Defense | Yellow pill, remaining stunned turns; monster cannot act |
 | ❄ Frozen N | Amazon Freezing Shot | Blue pill, remaining frozen turns |
 | ⚡ Electrocute N | Amazon — Stormstring bow on hit | Yellow pill, remaining turns; enemy takes 20% increased damage from all sources |
 | 🔥 Burn N | Demon's Tail belt — every hit/ability | Orange pill per active stack; hovering shows source and damage per turn |
 
 **Burn stacks independently** — each hit with Demon's Tail equipped pushes a new `{ rounds, damage, source }` entry. Multiple stacks can be active simultaneously, each with its own timer and damage value (30% of the triggering hit). A separate 🔥 Burn badge appears for each active stack.
+
+**Stunned** prevents the monster from acting for the duration. Applied by Golem Defense on cast. The monster still appears on its turn in the combat log with a "stunned" message but deals no damage and casts no spells.
 
 **Frozen** prevents the monster from acting entirely for the duration. The monster still appears on its turn in the combat log with a "frozen solid" message, but deals no damage and casts no spells.
 
@@ -331,7 +334,7 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 | Barbarian | Blood Fury | Red spinning vortex |
 | Barbarian | Obliterate | Red spinning vortex |
 | Necromancer | Poison Cloud | Green toxic cloud flies toward the enemy and billows on impact |
-| Necromancer | Golem Defense | Stone golem rises from the ground; explodes into rock shards on detonation |
+| Necromancer | Golem Defense | Stone boulder rolls in with dust trails, impacts the enemy with stun stars, then the golem stands guard next to the Necromancer |
 | Sorceress | Fireball | Expanding fireball with rays |
 | Amazon | Multishot | Two green arrows flying toward the enemy |
 | Amazon | Freezing Shot | Icy blue arrow flying toward the enemy + frost explosion on impact |
@@ -410,10 +413,10 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Kind**: golem (physical, `canMiss: false`)
 - **Mana Cost**: 40
 - **Cooldown**: 6 turns
-- **Duration**: 3 turns while the golem is active
-- **Absorption**: Each turn the golem is active, 20% of all incoming damage is redirected to an absorbed pool rather than dealing full damage to the player
-- **Detonation**: When the golem's 2-turn duration expires, it hurls itself at the enemy for the total absorbed damage — can critically strike
-- **Display**: Golem appears on the battlefield as an SVG with a round countdown badge, just like the Assassin's Fire Trap
+- **On cast**: The Stone Golem rolls in and **stuns the enemy for 1 turn** (💫 Stunned pill, monster cannot act)
+- **Guard duration**: 3 turns — the golem stands next to the Necromancer on the battlefield
+- **Redirect**: Each turn the golem is active, **30% of all incoming damage** (physical and spell) is redirected back at the enemy; the player receives only the remaining 70%
+- **Display**: Golem appears on the left/player side of the arena as an SVG with a round countdown badge; cannot be re-summoned while active
 
 ### Sorceress — Fireball
 - **Kind**: burst (magic — gains `magicDamageBonus` and `magicDamageMult`)
@@ -525,7 +528,8 @@ reduction = floor(missingLifePct / 5) × 2%
 - All damage-over-time effects deal **25% increased damage** (multiplicative multiplier applied at cast time).
 
 ### Necromancer — Blood Barrier *(unlocks at level 35)*
-- Soul Siphon heals can overheal up to **25% of maximum life**, creating a temporary buffer. Does not apply to health potions.
+- Soul Siphon heals and **life steal** (Life Leech affixes, unique item lifesteal) can overheal up to **25% of maximum life**, creating a temporary buffer.
+- Health potions are excluded — they never contribute to the overheal buffer.
 - Overheal is shown as a **blue glow** on the HP bar (scales with how full the buffer is) and a **+X** badge next to the HP display.
 
 ### Sorceress — Arcane Flow *(always active)*
@@ -722,12 +726,14 @@ restockFee = round(10 + (level − 1) × 8)
 
 ## Consumables
 
-Bought from the Shop tab. Prices are fixed.
+Bought from the Shop tab.
 
-| Item | Cost | Effect | Cooldown |
-|---|---|---|---|
-| Health Potion | 12 gold | Restores 35% of max life | 3 turns |
-| Mana Potion | 12 gold | Restores 35% of max mana | 3 turns |
+| Item | Act 1 Cost | Act 2 Cost | Act 1 Effect | Act 2 Effect | Cooldown |
+|---|---|---|---|---|---|
+| Health Potion | 12 gold | 250 gold | Restores 35% of max life | Restores 50% of max life | 3 turns |
+| Mana Potion | 12 gold | 250 gold | Restores 35% of max mana | Restores 50% of max mana | 3 turns |
+
+Prices and restore rates upgrade automatically when Act 2 is unlocked (after clearing Rogue Monastery). The shop description updates to reflect the current tier.
 
 Potions are used as an action during combat. The restored amount scales with the character's current max life/mana (including all gear bonuses), making them more powerful as the character grows stronger. Each potion type has its own independent cooldown timer shown on the button.
 

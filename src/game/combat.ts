@@ -36,7 +36,7 @@ export interface BattleState {
   burnStacks: { rounds: number; damage: number; source: string }[];
   electrocuteRounds: number;
   golemRounds: number;
-  golemAbsorbed: number;
+  stunnedRounds: number;
 }
 
 export type PlayerActionKind = "attack" | "ability" | "ability2" | "healthPotion" | "manaPotion";
@@ -61,7 +61,6 @@ export interface RoundResult {
   damageDealt: number;
   monsterSpellCast?: string;
   trapDetonated?: boolean;
-  golemDetonated?: boolean;
 }
 
 const ALWAYS_MISS_CHANCE = 0.02;
@@ -135,7 +134,7 @@ export function createBattleState(
     burnStacks: [],
     electrocuteRounds: 0,
     golemRounds: 0,
-    golemAbsorbed: 0,
+    stunnedRounds: 0,
   };
 }
 
@@ -255,7 +254,7 @@ export function getAbility2Preview(character: Character, stats: DerivedStats): D
     return { label: `3× ${healPerTick} heal`, type: "Heal" };
   }
   if (ability.kind === "golem") {
-    return { label: "20% absorb × 3", type: "Buff" };
+    return { label: "Stun 1 turn + 30% reflect × 3", type: "Buff" };
   }
   return { label: "—", type: "Physical" };
 }
@@ -273,8 +272,9 @@ export function resolveRound(
 
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
+  const bloodBarrierCap = character.classId === "necromancer" && character.level >= 35 ? stats.maxLife * 1.25 : stats.maxLife;
 
-  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, electrocuteRounds, golemRounds, golemAbsorbed } = state;
+  let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, electrocuteRounds, golemRounds, stunnedRounds } = state;
   let burnStacks = state.burnStacks.map(s => ({ ...s }));
   const electrocuteMult = electrocuteRounds > 0 ? 1.20 : 1.0;
   const deathwhisperMult = stats.deathwhisperBoost && (blindRounds > 0 || disorientRounds > 0) ? 1.30 : 1.0;
@@ -315,14 +315,14 @@ export function resolveRound(
       if (bloodFuryRounds > 0) {
         const stolen = Math.round(dmg * BARBARIAN_BLOOD_FURY_LIFESTEAL);
         if (stolen > 0) {
-          playerLife = Math.min(stats.maxLife, playerLife + stolen);
+          playerLife = Math.min(bloodBarrierCap, playerLife + stolen);
           attackMsg += ` Blood Fury steals ${stolen} life.`;
         }
       }
       if (stats.lifeLeechBonus > 0) {
         const leeched = Math.round(dmg * stats.lifeLeechBonus / 100);
         if (leeched > 0) {
-          playerLife = Math.min(stats.maxLife, playerLife + leeched);
+          playerLife = Math.min(bloodBarrierCap, playerLife + leeched);
           attackMsg += ` Life Leech restores ${leeched} life.`;
         }
       }
@@ -379,14 +379,14 @@ export function resolveRound(
         if (bloodFuryRounds > 0) {
           const stolen2 = Math.round(dmg2 * BARBARIAN_BLOOD_FURY_LIFESTEAL);
           if (stolen2 > 0) {
-            playerLife = Math.min(stats.maxLife, playerLife + stolen2);
+            playerLife = Math.min(bloodBarrierCap, playerLife + stolen2);
             swingMsg += ` Blood Fury steals ${stolen2} life.`;
           }
         }
         if (stats.lifeLeechBonus > 0) {
           const leeched2 = Math.round(dmg2 * stats.lifeLeechBonus / 100);
           if (leeched2 > 0) {
-            playerLife = Math.min(stats.maxLife, playerLife + leeched2);
+            playerLife = Math.min(bloodBarrierCap, playerLife + leeched2);
             swingMsg += ` Life Leech restores ${leeched2} life.`;
           }
         }
@@ -458,8 +458,7 @@ export function resolveRound(
         poisonDamage = Math.round(rollAbilityDamage(stats, def.ability.power * 0.4, def.ability.magic) * stats.poisonDamageMult * virulenceMult);
         const siphonHitHeal = character.classId === "necromancer" ? Math.round(dmg * NECROMANCER_SOUL_SIPHON) : 0;
         if (siphonHitHeal > 0) {
-          const healCap = character.classId === "necromancer" && character.level >= 35 ? stats.maxLife * 1.25 : stats.maxLife;
-          playerLife = Math.min(healCap, playerLife + siphonHitHeal);
+          playerLife = Math.min(bloodBarrierCap, playerLife + siphonHitHeal);
         }
         log.push({
           actor: "player",
@@ -619,10 +618,10 @@ export function resolveRound(
         doBasicAttack();
       } else if (def.ability2.kind === "golem") {
         golemRounds = 3;
-        golemAbsorbed = 0;
+        stunnedRounds = 1;
         log.push({
           actor: "player",
-          message: "You summon a Stone Golem! It will absorb 20% of incoming damage for 3 turns.",
+          message: `The Stone Golem rolls in and stuns ${monster.name}! It will redirect 30% of incoming damage back for 3 turns.`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
@@ -719,7 +718,7 @@ export function resolveRound(
       burnStacks,
       electrocuteRounds,
       golemRounds,
-      golemAbsorbed,
+      stunnedRounds,
     };
   }
 
@@ -760,8 +759,7 @@ export function resolveRound(
       ? Math.round(poisonDamage * NECROMANCER_SOUL_SIPHON)
       : 0;
     if (necroHeal > 0) {
-      const healCap = character.classId === "necromancer" && character.level >= 35 ? stats.maxLife * 1.25 : stats.maxLife;
-      playerLife = Math.min(healCap, playerLife + necroHeal);
+      playerLife = Math.min(bloodBarrierCap, playerLife + necroHeal);
     }
     log.push({
       actor: "monster",
@@ -795,15 +793,22 @@ export function resolveRound(
   burnStacks = burnStacks.filter(s => s.rounds > 0);
 
   if (trapRounds > 0) trapRounds -= 1;
-  if (golemRounds > 0) golemRounds -= 1;
 
   if (monsterSpellCooldown > 0) monsterSpellCooldown -= 1;
 
   let monsterSpellCastName: string | undefined;
 
-  // Frozen or blinded — monster skips its action entirely
-  const monsterActsThisTurn = frozenRounds <= 0 && blindRounds <= 0;
-  if (frozenRounds > 0) {
+  // Frozen, stunned, or blinded — monster skips its action entirely
+  const monsterActsThisTurn = frozenRounds <= 0 && stunnedRounds <= 0 && blindRounds <= 0;
+  if (stunnedRounds > 0) {
+    stunnedRounds -= 1;
+    log.push({
+      actor: "monster",
+      message: `${monster.name} is stunned and cannot act!`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+  } else if (frozenRounds > 0) {
     frozenRounds -= 1;
     log.push({
       actor: "monster",
@@ -843,9 +848,10 @@ export function resolveRound(
     let spellDmg = Math.round(randomInRange(monster.damage) * spell.power * (disorientRounds > 0 ? 0.75 : 1.0));
     if (frostShieldRounds > 0) spellDmg = Math.max(1, Math.round(spellDmg * 0.40));
     if (golemRounds > 0) {
-      const absorbed = Math.round(spellDmg * 0.20);
-      golemAbsorbed += absorbed;
-      spellDmg = Math.max(1, spellDmg - absorbed);
+      const reflected = Math.round(spellDmg * 0.30);
+      monsterLife -= reflected;
+      damageDealt += reflected;
+      spellDmg = Math.max(1, spellDmg - reflected);
     }
     const fadedSpell = character.classId === "assassin" && Math.random() < 0.25;
     if (fadedSpell) spellDmg = Math.max(1, Math.round(spellDmg * 0.55));
@@ -857,7 +863,7 @@ export function resolveRound(
       playerLife -= spellDmg;
       log.push({
         actor: "monster",
-        message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!${frostShieldRounds > 0 ? " Frost Shield absorbs 60%." : ""}${golemRounds > 0 ? " Stone Golem absorbs 20%." : ""}`,
+        message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!${frostShieldRounds > 0 ? " Frost Shield absorbs 60%." : ""}${golemRounds > 0 ? " Stone Golem reflects 30% back!" : ""}`,
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });
@@ -943,9 +949,10 @@ export function resolveRound(
       const boneweaveBlocked = stats.blockChance > 0 && Math.random() < stats.blockChance / 100;
       if (boneweaveBlocked) dmg = 1;
       if (golemRounds > 0) {
-        const absorbed = Math.round(dmg * 0.20);
-        golemAbsorbed += absorbed;
-        dmg = Math.max(1, dmg - absorbed);
+        const reflected = Math.round(dmg * 0.30);
+        monsterLife -= reflected;
+        damageDealt += reflected;
+        dmg = Math.max(1, dmg - reflected);
       }
 
       playerLife -= dmg;
@@ -961,7 +968,7 @@ export function resolveRound(
       if (fadedNormal) message += " Fade reduces the blow by 45%.";
       if (ironSkin > 0) message += ` Iron Skin absorbs ${Math.round(ironSkin * 100)}%.`;
       if (frostShieldRounds > 0) message += " Frost Shield absorbs 60%.";
-      if (golemRounds > 0) message += " Stone Golem absorbs 20%.";
+      if (golemRounds > 0) message += " Stone Golem reflects 30% back!";
       if (boneweaveBlocked) message += " Boneweave Gloves block the blow!";
 
       if (character.classId === "paladin") {
@@ -1032,27 +1039,13 @@ export function resolveRound(
     }
   }
 
-  // Golem detonation — after monster acts
-  let golemDetonated = false;
-  if (golemRounds === 0 && state.golemRounds > 0 && golemAbsorbed > 0) {
-    const isCrit = Math.random() < critChance;
-    const finalGolemDmg = isCrit ? Math.round(golemAbsorbed * critMultiplier) : golemAbsorbed;
-    monsterLife -= finalGolemDmg;
-    damageDealt += finalGolemDmg;
-    golemDetonated = true;
-    log.push({
-      actor: "monster",
-      message: isCrit
-        ? `Critical! The Stone Golem explodes for ${finalGolemDmg} damage!`
-        : `The Stone Golem explodes for ${finalGolemDmg} damage!`,
-      playerLife: Math.max(0, playerLife),
-      monsterLife: Math.max(0, monsterLife),
-    });
-    if (monsterLife <= 0) {
-      return { state: makeState(), log, status: "victory", damageDealt, golemDetonated };
+  if (golemRounds > 0) {
+    golemRounds -= 1;
+    if (golemRounds === 0) {
+      log.push({ actor: "player", message: "The Stone Golem crumbles and fades.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     }
   }
 
   const status: BattleStatus = playerLife <= 0 ? "defeat" : "ongoing";
-  return { state: makeState(), log, status, damageDealt, monsterSpellCast: monsterSpellCastName, trapDetonated, golemDetonated };
+  return { state: makeState(), log, status, damageDealt, monsterSpellCast: monsterSpellCastName, trapDetonated };
 }

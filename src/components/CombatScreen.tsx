@@ -77,7 +77,6 @@ export function CombatScreen({
   const [abilityEffect, setAbilityEffect] = useState(false);
   const [ability2Effect, setAbility2Effect] = useState(false);
   const [trapDetonateEffect, setTrapDetonateEffect] = useState(false);
-  const [golemDetonateEffect, setGolemDetonateEffect] = useState(false);
   const [monsterSpellEffect, setMonsterSpellEffect] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showFleePrompt, setShowFleePrompt] = useState(false);
@@ -153,7 +152,6 @@ export function CombatScreen({
           setMonsterAnim("attack");
           if (result.monsterSpellCast) setMonsterSpellEffect(result.monsterSpellCast);
           if (result.trapDetonated) setTrapDetonateEffect(true);
-          if (result.golemDetonated) setGolemDetonateEffect(true);
           // Player HP drops as monster starts attacking
           if (lastMonster) {
             setBattle((b) => ({ ...b, playerLife: lastMonster.playerLife, monsterLife: lastMonster.monsterLife }));
@@ -168,7 +166,6 @@ export function CombatScreen({
           }, 550);
         } else {
           if (result.trapDetonated) setTrapDetonateEffect(true);
-          if (result.golemDetonated) setGolemDetonateEffect(true);
           setBattle(result.state);
           setStatus(result.status);
           setTotalDamageDealt((d) => d + result.damageDealt);
@@ -218,10 +215,7 @@ export function CombatScreen({
         {trapDetonateEffect && (
           <AbilityEffect classId="assassin" detonation={true} onDone={() => setTrapDetonateEffect(false)} />
         )}
-        {golemDetonateEffect && (
-          <AbilityEffect classId="necromancer" golemDetonation={true} onDone={() => setGolemDetonateEffect(false)} />
-        )}
-        {battle.golemRounds > 0 && !golemDetonateEffect && (
+        {battle.golemRounds > 0 && (
           <div className="golem-on-field">
             <svg viewBox="0 0 60 76" overflow="visible">
               <g className="golem-field-body">
@@ -385,10 +379,13 @@ export function CombatScreen({
               {battle.monsterLife}/{monster.life}
             </span>
           </div>
-          {(battle.poisonRounds > 0 || battle.frozenRounds > 0 || battle.blindRounds > 0 || battle.disorientRounds > 0 || battle.burnStacks.some(s => s.rounds > 0) || battle.electrocuteRounds > 0) && (
+          {(battle.poisonRounds > 0 || battle.frozenRounds > 0 || battle.stunnedRounds > 0 || battle.blindRounds > 0 || battle.disorientRounds > 0 || battle.burnStacks.some(s => s.rounds > 0) || battle.electrocuteRounds > 0) && (
             <div className="status-effects">
               {battle.poisonRounds > 0 && (
                 <span className="status-pill poison">☠ Poison {battle.poisonRounds}</span>
+              )}
+              {battle.stunnedRounds > 0 && (
+                <span className="status-pill stunned">💫 Stunned {battle.stunnedRounds}</span>
               )}
               {battle.frozenRounds > 0 && (
                 <span className="status-pill frozen">❄ Frozen {battle.frozenRounds}</span>
@@ -460,7 +457,7 @@ export function CombatScreen({
                   : battle.frostShieldRounds > 0 && def.ability2.kind === "frost_shield"
                   ? `Active: ${battle.frostShieldRounds} turns`
                   : battle.golemRounds > 0 && def.ability2.kind === "golem"
-                  ? `Golem: ${battle.golemRounds} turns left`
+                  ? `Golem Guard: ${battle.golemRounds} turns`
                   : battle.ability2Cooldown > 0
                   ? `Cooldown: ${battle.ability2Cooldown}`
                   : `${def.ability2.manaCost} ${def.resourceName.toLowerCase()}`}

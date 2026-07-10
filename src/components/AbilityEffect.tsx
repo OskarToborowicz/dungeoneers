@@ -6,10 +6,9 @@ interface Props {
   onDone: () => void;
   detonation?: boolean;
   useAbility2?: boolean;
-  golemDetonation?: boolean;
 }
 
-export function AbilityEffect({ classId, onDone, detonation = false, useAbility2 = false, golemDetonation = false }: Props) {
+export function AbilityEffect({ classId, onDone, detonation = false, useAbility2 = false }: Props) {
   useEffect(() => {
     const t = setTimeout(onDone, 800);
     return () => clearTimeout(t);
@@ -20,7 +19,7 @@ export function AbilityEffect({ classId, onDone, detonation = false, useAbility2
       <svg viewBox="0 0 200 120" className="ability-effect-svg" overflow="visible">
         {classId === "barbarian"   && <WhirlwindFx />}
         {classId === "necromancer" && !useAbility2 && <PoisonCloudFx />}
-        {classId === "necromancer" && useAbility2 && <GolemSummonFx />}
+        {classId === "necromancer" && useAbility2 && <GolemRollInFx />}
         {classId === "sorceress"   && !useAbility2 && <FireballFx />}
         {classId === "sorceress"   && useAbility2  && <FrostShieldFx />}
         {classId === "amazon"      && !useAbility2 && <MultishotFx />}
@@ -31,7 +30,6 @@ export function AbilityEffect({ classId, onDone, detonation = false, useAbility2
         {classId === "assassin"    && !detonation && !useAbility2 && <TrapPlantFx />}
         {classId === "assassin"    && detonation  && <TrapDetonateFx />}
         {classId === "assassin"    && useAbility2  && <BlindingPowderFx />}
-        {golemDetonation && <GolemDetonateFx />}
       </svg>
     </div>
   );
@@ -84,54 +82,38 @@ function PoisonCloudFx() {
   );
 }
 
-function GolemSummonFx() {
-  return (
-    <g className="ae-golem-summon" style={{ transformOrigin: "70px 60px" }}>
-      {/* Stone body */}
-      <rect x="54" y="38" width="32" height="38" rx="6" fill="#7a7060" opacity="0.9"/>
-      {/* Head */}
-      <rect x="60" y="26" width="20" height="18" rx="4" fill="#8a8070" opacity="0.9"/>
-      {/* Eyes glowing */}
-      <circle cx="65" cy="34" r="3" fill="#aadd88" opacity="0.95" className="ae-golem-eye"/>
-      <circle cx="75" cy="34" r="3" fill="#aadd88" opacity="0.95" className="ae-golem-eye"/>
-      {/* Stone cracks */}
-      <line x1="66" y1="44" x2="70" y2="56" stroke="#4a4030" strokeWidth="1.5" opacity="0.7"/>
-      <line x1="74" y1="42" x2="71" y2="55" stroke="#4a4030" strokeWidth="1.2" opacity="0.6"/>
-      {/* Ground ring */}
-      <ellipse cx="70" cy="78" rx="26" ry="6" fill="none" stroke="#8a8070" strokeWidth="2" opacity="0.6" className="ae-golem-ring"/>
-      {/* Rock particles rising */}
-      <circle cx="48" cy="66" r="4" fill="#8a8070" opacity="0.7" className="ae-golem-rock ae-gr-1"/>
-      <circle cx="94" cy="62" r="3.5" fill="#9a9080" opacity="0.65" className="ae-golem-rock ae-gr-2"/>
-      <circle cx="58" cy="82" r="3" fill="#7a7060" opacity="0.6" className="ae-golem-rock ae-gr-3"/>
-    </g>
-  );
-}
-
-function GolemDetonateFx() {
+function GolemRollInFx() {
   return (
     <g>
-      {/* Stone explosion on monster side */}
-      <g className="ae-golem-det-core" style={{ transformOrigin: "145px 62px" }}>
-        <circle cx="145" cy="62" r="22" fill="#8a8070" opacity="0.85"/>
-        <circle cx="145" cy="62" r="13" fill="#aaa090" opacity="0.9"/>
-        <circle cx="145" cy="62" r="6"  fill="#d4c8a8" opacity="0.95"/>
+      {/* Boulder rolling from player side toward enemy — trail dust */}
+      <ellipse className="ae-groll-dust ae-grd-1" cx="52" cy="80" rx="14" ry="5" fill="#b8a888" opacity="0.5"/>
+      <ellipse className="ae-groll-dust ae-grd-2" cx="78" cy="80" rx="10" ry="4" fill="#c0b090" opacity="0.45"/>
+      <ellipse className="ae-groll-dust ae-grd-3" cx="100" cy="80" rx="8"  ry="3" fill="#b8a888" opacity="0.4"/>
+      {/* Spinning boulder */}
+      <g className="ae-groll-boulder" style={{ transformOrigin: "130px 70px" }}>
+        <circle cx="130" cy="70" r="22" fill="#7a7060" opacity="0.92"/>
+        <circle cx="130" cy="70" r="14" fill="#8a8070" opacity="0.88"/>
+        {/* crack lines that spin to show rotation */}
+        <line x1="130" y1="48" x2="130" y2="92" stroke="#4a4030" strokeWidth="2" opacity="0.5"/>
+        <line x1="108" y1="70" x2="152" y2="70" stroke="#4a4030" strokeWidth="2" opacity="0.5"/>
+        <line x1="114" y1="54" x2="146" y2="86" stroke="#4a4030" strokeWidth="1.5" opacity="0.4"/>
+        {/* impact glow */}
+        <circle cx="130" cy="70" r="6" fill="#aadd88" opacity="0.85" className="ae-groll-eye"/>
       </g>
-      {/* Rock shards flying out */}
-      <g className="ae-golem-det-shards" style={{ transformOrigin: "145px 62px" }}>
-        <polygon points="145,38 141,54 149,54" fill="#7a7060" opacity="0.88"/>
-        <polygon points="169,62 155,58 155,66" fill="#7a7060" opacity="0.88"/>
-        <polygon points="145,86 149,70 141,70" fill="#7a7060" opacity="0.88"/>
-        <polygon points="121,62 135,66 135,58" fill="#7a7060" opacity="0.88"/>
-        <polygon points="166,43 156,54 162,47" fill="#9a9080" opacity="0.75"/>
-        <polygon points="166,81 162,68 156,72" fill="#9a9080" opacity="0.75"/>
-        <polygon points="124,81 128,68 134,72" fill="#9a9080" opacity="0.75"/>
-        <polygon points="124,43 134,54 128,47" fill="#9a9080" opacity="0.75"/>
+      {/* Impact burst on enemy side */}
+      <g className="ae-groll-impact" style={{ transformOrigin: "155px 62px" }}>
+        <circle cx="155" cy="62" r="18" fill="#8a8070" opacity="0.0"/>
+        <polygon points="155,38 151,56 159,56" fill="#7a7060" opacity="0.0"/>
+        <polygon points="179,62 163,58 163,66" fill="#7a7060" opacity="0.0"/>
+        <polygon points="155,86 159,68 151,68" fill="#7a7060" opacity="0.0"/>
+        <polygon points="131,62 147,66 147,58" fill="#7a7060" opacity="0.0"/>
       </g>
-      {/* Dust cloud */}
-      <circle className="ae-golem-dust ae-gd-1" cx="120" cy="50" r="9" fill="#c8b898" opacity="0.55"/>
-      <circle className="ae-golem-dust ae-gd-2" cx="172" cy="48" r="8" fill="#b8a888" opacity="0.5"/>
-      <circle className="ae-golem-dust ae-gd-3" cx="174" cy="74" r="10" fill="#c0b090" opacity="0.52"/>
-      <circle className="ae-golem-dust ae-gd-4" cx="120" cy="76" r="9" fill="#b8a888" opacity="0.5"/>
+      {/* Stun stars around enemy */}
+      <g className="ae-groll-stun">
+        <text x="158" y="32" fontSize="12" textAnchor="middle" fill="#ffee44" opacity="0.9">★</text>
+        <text x="174" y="48" fontSize="10" textAnchor="middle" fill="#ffdd22" opacity="0.85">✦</text>
+        <text x="162" y="22" fontSize="9"  textAnchor="middle" fill="#ffee44" opacity="0.8">★</text>
+      </g>
     </g>
   );
 }
