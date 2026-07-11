@@ -86,6 +86,7 @@ export interface Item {
   mirrorRing?: boolean;
   demonsTail?: boolean;
   reapersHood?: boolean;
+  spellbladesMask?: boolean;
   harvester?: boolean;
   venomweaveWrap?: boolean;
   thornback?: boolean;

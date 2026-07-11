@@ -198,6 +198,23 @@ function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+export function generateSpellbladesMask(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Spellblade's Mask",
+    slot: "helm",
+    rarity: "unique",
+    itemLevel: 1,
+    baseDefense: 8,
+    affixes: [
+      { label: "", stat: "magicDamage", value: 15 },
+      { label: "", stat: "damage", value: 15 },
+    ],
+    spellbladesMask: true,
+  };
+}
+
 export function generateMirrorRing(): Item {
   itemCounter += 1;
   return {

@@ -80,12 +80,28 @@ export function CombatScreen({
   const [monsterSpellEffect, setMonsterSpellEffect] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showFleePrompt, setShowFleePrompt] = useState(false);
+  const [critFlash, setCritFlash] = useState(false);
 
   useEffect(() => {
     if (logRef.current) {
       logRef.current.scrollTop = logRef.current.scrollHeight;
     }
   }, [log]);
+
+  useEffect(() => {
+    if (status !== "victory" || !reward || xpCapped) return;
+    const pendingXp = Math.round(reward.xp * xpMultiplier);
+    let simXp = character.xp + pendingXp;
+    let simLevel = character.level;
+    let levelsGained = 0;
+    while (simXp >= xpToNextLevel(simLevel)) { simXp -= xpToNextLevel(simLevel); simLevel++; levelsGained++; }
+    if (levelsGained > 0) {
+      const sfx = new Audio(import.meta.env.BASE_URL + "levelup.mp3");
+      sfx.volume = 1;
+      sfx.play().catch(() => {});
+    }
+  }, [status]);
+
 
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -109,6 +125,9 @@ export function CombatScreen({
     const result = resolveRound(character, derived, monster, battle, action, clearedDungeons);
 
     if (result.status === "victory") {
+      if (result.log.some((e) => e.actor === "player" && e.message.includes("Critical hit!"))) {
+        setCritFlash(true); setTimeout(() => setCritFlash(false), 600);
+      }
       if (wasAbility) setAbilityEffect(true);
       if (wasAbility2) setAbility2Effect(true);
       setBattle(result.state);
@@ -135,8 +154,10 @@ export function CombatScreen({
       const lastPlayer = playerEntries.length > 0 ? playerEntries[playerEntries.length - 1] : null;
       const lastMonster = monsterEntries.length > 0 ? monsterEntries[monsterEntries.length - 1] : null;
 
+      const hasCrit = playerEntries.some((e) => e.message.includes("Critical hit!"));
       setIsAnimating(true);
       setPlayerAnim("attack");
+      if (hasCrit) { setCritFlash(true); setTimeout(() => setCritFlash(false), 600); }
       if (wasAbility) setAbilityEffect(true);
       if (wasAbility2) setAbility2Effect(true);
       // Monster HP drops immediately as player starts swinging
@@ -256,7 +277,7 @@ export function CombatScreen({
             </svg>
           </div>
         )}
-        <div className={`battle-side player-side${battle.regenRounds > 0 ? " regen-aura-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}`}>
+        <div className={`battle-side player-side${battle.regenRounds > 0 ? " regen-aura-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}`}>
           <CharacterSprite
               classId={character.classId}
               size={80}
@@ -277,7 +298,7 @@ export function CombatScreen({
         <div className="combat-bar-block">
           <div className="combat-bar-label">{character.name} <span className="monster-level">Lv.{character.level}</span></div>
           {(() => {
-            const overhealFrac = Math.max(0, Math.min(0.25, (battle.playerLife - derived.maxLife) / derived.maxLife));
+            const overhealFrac = Math.max(0, Math.min(0.25, battle.absorbShield / derived.maxLife));
             const glowT = overhealFrac / 0.25;
             const glowPx = Math.round(glowT * 14);
             const glowAlpha = (0.4 + glowT * 0.6).toFixed(2);
@@ -310,8 +331,8 @@ export function CombatScreen({
             <span className="combat-stat hp">
               <svg viewBox="0 0 10 9" width="10" height="9"><path d="M5 8 C5 8 1 5 1 3a2 2 0 0 1 4-1 2 2 0 0 1 4 1c0 2-4 5-4 5z" fill="#cc3333"/></svg>
               {Math.min(battle.playerLife, derived.maxLife)}/{derived.maxLife}
-              {battle.playerLife > derived.maxLife && (
-                <span className="overheal-badge">+{battle.playerLife - derived.maxLife}</span>
+              {battle.absorbShield > 0 && (
+                <span className="overheal-badge">+{battle.absorbShield}</span>
               )}
             </span>
             <span className={`combat-stat ${def.resourceType}`}>
@@ -482,11 +503,21 @@ export function CombatScreen({
           <h3 className={status === "victory" ? "victory-text" : "defeat-text"}>
             {status === "victory" ? "Victory!" : "You Have Died"}
           </h3>
-          {status === "victory" && reward && (
-            <p>
-              {!xpCapped && <>+{Math.round(reward.xp * xpMultiplier)} XP &middot; </>}+{reward.gold} gold
-            </p>
-          )}
+          {status === "victory" && reward && (() => {
+            const pendingXp = !xpCapped ? Math.round(reward.xp * xpMultiplier) : 0;
+            let simXp = character.xp + pendingXp;
+            let simLevel = character.level;
+            let levelsGained = 0;
+            while (simXp >= xpToNextLevel(simLevel)) { simXp -= xpToNextLevel(simLevel); simLevel++; levelsGained++; }
+            return (
+              <>
+                <p>
+                  {!xpCapped && <>{pendingXp} XP &middot; </>}{reward.gold} gold
+                </p>
+                {levelsGained > 0 && <p className="level-up-notice">Level up! Now level {simLevel}</p>}
+              </>
+            );
+          })()}
           {status === "defeat" && <p>Your journey ends here. All progress will be lost.</p>}
           <button className="primary-button" onClick={handleContinue}>
             {status === "victory" ? "Continue" : "Accept Your Fate"}

@@ -21,11 +21,13 @@ Build check: `npx tsc --noEmit`
 | `src/game/character.ts` | Stat derivation, XP/level math |
 | `src/game/data/classes.ts` | All 7 class definitions |
 | `src/game/data/dungeons.ts` | All dungeon + monster definitions, `getXpCapLevel()` |
-| `src/game/data/items.ts` | Item generation |
+| `src/game/data/items.ts` | Item generation — random items + all `generate*` unique functions |
+| `src/game/data/drops.ts` | `UNIQUE_DROP_TABLE` — declarative unique drop entries, looped in `App.tsx` on boss kill |
 | `src/game/storage.ts` | localStorage read/write (`SaveSlot[]` array — NOT an object) |
 | `src/App.tsx` | Root state, routing between screens |
 | `src/App.css` | All styles |
 | `src/components/useItemHover.ts` | Shared hook for fixed-position item tooltip + compare panel on hover |
+| `src/components/ItemTooltip.tsx` | `UniqueEffectLines` — renders unique effect text per boolean flag; `sortAffixes()` — display order |
 
 ### Component tree
 
@@ -96,6 +98,31 @@ To clear all saves: `localStorage.clear(); location.reload();`
 `BattleState.burnStacks` is `{ rounds: number; damage: number; source: string }[]`. Each source of ignite pushes its own entry — they are completely independent. Every turn each active stack ticks, deals its damage, decrements rounds, then expired stacks are filtered out. The log message and badge both show the source name and remaining rounds. Currently only `Demon's Tail` calls `tryIgnite()`, but any future item or skill can pass a different `source` string.
 
 **Log order rule:** ignite message always appears AFTER the attack/skill damage line that triggered it.
+
+### Unique item drop system
+
+All unique drop logic lives in `src/game/data/drops.ts` as `UNIQUE_DROP_TABLE: UniqueDropEntry[]`.
+
+```ts
+interface UniqueDropEntry {
+  generator: () => Item;   // one of the generate* functions from items.ts
+  chance: number;          // flat independent roll per boss kill (0–1)
+  dungeons?: string[];     // undefined = any boss; otherwise only these dungeon IDs
+  minLevel?: number;       // player level gate
+  classId?: ClassId;       // class-restricted drops
+}
+```
+
+`App.tsx` iterates the table on every boss kill — each entry rolls independently.
+
+**Adding a new unique — checklist:**
+1. `types.ts` — add `myItem?: boolean` to `Item`
+2. `items.ts` — write `generateMyItem(): Item` with hardcoded affixes using `randInt(min, max)`
+3. `character.ts` — add field to `DerivedStats`, derive it from the boolean flag in `getDerivedStats()`
+4. `combat.ts` — implement the gameplay effect (follow existing unique blocks as pattern)
+5. `ItemTooltip.tsx` — add effect text line in `UniqueEffectLines`
+6. `drops.ts` — add entry to `UNIQUE_DROP_TABLE`
+7. Ask the user to test in-browser (browser automation is not reliable in this environment)
 
 ### Ability `canMiss` flag
 

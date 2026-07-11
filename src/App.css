@@ -378,6 +378,22 @@
   font-family: var(--heading-font);
 }
 
+.stat-point-inline {
+  margin-left: 6px;
+  color: #ffe066;
+  font-size: 33px;
+  font-weight: 900;
+  line-height: 1;
+  vertical-align: middle;
+  text-shadow: 0 0 8px #ffe066, 0 0 16px #ffe066;
+  animation: stat-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes stat-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
 .potions-display {
   display: flex;
   align-items: center;
@@ -434,6 +450,8 @@
   font-size: 15px;
   border-radius: 4px 0 0 4px;
 }
+
+
 
 .tab-bar button.active {
   color: var(--text-heading);
@@ -1260,24 +1278,6 @@
   padding: 12px 0 4px;
 }
 
-.stat-point-arrow {
-  position: absolute;
-  left: 8px;
-  top: 2px;
-  pointer-events: none;
-}
-
-.stat-point-arrow span {
-  display: block;
-  color: var(--class-color);
-  font-size: 28px;
-  font-weight: 900;
-  font-family: Georgia, serif;
-  line-height: 1;
-  text-shadow:
-    -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000,
-    0 0 8px var(--class-color), 0 0 20px var(--class-color);
-}
 
 .class-sprite-preview {
   display: flex;
@@ -1870,6 +1870,15 @@
   50%       { filter: drop-shadow(0 0 14px #aaeeffbb); }
 }
 
+.crit-flash {
+  animation: crit-flash 0.6s ease-out forwards;
+}
+@keyframes crit-flash {
+  0%   { filter: drop-shadow(0 0 0px #ffe066); }
+  25%  { filter: drop-shadow(0 0 22px #ffe066) drop-shadow(0 0 8px #fff); }
+  100% { filter: drop-shadow(0 0 0px #ffe066); }
+}
+
 /* Frost Shield status pill */
 .status-pill.frost-shield {
   background: rgba(30, 80, 140, 0.25);
@@ -2250,6 +2259,12 @@
   color: var(--accent-red-bright);
 }
 
+.level-up-notice {
+  color: #ffe066;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
 /* ---------- Game Over ---------- */
 
 .game-over-screen {
@@ -2360,15 +2375,6 @@
     flex-direction: row;
     align-items: center;
     gap: 4px;
-  }
-
-  .stat-point-arrow {
-    position: static;
-    margin-bottom: 36px;
-  }
-
-  .stat-point-arrow span {
-    font-size: 22px;
   }
 
   /* Tab bar: horizontal row */

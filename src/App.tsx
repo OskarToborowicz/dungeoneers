@@ -7,7 +7,8 @@ import { GameOverScreen } from "./components/GameOverScreen";
 import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
 import { EMPTY_CONSUMABLES, getPotionCost } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
-import { buyValue, generateApprenticesFocus, generateBlooddrinker, generateDeathwhisper, generateBoneweaveGloves, generateCrackedLens, generateCrownOfTheFallen, generateDemonsTail, generateDoomcrier, generateEternitysEdge, generateEyeOfTheStorm, generateHarvester, generateHeavyStompers, generateIronjaw, generateJusticar, generateMaskOfMidnight, generateMaskOfTwilight, generateMirrorRing, generatePeasantHood, generatePenitentsGrace, generatePentagram, generateRagpickersSash, generateReapersHood, generateSanctifier, generateSharpFangs, generateStoneHusk, generateStormstring, generateShadowfang, generateTheArcanist, generateThornback, generateVenomweaveWrap, generateVipersKiss, generateWhisper, generateWorldbreaker, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
+import { buyValue, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
+import { UNIQUE_DROP_TABLE } from "./game/data/drops";
 import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
 import type { CombatResult } from "./game/combat";
@@ -112,7 +113,7 @@ function App() {
             equipment: startingEquipment,
             inventory: [],
             clearedDungeons: [],
-            consumables: EMPTY_CONSUMABLES,
+            consumables: { healthPotion: 1, manaPotion: 0 },
             shopStock: newShopStock,
           };
           const id = createSave(save);
@@ -122,8 +123,9 @@ function App() {
           setEquipment(startingEquipment);
           setInventory([]);
           setClearedDungeons([]);
-          setConsumables(EMPTY_CONSUMABLES);
+          setConsumables({ healthPotion: 1, manaPotion: 0 });
           setShopStock(newShopStock);
+          setHubTab("character");
           setCreating(false);
         }}
       />
@@ -370,235 +372,22 @@ function App() {
     });
 
     const isBoss = dungeonRun.index === dungeonRun.queue.length - 1;
-    const isAndariel = isBoss && dungeonRun.dungeonId === "diablo";
-    const isReaper = isBoss && dungeonRun.dungeonId === "lower-hell";
-    if (isReaper && Math.random() < 0.025) {
-      const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-      const hood = generateReapersHood();
-      setInventory((prev) => [...prev, hood]);
-      setDroppedItem((prev) => rarityOrder.indexOf(hood.rarity) >= rarityOrder.indexOf(prev?.rarity ?? "normal") ? hood : prev);
-      if (character.classId === "necromancer" && Math.random() < 0.06) {
-        const harvester = generateHarvester();
-        setInventory((prev) => [...prev, harvester]);
-        setDroppedItem((prev) => rarityOrder.indexOf(harvester.rarity) >= rarityOrder.indexOf(prev?.rarity ?? "normal") ? harvester : prev);
+    const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+    if (isBoss) {
+      for (const entry of UNIQUE_DROP_TABLE) {
+        if (entry.dungeons && !entry.dungeons.includes(dungeonRun.dungeonId)) continue;
+        if (entry.minLevel && character.level < entry.minLevel) continue;
+        if (entry.classId && entry.classId !== character.classId) continue;
+        if (Math.random() >= entry.chance) continue;
+        const item = entry.generator();
+        setInventory((prev) => [...prev, item]);
+        setDroppedItem((prev) => prev === null || rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity) ? item : prev);
       }
     }
-    const peasantHoodBosses = new Set(["blood-moor", "cold-plains"]);
-    if (isBoss && peasantHoodBosses.has(dungeonRun.dungeonId) && Math.random() < 0.05) {
-      const hood = generatePeasantHood();
-      setInventory((prev) => [...prev, hood]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(hood.rarity) >= rarityOrder.indexOf(prev.rarity) ? hood : prev;
-      });
-    }
-    if (isBoss && character.level >= 45 && Math.random() < 0.0025) {
-      const crown = generateCrownOfTheFallen();
-      setInventory((prev) => [...prev, crown]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(crown.rarity) >= rarityOrder.indexOf(prev.rarity) ? crown : prev;
-      });
-    }
-    if (isBoss && Math.random() < 0.0025) {
-      const sash = generateRagpickersSash();
-      setInventory((prev) => [...prev, sash]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(sash.rarity) >= rarityOrder.indexOf(prev.rarity) ? sash : prev;
-      });
-    }
-    if (isBoss && character.level >= 5 && Math.random() < 0.0025) {
-      const lens = generateCrackedLens();
-      setInventory((prev) => [...prev, lens]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(lens.rarity) >= rarityOrder.indexOf(prev.rarity) ? lens : prev;
-      });
-    }
-    if (isBoss && character.level >= 12 && Math.random() < 0.0025) {
-      const armor = generateThornback();
-      setInventory((prev) => [...prev, armor]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(armor.rarity) >= rarityOrder.indexOf(prev.rarity) ? armor : prev;
-      });
-    }
-    if (isBoss && character.level >= 18 && Math.random() < 0.0025) {
-      const ring = generateEyeOfTheStorm();
-      setInventory((prev) => [...prev, ring]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(ring.rarity) >= rarityOrder.indexOf(prev.rarity) ? ring : prev;
-      });
-    }
-    if (isBoss && character.level >= 20 && Math.random() < 0.0025) {
-      const gloves = generateBoneweaveGloves();
-      setInventory((prev) => [...prev, gloves]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(gloves.rarity) >= rarityOrder.indexOf(prev.rarity) ? gloves : prev;
-      });
-    }
-    const venomweaveWrapBosses = new Set(["stony-field", "dark-wood", "tristram"]);
-    if (isBoss && venomweaveWrapBosses.has(dungeonRun.dungeonId) && character.level >= 15 && Math.random() < 0.0025) {
-      const wrap = generateVenomweaveWrap();
-      setInventory((prev) => [...prev, wrap]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(wrap.rarity) >= rarityOrder.indexOf(prev.rarity) ? wrap : prev;
-      });
-    }
-    const act2DungeonIds = new Set(["imp-field", "lava-river", "ashen-caves", "higher-hell", "lower-hell", "hellcore"]);
-    const isAct2 = act2DungeonIds.has(dungeonRun.dungeonId);
-    if (isBoss && isAct2 && Math.random() < 0.0025) {
-      const tail = generateDemonsTail();
-      setInventory((prev) => [...prev, tail]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(tail.rarity) >= rarityOrder.indexOf(prev.rarity) ? tail : prev;
-      });
-    }
-    if (isBoss && isAct2 && Math.random() < 0.005) {
-      const pentagram = generatePentagram();
-      setInventory((prev) => [...prev, pentagram]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(pentagram.rarity) >= rarityOrder.indexOf(prev.rarity) ? pentagram : prev;
-      });
-    }
-    const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-    if (isBoss && character.classId === "paladin" && character.level >= 10 && Math.random() < 0.0015) {
-      const mace = generatePenitentsGrace();
-      setInventory((prev) => [...prev, mace]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(mace.rarity) >= rarityOrder.indexOf(prev.rarity) ? mace : prev);
-    }
-    if (isBoss && character.classId === "paladin" && character.level >= 28 && Math.random() < 0.0015) {
-      const mace = generateJusticar();
-      setInventory((prev) => [...prev, mace]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(mace.rarity) >= rarityOrder.indexOf(prev.rarity) ? mace : prev);
-    }
-    if (isBoss && character.classId === "paladin" && character.level >= 50 && Math.random() < 0.0015) {
-      const mace = generateSanctifier();
-      setInventory((prev) => [...prev, mace]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(mace.rarity) >= rarityOrder.indexOf(prev.rarity) ? mace : prev);
-    }
-    if (isBoss && character.classId === "barbarian" && character.level >= 10 && Math.random() < 0.0015) {
-      const axe = generateBlooddrinker();
-      setInventory((prev) => [...prev, axe]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(axe.rarity) >= rarityOrder.indexOf(prev.rarity) ? axe : prev);
-    }
-    if (isBoss && character.classId === "barbarian" && character.level >= 28 && Math.random() < 0.0015) {
-      const axe = generateIronjaw();
-      setInventory((prev) => [...prev, axe]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(axe.rarity) >= rarityOrder.indexOf(prev.rarity) ? axe : prev);
-    }
-    if (isBoss && character.classId === "barbarian" && character.level >= 50 && Math.random() < 0.0015) {
-      const axe = generateWorldbreaker();
-      setInventory((prev) => [...prev, axe]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(axe.rarity) >= rarityOrder.indexOf(prev.rarity) ? axe : prev);
-    }
-    if (isBoss && character.classId === "amazon" && character.level >= 8 && Math.random() < 0.0015) {
-      const bow = generateWhisper();
-      setInventory((prev) => [...prev, bow]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(bow.rarity) >= rarityOrder.indexOf(prev.rarity) ? bow : prev);
-    }
-    if (isBoss && character.classId === "amazon" && character.level >= 28 && Math.random() < 0.0015) {
-      const bow = generateStormstring();
-      setInventory((prev) => [...prev, bow]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(bow.rarity) >= rarityOrder.indexOf(prev.rarity) ? bow : prev);
-    }
-    if (isBoss && character.classId === "amazon" && character.level >= 50 && Math.random() < 0.0015) {
-      const bow = generateDoomcrier();
-      setInventory((prev) => [...prev, bow]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(bow.rarity) >= rarityOrder.indexOf(prev.rarity) ? bow : prev);
-    }
-    const apprenticesFocusDungeons = new Set(["blood-moor", "cold-plains", "stony-field", "dark-wood", "tristram"]);
-    if (isBoss && character.classId === "sorceress" && apprenticesFocusDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.002) {
-      const staff = generateApprenticesFocus();
-      setInventory((prev) => [...prev, staff]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(staff.rarity) >= rarityOrder.indexOf(prev.rarity) ? staff : prev);
-    }
-    const arcanistDungeons = new Set(["diablo", "imp-field", "lava-river", "ashen-caves"]);
-    if (isBoss && character.classId === "sorceress" && arcanistDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.001) {
-      const staff = generateTheArcanist();
-      setInventory((prev) => [...prev, staff]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(staff.rarity) >= rarityOrder.indexOf(prev.rarity) ? staff : prev);
-    }
-    const eternitysEdgeDungeons = new Set(["higher-hell", "lower-hell", "hellcore"]);
-    if (isBoss && character.classId === "sorceress" && eternitysEdgeDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.001) {
-      const staff = generateEternitysEdge();
-      setInventory((prev) => [...prev, staff]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(staff.rarity) >= rarityOrder.indexOf(prev.rarity) ? staff : prev);
-    }
-    const vipersKissDungeons = new Set(["blood-moor", "cold-plains", "stony-field", "dark-wood", "tristram"]);
-    if (isBoss && character.classId === "assassin" && vipersKissDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.002) {
-      const claw = generateVipersKiss();
-      setInventory((prev) => [...prev, claw]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(claw.rarity) >= rarityOrder.indexOf(prev.rarity) ? claw : prev);
-    }
-    const shadowfangDungeons = new Set(["diablo", "imp-field", "lava-river", "ashen-caves"]);
-    if (isBoss && character.classId === "assassin" && shadowfangDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.002) {
-      const claw = generateShadowfang();
-      setInventory((prev) => [...prev, claw]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(claw.rarity) >= rarityOrder.indexOf(prev.rarity) ? claw : prev);
-    }
-    const deathwhisperDungeons = new Set(["higher-hell", "lower-hell", "hellcore"]);
-    if (isBoss && character.classId === "assassin" && deathwhisperDungeons.has(dungeonRun.dungeonId) && Math.random() < 0.002) {
-      const claw = generateDeathwhisper();
-      setInventory((prev) => [...prev, claw]);
-      setDroppedItem((prev) => prev === null || rarityOrder.indexOf(claw.rarity) >= rarityOrder.indexOf(prev.rarity) ? claw : prev);
-    }
     const dropChance = isBoss ? 1 : 0.35;
-    if (isAndariel && Math.random() < 0.01) {
-      const mirrorRing = generateMirrorRing();
-      setInventory((prev) => [...prev, mirrorRing]);
-      setDroppedItem(() => mirrorRing);
-    }
-    if (isBoss && character.level >= 25 && Math.random() < 0.0025) {
-      const mask = generateMaskOfMidnight();
-      setInventory((prev) => [...prev, mask]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(mask.rarity) >= rarityOrder.indexOf(prev.rarity) ? mask : prev;
-      });
-    }
-    if (isBoss && character.level >= 25 && Math.random() < 0.0025) {
-      const mask = generateMaskOfTwilight();
-      setInventory((prev) => [...prev, mask]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(mask.rarity) >= rarityOrder.indexOf(prev.rarity) ? mask : prev;
-      });
-    }
-    if (isBoss && character.level >= 25 && Math.random() < 0.005) {
-      const husk = generateStoneHusk();
-      setInventory((prev) => [...prev, husk]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(husk.rarity) >= rarityOrder.indexOf(prev.rarity) ? husk : prev;
-      });
-    }
-    if (isBoss && character.level >= 15 && Math.random() < 0.002) {
-      const fangs = generateSharpFangs();
-      setInventory((prev) => [...prev, fangs]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(fangs.rarity) >= rarityOrder.indexOf(prev.rarity) ? fangs : prev;
-      });
-    }
-    if (isBoss && Math.random() < 0.005) {
-      const stompers = generateHeavyStompers();
-      setInventory((prev) => [...prev, stompers]);
-      setDroppedItem((prev) => {
-        const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
-        return prev === null || rarityOrder.indexOf(stompers.rarity) >= rarityOrder.indexOf(prev.rarity) ? stompers : prev;
-      });
-    }
     if (Math.random() < dropChance) {
       const item = generateRandomItem(monster.level, character.classId);
       setInventory((prev) => [...prev, item]);
-      const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
       setDroppedItem((prev) =>
         prev === null || rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity) ? item : prev
       );

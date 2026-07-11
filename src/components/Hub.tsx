@@ -120,13 +120,11 @@ export function Hub({
                 isUnique={equipment.weapon?.rarity === "very rare" || equipment.weapon?.rarity === "unique"}
               />
             </div>
-            {character.unspentStatPoints > 0 && (
-              <div className="stat-point-arrow">
-                <span>+</span>
-              </div>
-            )}
           </div>
-          <div className="level-display">Level {character.level}</div>
+          <div className="level-display">
+            Level {character.level}
+            {character.unspentStatPoints > 0 && <span className="stat-point-inline">+</span>}
+          </div>
           <div className="gold-display"><CoinIcon size={15} /> {character.gold}</div>
           <div className="potions-display">
             <span><PotionIcon type="health" size={18} /> {consumables.healthPotion}</span>

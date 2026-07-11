@@ -26,7 +26,6 @@
 - **Damage preview on action buttons** — Attack shows the weapon damage range and crit ceiling; the Ability button shows the estimated damage and damage type (Physical / Magic / Poison).
 - **Sequential combat animations** — player attack animation plays fully first (~550 ms), then the monster's animation fires. Action buttons are locked during the sequence to prevent double-inputs.
 - **Monster spell animations** — spells have dedicated visual effects separate from the ability animation overlay.
-- **+ buttons glow gold** when unspent stat points are available.
 - **Skills section moved below attributes** in the Character tab, with added spacing between the two sections.
 - **Item tooltips repositioned** — tooltips now appear to the right of the item icon instead of above, preventing clipping at the top of the paperdoll.
 - **Potion stack cap** — each potion type is capped at 5. The shop shows "Full (5/5)" and disables the buy button when the cap is reached.

@@ -11,32 +11,34 @@ export interface CombatLogEntry {
   monsterLife: number;
 }
 
+// All mutable per-combat state. Persisted to localStorage so fights survive a page refresh.
 export interface BattleState {
   playerLife: number;
-  playerMana: number;
+  playerMana: number;           // Fury for Barbarian
   monsterLife: number;
-  abilityCooldown: number;
+  abilityCooldown: number;      // Ability 1 turns remaining before it can be used again
   healthPotionCooldown: number;
   manaPotionCooldown: number;
-  poisonRounds: number;
-  poisonDamage: number;
-  monsterSpellCooldown: number;
-  playerPoisonRounds: number;
+  poisonRounds: number;         // Monster poison ticks remaining (Necromancer Poison Cloud / Assassin Venom)
+  poisonDamage: number;         // Damage per tick, fixed at cast time
+  monsterSpellCooldown: number; // Turns until boss can cast its spell again
+  playerPoisonRounds: number;   // Player poison ticks remaining (monster dot spell)
   playerPoisonDamage: number;
-  playerBurnRounds: number;
+  playerBurnRounds: number;     // Player burn ticks remaining (monster burn spell)
   playerBurnDamage: number;
-  trapRounds: number;
-  bloodFuryRounds: number;
+  trapRounds: number;           // Assassin Fire Trap: turns until detonation (0 = detonates this turn)
+  bloodFuryRounds: number;      // Barbarian Blood Fury active turns remaining
   ability2Cooldown: number;
-  frozenRounds: number;
-  regenRounds: number;
-  disorientRounds: number;
-  blindRounds: number;
-  frostShieldRounds: number;
-  burnStacks: { rounds: number; damage: number; source: string }[];
-  electrocuteRounds: number;
-  golemRounds: number;
-  stunnedRounds: number;
+  frozenRounds: number;         // Amazon Freezing Shot: monster cannot act
+  regenRounds: number;          // Paladin Regenerating Nova: heals player each turn
+  disorientRounds: number;      // After Blind fades: monster deals 25% reduced damage
+  blindRounds: number;          // Assassin Blinding Powder: monster cannot act
+  frostShieldRounds: number;    // Sorceress Frost Shield: incoming damage reduced 60%
+  burnStacks: { rounds: number; damage: number; source: string }[]; // Each Demon's Tail hit pushes an independent stack
+  electrocuteRounds: number;    // Stormstring on-hit: monster takes 20% more damage
+  golemRounds: number;          // Necromancer Golem Defense: turns remaining, redirects 30% of incoming dmg
+  stunnedRounds: number;        // Necromancer Golem Defense cast: monster cannot act for 1 turn
+  absorbShield: number;         // Temporary absorb buffer — damage hits this before playerLife; resets each round
 }
 
 export type PlayerActionKind = "attack" | "ability" | "ability2" | "healthPotion" | "manaPotion";
@@ -63,31 +65,43 @@ export interface RoundResult {
   trapDetonated?: boolean;
 }
 
-const ALWAYS_MISS_CHANCE = 0.02;
+const ALWAYS_MISS_CHANCE = 0.02;       // All player abilities/attacks have a flat 2% miss chance
 const MONSTER_CRIT_CHANCE = 0.1;
 const DEFAULT_CRIT_MULTIPLIER = 1.50;
-const MANA_REGEN_RATE = 0.05;
+const MANA_REGEN_RATE = 0.05;          // 5% of max mana per turn (all mana classes except Sorceress)
 
-// Passives
-const BARBARIAN_DOUBLE_SWING_CHANCE = 0.25;
-const BARBARIAN_BLOOD_FURY_DAMAGE_BONUS = 0.20;
-const BARBARIAN_BLOOD_FURY_LIFESTEAL = 0.20;
-const BARBARIAN_BLOOD_FURY_DOUBLE_SWING_BONUS = 0.25;
-const BARBARIAN_IRON_SKIN_REDUCTION_PER_5PCT = 0.02;
-const BARBARIAN_MADNESS_DAMAGE_BONUS = 0.15;
-const BARBARIAN_MADNESS_FURY_BONUS = 5;
+// ─── Class passive constants ────────────────────────────────────────────────
+
+// Barbarian
+const BARBARIAN_DOUBLE_SWING_CHANCE = 0.25;             // Base 25%; +25% while Blood Fury is active
+const BARBARIAN_BLOOD_FURY_DAMAGE_BONUS = 0.20;         // +20% damage while Blood Fury active
+const BARBARIAN_BLOOD_FURY_LIFESTEAL = 0.20;            // Steals 20% of all hit damage while active
+const BARBARIAN_BLOOD_FURY_DOUBLE_SWING_BONUS = 0.25;   // Extra Double Swing chance during Blood Fury
+const BARBARIAN_IRON_SKIN_REDUCTION_PER_5PCT = 0.02;    // 2% dmg reduction per 5% missing life (lv.20)
+const BARBARIAN_MADNESS_DAMAGE_BONUS = 0.15;            // +15% damage when Fury > 30 (lv.35)
+const BARBARIAN_MADNESS_FURY_BONUS = 5;                 // +5 extra Fury per basic attack (lv.35)
 const BARBARIAN_MADNESS_FURY_THRESHOLD = 30;
-const SORCERESS_MANA_REGEN_RATE = 0.10;
-const PALADIN_DAMAGE_TAKEN_HEAL = 0.15;
-const NECROMANCER_SOUL_SIPHON = 0.15;
-const NECROMANCER_VIRULENCE_MULT = 1.25;
 
+// Sorceress
+const SORCERESS_MANA_REGEN_RATE = 0.10;                 // 10% mana per turn via Arcane Flow (lv.1)
+
+// Paladin
+const PALADIN_DAMAGE_TAKEN_HEAL = 0.15;                 // Divine Retribution: 15% of damage taken → life
+
+// Necromancer
+const NECROMANCER_SOUL_SIPHON = 0.15;                   // 15% of all magic damage dealt → life
+const NECROMANCER_VIRULENCE_MULT = 1.25;                // DoT ticks deal 25% more damage (lv.20)
+
+// Helpers
+
+// Iron Skin: scales with missing life; 0 at full HP, ~16% at 40% missing.
 function getIronSkinReduction(character: Character, currentLife: number, maxLife: number): number {
   if (character.classId !== "barbarian" || character.level < 20) return 0;
   const missingPct = Math.max(0, (1 - currentLife / maxLife) * 100);
   return Math.floor(missingPct / 5) * BARBARIAN_IRON_SKIN_REDUCTION_PER_5PCT;
 }
 
+// Monster physical hit chance: clamped between 15% and 98%.
 function rollHitChance(attackRating: number, defense: number): number {
   const chance = attackRating / (defense * 1.5);
   return Math.max(0.15, Math.min(1 - ALWAYS_MISS_CHANCE, chance));
@@ -97,6 +111,8 @@ function randomInRange([min, max]: [number, number]): number {
   return Math.round(min + Math.random() * (max - min));
 }
 
+// Base formula for burst/dot/multi/heal abilities.
+// magic abilities add flat magicDamageBonus (scaled by magicPower) and apply magicDamageMult.
 function rollAbilityDamage(stats: DerivedStats, power: number, magic: boolean, magicPower = 1): number {
   const base = Math.round(randomInRange(stats.damage) * power);
   return magic ? Math.round((base + stats.magicDamageBonus * magicPower) * stats.magicDamageMult) : base;
@@ -135,6 +151,7 @@ export function createBattleState(
     electrocuteRounds: 0,
     golemRounds: 0,
     stunnedRounds: 0,
+    absorbShield: 0,
   };
 }
 
@@ -150,7 +167,7 @@ export function canUseAbility2(character: Character, state: BattleState): boolea
   if (!def.ability2) return false;
   if (def.ability2.kind === "regen" && state.regenRounds > 0) return false;
   if (def.ability2.kind === "frost_shield" && state.frostShieldRounds > 0) return false;
-  if (def.ability2.kind === "golem" && state.golemRounds > 0) return false;
+  if (def.ability2.kind === "golem" && state.golemRounds > 0) return false;  // Can't re-summon while active
   return state.playerMana >= def.ability2.manaCost && state.ability2Cooldown <= 0;
 }
 
@@ -259,6 +276,23 @@ export function getAbility2Preview(character: Character, stats: DerivedStats): D
   return { label: "—", type: "Physical" };
 }
 
+// ─── Main turn resolver ──────────────────────────────────────────────────────
+//
+// Turn order:
+//   1. Player action (attack / ability / ability2 / potion)
+//   2. Post-action cooldowns & buffs tick down
+//   3. Mana regen
+//   4. [Early return if monster dies]
+//   5. Player DoT/burn ticks (monster-sourced)
+//   6. Enemy poison ticks (player-sourced)
+//   7. Burn stacks tick
+//   8. Trap countdown
+//   9. Monster spell cooldown tick
+//  10. Monster acts (unless stunned / frozen / blinded)
+//  11. Frost Shield rounds tick
+//  12. Fire Trap detonation (trapRounds just hit 0)
+//  13. Golem rounds tick
+//  14. Victory / defeat check
 export function resolveRound(
   character: Character,
   stats: DerivedStats,
@@ -272,17 +306,41 @@ export function resolveRound(
 
   const critChance = getEffectiveCritChance(character, stats);
   const critMultiplier = getCritMultiplier(character);
+
+  // Blood Barrier (Necromancer lv.35): Soul Siphon and lifesteal can overheal up to 125% max life.
+  // Potions and other class heals always cap at 100%.
   const bloodBarrierCap = character.classId === "necromancer" && character.level >= 35 ? stats.maxLife * 1.25 : stats.maxLife;
 
   let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, electrocuteRounds, golemRounds, stunnedRounds } = state;
+  let absorbShield = 0; // Resets every round — overheal from last turn does not carry over
   let burnStacks = state.burnStacks.map(s => ({ ...s }));
+
+  // Multipliers computed once per round from current state
   const electrocuteMult = electrocuteRounds > 0 ? 1.20 : 1.0;
+  // Deathwhisper (Assassin unique): +30% all damage while enemy is blinded or disoriented
   const deathwhisperMult = stats.deathwhisperBoost && (blindRounds > 0 || disorientRounds > 0) ? 1.30 : 1.0;
+  // Heartseeker follow-up arrow: 50% of crit damage, or 70% with Doomcrier equipped
   const heartseekerMult = stats.heartseekerBoost ? 0.70 : 0.50;
   let damageDealt = 0;
   let trapDetonated = false;
+  // The Pentagram: +100 damage but only when below 30% life
   const lowLifeMult = stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.30 ? 1 + stats.lowLifeDamageBonus : 1.0;
 
+  // Blood Barrier (Necromancer lv.35): excess healing beyond maxLife fills absorbShield (cap: 25% of maxLife).
+  // Any other class just clamps to maxLife.
+  const applyHeal = (amount: number) => {
+    if (amount <= 0) return;
+    const space = stats.maxLife - playerLife;
+    if (space >= amount || character.classId !== "necromancer" || character.level < 35) {
+      playerLife = Math.min(stats.maxLife, playerLife + amount);
+    } else {
+      playerLife = stats.maxLife;
+      const overflow = amount - space;
+      absorbShield = Math.min(stats.maxLife * 0.25, absorbShield + overflow);
+    }
+  };
+
+  // Demon's Tail belt: every direct hit pushes an independent burn stack (30% of hit, 2 turns).
   const tryIgnite = (dmg: number, source = "Demon's Tail") => {
     if (stats.igniteChance > 0 && dmg > 0 && monsterLife > 0) {
       const igniteDmg = Math.round(dmg * 0.30);
@@ -291,13 +349,18 @@ export function resolveRound(
     }
   };
 
+  // ── Basic attack ────────────────────────────────────────────────────────────
+  // Shared by direct attacks, Blood Fury activation, and Regenerating Nova activation.
+  // Handles: Barbarian Double Swing, Blood Fury lifesteal, Madness, Life Leech,
+  //          Electrocute proc, Heartseeker, Assassin Venom, Shadowfang, Fury generation.
   const doBasicAttack = () => {
     const hitChance = 1 - ALWAYS_MISS_CHANCE;
     let damageMult = 1.0;
     if (bloodFuryRounds > 0) damageMult *= 1 + BARBARIAN_BLOOD_FURY_DAMAGE_BONUS;
     if (character.classId === "barbarian" && character.level >= 35 && playerMana > BARBARIAN_MADNESS_FURY_THRESHOLD) damageMult *= 1 + BARBARIAN_MADNESS_DAMAGE_BONUS;
-    if (character.classId === "assassin" && character.level >= 35) damageMult *= 1.10;
+    if (character.classId === "assassin" && character.level >= 35) damageMult *= 1.10;  // Assassin's Advantage
     if (lowLifeMult > 1.0) damageMult *= lowLifeMult;
+    // Assassin's Advantage: +5% crit against poisoned enemies
     const assassinAdvantageCrit = character.classId === "assassin" && character.level >= 35 && poisonRounds > 0 ? 0.05 : 0;
     let basicHitDmg = 0;
     let basicHitCrit = false;
@@ -312,24 +375,29 @@ export function resolveRound(
       basicHitDmg = dmg;
 
       let attackMsg = isCrit ? `Critical hit! You deal ${dmg} damage.` : `You attack for ${dmg} damage.`;
+
+      // Blood Fury lifesteal (Barbarian ability): also uses bloodBarrierCap for Necromancer cross-use safety
       if (bloodFuryRounds > 0) {
         const stolen = Math.round(dmg * BARBARIAN_BLOOD_FURY_LIFESTEAL);
         if (stolen > 0) {
-          playerLife = Math.min(bloodBarrierCap, playerLife + stolen);
+          applyHeal(stolen);
           attackMsg += ` Blood Fury steals ${stolen} life.`;
         }
       }
+      // Life Leech affix: heals % of physical damage dealt
       if (stats.lifeLeechBonus > 0) {
         const leeched = Math.round(dmg * stats.lifeLeechBonus / 100);
         if (leeched > 0) {
-          playerLife = Math.min(bloodBarrierCap, playerLife + leeched);
+          applyHeal(leeched);
           attackMsg += ` Life Leech restores ${leeched} life.`;
         }
       }
+      // Stormstring unique bow: applies Electrocute on every hit
       if (stats.electrocuteOnHit) {
         electrocuteRounds = 2;
         attackMsg += ` Electrocute! Enemy takes 20% more damage for 2 turns.`;
       }
+      // Reaper's Hood: 20% chance to disorient on attack
       if (stats.disorientOnAttackChance > 0 && Math.random() < stats.disorientOnAttackChance / 100) {
         disorientRounds = 2;
         attackMsg += ` Reaper's Hood disorients the enemy!`;
@@ -340,11 +408,13 @@ export function resolveRound(
       log.push({ actor: "player", message: "Your attack misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     }
 
+    // Fury generation on attack (Barbarian only)
     if (def.resourceType === "fury") {
       const madnessFuryBonus = character.classId === "barbarian" && character.level >= 35 ? BARBARIAN_MADNESS_FURY_BONUS : 0;
       playerMana = Math.min(stats.maxMana, playerMana + FURY_PER_ATTACK + madnessFuryBonus);
     }
 
+    // Heartseeker (Amazon lv.35): fires a follow-up arrow after any crit; cannot itself crit
     if (character.classId === "amazon" && character.level >= 35 && basicHitCrit && basicHitDmg > 0 && monsterLife > 0) {
       const heartseekerDmg = Math.round(basicHitDmg * heartseekerMult);
       monsterLife -= heartseekerDmg;
@@ -352,12 +422,22 @@ export function resolveRound(
       log.push({ actor: "player", message: `Heartseeker fires for ${heartseekerDmg} damage!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     }
 
+    // Venom (Assassin lv.20): basic attacks apply 2-turn poison at 30% of hit damage
     if (character.classId === "assassin" && character.level >= 20 && basicHitDmg > 0) {
       poisonRounds = 2;
       poisonDamage = Math.round(basicHitDmg * 0.30 * stats.poisonDamageMult);
       log.push({ actor: "player", message: `Venom seeps in — ${poisonDamage} poison per turn for 2 turns.`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     }
 
+    // Spellblade's Mask: converts physical damage into a bonus magic hit (scales with magicDamageBonus)
+    if (stats.spellbladesMask && basicHitDmg > 0 && monsterLife > 0) {
+      const magicDmg = Math.max(1, Math.round((basicHitDmg * 0.10 + stats.magicDamageBonus * 0.10) * stats.magicDamageMult));
+      monsterLife -= magicDmg;
+      damageDealt += magicDmg;
+      log.push({ actor: "player", message: `Spellblade's Mask converts the strike — ${magicDmg} magic damage!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+    }
+
+    // Shadowfang unique claw: 20% chance for a phantom strike at 50% damage after each hit
     if (stats.shadowfangProc && basicHitDmg > 0 && monsterLife > 0 && Math.random() < 0.20) {
       const phantomDmg = Math.round(basicHitDmg * 0.50);
       monsterLife -= phantomDmg;
@@ -365,6 +445,7 @@ export function resolveRound(
       log.push({ actor: "player", message: `Shadowfang — a phantom strikes for ${phantomDmg} damage!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
     }
 
+    // Double Swing (Barbarian passive): 25% base chance, +25% during Blood Fury
     const doubleSwingChance = BARBARIAN_DOUBLE_SWING_CHANCE + (bloodFuryRounds > 0 ? BARBARIAN_BLOOD_FURY_DOUBLE_SWING_BONUS : 0);
     if (character.classId === "barbarian" && monsterLife > 0 && Math.random() < doubleSwingChance) {
       const hitChance2 = 1 - ALWAYS_MISS_CHANCE;
@@ -379,14 +460,14 @@ export function resolveRound(
         if (bloodFuryRounds > 0) {
           const stolen2 = Math.round(dmg2 * BARBARIAN_BLOOD_FURY_LIFESTEAL);
           if (stolen2 > 0) {
-            playerLife = Math.min(bloodBarrierCap, playerLife + stolen2);
+            applyHeal(stolen2);
             swingMsg += ` Blood Fury steals ${stolen2} life.`;
           }
         }
         if (stats.lifeLeechBonus > 0) {
           const leeched2 = Math.round(dmg2 * stats.lifeLeechBonus / 100);
           if (leeched2 > 0) {
-            playerLife = Math.min(bloodBarrierCap, playerLife + leeched2);
+            applyHeal(leeched2);
             swingMsg += ` Life Leech restores ${leeched2} life.`;
           }
         }
@@ -398,6 +479,7 @@ export function resolveRound(
     }
   };
 
+  // ── Step 1: Player action ────────────────────────────────────────────────────
   if (monsterLife > 0) {
     const useAbility = action === "ability" && playerMana >= def.ability.manaCost && abilityCooldown <= 0;
 
@@ -412,6 +494,9 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+
+      // ── Blood Fury (Barbarian) ────────────────────────────────────────────
+      // Activates a 3-turn buff; player still attacks this turn.
       } else if (def.ability.kind === "buff") {
         bloodFuryRounds = 3;
         log.push({
@@ -421,6 +506,10 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
         doBasicAttack();
+
+      // ── Fireball / burst abilities (Sorceress) ────────────────────────────
+      // Single-hit magic damage. Arcanist staff adds +40% when Frost Shield is up.
+      // Eternity's Edge: 30% chance to echo at 50% power.
       } else if (def.ability.kind === "burst") {
         const isCrit = Math.random() < critChance;
         const arcanistMult = stats.arcanistStaff && frostShieldRounds > 0 ? 1.40 : 1.0;
@@ -447,6 +536,10 @@ export function resolveRound(
             monsterLife: Math.max(0, monsterLife),
           });
         }
+
+      // ── Poison Cloud (Necromancer) ────────────────────────────────────────
+      // Initial magic hit (can crit) + 3 poison ticks fixed at cast time.
+      // Soul Siphon heals 15% of the initial hit. Virulence (lv.20) multiplies tick damage.
       } else if (def.ability.kind === "dot") {
         const isCrit = Math.random() < critChance;
         let dmg = Math.round(rollAbilityDamage(stats, 0.4, def.ability.magic) * lowLifeMult * electrocuteMult * deathwhisperMult);
@@ -458,7 +551,7 @@ export function resolveRound(
         poisonDamage = Math.round(rollAbilityDamage(stats, def.ability.power * 0.4, def.ability.magic) * stats.poisonDamageMult * virulenceMult);
         const siphonHitHeal = character.classId === "necromancer" ? Math.round(dmg * NECROMANCER_SOUL_SIPHON) : 0;
         if (siphonHitHeal > 0) {
-          playerLife = Math.min(bloodBarrierCap, playerLife + siphonHitHeal);
+          applyHeal(siphonHitHeal);
         }
         log.push({
           actor: "player",
@@ -469,6 +562,9 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
         tryIgnite(dmg);
+
+      // ── Multishot (Amazon) ────────────────────────────────────────────────
+      // Multiple independent hits; each can crit and trigger Heartseeker.
       } else if (def.ability.kind === "multi") {
         const hitCount = def.ability.hits ?? 3;
         for (let i = 0; i < hitCount; i++) {
@@ -491,6 +587,7 @@ export function resolveRound(
           });
           tryIgnite(hitDmg);
 
+          // Heartseeker fires after each Multishot arrow that crits
           if (character.classId === "amazon" && character.level >= 35 && isHitCrit && monsterLife > 0) {
             const heartseekerDmg = Math.round(hitDmg * heartseekerMult);
             monsterLife -= heartseekerDmg;
@@ -503,6 +600,9 @@ export function resolveRound(
             });
           }
         }
+
+      // ── Holy Bolt (Paladin) ───────────────────────────────────────────────
+      // Magic damage + heals 35% of damage dealt. Caps heal at maxLife (no Blood Barrier).
       } else if (def.ability.kind === "heal") {
         const isCrit = Math.random() < critChance;
         let dmg = Math.round(rollAbilityDamage(stats, def.ability.power, def.ability.magic, def.ability.magicPower ?? 1) * lowLifeMult * electrocuteMult * deathwhisperMult);
@@ -518,6 +618,9 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
         tryIgnite(dmg);
+
+      // ── Werewolf Bite (Druid) ─────────────────────────────────────────────
+      // Physical: weapon roll + 1.5× Dex. Heals 15% of damage. No crit roll.
       } else if (def.ability.kind === "bite") {
         const baseDmg = randomInRange(stats.damage);
         const dexBonus = Math.round(stats.stats.dexterity * 1.5);
@@ -533,6 +636,9 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
         tryIgnite(dmg);
+
+      // ── Fire Trap (Assassin) ──────────────────────────────────────────────
+      // Sets trapRounds = 3; detonates after monster acts on the turn it hits 0.
       } else if (def.ability.kind === "trap") {
         trapRounds = 3;
         log.push({
@@ -542,11 +648,14 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
       }
+
     } else if (action === "ability2" && def.ability2 && playerMana >= def.ability2.manaCost && ability2Cooldown <= 0) {
       const furyBeforeCost = playerMana;
       playerMana -= def.ability2.manaCost;
       ability2Cooldown = def.ability2.cooldown;
 
+      // ── Freezing Shot (Amazon) ────────────────────────────────────────────
+      // Physical hit (weapon + 0.5× Dex). On hit, freezes monster for 2 turns.
       if (def.ability2.kind === "freeze") {
         if (def.ability2.canMiss !== false && Math.random() < ALWAYS_MISS_CHANCE) {
           log.push({ actor: "player", message: "Your Freezing Shot misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
@@ -569,6 +678,10 @@ export function resolveRound(
           });
           tryIgnite(dmg);
         }
+
+      // ── Obliterate (Barbarian) ────────────────────────────────────────────
+      // Physical hit: weapon + 0.5× Strength. Madness bonus applies if Fury was > 30.
+      // Killing blow restores 10% max life.
       } else if (def.ability2.kind === "obliterate") {
         const madnessMult = character.classId === "barbarian" && character.level >= 35 && furyBeforeCost > BARBARIAN_MADNESS_FURY_THRESHOLD ? 1 + BARBARIAN_MADNESS_DAMAGE_BONUS : 1.0;
         const baseDmg = randomInRange(stats.damage);
@@ -588,6 +701,9 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
         tryIgnite(dmg);
+
+      // ── Blinding Powder (Assassin) ────────────────────────────────────────
+      // Blinds for 2 turns (no action); when blind expires → 4 turns of disorient (25% reduced dmg).
       } else if (def.ability2.kind === "blind_powder") {
         blindRounds = 2;
         disorientRounds = 0;
@@ -597,6 +713,9 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+
+      // ── Frost Shield (Sorceress) ──────────────────────────────────────────
+      // All incoming damage reduced by 60% for 3 turns. Cannot be recast while active.
       } else if (def.ability2.kind === "frost_shield") {
         frostShieldRounds = 3;
         log.push({
@@ -605,6 +724,9 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+
+      // ── Regenerating Nova (Paladin) ───────────────────────────────────────
+      // Immediate first heal tick + 2 more on subsequent turns. Player also attacks this turn.
       } else if (def.ability2.kind === "regen") {
         regenRounds = 3;
         const firstHeal = Math.round(stats.maxLife * 0.10);
@@ -616,6 +738,10 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
         doBasicAttack();
+
+      // ── Golem Defense (Necromancer) ───────────────────────────────────────
+      // Stuns enemy for 1 turn (stunnedRounds). Golem stands on field for 3 turns,
+      // redirecting 30% of all incoming damage back at the enemy each turn.
       } else if (def.ability2.kind === "golem") {
         golemRounds = 3;
         stunnedRounds = 1;
@@ -626,6 +752,10 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
       }
+
+    // ── Health Potion ─────────────────────────────────────────────────────────
+    // Restores 35% (Act 1) or 50% (Act 2) of max life. Capped at maxLife (Blood Barrier excluded).
+    // Paladin Defensive Aura (lv.20) adds a flat +10% max life on top.
     } else if (action === "healthPotion" && healthPotionCooldown <= 0) {
       const before = playerLife;
       const potionRate = getPotionRestoreRate(clearedDungeons);
@@ -642,6 +772,9 @@ export function resolveRound(
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });
+
+    // ── Mana Potion ───────────────────────────────────────────────────────────
+    // Restores 35% (Act 1) or 50% (Act 2) of max mana/fury.
     } else if (action === "manaPotion" && manaPotionCooldown <= 0) {
       const before = playerMana;
       playerMana = Math.min(stats.maxMana, playerMana + Math.round(stats.maxMana * getPotionRestoreRate(clearedDungeons)));
@@ -657,16 +790,19 @@ export function resolveRound(
     }
   }
 
+  // ── Step 2: Post-action cooldowns & buff tick-downs ──────────────────────────
   if (abilityCooldown > 0) abilityCooldown -= 1;
   if (ability2Cooldown > 0) ability2Cooldown -= 1;
   if (healthPotionCooldown > 0) healthPotionCooldown -= 1;
   if (manaPotionCooldown > 0) manaPotionCooldown -= 1;
-  if (bloodFuryRounds > 0) {
-    bloodFuryRounds -= 1;
-  }
-  if (electrocuteRounds > 0) {
-    electrocuteRounds -= 1;
-  }
+
+  // Blood Fury duration
+  if (bloodFuryRounds > 0) bloodFuryRounds -= 1;
+
+  // Electrocute duration (Stormstring)
+  if (electrocuteRounds > 0) electrocuteRounds -= 1;
+
+  // Regenerating Nova heals on turns 2 and 3 (turn 1 fired at activation)
   if (regenRounds > 0) {
     regenRounds -= 1;
     if (regenRounds > 0) {
@@ -687,11 +823,26 @@ export function resolveRound(
       });
     }
   }
+
+  // ── Step 3: Mana regen ────────────────────────────────────────────────────────
+  // Sorceress regenerates 10% per turn (Arcane Flow). All other mana classes regenerate 5%.
+  // manaRegenMult comes from gear; manaRegenBonus is flat from "of Clarity" affixes.
   if (def.resourceType === "mana" && playerMana < stats.maxMana) {
     const regenRate = character.classId === "sorceress" ? SORCERESS_MANA_REGEN_RATE : MANA_REGEN_RATE;
     playerMana = Math.min(stats.maxMana, playerMana + stats.maxMana * regenRate * stats.manaRegenMult + stats.manaRegenBonus);
   }
 
+  // Damage absorption helper — shield takes the hit first, remainder goes to playerLife
+  const takeDamage = (amount: number) => {
+    if (absorbShield > 0) {
+      const blocked = Math.min(absorbShield, amount);
+      absorbShield -= blocked;
+      amount -= blocked;
+    }
+    playerLife -= amount;
+  };
+
+  // Snapshot state into a plain object for the round result
   function makeState() {
     return {
       playerLife: Math.max(0, playerLife),
@@ -719,16 +870,21 @@ export function resolveRound(
       electrocuteRounds,
       golemRounds,
       stunnedRounds,
+      absorbShield: Math.round(absorbShield),
     };
   }
 
+  // ── Step 4: Early victory check ───────────────────────────────────────────────
   if (monsterLife <= 0) {
     return { state: makeState(), log, status: "victory", damageDealt };
   }
 
-  // Player-poison tick from monster dot spell (start of monster turn)
+  // ── Step 5: Player DoT ticks (monster-sourced) ────────────────────────────────
+  // These tick at the start of the monster's phase, before the monster acts.
+
+  // Poison applied to the player by a monster dot spell (e.g. Andariel Poison Nova)
   if (playerPoisonRounds > 0) {
-    playerLife -= playerPoisonDamage;
+    takeDamage(playerPoisonDamage);
     playerPoisonRounds -= 1;
     log.push({
       actor: "monster",
@@ -738,9 +894,9 @@ export function resolveRound(
     });
   }
 
-  // Player-burn tick from monster burn spell (start of monster turn)
+  // Burn applied to the player by a monster burn spell (e.g. Bishibosh Fire Wall)
   if (playerBurnRounds > 0) {
-    playerLife -= playerBurnDamage;
+    takeDamage(playerBurnDamage);
     playerBurnRounds -= 1;
     log.push({
       actor: "monster",
@@ -750,7 +906,9 @@ export function resolveRound(
     });
   }
 
-  // Enemy poison tick (start of monster turn)
+  // ── Step 6: Enemy poison ticks (player-sourced) ───────────────────────────────
+  // Necromancer Poison Cloud and Assassin Venom.
+  // Soul Siphon heals 15% of each poison tick (Necromancer passive; bloodBarrierCap applies).
   if (poisonRounds > 0) {
     monsterLife -= poisonDamage;
     damageDealt += poisonDamage;
@@ -759,7 +917,7 @@ export function resolveRound(
       ? Math.round(poisonDamage * NECROMANCER_SOUL_SIPHON)
       : 0;
     if (necroHeal > 0) {
-      playerLife = Math.min(bloodBarrierCap, playerLife + necroHeal);
+      applyHeal(necroHeal);
     }
     log.push({
       actor: "monster",
@@ -772,7 +930,8 @@ export function resolveRound(
     }
   }
 
-  // Burn stacks tick
+  // ── Step 7: Burn stacks tick (Demon's Tail) ───────────────────────────────────
+  // Each stack is independent; multiple can be active simultaneously.
   for (const stack of burnStacks) {
     if (stack.rounds > 0) {
       monsterLife -= stack.damage;
@@ -792,13 +951,18 @@ export function resolveRound(
   }
   burnStacks = burnStacks.filter(s => s.rounds > 0);
 
+  // ── Step 8: Trap countdown ─────────────────────────────────────────────────────
+  // Fire Trap decrements here; detonation is handled after the monster acts (step 12).
   if (trapRounds > 0) trapRounds -= 1;
 
+  // ── Step 9: Monster spell cooldown ────────────────────────────────────────────
   if (monsterSpellCooldown > 0) monsterSpellCooldown -= 1;
 
   let monsterSpellCastName: string | undefined;
 
-  // Frozen, stunned, or blinded — monster skips its action entirely
+  // ── Step 10: Monster action ────────────────────────────────────────────────────
+  // Skipped entirely when stunned (Golem Defense), frozen (Freezing Shot), or blinded (Blinding Powder).
+  // Stun takes priority over freeze which takes priority over blind in the skip log message.
   const monsterActsThisTurn = frozenRounds <= 0 && stunnedRounds <= 0 && blindRounds <= 0;
   if (stunnedRounds > 0) {
     stunnedRounds -= 1;
@@ -818,7 +982,7 @@ export function resolveRound(
     });
   } else if (blindRounds > 0) {
     blindRounds -= 1;
-    if (blindRounds === 0) disorientRounds = 4;
+    if (blindRounds === 0) disorientRounds = 4;  // Blind → Disorient transition
     log.push({
       actor: "monster",
       message: `${monster.name} is blinded and cannot act!`,
@@ -826,16 +990,20 @@ export function resolveRound(
       monsterLife: Math.max(0, monsterLife),
     });
   }
+  // Disorient countdown (independent of blind; 25% dmg reduction applied at hit time)
   if (disorientRounds > 0) disorientRounds -= 1;
 
   if (monsterActsThisTurn) {
 
-  // Monster spell (replaces normal attack when cast)
+  // Monster either casts its spell or does a normal attack.
+  // Spell: boss unique ability on a ~35-45% chance with a 3-turn cooldown.
   const spell = monster.spell;
   const castSpell = spell && monsterSpellCooldown <= 0 && Math.random() < spell.chance;
   if (castSpell && spell) {
     monsterSpellCastName = spell.name;
     monsterSpellCooldown = spell.cooldown;
+
+    // Amazon Dodge: 15% chance to avoid spells entirely
     const amazonDodgedSpell = character.classId === "amazon" && Math.random() < AMAZON_DODGE_CHANCE;
     if (amazonDodgedSpell) {
       log.push({
@@ -846,7 +1014,10 @@ export function resolveRound(
       });
     } else {
     let spellDmg = Math.round(randomInRange(monster.damage) * spell.power * (disorientRounds > 0 ? 0.75 : 1.0));
+
+    // Damage reduction order: Frost Shield → Golem redirect → Fade → Iron Skin → gear reduction
     if (frostShieldRounds > 0) spellDmg = Math.max(1, Math.round(spellDmg * 0.40));
+    // Golem Defense: 30% of spell damage is dealt back to the monster; player takes 70%
     if (golemRounds > 0) {
       const reflected = Math.round(spellDmg * 0.30);
       monsterLife -= reflected;
@@ -860,7 +1031,7 @@ export function resolveRound(
     if (stats.magicDmgReduction > 0) spellDmg = Math.max(1, Math.round(spellDmg * (1 - stats.magicDmgReduction / 100)));
 
     if (spell.kind === "burst") {
-      playerLife -= spellDmg;
+      takeDamage(spellDmg);
       log.push({
         actor: "monster",
         message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!${frostShieldRounds > 0 ? " Frost Shield absorbs 60%." : ""}${golemRounds > 0 ? " Stone Golem reflects 30% back!" : ""}`,
@@ -868,8 +1039,9 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
     } else if (spell.kind === "dot") {
+      // Monster dot spell: initial hit at 40% power + 3 player poison ticks
       const initialHit = Math.round(spellDmg * 0.4);
-      playerLife -= initialHit;
+      takeDamage(initialHit);
       playerPoisonRounds = 3;
       playerPoisonDamage = Math.round(spellDmg * 0.4);
       log.push({
@@ -879,8 +1051,9 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
     } else if (spell.kind === "burn") {
+      // Monster burn spell: initial hit at 40% power + 3 player burn ticks
       const initialHit = Math.round(spellDmg * 0.4);
-      playerLife -= initialHit;
+      takeDamage(initialHit);
       playerBurnRounds = 3;
       playerBurnDamage = Math.round(spellDmg * 0.4);
       log.push({
@@ -890,7 +1063,8 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
     } else if (spell.kind === "drain") {
-      playerLife -= spellDmg;
+      // Drain: damages player and heals monster (capped at full life)
+      takeDamage(spellDmg);
       monsterLife = Math.min(monster.life, monsterLife + spellDmg);
       log.push({
         actor: "monster",
@@ -900,16 +1074,20 @@ export function resolveRound(
       });
     }
 
+    // Paladin passives apply to spell damage too
     if (character.classId === "paladin" && spellDmg > 0) {
+      // Divine Retribution: 15% of spell damage taken → life
       const healBack = Math.round(spellDmg * PALADIN_DAMAGE_TAKEN_HEAL);
       playerLife = Math.min(stats.maxLife, playerLife + healBack);
       if (character.level >= 35) {
+        // Thorns Aura: 20% of spell damage reflected back
         const thornsDmg = Math.round(spellDmg * 0.20);
         monsterLife -= thornsDmg;
         damageDealt += thornsDmg;
         log.push({ actor: "player", message: `Thorns Aura reflects ${thornsDmg} damage back!`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
       }
     }
+    // Thornback unique armor: reflects % of any damage taken
     if (stats.thornReflect > 0 && spellDmg > 0) {
       const reflectDmg = Math.round(spellDmg * stats.thornReflect);
       monsterLife -= reflectDmg;
@@ -918,7 +1096,7 @@ export function resolveRound(
     }
     } // end !amazonDodgedSpell
   } else {
-    // Normal attack
+    // Normal monster attack
     const amazonDodged = character.classId === "amazon" && Math.random() < AMAZON_DODGE_CHANCE;
     if (amazonDodged) {
       log.push({
@@ -928,6 +1106,7 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
     }
+    // Paladin Defensive Aura (lv.20): +10% effective defense vs physical hits
     const defenseAuraBonus = character.classId === "paladin" && character.level >= 20 ? 1.10 : 1.0;
     const monsterHitChance = rollHitChance(monster.attackRating, Math.round(stats.defense * defenseAuraBonus));
     if (!amazonDodged && Math.random() < monsterHitChance) {
@@ -935,19 +1114,23 @@ export function resolveRound(
       let dmg = Math.round(randomInRange(monster.damage) * (disorientRounds > 0 ? 0.75 : 1.0));
       if (isMonsterCrit) dmg = Math.round(dmg * 1.75);
 
+      // Thick Hide (Druid): reduces all physical damage by Dex × 0.2%, capped at 25%
       if (character.classId === "druid") {
         const reduction = Math.min(0.25, stats.stats.dexterity * 0.002);
         dmg = Math.max(1, Math.round(dmg * (1 - reduction)));
       }
 
+      // Damage reduction order: Fade → Iron Skin → gear reduction → Frost Shield → Boneweave → Golem redirect
       const fadedNormal = character.classId === "assassin" && Math.random() < 0.25;
       if (fadedNormal) dmg = Math.max(1, Math.round(dmg * 0.55));
       const ironSkin = getIronSkinReduction(character, playerLife, stats.maxLife);
       if (ironSkin > 0) dmg = Math.max(1, Math.round(dmg * (1 - ironSkin)));
       if (stats.physDmgReduction > 0) dmg = Math.max(1, Math.round(dmg * (1 - stats.physDmgReduction / 100)));
       if (frostShieldRounds > 0) dmg = Math.max(1, Math.round(dmg * 0.40));
+      // Boneweave Gloves: 5% chance to reduce hit to exactly 1 damage
       const boneweaveBlocked = stats.blockChance > 0 && Math.random() < stats.blockChance / 100;
       if (boneweaveBlocked) dmg = 1;
+      // Golem Defense: 30% of physical damage reflected; player takes 70%
       if (golemRounds > 0) {
         const reflected = Math.round(dmg * 0.30);
         monsterLife -= reflected;
@@ -955,7 +1138,7 @@ export function resolveRound(
         dmg = Math.max(1, dmg - reflected);
       }
 
-      playerLife -= dmg;
+      takeDamage(dmg);
 
       let message = isMonsterCrit
         ? `Critical hit! ${monster.name} deals ${dmg} damage.`
@@ -971,17 +1154,21 @@ export function resolveRound(
       if (golemRounds > 0) message += " Stone Golem reflects 30% back!";
       if (boneweaveBlocked) message += " Boneweave Gloves block the blow!";
 
+      // Paladin passives
       if (character.classId === "paladin") {
+        // Divine Retribution: 15% of damage taken → life
         const healBack = Math.round(dmg * PALADIN_DAMAGE_TAKEN_HEAL);
         playerLife = Math.min(stats.maxLife, playerLife + healBack);
         message += ` Divine Retribution restores ${healBack} life.`;
         if (character.level >= 35) {
+          // Thorns Aura: 20% of physical damage reflected
           const thornsDmg = Math.round(dmg * 0.20);
           monsterLife -= thornsDmg;
           damageDealt += thornsDmg;
           message += ` Thorns Aura reflects ${thornsDmg} damage!`;
         }
       }
+      // Thornback unique armor
       if (stats.thornReflect > 0) {
         const reflectDmg = Math.round(dmg * stats.thornReflect);
         monsterLife -= reflectDmg;
@@ -1007,6 +1194,7 @@ export function resolveRound(
 
   } // end monsterActsThisTurn
 
+  // ── Step 11: Frost Shield duration tick ───────────────────────────────────────
   if (frostShieldRounds > 0) {
     frostShieldRounds -= 1;
     if (frostShieldRounds === 0) {
@@ -1014,7 +1202,9 @@ export function resolveRound(
     }
   }
 
-  // Fire Trap detonation — after monster acts
+  // ── Step 12: Fire Trap detonation ─────────────────────────────────────────────
+  // trapRounds was decremented in step 8 and again via action in step 1 if placed this turn.
+  // Detonates the frame trapRounds transitions from 1 → 0 (i.e. state.trapRounds > 0 but now 0).
   if (trapRounds === 0 && state.trapRounds > 0) {
     const trapLowLifeMult = stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.30 ? 1 + stats.lowLifeDamageBonus : 1.0;
     const trapElectrocuteMult = electrocuteRounds > 0 ? 1.20 : 1.0;
@@ -1039,6 +1229,7 @@ export function resolveRound(
     }
   }
 
+  // ── Step 13: Golem duration tick ───────────────────────────────────────────────
   if (golemRounds > 0) {
     golemRounds -= 1;
     if (golemRounds === 0) {
@@ -1046,6 +1237,7 @@ export function resolveRound(
     }
   }
 
+  // ── Step 14: Round outcome ─────────────────────────────────────────────────────
   const status: BattleStatus = playerLife <= 0 ? "defeat" : "ongoing";
   return { state: makeState(), log, status, damageDealt, monsterSpellCast: monsterSpellCastName, trapDetonated };
 }

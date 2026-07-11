@@ -59,6 +59,7 @@ export function UniqueEffectLines({ item }: { item: Item }) {
       {item.vipersKiss && <div className="item-line mirror-flavor"><em>Venom knows no honor</em></div>}
       {item.shadowfang && <div className="item-line mirror-flavor"><em>20% chance to call forth a phantom strike for 50% of hit damage</em></div>}
       {item.deathwhisper && <div className="item-line mirror-flavor"><em>While the enemy is blinded or disoriented, all damage dealt is increased by 30%</em></div>}
+      {item.spellbladesMask && <div className="item-line mirror-flavor"><em>Adds 20% of damage dealt as magic to each attack. Scales with magic damage bonus.</em></div>}
       {item.apprenticesFocus && <div className="item-line mirror-flavor"><em>Carved for eager hands, not yet hardened by battle</em></div>}
       {item.arcanist && <div className="item-line mirror-flavor"><em>While Frost Shield is active, Fireball deals 40% increased damage</em></div>}
       {item.eternitysEdge && <div className="item-line mirror-flavor"><em>30% chance for Fireball to echo at 50% power</em></div>}

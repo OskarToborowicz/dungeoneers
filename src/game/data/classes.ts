@@ -56,19 +56,19 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     resourceType: "mana",
     passive: {
       name: "Soul Siphon",
-      description: "All magic damage you deal heals you for 15% of the damage dealt, including the initial strike and every poison tick.",
-      short: "All magic damage heals you for 15% of damage dealt.",
+      description: "All magic damage you deal heals you for 15% of the damage dealt.",
+      short: "All magic damage heals you for portion of damage dealt.",
     },
     passive2: {
       name: "Virulence",
       description: "Your damage over time effects deal 25% increased damage.",
-      short: "DoT effects deal 25% more damage.",
+      short: "DoT effects deal increased damage.",
       levelRequirement: 20,
     },
     passive3: {
       name: "Blood Barrier",
       description: "Healing effects can exceed your maximum life by up to 25% of your max life, creating a temporary barrier. Does not apply to health potions.",
-      short: "Non-potion healing can overheal up to 25% of max life.",
+      short: "Healing effects can overheal you.",
       levelRequirement: 35,
     },
     ability: {
@@ -83,7 +83,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     ability2: {
       name: "Golem Defense",
       description: "The Stone Golem rolls in and stuns the enemy for 1 turn, then stands guard for 3 turns — redirecting 30% of all incoming damage back at the enemy.",
-      short: "Stuns enemy 1 turn. Golem guards for 3 turns, reflecting 30% of incoming damage back.",
+      short: "Summon golem, stunning enemy. Golem reflects portion of damage back to attacker.",
       manaCost: 40,
       cooldown: 6,
       kind: "golem",
