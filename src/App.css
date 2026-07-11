@@ -2593,6 +2593,9 @@
 
   .combat-middle .battle-arena {
     flex-shrink: 0;
+    order: 0;
+    margin-bottom: 4px;
+    max-width: 100%;
   }
 
   .combat-middle .combat-log {
@@ -2601,7 +2604,8 @@
     min-height: 0;
     font-size: 11px;
     padding: 6px 10px;
-    order: 0;
+    order: 1;
+    max-width: 100%;
   }
 
   .combat-bars {
@@ -2618,6 +2622,11 @@
   .combat-bars .resource-bar,
   .combat-bars .xp-bar-combat {
     height: 14px;
+  }
+
+  .combat-bars .resource-bar {
+    position: relative;
+    overflow: hidden;
   }
 
   /* bar-num overlays absolutely on top of normal-flow bar-fill */
