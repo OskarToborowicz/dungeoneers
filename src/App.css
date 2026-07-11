@@ -2680,7 +2680,13 @@
     pointer-events: none;
   }
 
-  .combat-result { order: 0; }
+  .combat-result {
+    order: 2;
+    flex-shrink: 0;
+    margin-top: 4px;
+    padding: 8px 12px 10px;
+    max-width: 100%;
+  }
   .combat-result .primary-button { padding: 6px 16px; font-size: 13px; }
 
   .combat-actions {
