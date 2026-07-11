@@ -309,7 +309,7 @@ export function resolveRound(
 
   // Blood Barrier (Necromancer lv.35): Soul Siphon and lifesteal can overheal up to 125% max life.
   // Potions and other class heals always cap at 100%.
-  const bloodBarrierCap = character.classId === "necromancer" && character.level >= 35 ? stats.maxLife * 1.25 : stats.maxLife;
+  // const bloodBarrierCap = character.classId === "necromancer" && character.level >= 35 ? stats.maxLife * 1.25 : stats.maxLife;
 
   let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, electrocuteRounds, golemRounds, stunnedRounds } = state;
   let absorbShield = 0; // Resets every round — overheal from last turn does not carry over
