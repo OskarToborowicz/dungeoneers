@@ -440,6 +440,7 @@ export function CombatScreen({
       </div>{/* end combat-middle */}
 
       {status === "ongoing" && (
+        <div className="combat-actions">
         <div className="combat-spells">
           <button className="action-button" disabled={isAnimating} onClick={() => handleAction("attack")}>
             <span className="hotkey-badge">1</span>
@@ -490,9 +491,6 @@ export function CombatScreen({
             </button>
           )}
         </div>
-      )}
-
-      {status === "ongoing" && (
         <div className="combat-flee">
           <button
             className="action-button run"
@@ -504,6 +502,7 @@ export function CombatScreen({
             <span className="action-cost">{escapeTokens > 0 ? `${escapeTokens} token` : "No tokens"}</span>
           </button>
         </div>
+        </div>{/* end combat-actions */}
       )}
 
       {status !== "ongoing" && (

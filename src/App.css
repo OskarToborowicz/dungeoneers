@@ -2155,7 +2155,7 @@
   color: #c98a8a;
 }
 
-.combat-spells {
+.combat-actions {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
@@ -2164,15 +2164,9 @@
   margin-top: 16px;
 }
 
+.combat-spells,
 .combat-flee {
-  display: flex;
-  width: 100%;
-  max-width: 560px;
-  margin-top: 8px;
-}
-
-.combat-flee .action-button {
-  flex: 1;
+  display: contents;
 }
 
 .action-button {
@@ -2496,7 +2490,7 @@
     font-size: 13px;
   }
 
-  .combat-spells {
+  .combat-actions {
     gap: 8px;
   }
 
@@ -2562,14 +2556,15 @@
     font-size: 11px;
   }
 
+  .combat-actions {
+    display: contents;
+  }
+
   .combat-spells {
     grid-area: spells;
     display: flex;
     flex-direction: column;
     gap: 6px;
-    margin: 0;
-    max-width: none;
-    width: auto;
   }
 
   .combat-spells .action-button {
@@ -2582,9 +2577,6 @@
     grid-area: flee;
     display: flex;
     flex-direction: column;
-    margin: 0;
-    max-width: none;
-    width: auto;
   }
 
   .combat-flee .action-button {

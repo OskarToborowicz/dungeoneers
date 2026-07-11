@@ -98,7 +98,6 @@ export function CharacterSprite({ classId, size = 64, state = "idle", isUnique =
         <g
           {...sharedG}
           stroke={weaponColor}
-          style={{ filter: `drop-shadow(0 0 ${isUnique ? 8 : 6}px ${weaponColor}) drop-shadow(0 0 ${isUnique ? 3 : 2}px ${weaponColor})` }}
         >
           {isUnique ? sprite.uniqueWeapon(weaponColor) : sprite.weapon(weaponColor)}
         </g>
