@@ -42,7 +42,7 @@ All classes start with **10 in every base stat** (Strength, Dexterity, Vitality,
 
 **Weapons are class-locked.** Each class can only equip their designated weapon type. Unique weapons display a golden glow on the character sprite.
 
-**Starting equipment.** Every new character begins with a Normal-quality version of their class weapon (item level 1, no affixes). This weapon occupies the main-hand slot immediately on character creation.
+**Starting equipment.** Every new character begins with a Normal-quality version of their class weapon (item level 1, no affixes). The Paladin also starts with a Normal-quality Shield. These items occupy their slots immediately on character creation.
 
 **Shield restrictions.** Only the Paladin can equip shields. The Barbarian can equip a second Axe in the off-hand slot (see Dual-Wield below). The Assassin can equip a second Claw in the off-hand slot. All other classes leave the shield slot empty.
 
@@ -706,7 +706,10 @@ buyValue  = sellValue × 6
 
 Gold rarity multipliers: Normal ×1, Magic ×2, Rare ×4, Unique ×8.
 
-Items can be sold individually from the Shop tab or all at once using **Sell All** (shows total value with a confirmation prompt before executing).
+Items can be sold individually from the Shop tab or all at once. Two bulk-sell options are available:
+
+- **Sell Junk** — instantly sells all Normal and Magic items with no confirmation prompt. Shows the count of items to be sold on the button.
+- **Sell All** — sells every inventory item; shows the total value and requires a confirmation step before executing.
 
 ### Shop Restock
 

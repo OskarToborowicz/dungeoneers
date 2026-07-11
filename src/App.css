@@ -2584,6 +2584,7 @@
     overflow: hidden;
     min-width: 0;
     order: 0;
+    background: var(--bg-panel);
   }
 
   .combat-title {
@@ -2619,29 +2620,18 @@
     height: 14px;
   }
 
-  /* bar-num overlays on top of bar-fill */
-  .combat-bars .hp-bar,
-  .combat-bars .resource-bar {
+  /* bar-num overlays absolutely on top of normal-flow bar-fill */
+  .combat-bars .bar-num {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
-  }
-
-  .combat-bars .hp-bar-fill,
-  .combat-bars .resource-bar-fill {
-    position: absolute;
-    top: 0; left: 0;
-    height: 100%;
-  }
-
-  .combat-bars .bar-num {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    text-align: center;
+    justify-content: center;
     font-size: 9px;
     color: rgba(255,255,255,0.9);
     text-shadow: 0 0 3px rgba(0,0,0,1);
     line-height: 1;
+    pointer-events: none;
   }
 
   .combat-bars .combat-stat-row { display: none; }
@@ -2666,25 +2656,19 @@
 
   .landscape-monster-hp .hp-bar {
     height: 14px;
-    display: flex;
-    align-items: center;
-  }
-
-  .landscape-monster-hp .hp-bar-fill {
-    position: absolute;
-    top: 0; left: 0;
-    height: 100%;
   }
 
   .landscape-monster-hp .bar-num {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    text-align: center;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     font-size: 9px;
     color: rgba(255,255,255,0.9);
     text-shadow: 0 0 3px rgba(0,0,0,1);
     line-height: 1;
+    pointer-events: none;
   }
 
   .combat-result { order: 0; }

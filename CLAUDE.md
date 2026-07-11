@@ -260,3 +260,37 @@ This is render-only — it never mutates the stored `item.affixes` array.
 ### Drop banner
 
 Auto-dismisses after **3 seconds** via `setTimeout` in Hub's `useEffect`. Unique item drops also play `divine_drop.mp3` at volume 0.3. Asset path must use `import.meta.env.BASE_URL` prefix (Vite base is `/dungeoneers/`).
+
+### Landscape combat layout
+
+`@media (orientation: landscape) and (max-height: 500px)` activates a 3-column grid on `.combat-screen`:
+
+```
+grid-template-areas: "bars middle flee" / "spells middle flee"
+grid-template-columns: 140px 1fr 100px
+```
+
+Key rules:
+- `.combat-middle` switches from `display: contents` → `display: flex; flex-direction: column` — becomes the middle grid cell
+- `.combat-actions` → `display: contents` so `.combat-spells` and `.combat-flee` become direct grid children
+- `.combat-title` hidden; `.combat-bars .combat-stat-row` hidden; `.landscape-hide` hidden
+- `.combat-bars .combat-bar-block:last-child` (monster HP block) hidden — monster HP is shown separately in the flee column via `.landscape-monster-hp` div
+- `.landscape-monster-name` and `.landscape-monster-hp` — hidden in portrait, shown in landscape; both live inside the `combat-flee` DOM element
+
+**Bar-number overlay:** `.bar-num` spans are always in the JSX (inside `.hp-bar`/`.resource-bar`). In portrait they are clipped by `overflow: hidden`. In landscape:
+```css
+.combat-bars .bar-num,
+.landscape-monster-hp .bar-num {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+}
+```
+The fill stays as a normal-flow block element (not absolute). The bar-num overlays absolutely on top. **Do NOT use `display: flex` on the bar container + `position: absolute` on the fill** — this breaks on iOS Safari with `overflow: hidden`.
+
+### Sell Junk
+
+`handleSellJunk` in `App.tsx` filters `inventory` to `rarity === "normal" || rarity === "magic"` and sells them instantly (no confirmation). Wired through `Hub → ShopTab` as `onSellJunk`. The "Sell Junk (N)" button in `ShopTab` only renders when `junkCount > 0`.
+
+### Paladin starting equipment
+
+`generateStartingEquipment()` in `items.ts` returns `{ weapon, shield }` for Paladin (and `{ weapon }` for all other classes). The shield is a Normal-quality item generated from the first `ARMOR_BASES` entry with `slot === "shield"`.
