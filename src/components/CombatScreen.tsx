@@ -502,8 +502,9 @@ export function CombatScreen({
             <span className="action-cost">{escapeTokens > 0 ? `${escapeTokens} token` : "No tokens"}</span>
           </button>
         </div>
-        </div>{/* end combat-actions */}
-      )}
+        </div>)}
+        {/* /* end combat-actions */}
+        
 
       {status !== "ongoing" && (
         <div className="combat-result">
