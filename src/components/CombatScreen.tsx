@@ -522,6 +522,12 @@ export function CombatScreen({
         </div>
         <div className="combat-flee">
           <div className="landscape-monster-name">{monster.name} <span className="monster-level">Lv.{monster.level}</span></div>
+          <div className="landscape-monster-hp">
+            <div className="hp-bar">
+              <div className="hp-bar-fill monster" style={{ width: `${Math.max(0, (battle.monsterLife / monster.life) * 100)}%` }} />
+              <span className="bar-num">{battle.monsterLife}/{monster.life}</span>
+            </div>
+          </div>
           <button
             className="action-button run"
             disabled={isAnimating || escapeTokens <= 0}

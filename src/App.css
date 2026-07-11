@@ -1621,6 +1621,7 @@
 .combat-actions { order: 6; }
 
 .landscape-monster-name { display: none; }
+.landscape-monster-hp { display: none; }
 
 .combat-bars {
   display: flex;
@@ -2572,9 +2573,7 @@
   }
 
   .combat-title {
-    order: 0;
-    font-size: 13px;
-    margin: 0 0 4px;
+    display: none;
   }
 
   .combat-middle .battle-arena {
@@ -2585,7 +2584,6 @@
     flex: 1;
     height: 0;
     min-height: 0;
-    max-height: 90px;
     font-size: 11px;
     padding: 6px 10px;
     order: 0;
@@ -2595,13 +2593,11 @@
     grid-area: bars;
     order: 0;
     flex-direction: column;
-    gap: 6px;
+    gap: 4px;
     align-items: stretch;
   }
 
-  .combat-bars .combat-bar-block {
-    flex: 1;
-  }
+  .combat-bars .combat-bar-block:last-child { display: none; }
 
   .combat-bars .hp-bar,
   .combat-bars .resource-bar,
@@ -2609,15 +2605,73 @@
     height: 14px;
   }
 
+  /* bar-num overlays on top of bar-fill */
+  .combat-bars .hp-bar,
+  .combat-bars .resource-bar {
+    display: flex;
+    align-items: center;
+  }
+
+  .combat-bars .hp-bar-fill,
+  .combat-bars .resource-bar-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+  }
+
   .combat-bars .bar-num {
-    display: block;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    text-align: center;
     font-size: 9px;
+    color: rgba(255,255,255,0.9);
+    text-shadow: 0 0 3px rgba(0,0,0,1);
+    line-height: 1;
   }
 
   .combat-bars .combat-stat-row { display: none; }
-  .combat-bars .potion-row { display: none; }
   .combat-bars .status-effects { font-size: 9px; }
   .landscape-hide { display: none; }
+
+  .combat-bars .potion-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 2px;
+  }
+
+  .combat-bars .potion-compact {
+    flex: 1;
+    padding: 2px 4px;
+    font-size: 9px;
+  }
+
+  .landscape-monster-hp {
+    display: block;
+  }
+
+  .landscape-monster-hp .hp-bar {
+    height: 14px;
+    display: flex;
+    align-items: center;
+  }
+
+  .landscape-monster-hp .hp-bar-fill {
+    position: absolute;
+    top: 0; left: 0;
+    height: 100%;
+  }
+
+  .landscape-monster-hp .bar-num {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    text-align: center;
+    font-size: 9px;
+    color: rgba(255,255,255,0.9);
+    text-shadow: 0 0 3px rgba(0,0,0,1);
+    line-height: 1;
+  }
 
   .combat-result { order: 0; }
   .combat-result .primary-button { padding: 6px 16px; font-size: 13px; }
