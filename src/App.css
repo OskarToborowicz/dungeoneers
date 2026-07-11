@@ -2598,14 +2598,17 @@
     max-width: 100%;
   }
 
-  .combat-middle .combat-log {
+.combat-middle .combat-log {
     flex: 1;
     height: 0;
     min-height: 0;
+    overflow-y: auto;
     font-size: 11px;
     padding: 6px 10px;
     order: 1;
     max-width: 100%;
+    /* Ensure combat log always expands to fill available space */
+    min-height: 50px;
   }
 
   .combat-bars {
