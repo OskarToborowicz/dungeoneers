@@ -1608,6 +1608,10 @@
   position: relative;
 }
 
+.combat-middle {
+  display: contents;
+}
+
 .combat-bars {
   display: flex;
   gap: 24px;
@@ -2349,13 +2353,11 @@
     width: 100%;
     min-height: unset;
     position: static;
-    flex-direction: row;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 0;
     border-right: none !important;
     border-bottom: 1px solid var(--border-gold);
-    padding: 12px 12px 10px;
+    padding: 6px 8px 0;
     flex-shrink: 0;
   }
 
@@ -2366,40 +2368,55 @@
     overflow-y: auto;
   }
 
-  .hub-sprite svg {
-    width: 48px !important;
-    height: 72px !important;
-  }
-
-  .gold-display {
-    font-size: 15px;
-  }
-
+  /* Sprite + info row */
   .hub-sprite-wrap {
     display: flex;
     flex-direction: row;
     align-items: center;
-    gap: 4px;
+    gap: 10px;
+    padding-bottom: 4px;
   }
 
-  /* Tab bar: horizontal row */
+  .hub-sprite svg {
+    width: 36px !important;
+    height: 54px !important;
+  }
+
+  .hub-char-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .level-display {
+    font-size: 13px;
+  }
+
+  .gold-display {
+    font-size: 13px;
+  }
+
+  .potions-display {
+    font-size: 13px;
+  }
+
+  /* Tab bar: horizontal row below sprite row */
   .tab-bar {
     flex-direction: row;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     border-right: none;
     border-bottom: none;
     padding-right: 0;
-    gap: 2px;
+    gap: 0;
     width: 100%;
-    order: 10;
   }
 
   .tab-bar button {
     border-left: none;
     border-bottom: 2px solid transparent;
     border-radius: 4px 4px 0 0;
-    padding: 7px 12px;
-    font-size: 13px;
+    padding: 6px 4px;
+    font-size: 12px;
     text-align: center;
     flex: 1;
   }
@@ -2415,9 +2432,7 @@
   }
 
   .reset-button {
-    margin-top: 0;
-    font-size: 11px;
-    padding: 5px 10px;
+    display: none;
   }
 
   /* Smaller tab panel padding */

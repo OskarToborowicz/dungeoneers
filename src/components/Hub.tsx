@@ -120,17 +120,19 @@ export function Hub({
                 isUnique={equipment.weapon?.rarity === "very rare" || equipment.weapon?.rarity === "unique"}
               />
             </div>
-          </div>
-          <div className="level-display">
-            Level {character.level}
-            {character.unspentStatPoints > 0 && <span className="stat-point-inline">+</span>}
-          </div>
-          <div className="gold-display"><CoinIcon size={15} /> {character.gold}</div>
-          <div className="potions-display">
-            <span><PotionIcon type="health" size={18} /> {consumables.healthPotion}</span>
-            {CLASSES[character.classId].resourceType === "mana" && (
-              <span><PotionIcon type="mana" size={18} /> {consumables.manaPotion}</span>
-            )}
+            <div className="hub-char-info">
+              <div className="level-display">
+                Level {character.level}
+                {character.unspentStatPoints > 0 && <span className="stat-point-inline">+</span>}
+              </div>
+              <div className="gold-display"><CoinIcon size={15} /> {character.gold}</div>
+              <div className="potions-display">
+                <span><PotionIcon type="health" size={18} /> {consumables.healthPotion}</span>
+                {CLASSES[character.classId].resourceType === "mana" && (
+                  <span><PotionIcon type="mana" size={18} /> {consumables.manaPotion}</span>
+                )}
+              </div>
+            </div>
           </div>
 
           <nav className="tab-bar">
