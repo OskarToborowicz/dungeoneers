@@ -258,6 +258,13 @@ function App() {
     setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + total } : prev));
   }
 
+  function handleSellJunk() {
+    const junk = inventory.filter((i) => i.rarity === "normal" || i.rarity === "magic");
+    const total = junk.reduce((sum, item) => sum + sellValue(item), 0);
+    setInventory((prev) => prev.filter((i) => i.rarity !== "normal" && i.rarity !== "magic"));
+    setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + total } : prev));
+  }
+
   const POTION_STACK_LIMIT = 5;
 
   function handleBuyConsumable(id: ConsumableId) {
@@ -457,6 +464,7 @@ function App() {
       onMoveItem={handleMoveItem}
       onSell={handleSell}
       onSellAll={handleSellAll}
+      onSellJunk={handleSellJunk}
       onStartDungeon={handleStartDungeon}
       onQuitToMenu={handleQuitToMenu}
       onBuyConsumable={handleBuyConsumable}

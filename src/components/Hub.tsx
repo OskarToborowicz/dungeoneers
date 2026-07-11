@@ -27,6 +27,7 @@ interface Props {
   onMoveItem: (itemId: string, from: EquipmentSlot | "inventory", to: EquipmentSlot | "inventory") => void;
   onSell: (item: Item) => void;
   onSellAll: () => void;
+  onSellJunk: () => void;
   onStartDungeon: (dungeonId: string) => void;
   onQuitToMenu: () => void;
   onBuyConsumable: (id: ConsumableId) => void;
@@ -55,6 +56,7 @@ export function Hub({
   onMoveItem,
   onSell,
   onSellAll,
+  onSellJunk,
   onStartDungeon,
   onQuitToMenu,
   onBuyConsumable,
@@ -174,6 +176,7 @@ export function Hub({
               restockFee={restockFee}
               onSell={onSell}
               onSellAll={onSellAll}
+              onSellJunk={onSellJunk}
             />
           )}
           {tab === "dungeons" && (

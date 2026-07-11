@@ -800,6 +800,20 @@
   flex-shrink: 0;
 }
 
+.sell-junk-button {
+  background: none;
+  border: 1px solid #5a4a2a;
+  color: var(--text-dim);
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.sell-junk-button:hover {
+  border-color: var(--border-gold);
+  color: var(--text);
+}
+
 .sell-all-button {
   background: none;
   border: 1px solid var(--border-gold);

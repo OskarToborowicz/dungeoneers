@@ -22,6 +22,7 @@ interface Props {
   restockFee: number;
   onSell: (item: Item) => void;
   onSellAll: () => void;
+  onSellJunk: () => void;
 }
 
 export function ShopTab({
@@ -37,8 +38,10 @@ export function ShopTab({
   restockFee,
   onSell,
   onSellAll,
+  onSellJunk,
 }: Props) {
   const [confirmSellAll, setConfirmSellAll] = useState(false);
+  const junkCount = inventory.filter((i) => i.rarity === "normal" || i.rarity === "magic").length;
   const { hovered: shopHovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover, showTooltip, tooltipRef, compareRef } = useItemHover();
   const classDef = CLASSES[character.classId];
   const availableConsumables = CONSUMABLE_LIST.filter(
@@ -117,9 +120,16 @@ export function ShopTab({
                 </button>
               </>
             ) : (
-              <button className="sell-all-button" onClick={() => setConfirmSellAll(true)}>
-                Sell All
-              </button>
+              <>
+                {junkCount > 0 && (
+                  <button className="sell-junk-button" onClick={onSellJunk}>
+                    Sell Junk ({junkCount})
+                  </button>
+                )}
+                <button className="sell-all-button" onClick={() => setConfirmSellAll(true)}>
+                  Sell All
+                </button>
+              </>
             )}
           </div>
         )}
