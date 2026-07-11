@@ -221,6 +221,7 @@ export function CombatScreen({
 
   return (
     <div className="screen combat-screen">
+      <div className="combat-middle">
       <h2>{monster.name} <span className="monster-level">Lv.{monster.level}</span></h2>
 
       <div className="battle-arena">
@@ -436,8 +437,10 @@ export function CombatScreen({
         ))}
       </div>
 
+      </div>{/* end combat-middle */}
+
       {status === "ongoing" && (
-        <div className="combat-actions">
+        <div className="combat-spells">
           <button className="action-button" disabled={isAnimating} onClick={() => handleAction("attack")}>
             <span className="hotkey-badge">1</span>
             Attack
@@ -486,6 +489,11 @@ export function CombatScreen({
               <span className="action-dmg-type">{ability2Preview.label} · {ability2Preview.type}</span>
             </button>
           )}
+        </div>
+      )}
+
+      {status === "ongoing" && (
+        <div className="combat-flee">
           <button
             className="action-button run"
             disabled={isAnimating || escapeTokens <= 0}

@@ -2155,13 +2155,24 @@
   color: #c98a8a;
 }
 
-.combat-actions {
+.combat-spells {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   width: 100%;
   max-width: 560px;
   margin-top: 16px;
+}
+
+.combat-flee {
+  display: flex;
+  width: 100%;
+  max-width: 560px;
+  margin-top: 8px;
+}
+
+.combat-flee .action-button {
+  flex: 1;
 }
 
 .action-button {
@@ -2485,7 +2496,7 @@
     font-size: 13px;
   }
 
-  .combat-actions {
+  .combat-spells {
     gap: 8px;
   }
 
@@ -2510,3 +2521,79 @@
   }
 }
 
+/* ── Landscape combat layout ──────────────────────────────────────────────── */
+@media (orientation: landscape) and (max-height: 500px) {
+  .combat-screen {
+    display: grid;
+    grid-template-columns: 140px 1fr 100px;
+    grid-template-rows: 1fr;
+    grid-template-areas: "spells middle flee";
+    gap: 8px;
+    padding: 8px;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .combat-middle {
+    grid-area: middle;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+  }
+
+  .combat-middle h2 {
+    font-size: 13px;
+    margin: 0 0 4px;
+  }
+
+  .combat-middle .battle-arena {
+    flex-shrink: 0;
+  }
+
+  .combat-middle .combat-bars {
+    flex-shrink: 0;
+  }
+
+  .combat-middle .combat-log {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    font-size: 11px;
+  }
+
+  .combat-spells {
+    grid-area: spells;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+    max-width: none;
+    width: auto;
+  }
+
+  .combat-spells .action-button {
+    flex: 1;
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .combat-flee {
+    grid-area: flee;
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    max-width: none;
+    width: auto;
+  }
+
+  .combat-flee .action-button {
+    flex: 1;
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .combat-result {
+    grid-area: middle;
+  }
+}
