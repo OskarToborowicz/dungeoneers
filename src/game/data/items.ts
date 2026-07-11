@@ -191,6 +191,11 @@ function generateItemFromBase(base: ItemBase, itemLevel: number): Item {
 export function generateStartingEquipment(classId: ClassId): Partial<Record<EquipmentSlot, Item>> {
   const weaponBase = WEAPON_BASES.find((w) => w.allowedClasses?.includes(classId)) ?? WEAPON_BASES[0];
   const weapon = generateItemFromBase(weaponBase, 1);
+  if (classId === "paladin") {
+    const shieldBase = ARMOR_BASES.find((a) => a.slot === "shield")!;
+    const shield = generateItemFromBase(shieldBase, 1);
+    return { weapon, shield };
+  }
   return { weapon };
 }
 

@@ -222,7 +222,7 @@ export function CombatScreen({
   return (
     <div className="screen combat-screen">
       <div className="combat-middle">
-      <h2>{monster.name} <span className="monster-level">Lv.{monster.level}</span></h2>
+      <h2 className="combat-title">{monster.name} <span className="monster-level">Lv.{monster.level}</span></h2>
 
       <div className="battle-arena">
         {abilityEffect && (
@@ -295,6 +295,42 @@ export function CombatScreen({
         </div>
       </div>
 
+      <div className="combat-log" ref={logRef}>
+        {log.map((e, i) => (
+          <div key={i} className={`log-entry ${e.actor}`}>
+            {e.message}
+          </div>
+        ))}
+      </div>
+
+      {status !== "ongoing" && (
+        <div className="combat-result">
+          <h3 className={status === "victory" ? "victory-text" : "defeat-text"}>
+            {status === "victory" ? "Victory!" : "You Have Died"}
+          </h3>
+          {status === "victory" && reward && (() => {
+            const pendingXp = !xpCapped ? Math.round(reward.xp * xpMultiplier) : 0;
+            let simXp = character.xp + pendingXp;
+            let simLevel = character.level;
+            let levelsGained = 0;
+            while (simXp >= xpToNextLevel(simLevel)) { simXp -= xpToNextLevel(simLevel); simLevel++; levelsGained++; }
+            return (
+              <>
+                <p>
+                  {!xpCapped && <>{pendingXp} XP &middot; </>}{reward.gold} gold
+                </p>
+                {levelsGained > 0 && <p className="level-up-notice">Level up! Now level {simLevel}</p>}
+              </>
+            );
+          })()}
+          {status === "defeat" && <p>Your journey ends here. All progress will be lost.</p>}
+          <button className="primary-button" onClick={handleContinue}>
+            {status === "victory" ? "Continue" : "Accept Your Fate"}
+          </button>
+        </div>
+      )}
+      </div>{/* end combat-middle */}
+
       <div className="combat-bars">
         <div className="combat-bar-block">
           <div className="combat-bar-label">{character.name} <span className="monster-level">Lv.{character.level}</span></div>
@@ -312,6 +348,7 @@ export function CombatScreen({
                   className="hp-bar-fill player"
                   style={{ width: `${Math.max(0, Math.min(100, (battle.playerLife / derived.maxLife) * 100))}%` }}
                 />
+                <span className="bar-num">{Math.min(battle.playerLife, derived.maxLife)}/{derived.maxLife}</span>
               </div>
             );
           })()}
@@ -320,6 +357,7 @@ export function CombatScreen({
               className={`resource-bar-fill ${def.resourceType}`}
               style={{ width: `${Math.max(0, (battle.playerMana / derived.maxMana) * 100)}%` }}
             />
+            <span className="bar-num">{battle.playerMana}/{derived.maxMana}</span>
           </div>
           <div className="xp-bar-combat">
             <div
@@ -388,14 +426,15 @@ export function CombatScreen({
         </div>
 
         <div className="combat-bar-block">
-          <div className="combat-bar-label">{monster.name}</div>
+          <div className="combat-bar-label landscape-hide">{monster.name}</div>
           <div className="hp-bar">
             <div
               className="hp-bar-fill monster"
               style={{ width: `${Math.max(0, (battle.monsterLife / monster.life) * 100)}%` }}
             />
+            <span className="bar-num">{battle.monsterLife}/{monster.life}</span>
           </div>
-          <div className="combat-stat-row">
+          <div className="combat-stat-row landscape-hide">
             <span className="combat-stat hp">
               <svg viewBox="0 0 10 9" width="10" height="9"><path d="M5 8 C5 8 1 5 1 3a2 2 0 0 1 4-1 2 2 0 0 1 4 1c0 2-4 5-4 5z" fill="#cc3333"/></svg>
               {battle.monsterLife}/{monster.life}
@@ -428,43 +467,6 @@ export function CombatScreen({
           )}
         </div>
       </div>
-
-      <div className="combat-log" ref={logRef}>
-        {log.map((e, i) => (
-          <div key={i} className={`log-entry ${e.actor}`}>
-            {e.message}
-          </div>
-        ))}
-      </div>
-
-      {status !== "ongoing" && (
-        <div className="combat-result">
-          <h3 className={status === "victory" ? "victory-text" : "defeat-text"}>
-            {status === "victory" ? "Victory!" : "You Have Died"}
-          </h3>
-          {status === "victory" && reward && (() => {
-            const pendingXp = !xpCapped ? Math.round(reward.xp * xpMultiplier) : 0;
-            let simXp = character.xp + pendingXp;
-            let simLevel = character.level;
-            let levelsGained = 0;
-            while (simXp >= xpToNextLevel(simLevel)) { simXp -= xpToNextLevel(simLevel); simLevel++; levelsGained++; }
-            return (
-              <>
-                <p>
-                  {!xpCapped && <>{pendingXp} XP &middot; </>}{reward.gold} gold
-                </p>
-                {levelsGained > 0 && <p className="level-up-notice">Level up! Now level {simLevel}</p>}
-              </>
-            );
-          })()}
-          {status === "defeat" && <p>Your journey ends here. All progress will be lost.</p>}
-          <button className="primary-button" onClick={handleContinue}>
-            {status === "victory" ? "Continue" : "Accept Your Fate"}
-          </button>
-        </div>
-      )}
-
-      </div>{/* end combat-middle */}
 
       {status === "ongoing" && (
         <div className="combat-actions">
@@ -519,6 +521,7 @@ export function CombatScreen({
           )}
         </div>
         <div className="combat-flee">
+          <div className="landscape-monster-name">{monster.name} <span className="monster-level">Lv.{monster.level}</span></div>
           <button
             className="action-button run"
             disabled={isAnimating || escapeTokens <= 0}
