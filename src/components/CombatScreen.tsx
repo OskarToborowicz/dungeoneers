@@ -437,6 +437,33 @@ export function CombatScreen({
         ))}
       </div>
 
+      {status !== "ongoing" && (
+        <div className="combat-result">
+          <h3 className={status === "victory" ? "victory-text" : "defeat-text"}>
+            {status === "victory" ? "Victory!" : "You Have Died"}
+          </h3>
+          {status === "victory" && reward && (() => {
+            const pendingXp = !xpCapped ? Math.round(reward.xp * xpMultiplier) : 0;
+            let simXp = character.xp + pendingXp;
+            let simLevel = character.level;
+            let levelsGained = 0;
+            while (simXp >= xpToNextLevel(simLevel)) { simXp -= xpToNextLevel(simLevel); simLevel++; levelsGained++; }
+            return (
+              <>
+                <p>
+                  {!xpCapped && <>{pendingXp} XP &middot; </>}{reward.gold} gold
+                </p>
+                {levelsGained > 0 && <p className="level-up-notice">Level up! Now level {simLevel}</p>}
+              </>
+            );
+          })()}
+          {status === "defeat" && <p>Your journey ends here. All progress will be lost.</p>}
+          <button className="primary-button" onClick={handleContinue}>
+            {status === "victory" ? "Continue" : "Accept Your Fate"}
+          </button>
+        </div>
+      )}
+
       </div>{/* end combat-middle */}
 
       {status === "ongoing" && (
@@ -503,35 +530,6 @@ export function CombatScreen({
           </button>
         </div>
         </div>)}
-        {/* /* end combat-actions */}
-        
-
-      {status !== "ongoing" && (
-        <div className="combat-result">
-          <h3 className={status === "victory" ? "victory-text" : "defeat-text"}>
-            {status === "victory" ? "Victory!" : "You Have Died"}
-          </h3>
-          {status === "victory" && reward && (() => {
-            const pendingXp = !xpCapped ? Math.round(reward.xp * xpMultiplier) : 0;
-            let simXp = character.xp + pendingXp;
-            let simLevel = character.level;
-            let levelsGained = 0;
-            while (simXp >= xpToNextLevel(simLevel)) { simXp -= xpToNextLevel(simLevel); simLevel++; levelsGained++; }
-            return (
-              <>
-                <p>
-                  {!xpCapped && <>{pendingXp} XP &middot; </>}{reward.gold} gold
-                </p>
-                {levelsGained > 0 && <p className="level-up-notice">Level up! Now level {simLevel}</p>}
-              </>
-            );
-          })()}
-          {status === "defeat" && <p>Your journey ends here. All progress will be lost.</p>}
-          <button className="primary-button" onClick={handleContinue}>
-            {status === "victory" ? "Continue" : "Accept Your Fate"}
-          </button>
-        </div>
-      )}
 
       {showFleePrompt && (
         <div className="flee-overlay">
