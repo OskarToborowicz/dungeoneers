@@ -1,3 +1,28 @@
+/* ============================================================
+   App.css — section index (split into files tomorrow):
+   1.  Base / Screen shell            (.screen)
+   2.  Character Creation             (.creation-screen … .secondary-button)
+   3.  Character Select               (.select-screen … .delete-confirm-button)
+   4.  Hub layout + sidebar           (.hub-screen … .tab-panel)
+   5.  Character Tab                  (.hero-header … .allocate-button--glow)
+   6.  Inventory Tab: Paperdoll       (.paperdoll … .inv-cell sell-button)
+   7.  Shop Tab                       (.shop-potions … .buy-button)
+   8.  Dungeons Tab + Portal          (.dungeons-header … .dungeon-meta)
+   9.  Item drop banner + Flee modal  (.drop-banner … .flee-cancel)
+   10. Sprites                        (.hub-sprite-wrap … .death-sprite)
+   11. Battle Arena                   (.battle-arena)
+   12. Ability animations             (keyframes ae-* + trap, golem, etc.)
+   13. Shared UI: tooltips, passives  (.item-tooltip … .ability-box--compact)
+   14. Combat Screen                  (.combat-screen … .potion-compact)
+   15. Combat: action buttons         (.action-button … .flee-modal)
+   16. Game Over / Victory            (.game-over-screen … .run-summary)
+   17. Responsive: mobile (≤768px)    (@media max-width: 768px)
+   18. Responsive: combat landscape   (@media orientation:landscape max-height:500px)
+   19. Responsive: hub landscape      (@media orientation:landscape … max-width:960px)
+   ============================================================ */
+
+/* ── 1. Base / Screen shell ──────────────────────────────────────────────── */
+
 .screen {
   padding: 5px 20px 20px;
   flex: 1;
@@ -5,7 +30,7 @@
   flex-direction: column;
 }
 
-/* ---------- Character Creation ---------- */
+/* ── 2. Character Creation ───────────────────────────────────────────────── */
 
 .creation-screen {
   align-items: center;
@@ -198,7 +223,7 @@
   margin-top: 8px;
 }
 
-/* ---------- Character Select ---------- */
+/* ── 3. Character Select ─────────────────────────────────────────────────── */
 
 .select-screen {
   align-items: center;
@@ -305,9 +330,7 @@
   background: rgba(194, 50, 31, 0.15);
 }
 
-/* ---------- Hub ---------- */
-
-/* ---------- Class-tinted Hub ---------- */
+/* ── 4. Hub layout + sidebar ─────────────────────────────────────────────── */
 
 .hub-screen {
   --class-color: var(--border-gold);
@@ -489,7 +512,7 @@
   scrollbar-color: var(--class-color) #1a1208;
 }
 
-/* ---------- Character Tab ---------- */
+/* ── 5. Character Tab ────────────────────────────────────────────────────── */
 
 .hero-header {
   display: flex;
@@ -627,7 +650,7 @@
   animation: allocate-glow-pulse 1.2s ease-in-out infinite;
 }
 
-/* ---------- Inventory Tab: Paperdoll ---------- */
+/* ── 6. Inventory Tab: Paperdoll + grid ──────────────────────────────────── */
 
 .paperdoll {
   display: grid;
@@ -737,6 +760,7 @@
   filter: drop-shadow(0 0 3px rgba(0, 0, 0, 0.8));
 }
 
+/* ── 13. Shared UI: tooltips, passives ───────────────────────────────────── */
 .item-tooltip {
   width: 170px;
   background: var(--bg-panel);
@@ -977,7 +1001,7 @@
   font-size: 13px;
 }
 
-/* ---------- Shop Tab ---------- */
+/* ── 7. Shop Tab ─────────────────────────────────────────────────────────── */
 
 .shop-potions {
   display: grid;
@@ -1065,7 +1089,7 @@
   border-color: var(--border-gold-bright);
 }
 
-/* ---------- Dungeons Tab ---------- */
+/* ── 8. Dungeons Tab ─────────────────────────────────────────────────────── */
 
 .dungeons-header {
   display: flex;
@@ -1104,7 +1128,7 @@
   color: var(--text-heading);
 }
 
-/* ---------- Portal overlay ---------- */
+/* ── 9a. Portal overlay ──────────────────────────────────────────────────── */
 
 .portal-overlay {
   position: absolute;
@@ -1145,7 +1169,7 @@
   filter: drop-shadow(0 0 12px rgba(220, 40, 20, 0.8));
 }
 
-/* ---------- Item drop banner ---------- */
+/* ── 9b. Item drop banner + Flee modal ───────────────────────────────────── */
 
 .drop-banner {
   position: absolute;
@@ -1324,7 +1348,7 @@
   margin-bottom: 8px;
 }
 
-/* ---------- Sprites ---------- */
+/* ── 10. Sprites ──────────────────────────────────────────────────────────── */
 
 .hub-sprite-wrap {
   position: relative;
@@ -1350,6 +1374,7 @@
   padding: 12px 0;
 }
 
+/* ── 11. Battle Arena ─────────────────────────────────────────────────────── */
 .battle-arena {
   display: flex;
   justify-content: space-between;
@@ -1366,7 +1391,7 @@
   position: relative;
 }
 
-/* === Ability Effect Animations === */
+/* ── 12. Ability animations ───────────────────────────────────────────────── */
 .ability-effect-overlay {
   position: absolute;
   inset: 0;
@@ -1659,7 +1684,7 @@
   align-items: center;
 }
 
-/* ---------- Combat Screen ---------- */
+/* ── 14. Combat Screen ────────────────────────────────────────────────────── */
 
 .combat-screen {
   align-items: center;
@@ -2242,6 +2267,7 @@
   display: contents;
 }
 
+/* ── 15. Combat: action buttons ──────────────────────────────────────────── */
 .action-button {
   background: linear-gradient(180deg, #2c2319, #1a1512);
   border: 1px solid var(--border-gold);
@@ -2350,7 +2376,7 @@
   margin-top: 4px;
 }
 
-/* ---------- Game Over ---------- */
+/* ── 16. Game Over / Victory ──────────────────────────────────────────────── */
 
 .game-over-screen {
   align-items: center;
@@ -2396,7 +2422,7 @@
   font-size: 18px;
 }
 
-/* ---------- Mobile ---------- */
+/* ── 17. Responsive: mobile (≤768px) ─────────────────────────────────────── */
 
 @media (max-width: 768px) {
   .screen {
@@ -2686,7 +2712,7 @@
     max-width: 100%;
   }
 }
-/* ── Landscape combat layout ──────────────────────────────────────────────── */
+/* ── 18. Responsive: combat landscape ────────────────────────────────────── */
 @media (orientation: landscape) and (max-height: 500px) {
   /* inventory tab */
 
@@ -2869,7 +2895,7 @@
   }
 }
 
-/* ── Hub landscape layout ─────────────────────────────────────────────────── */
+/* ── 19. Responsive: hub landscape ───────────────────────────────────────── */
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 960px) {
   .hub-screen {
     flex-direction: row;
@@ -2947,15 +2973,28 @@
   .hub-content {
     flex: 1;
     min-width: 0;
-    max-height: 100%;
-    overflow-y: auto;
-
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
   }
+
+  .hub-content .tab-panel {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    max-height: none;
+    display: flex;
+    flex-direction: column;
+  }
+
   .inventory-wrapper {
     display: flex;
     flex-direction: row;
     gap: 12px;
-    align-items: flex-start;
+    align-items: stretch;
+    flex: 1;
+    min-height: 0;
     overflow: hidden;
   }
 

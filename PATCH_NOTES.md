@@ -2,6 +2,20 @@
 
 ---
 
+## Session 2026-07-12
+
+### UI / Layout
+
+- **Shop landscape layout** — Potions and Merchant's Wares are now displayed side-by-side in a single row in landscape mode. Potion cards are compact (description hidden, smaller padding/font). Merchant item grid sits directly under the Merchant's Wares heading + Restock button in a shared column.
+- **Shop inventory scroll** — In landscape mode, only the inventory grid scrolls; the "Your Inventory" heading and Sell buttons stay fixed.
+- **Potion buy button** now shows `X/5 · Yg` (e.g. `3/5 · 50g`) instead of just "Buy for Yg", so stack count is always visible without a separate label.
+- **Mobile combat fit** — On short-screen mobile (e.g. iPhone SE 375×667) all four action buttons now fit without scrolling. The combat log flexes to fill available vertical space and the action buttons are pinned to the bottom using `flex-shrink: 0`.
+- **Landscape flee button** — Flee button no longer stretches the full column height; it is a fixed 48px height, vertically centered in its grid area.
+- **Landscape monster name** — Monster name and level no longer get truncated with `…`; they wrap to the next line instead.
+- **Mobile hub return button** — A `↩` button appears in the top-right corner of the hub sidebar on portrait mobile only (hidden in landscape where the sidebar already shows "Return to Menu"). Tapping it shows an inline "Exit? Yes / No" confirmation before quitting.
+
+---
+
 ## Session 2025-07-07
 
 ### New Content

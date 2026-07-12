@@ -232,10 +232,20 @@ All Act 1 and Act 2 monsters have unique sprites. New monsters need entries in a
 - CSS class names use kebab-case matching the component name (e.g. `.combat-screen`, `.flee-modal`)
 - All new overlay/modal elements need `position: relative` on their parent container
 - Dark theme only — all colors are hardcoded dark palette values in App.css
-- Mobile responsive breakpoint at `@media (max-width: 600px)` at the bottom of App.css:
+- Mobile responsive breakpoint at `@media (max-width: 768px)` at the bottom of App.css:
   - Hub sidebar collapses to a horizontal top bar (sprite shrinks, tabs go horizontal)
   - `derived-grid` switches from 3-col to 2-col
   - Padding reduced to 12px
+  - `.reset-button` (desktop sidebar) hidden; `.mobile-menu-button` (↩ top-right) shown instead with inline "Exit? Yes/No" confirm
+  - Combat log uses `flex: 1; min-height: 0; height: auto` so action buttons are never cut off on short screens (iPhone SE 375×667)
+- Hub landscape breakpoint at `@media (orientation: landscape) and (max-height: 500px) and (max-width: 960px)`:
+  - Sidebar moves to left column (130px wide, vertical)
+  - Shop: potions + merchant wares in one flex row; only inventory items scroll
+  - Inventory: paperdoll left (44px slots), inventory-right column fills remaining space with fixed label + scrollable grid + fixed instruction
+- Combat landscape breakpoint at `@media (orientation: landscape) and (max-height: 500px)`:
+  - 3-column grid: `140px 1fr 100px` (bars | arena | flee)
+  - Flee button: `height: 48px; flex: none`, centered in column — not stretched full height
+  - Monster name: wraps (`word-break: break-word`) instead of truncating with ellipsis
 
 ### Item tooltip system
 
