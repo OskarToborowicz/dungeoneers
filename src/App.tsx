@@ -24,6 +24,7 @@ import type {
   RunStats,
   SaveGame,
 } from "./game/types";
+import { FullscreenButton } from "./components/FullscreenButton";
 import "./App.css";
 
 function restockFee(level: number) {
@@ -82,26 +83,33 @@ function App() {
 
   if (deathSummary) {
     return (
-      <GameOverScreen
-        summary={deathSummary}
-        onContinue={() => setDeathSummary(null)}
-      />
+      <>
+        <GameOverScreen
+          summary={deathSummary}
+          onContinue={() => setDeathSummary(null)}
+        />
+        <FullscreenButton />
+      </>
     );
   }
 
   if (!activeSlotId && !creating) {
     return (
-      <CharacterSelect
-        slots={slots}
-        onSelect={handleSelectSlot}
-        onDelete={handleDeleteSlot}
-        onNew={() => setCreating(true)}
-      />
+      <>
+        <CharacterSelect
+          slots={slots}
+          onSelect={handleSelectSlot}
+          onDelete={handleDeleteSlot}
+          onNew={() => setCreating(true)}
+        />
+        <FullscreenButton />
+      </>
     );
   }
 
   if (!character) {
     return (
+      <>
       <CharacterCreation
         onBack={() => setCreating(false)}
         onCreate={(name: string, classId: ClassId) => {
@@ -129,6 +137,8 @@ function App() {
           setCreating(false);
         }}
       />
+      <FullscreenButton />
+    </>
     );
   }
 
@@ -429,6 +439,7 @@ function App() {
   if (dungeonRun) {
     const monster = dungeonRun.queue[dungeonRun.index];
     return (
+      <>
       <CombatScreen
         key={`${dungeonRun.dungeonId}-${dungeonRun.index}`}
         character={character}
@@ -448,38 +459,43 @@ function App() {
         onFinished={handleFightFinished}
         onEscape={handleEscape}
       />
+      <FullscreenButton />
+    </>
     );
   }
 
   return (
-    <Hub
-      character={character}
-      derived={derived}
-      equipment={equipment}
-      inventory={inventory}
-      clearedDungeons={clearedDungeons}
-      consumables={consumables}
-      shopStock={shopStock}
-      onAllocate={handleAllocate}
-      onMoveItem={handleMoveItem}
-      onSell={handleSell}
-      onSellAll={handleSellAll}
-      onSellJunk={handleSellJunk}
-      onStartDungeon={handleStartDungeon}
-      onQuitToMenu={handleQuitToMenu}
-      onBuyConsumable={handleBuyConsumable}
-      onBuyItem={handleBuyItem}
-      onRestockShop={handleRestockShop}
-      restockFee={restockFee(character.level)}
-      showPortalMessage={showPortalMessage}
-      onDismissPortal={() => setShowPortalMessage(false)}
-      droppedItem={droppedItem}
-      onDismissDroppedItem={() => setDroppedItem(null)}
-      selectedAct={selectedAct}
-      onSelectAct={setSelectedAct}
-      selectedTab={hubTab}
-      onSelectTab={setHubTab}
-    />
+    <>
+      <Hub
+        character={character}
+        derived={derived}
+        equipment={equipment}
+        inventory={inventory}
+        clearedDungeons={clearedDungeons}
+        consumables={consumables}
+        shopStock={shopStock}
+        onAllocate={handleAllocate}
+        onMoveItem={handleMoveItem}
+        onSell={handleSell}
+        onSellAll={handleSellAll}
+        onSellJunk={handleSellJunk}
+        onStartDungeon={handleStartDungeon}
+        onQuitToMenu={handleQuitToMenu}
+        onBuyConsumable={handleBuyConsumable}
+        onBuyItem={handleBuyItem}
+        onRestockShop={handleRestockShop}
+        restockFee={restockFee(character.level)}
+        showPortalMessage={showPortalMessage}
+        onDismissPortal={() => setShowPortalMessage(false)}
+        droppedItem={droppedItem}
+        onDismissDroppedItem={() => setDroppedItem(null)}
+        selectedAct={selectedAct}
+        onSelectAct={setSelectedAct}
+        selectedTab={hubTab}
+        onSelectTab={setHubTab}
+      />
+      <FullscreenButton />
+    </>
   );
 }
 

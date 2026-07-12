@@ -3087,7 +3087,36 @@
   }
 }
 
-/* ── 19. Responsive: hub landscape ───────────────────────────────────────── */
+/* ── 19. Fullscreen button ───────────────────────────────────────────────── */
+
+.fullscreen-btn {
+  display: none;
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  z-index: 10000;
+  background: rgba(26, 21, 18, 0.75);
+  border: 1px solid var(--border-gold);
+  border-radius: 6px;
+  color: var(--text-dim);
+  padding: 6px;
+  line-height: 0;
+  cursor: pointer;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.fullscreen-btn:hover {
+  color: var(--text-heading);
+  border-color: var(--border-gold-bright);
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .fullscreen-btn {
+    display: block;
+  }
+}
+
+/* ── 20. Responsive: hub landscape ───────────────────────────────────────── */
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 960px) {
   .hub-screen {
     flex-direction: row;
