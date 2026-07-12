@@ -342,7 +342,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       description: "Enter a moment of perfect calm, restoring 30% of your maximum life and cleansing all poison from your body.",
       short: "Heal 30% of max life, cleanse all debuffs, blind enemy this turn.",
       manaCost: 40,
-      cooldown: 4,
+      cooldown: 5,
       kind: "serenity",
       power: 0,
       magic: false,

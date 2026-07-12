@@ -2,6 +2,34 @@
 
 ---
 
+## Session 2026-07-12b
+
+### New Class — Monk
+
+The **Monk** joins the roster as the 8th playable class. A disciplined warrior-ascetic who strikes with blinding speed and mends wounds through inner focus.
+
+**Resource:** Chi (functions like Mana — 5% passive regen per turn)  
+**Weapon:** Katar (non-two-handed, Monk-exclusive)  
+**Color:** `#54E396`
+
+#### Abilities
+
+- **Spinning Crane Kick** — Unleashes three rapid spinning kicks, each dealing 45% weapon damage. Every kick rolls hit and crit independently. Chi cost: 18, cooldown: 1 turn.
+- **Serenity** — Restores 30% of max life and 50% of max chi. Cleanses all negative effects (poison and burn). Blinds the enemy so they cannot act this turn. Chi cost: 40, cooldown: 4 turns.
+
+#### Passives
+
+- **Combat Reflexes** *(always active)* — 30% chance after each basic attack to deliver a follow-up strike at 70% damage. Each hit of Spinning Crane Kick also has an independent 30% chance to deal 25% bonus damage of that specific kick.
+- **Transcendence** *(unlocks at level 20)* — Passively restores 7% of maximum life every turn.
+- **Counter Attack** *(unlocks at level 35)* — 12% chance to instantly strike back after the enemy attacks, dealing full weapon damage. Fires after the monster's action.
+
+#### Ability Animation
+
+- **Spinning Crane Kick** — Green wind rings spin around the player like a beyblade, with four flying particles dispersing outward.
+- **Serenity** — Expanding green healing rings radiate from the player with rising sparkles.
+
+---
+
 ## Session 2026-07-12
 
 ### UI / Layout

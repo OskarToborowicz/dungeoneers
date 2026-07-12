@@ -134,6 +134,7 @@ function App() {
           setConsumables({ healthPotion: 1, manaPotion: 0 });
           setShopStock(newShopStock);
           setHubTab("character");
+          setSelectedAct(1);
           setCreating(false);
         }}
       />

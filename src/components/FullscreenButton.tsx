@@ -1,21 +1,48 @@
 import { useState, useEffect } from "react";
 
+const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const doc = document as any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const el = document.documentElement as any;
+
+function getFullscreenElement() {
+  return doc.fullscreenElement || doc.webkitFullscreenElement || null;
+}
+
+function requestFullscreen() {
+  if (el.requestFullscreen) return el.requestFullscreen();
+  if (el.webkitRequestFullscreen) return el.webkitRequestFullscreen();
+}
+
+function exitFullscreen() {
+  if (doc.exitFullscreen) return doc.exitFullscreen();
+  if (doc.webkitExitFullscreen) return doc.webkitExitFullscreen();
+}
+
 export function FullscreenButton() {
-  const [isFullscreen, setIsFullscreen] = useState(!!document.fullscreenElement);
+  const [isFullscreen, setIsFullscreen] = useState(!!getFullscreenElement());
 
   useEffect(() => {
-    const onChange = () => setIsFullscreen(!!document.fullscreenElement);
+    const onChange = () => setIsFullscreen(!!getFullscreenElement());
     document.addEventListener("fullscreenchange", onChange);
-    return () => document.removeEventListener("fullscreenchange", onChange);
+    document.addEventListener("webkitfullscreenchange", onChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onChange);
+      document.removeEventListener("webkitfullscreenchange", onChange);
+    };
   }, []);
 
   const toggle = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen?.();
+    if (!getFullscreenElement()) {
+      requestFullscreen()?.catch?.(() => {});
     } else {
-      document.exitFullscreen?.();
+      exitFullscreen()?.catch?.(() => {});
     }
   };
+
+  if (isIOS) return null;
 
   return (
     <button className="fullscreen-btn" onClick={toggle} aria-label="Toggle fullscreen">
