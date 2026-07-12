@@ -200,6 +200,12 @@
   margin-top: 0;
 }
 
+.creation-footer .primary-button:not(:disabled),
+.creation-bottom-row .primary-button:not(:disabled) {
+  box-shadow: 0 0 10px 2px color-mix(in srgb, var(--border-gold-bright) 55%, transparent);
+  transition: box-shadow 0.3s ease;
+}
+
 .secondary-button {
   background: transparent;
   border: 1px solid var(--border-gold);
@@ -1024,6 +1030,10 @@
   margin-bottom: 4px;
 }
 
+.shop-potion-stat {
+  display: none;
+}
+
 .shop-potion-desc {
   color: var(--text-dim);
   font-size: 13px;
@@ -1035,6 +1045,43 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+
+.potion-buy-button {
+  background: var(--bg-panel);
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-family: var(--sans);
+  cursor: pointer;
+  transition: background 0.15s, box-shadow 0.15s;
+  width: 100%;
+}
+
+.potion-buy-button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.potion-buy-button--health {
+  border-color: var(--hp-color-bright);
+  color: #e87070;
+}
+
+.potion-buy-button--health:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--hp-color) 40%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--hp-color-bright) 40%, transparent);
+}
+
+.potion-buy-button--mana {
+  border-color: #4a7fc1;
+  color: #7aaee8;
+}
+
+.potion-buy-button--mana:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--mana-color) 60%, transparent);
+  box-shadow: 0 0 6px color-mix(in srgb, #4a7fc1 50%, transparent);
 }
 
 .owned-count {
@@ -2479,6 +2526,10 @@
 
   }
 
+  .shop-potions {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
   /* Sprite + info row */
   .hub-sprite-wrap {
     display: flex;
@@ -2895,6 +2946,147 @@
   }
 }
 
+/* ── 18b. Responsive: character creation landscape ───────────────────────── */
+@media (orientation: landscape) and (max-height: 500px) {
+  .creation-screen .game-title,
+  .creation-screen .subtitle {
+    display: none;
+  }
+
+  .creation-screen {
+    padding: 6px 12px;
+  }
+
+  .creation-panel {
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    max-width: 100%;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .class-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: unset;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .class-button {
+    flex: 1 1 auto;
+    padding: 5px 8px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .class-detail {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    border-left: none;
+    border-top: 1px solid var(--border-gold);
+    padding-left: 0;
+    padding-top: 8px;
+  }
+
+  .class-sprite-preview {
+    display: none;
+  }
+
+  .class-detail-title {
+    margin-bottom: 2px;
+  }
+
+  .class-detail-title {
+    font-size: 13px;
+  }
+
+  .class-desc {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .class-detail .class-header {
+    margin-bottom: 6px;
+  }
+
+  .class-skills-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 5px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .class-skills-grid .ability-box--compact {
+    margin-top: 0;
+    padding: 6px 8px;
+    overflow: hidden;
+  }
+
+  .class-skills-grid .ability-box--compact strong {
+    font-size: 12px;
+  }
+
+  .class-skills-grid .ability-box--compact p {
+    font-size: 11px;
+    margin-top: 3px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .creation-footer {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0 4px;
+  }
+
+  .creation-back {
+    flex-shrink: 0;
+  }
+
+  .creation-footer .name-input {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    margin-top: 0;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .creation-footer .creation-bottom-row {
+    margin-top: 0;
+    flex-shrink: 0;
+  }
+
+  .creation-footer .primary-button {
+    font-size: 12px;
+    padding: 6px 14px;
+    background: var(--bg-panel-light);
+    border-color: var(--border-gold-bright);
+    color: var(--text-heading);
+  }
+
+  .creation-footer .primary-button:hover:not(:disabled) {
+    background: #2c2319;
+    border-color: var(--border-gold-bright);
+    color: #f0d080;
+  }
+
+  .creation-footer .secondary-button {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+}
+
 /* ── 19. Responsive: hub landscape ───────────────────────────────────────── */
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 960px) {
   .hub-screen {
@@ -2982,10 +3174,14 @@
   .hub-content .tab-panel {
     flex: 1;
     min-height: 0;
-    overflow: hidden;
+    overflow-y: auto;
     max-height: none;
     display: flex;
     flex-direction: column;
+  }
+
+  .hub-content .tab-panel:has(.inventory-wrapper) {
+    overflow: hidden;
   }
 
   .inventory-wrapper {
@@ -3000,20 +3196,39 @@
 
   .paperdoll {
     flex-shrink: 0;
-    grid-template-columns: repeat(3, 44px);
-    grid-template-rows: repeat(5, 44px);
+    grid-template-columns: repeat(3, 32px);
+    grid-template-rows: repeat(5, 32px);
+    gap: 3px;
+    padding: 6px;
+    margin: 0;
   }
 
   .doll-slot {
-    width: 44px;
-    height: 44px;
-    font-size: 9px;
+    width: 32px;
+    height: 32px;
+    font-size: 6px;
+  }
+
+  .doll-slot-label {
+    font-size: 6px;
+    letter-spacing: 0;
+  }
+
+  .doll-shield .doll-slot-label {
+    font-size: 0;
+  }
+
+  .doll-shield .doll-slot-label::after {
+    content: "OH";
+    font-size: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
   }
 
   .slot-item svg,
   .doll-slot svg {
-    width: 28px !important;
-    height: 28px !important;
+    width: 20px !important;
+    height: 20px !important;
   }
 
   .inventory-right {
@@ -3079,6 +3294,13 @@
 
   .shop-potion-desc {
     display: none;
+  }
+
+  .shop-potion-stat {
+    display: block;
+    font-size: 10px;
+    color: var(--text-dim);
+    margin: 2px 0;
   }
 
   .shop-potion-footer {

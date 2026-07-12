@@ -65,9 +65,12 @@ export function ShopTab({
                     ? `Restores ${potionRestorePct}% of max life instantly. 3-turn cooldown.`
                     : `Restores ${potionRestorePct}% of max mana instantly. 3-turn cooldown.`}
                 </p>
+                <div className="shop-potion-stat">
+                  {potionRestorePct}% {def.id === "healthPotion" ? "HP" : "Mana"}
+                </div>
                 <div className="shop-potion-footer">
                   <button
-                    className="primary-button small"
+                    className={`potion-buy-button potion-buy-button--${def.id === "healthPotion" ? "health" : "mana"}`}
                     disabled={character.gold < potionCost || consumables[def.id] >= 5}
                     onClick={() => onBuyConsumable(def.id)}
                   >

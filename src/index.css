@@ -75,6 +75,19 @@ body {
   }
 }
 
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 960px) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  #root {
+    height: 100%;
+    min-height: unset;
+    overflow-y: auto;
+  }
+}
+
 h1, h2, h3 {
   font-family: var(--heading-font);
   color: var(--text-heading);
