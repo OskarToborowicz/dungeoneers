@@ -19,7 +19,7 @@ Build check: `npx tsc --noEmit`
 | `src/game/types.ts` | All shared types: `ClassDefinition`, `DungeonDefinition`, `SaveGame`, etc. |
 | `src/game/combat.ts` | Turn-based combat engine — single `simulateTurn()` export |
 | `src/game/character.ts` | Stat derivation, XP/level math |
-| `src/game/data/classes.ts` | All 7 class definitions |
+| `src/game/data/classes.ts` | All 8 class definitions |
 | `src/game/data/dungeons.ts` | All dungeon + monster definitions, `getXpCapLevel()` |
 | `src/game/data/items.ts` | Item generation — random items + all `generate*` unique functions |
 | `src/game/data/drops.ts` | `UNIQUE_DROP_TABLE` — declarative unique drop entries, looped in `App.tsx` on boss kill |
@@ -162,6 +162,20 @@ Heartseeker fires after crits from both basic attack and each Multishot arrow.
 - Damage: `dexterity × 2.5`, can crit
 - `canMiss: false` — always places successfully
 
+### Monk abilities and passives
+
+**Spinning Crane Kick** (`kind: "multi"`, 3 hits, `power: 0.45`): Three rapid kicks, each rolling hit/crit independently. Chi cost: 18, cooldown: 1.
+
+**Serenity** (`kind: "serenity"`, `canMiss: false`): Heals 30% max life, restores 50% max chi, cleanses all player negative effects (poison + burn), and blinds the enemy for this turn only (no disorient follow-up). Chi cost: 40, cooldown: 4.
+
+**Combat Reflexes** (always active): 30% chance after basic attack → follow-up strike at 70% damage. Each Spinning Crane Kick hit also has 30% chance to deal 25% bonus damage of that specific kick (separate roll per kick, min 1 dmg).
+
+**Transcendence** (lv.20): Passively restores 7% of max life per turn. Constant: `MONK_TRANSCENDENCE_REGEN = 0.07`.
+
+**Counter Attack** (lv.35): 12% chance to strike back after the enemy acts, full weapon damage. Fires in step 10b (after `monsterActsThisTurn` block). Constant: `MONK_COUNTER_ATTACK_CHANCE = 0.12`.
+
+**Color**: `#54E396`. **Weapon**: Katar (non-two-handed, monk only).
+
 ### Passive system in types
 
 `ClassDefinition` supports:
@@ -169,7 +183,7 @@ Heartseeker fires after crits from both basic attack and each Multishot arrow.
 - `passive2?: { levelRequirement: number }` — unlocks at given level
 - `passive3?: { levelRequirement: number }` — unlocks at given level
 
-Amazon and Necromancer both use passive3. All classes can be extended to use it.
+Amazon, Necromancer, and Monk all use passive3. All classes can be extended to use it.
 
 ---
 

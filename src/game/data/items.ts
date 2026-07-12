@@ -17,6 +17,7 @@ const WEAPON_BASES: ItemBase[] = [
   { name: "Mace",     slot: "weapon", baseDamage: [3, 4], twoHanded: false, allowedClasses: ["paladin"] },
   { name: "Totem",    slot: "weapon", baseDamage: [2, 6], twoHanded: true,  allowedClasses: ["druid"] },
   { name: "Claw",     slot: "weapon", baseDamage: [2, 5], twoHanded: false, allowedClasses: ["assassin"] },
+  { name: "Katar",    slot: "weapon", baseDamage: [2, 5], twoHanded: false, allowedClasses: ["monk"] },
 ];
 
 const ARMOR_BASES: ItemBase[] = [

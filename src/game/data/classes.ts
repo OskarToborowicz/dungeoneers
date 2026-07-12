@@ -302,6 +302,53 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       canMiss: false,
     },
   },
+  monk: {
+    id: "monk",
+    name: "Monk",
+    description: "A disciplined warrior-ascetic who strikes with blinding speed and mends wounds through inner focus.",
+    baseStats: { strength: 10, dexterity: 10, vitality: 10, energy: 10 },
+    resourceName: "Chi",
+    resourceType: "mana",
+    passive: {
+      name: "Sweeping Wind",
+      description: "30% chance after each basic attack to deliver a follow-up strike at 70% damage. Each hit of Spinning Crane Kick also has a 30% chance to deal 25% bonus damage.",
+      short: "30% follow-up on basic attacks (70% dmg); 30% bonus per kick (+25% dmg).",
+    },
+    passive2: {
+      name: "Transcendence",
+      description: "Your spiritual discipline passively restores 7% of your maximum life each turn through inner meditation.",
+      short: "Passively restore 7% life each turn.",
+      levelRequirement: 20,
+    },
+    passive3: {
+      name: "Counter Attack",
+      description: "Your reflexes sharpen to perfection — 12% chance to instantly strike back after the enemy attacks, dealing full weapon damage.",
+      short: "12% chance to counter-attack after being hit.",
+      levelRequirement: 35,
+    },
+    ability: {
+      name: "Spinning Crane Kick",
+      description: "Unleash three rapid spinning kicks, each dealing 45% weapon damage. Each kick rolls hit and crit independently.",
+      short: "Three rapid kicks, each rolling hit and crit independently.",
+      manaCost: 18,
+      cooldown: 1,
+      kind: "multi",
+      power: 0.45,
+      magic: false,
+      hits: 3,
+    },
+    ability2: {
+      name: "Serenity",
+      description: "Enter a moment of perfect calm, restoring 30% of your maximum life and cleansing all poison from your body.",
+      short: "Heal 30% of max life, cleanse all debuffs, blind enemy this turn.",
+      manaCost: 40,
+      cooldown: 4,
+      kind: "serenity",
+      power: 0,
+      magic: false,
+      canMiss: false,
+    },
+  },
 };
 
 export const CLASS_LIST = Object.values(CLASSES);

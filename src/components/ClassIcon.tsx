@@ -76,4 +76,17 @@ const ICONS: Record<ClassId, ReactNode> = {
       <circle cx="21" cy="9" r="1" fill="currentColor" />
     </g>
   ),
+  monk: (
+    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      {/* Katar blade — horizontal punch weapon */}
+      <path d="M6 20 L28 20" />
+      <path d="M28 20 L36 14 L36 26 L28 20" fill="currentColor" />
+      {/* Cross-guard / grip bar */}
+      <line x1="12" y1="14" x2="12" y2="26" />
+      {/* Hand wraps */}
+      <line x1="8" y1="17" x2="12" y2="17" strokeWidth="1.5" />
+      <line x1="8" y1="20" x2="12" y2="20" strokeWidth="1.5" />
+      <line x1="8" y1="23" x2="12" y2="23" strokeWidth="1.5" />
+    </g>
+  ),
 };

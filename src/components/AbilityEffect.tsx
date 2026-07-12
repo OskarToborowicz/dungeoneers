@@ -27,6 +27,8 @@ export function AbilityEffect({ classId, onDone, detonation = false, useAbility2
         {classId === "paladin"     && !useAbility2 && <HolyBoltFx />}
         {classId === "paladin"     && useAbility2  && <RegenNovaFx />}
         {classId === "druid"       && <BiteFx />}
+        {classId === "monk"        && !useAbility2 && <SpinningCraneKickFx />}
+        {classId === "monk"        && useAbility2  && <SerenityFx />}
         {classId === "assassin"    && !detonation && !useAbility2 && <TrapPlantFx />}
         {classId === "assassin"    && detonation  && <TrapDetonateFx />}
         {classId === "assassin"    && useAbility2  && <BlindingPowderFx />}
@@ -322,6 +324,50 @@ function FrostShieldFx() {
       <circle className="ae-frost-spark ae-fsp-3" cx="45" cy="48" r="1.8" fill="#bbecff" opacity="0.85" style={{ transformOrigin: "45px 48px" }}/>
       <circle className="ae-frost-spark ae-fsp-4" cx="95" cy="72" r="1.8" fill="#bbecff" opacity="0.8" style={{ transformOrigin: "95px 72px" }}/>
       <circle className="ae-frost-spark ae-fsp-5" cx="45" cy="72" r="1.8" fill="#bbecff" opacity="0.8" style={{ transformOrigin: "45px 72px" }}/>
+    </g>
+  );
+}
+
+function SpinningCraneKickFx() {
+  return (
+    <g style={{ transformOrigin: "70px 60px" }}>
+      {/* Outer spinning wind ring */}
+      <g className="ae-crane-spin" style={{ transformOrigin: "70px 60px" }}>
+        <circle cx="70" cy="60" r="38" fill="none" stroke="#54E396" strokeWidth="2.2" opacity="0.7" strokeDasharray="18 10"/>
+        <circle cx="70" cy="60" r="28" fill="none" stroke="#54E396" strokeWidth="1.5" opacity="0.5" strokeDasharray="12 8"/>
+        {/* Wind arms — 4 curved sweeping arcs */}
+        <path d="M70 22 Q108 28 108 60" fill="none" stroke="#54E396" strokeWidth="3" strokeLinecap="round" opacity="0.9"/>
+        <path d="M108 60 Q102 98 70 98" fill="none" stroke="#54E396" strokeWidth="3" strokeLinecap="round" opacity="0.85"/>
+        <path d="M70 98 Q32 92 32 60"  fill="none" stroke="#54E396" strokeWidth="3" strokeLinecap="round" opacity="0.9"/>
+        <path d="M32 60 Q38 22 70 22"  fill="none" stroke="#54E396" strokeWidth="3" strokeLinecap="round" opacity="0.85"/>
+        {/* Inner swirl */}
+        <path d="M70 38 Q88 44 88 60 Q88 76 70 82 Q52 76 52 60 Q52 44 70 38" fill="none" stroke="#54E396" strokeWidth="2" strokeLinecap="round" opacity="0.6"/>
+        {/* Center glow */}
+        <circle cx="70" cy="60" r="8" fill="#54E396" opacity="0.3"/>
+        <circle cx="70" cy="60" r="4" fill="#54E396" opacity="0.6"/>
+      </g>
+      {/* Flying wind particles */}
+      <circle className="ae-crane-p1" cx="70" cy="22" r="3" fill="#54E396" opacity="0.85"/>
+      <circle className="ae-crane-p2" cx="108" cy="60" r="3" fill="#54E396" opacity="0.8"/>
+      <circle className="ae-crane-p3" cx="70" cy="98" r="3" fill="#54E396" opacity="0.85"/>
+      <circle className="ae-crane-p4" cx="32" cy="60" r="3" fill="#54E396" opacity="0.8"/>
+    </g>
+  );
+}
+
+function SerenityFx() {
+  return (
+    <g style={{ transformOrigin: "70px 60px" }}>
+      <circle className="ae-serenity-ring-1" cx="70" cy="60" r="32" fill="none" stroke="#54E396" strokeWidth="2.5" opacity="0.8" style={{ transformOrigin: "70px 60px" }}/>
+      <circle className="ae-serenity-ring-2" cx="70" cy="60" r="20" fill="none" stroke="#aaffcc" strokeWidth="2" opacity="0.7" style={{ transformOrigin: "70px 60px" }}/>
+      <g className="ae-serenity-core" style={{ transformOrigin: "70px 60px" }}>
+        <circle cx="70" cy="60" r="13" fill="#54E396" opacity="0.2"/>
+        <circle cx="70" cy="60" r="7"  fill="#54E396" opacity="0.45"/>
+        <circle cx="70" cy="60" r="3"  fill="#efffef" opacity="0.9"/>
+      </g>
+      <circle className="ae-regen-spark ae-rs-1" cx="70" cy="40" r="2.2" fill="#54E396" opacity="0.9" style={{ transformOrigin: "70px 40px" }}/>
+      <circle className="ae-regen-spark ae-rs-2" cx="52" cy="50" r="1.8" fill="#54E396" opacity="0.85" style={{ transformOrigin: "52px 50px" }}/>
+      <circle className="ae-regen-spark ae-rs-3" cx="88" cy="50" r="1.8" fill="#54E396" opacity="0.85" style={{ transformOrigin: "88px 50px" }}/>
     </g>
   );
 }

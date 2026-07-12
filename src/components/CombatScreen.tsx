@@ -74,8 +74,8 @@ export function CombatScreen({
   const [totalDamageDealt, setTotalDamageDealt] = useState(0);
   const [playerAnim, setPlayerAnim] = useState<SpriteState>("idle");
   const [monsterAnim, setMonsterAnim] = useState<SpriteState>("idle");
-  const [abilityEffect, setAbilityEffect] = useState(false);
-  const [ability2Effect, setAbility2Effect] = useState(false);
+  const [abilityEffect, setAbilityEffect] = useState(0);
+  const [ability2Effect, setAbility2Effect] = useState(0);
   const [trapDetonateEffect, setTrapDetonateEffect] = useState(false);
   const [monsterSpellEffect, setMonsterSpellEffect] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
@@ -128,8 +128,8 @@ export function CombatScreen({
       if (result.log.some((e) => e.actor === "player" && e.message.includes("Critical hit!"))) {
         setCritFlash(true); setTimeout(() => setCritFlash(false), 600);
       }
-      if (wasAbility) setAbilityEffect(true);
-      if (wasAbility2) setAbility2Effect(true);
+      if (wasAbility) setAbilityEffect(n => n + 1);
+      if (wasAbility2) setAbility2Effect(n => n + 1);
       setBattle(result.state);
       setLog((prev) => [...prev, ...result.log]);
       setStatus(result.status);
@@ -138,8 +138,8 @@ export function CombatScreen({
       setPlayerAnim("attack");
       setTimeout(() => { setPlayerAnim("idle"); setMonsterAnim("dead"); }, 500);
     } else if (result.status === "defeat") {
-      if (wasAbility) setAbilityEffect(true);
-      if (wasAbility2) setAbility2Effect(true);
+      if (wasAbility) setAbilityEffect(n => n + 1);
+      if (wasAbility2) setAbility2Effect(n => n + 1);
       setBattle(result.state);
       setLog((prev) => [...prev, ...result.log]);
       setStatus(result.status);
@@ -158,8 +158,8 @@ export function CombatScreen({
       setIsAnimating(true);
       setPlayerAnim("attack");
       if (hasCrit) { setCritFlash(true); setTimeout(() => setCritFlash(false), 600); }
-      if (wasAbility) setAbilityEffect(true);
-      if (wasAbility2) setAbility2Effect(true);
+      if (wasAbility) setAbilityEffect(n => n + 1);
+      if (wasAbility2) setAbility2Effect(n => n + 1);
       // Monster HP drops immediately as player starts swinging
       if (lastPlayer) {
         setBattle((b) => ({ ...b, monsterLife: lastPlayer.monsterLife, playerLife: lastPlayer.playerLife }));
@@ -225,11 +225,11 @@ export function CombatScreen({
       <h2 className="combat-title">{monster.name} <span className="monster-level">Lv.{monster.level}</span></h2>
 
       <div className="battle-arena">
-        {abilityEffect && (
-          <AbilityEffect classId={character.classId} onDone={() => setAbilityEffect(false)} />
+        {abilityEffect > 0 && (
+          <AbilityEffect key={abilityEffect} classId={character.classId} onDone={() => setAbilityEffect(0)} />
         )}
-        {ability2Effect && (
-          <AbilityEffect classId={character.classId} useAbility2={true} onDone={() => setAbility2Effect(false)} />
+        {ability2Effect > 0 && (
+          <AbilityEffect key={-ability2Effect} classId={character.classId} useAbility2={true} onDone={() => setAbility2Effect(0)} />
         )}
         {monsterSpellEffect && (
           <MonsterSpellEffect spellName={monsterSpellEffect} onDone={() => setMonsterSpellEffect(null)} />

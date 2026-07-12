@@ -8,6 +8,7 @@ import * as amazon from "./classes/amazon";
 import * as paladin from "./classes/paladin";
 import * as assassin from "./classes/assassin";
 import * as druid from "./classes/druid";
+import * as monk from "./classes/monk";
 
 export type SpriteState = "idle" | "attack" | "hit" | "dead";
 
@@ -27,6 +28,7 @@ export const CLASS_COLORS: Record<ClassId, string> = {
   paladin: "#ddaa22",
   druid: "#88aa22",
   assassin: "#33aacc",
+  monk: "#54E396",
 };
 
 const UNIQUE_COLOR = "#ffa040";
@@ -45,6 +47,7 @@ const CLASS_SPRITES: Record<ClassId, ClassSpriteModule> = {
   paladin,
   assassin,
   druid,
+  monk,
 };
 
 function getAnimate(state: SpriteState) {

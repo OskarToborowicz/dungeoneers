@@ -26,7 +26,7 @@ A browser-based Diablo-style dungeon crawler built with React + TypeScript.
 
 ## Characters & Classes
 
-Seven classes are available, each with a unique resource type, active ability, and passive skill.
+Eight classes are available, each with a unique resource type, active ability, and passive skill.
 
 | Class | Resource | Weapon | Playstyle |
 |---|---|---|---|
@@ -37,6 +37,7 @@ Seven classes are available, each with a unique resource type, active ability, a
 | Paladin | Mana | Mace | Tank/sustain with healing aura — 2 active abilities, 3 passives |
 | Druid | Mana | Totem | Dex-scaling melee with lifesteal and damage reduction |
 | Assassin | Mana | Claw | Dex-scaling trap setter — 2 active abilities, 3 passives |
+| Monk | Chi | Katar | Fast multi-hit melee with self-sustain and counter-attack — 2 active abilities, 3 passives |
 
 All classes start with **10 in every base stat** (Strength, Dexterity, Vitality, Energy) and **10 free stat points** to allocate.
 
@@ -344,6 +345,8 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 | Assassin | Fire Trap | Blue trap placed on field; cyan explosion on detonation |
 | Assassin | Blinding Powder | Golden powder pouch flies toward the enemy and bursts into an expanding dust cloud |
 | Sorceress | Frost Shield | Expanding frost rings with ice crystal shards and sparkles radiating from the player |
+| Monk | Spinning Crane Kick | Green wind rings spinning like a beyblade around the player |
+| Monk | Serenity | Expanding green healing rings with rising sparkles around the player |
 
 ### Monster Spells
 
@@ -489,6 +492,23 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Disorient**: when blind expires, monster deals **25% reduced damage** for **4 turns**
 - Total debuff window: 6 turns (2 blind → 4 disorient)
 
+### Monk — Spinning Crane Kick
+- **Kind**: multi (physical — no magic bonus, 3 hits)
+- **Chi Cost**: 18
+- **Cooldown**: 1 turn
+- **Damage per hit**: `round(randomInRange(damage) × 0.45)` — each kick rolls hit and crit independently
+- **Sweeping Wind proc**: each kick has an additional 30% chance to deal 25% bonus damage of that hit's value
+
+### Monk — Serenity *(Ability 2)*
+- **Kind**: heal + cleanse + blind (no damage roll, `canMiss: false`)
+- **Chi Cost**: 40
+- **Cooldown**: 4 turns
+- **Heal**: `round(maxLife × 0.30)` — 30% of maximum life
+- **Chi restore**: `round(maxChi × 0.50)` — 50% of maximum chi
+- **Cleanse**: removes all player negative effects (poison ticks, burn ticks)
+- **Blind**: enemy **cannot act** this turn (single-turn only, no disorient follow-up)
+- **Special**: Does **not** skip the turn — cooldown and chi regeneration tick normally
+
 ### General Ability Damage Formula
 
 For `burst`, `dot`, `multi`, and `heal` kinds:
@@ -582,6 +602,19 @@ At 50 Dex: 10% reduction. At 100 Dex: 20%. The 25% cap is reached at 125 Dex.
 ### Assassin — Assassin's Advantage *(unlocks at level 35)*
 - Basic attacks deal **+10% increased damage**.
 - When the enemy is **poisoned** (Venom active), basic attacks gain an additional **+5% Critical Hit chance**.
+
+### Monk — Combat Reflexes *(always active)*
+- After every basic attack, **30% chance** to deliver a follow-up strike at **70% damage**. The follow-up rolls hit and crit independently.
+- Each individual hit of **Spinning Crane Kick** also has a **30% chance** to deal **25% bonus damage** of that hit (separate roll per kick).
+- **Expected bonus DPS**: ~21% on basic attacks, ~22.5% on Spinning Crane Kick (3 independent rolls).
+- **Probability of 0 procs**: 34% on a full 3-kick Crane Kick, vs 75% for Barbarian Double Swing on a basic attack — Monk is significantly more consistent.
+
+### Monk — Transcendence *(unlocks at level 20)*
+- Passively restores **7% of maximum life** each turn through inner meditation.
+
+### Monk — Counter Attack *(unlocks at level 35)*
+- **12% chance** to instantly strike back with a full weapon-damage attack immediately after the enemy attacks.
+- Fires after the monster's action phase; can kill a monster via the counter-attack.
 
 ---
 

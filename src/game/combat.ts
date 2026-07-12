@@ -92,6 +92,13 @@ const PALADIN_DAMAGE_TAKEN_HEAL = 0.15;                 // Divine Retribution: 1
 const NECROMANCER_SOUL_SIPHON = 0.15;                   // 15% of all magic damage dealt → life
 const NECROMANCER_VIRULENCE_MULT = 1.25;                // DoT ticks deal 25% more damage (lv.20)
 
+// Monk
+const MONK_SWEEPING_WIND_CHANCE = 0.30;                 // 30% bonus strike after basic attack
+const MONK_SWEEPING_WIND_DAMAGE = 0.70;                 // Follow-up hits at 70% damage
+const MONK_TRANSCENDENCE_REGEN = 0.07;                  // 7% max life regen per turn (lv.35)
+const MONK_SERENITY_HEAL = 0.30;                        // Serenity heals 30% of max life
+const MONK_COUNTER_ATTACK_CHANCE = 0.12;                // 12% chance to counter-attack after monster hits
+
 // Helpers
 
 // Iron Skin: scales with missing life; 0 at full HP, ~16% at 40% missing.
@@ -273,6 +280,10 @@ export function getAbility2Preview(character: Character, stats: DerivedStats): D
   if (ability.kind === "golem") {
     return { label: "Stun 1 turn + 30% reflect × 3", type: "Buff" };
   }
+  if (ability.kind === "serenity") {
+    const healAmt = Math.round(stats.maxLife * 0.30);
+    return { label: `${healAmt} heal + cleanse + blind`, type: "Heal" };
+  }
   return { label: "—", type: "Physical" };
 }
 
@@ -314,6 +325,7 @@ export function resolveRound(
   let { playerLife, playerMana, monsterLife, abilityCooldown, healthPotionCooldown, manaPotionCooldown, poisonRounds, poisonDamage, monsterSpellCooldown, playerPoisonRounds, playerPoisonDamage, playerBurnRounds, playerBurnDamage, trapRounds, bloodFuryRounds, ability2Cooldown, frozenRounds, regenRounds, disorientRounds, blindRounds, frostShieldRounds, electrocuteRounds, golemRounds, stunnedRounds } = state;
   let absorbShield = 0; // Resets every round — overheal from last turn does not carry over
   let burnStacks = state.burnStacks.map(s => ({ ...s }));
+  let serenityBlindThisTurn = false;
 
   // Multipliers computed once per round from current state
   const electrocuteMult = electrocuteRounds > 0 ? 1.20 : 1.0;
@@ -477,6 +489,20 @@ export function resolveRound(
         log.push({ actor: "player", message: "Double Swing! Your second strike misses.", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
       }
     }
+
+    // Sweeping Wind (Monk passive): 30% chance for a follow-up strike at 70% damage
+    if (character.classId === "monk" && monsterLife > 0 && Math.random() < MONK_SWEEPING_WIND_CHANCE) {
+      const hitChanceSW = 1 - ALWAYS_MISS_CHANCE;
+      if (Math.random() < hitChanceSW) {
+        const isCritSW = Math.random() < critChance;
+        let dmgSW = Math.round(randomInRange(stats.damage) * MONK_SWEEPING_WIND_DAMAGE * electrocuteMult);
+        if (isCritSW) dmgSW = Math.round(dmgSW * critMultiplier);
+        monsterLife -= dmgSW;
+        damageDealt += dmgSW;
+        log.push({ actor: "player", message: isCritSW ? `Sweeping Wind! Critical follow-up — ${dmgSW} damage!` : `Sweeping Wind! You follow up for ${dmgSW} damage.`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+        tryIgnite(dmgSW);
+      }
+    }
   };
 
   // ── Step 1: Player action ────────────────────────────────────────────────────
@@ -586,6 +612,19 @@ export function resolveRound(
             monsterLife: Math.max(0, monsterLife),
           });
           tryIgnite(hitDmg);
+
+          // Sweeping Wind (Monk passive): 30% chance per kick to deal 25% extra damage on that hit
+          if (character.classId === "monk" && monsterLife > 0 && Math.random() < MONK_SWEEPING_WIND_CHANCE) {
+            const swDmg = Math.max(1, Math.round(hitDmg * 0.25));
+            monsterLife -= swDmg;
+            damageDealt += swDmg;
+            log.push({
+              actor: "player",
+              message: `Sweeping Wind empowers the kick for ${swDmg} bonus damage!`,
+              playerLife: Math.max(0, playerLife),
+              monsterLife: Math.max(0, monsterLife),
+            });
+          }
 
           // Heartseeker fires after each Multishot arrow that crits
           if (character.classId === "amazon" && character.level >= 35 && isHitCrit && monsterLife > 0) {
@@ -751,6 +790,31 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+
+      // ── Serenity (Monk) ───────────────────────────────────────────────────
+      // Heals 30% max life, cleanses all negative effects, blinds monster this turn.
+      } else if (def.ability2.kind === "serenity") {
+        const healAmt = Math.round(stats.maxLife * MONK_SERENITY_HEAL);
+        playerLife = Math.min(stats.maxLife, playerLife + healAmt);
+        const cleansedPoison = playerPoisonRounds > 0;
+        const cleansedBurn = playerBurnRounds > 0;
+        playerPoisonRounds = 0;
+        playerPoisonDamage = 0;
+        playerBurnRounds = 0;
+        playerBurnDamage = 0;
+        serenityBlindThisTurn = true;
+        const chiRestore = Math.round(stats.maxMana * 0.5);
+        playerMana = Math.min(stats.maxMana, playerMana + chiRestore);
+        const cleanseParts: string[] = [];
+        if (cleansedPoison) cleanseParts.push("poison");
+        if (cleansedBurn) cleanseParts.push("burn");
+        const cleanseText = cleanseParts.length > 0 ? ` Cleansed: ${cleanseParts.join(" and ")}.` : "";
+        log.push({
+          actor: "player",
+          message: `Serenity washes over you, restoring ${healAmt} life and ${chiRestore} chi.${cleanseText} ${monster.name} is blinded!`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
       }
 
     // ── Health Potion ─────────────────────────────────────────────────────────
@@ -822,6 +886,13 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
     }
+  }
+
+  // Transcendence (Monk lv.35): passively restore 7% of max life each turn
+  if (character.classId === "monk" && character.level >= 20 && playerLife < stats.maxLife && monsterLife > 0) {
+    const transcendHeal = Math.round(stats.maxLife * MONK_TRANSCENDENCE_REGEN);
+    playerLife = Math.min(stats.maxLife, playerLife + transcendHeal);
+    log.push({ actor: "player", message: `Transcendence restores ${transcendHeal} life.`, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
   }
 
   // ── Step 3: Mana regen ────────────────────────────────────────────────────────
@@ -963,7 +1034,7 @@ export function resolveRound(
   // ── Step 10: Monster action ────────────────────────────────────────────────────
   // Skipped entirely when stunned (Golem Defense), frozen (Freezing Shot), or blinded (Blinding Powder).
   // Stun takes priority over freeze which takes priority over blind in the skip log message.
-  const monsterActsThisTurn = frozenRounds <= 0 && stunnedRounds <= 0 && blindRounds <= 0;
+  const monsterActsThisTurn = frozenRounds <= 0 && stunnedRounds <= 0 && blindRounds <= 0 && !serenityBlindThisTurn;
   if (stunnedRounds > 0) {
     stunnedRounds -= 1;
     log.push({
@@ -977,6 +1048,13 @@ export function resolveRound(
     log.push({
       actor: "monster",
       message: `${monster.name} is frozen solid and cannot act!`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+  } else if (serenityBlindThisTurn) {
+    log.push({
+      actor: "monster",
+      message: `${monster.name} is blinded by Serenity and cannot act!`,
       playerLife: Math.max(0, playerLife),
       monsterLife: Math.max(0, monsterLife),
     });
@@ -1003,7 +1081,6 @@ export function resolveRound(
     monsterSpellCastName = spell.name;
     monsterSpellCooldown = spell.cooldown;
 
-    // Amazon Dodge: 15% chance to avoid spells entirely
     const amazonDodgedSpell = character.classId === "amazon" && Math.random() < AMAZON_DODGE_CHANCE;
     if (amazonDodgedSpell) {
       log.push({
@@ -1193,6 +1270,27 @@ export function resolveRound(
   }
 
   } // end monsterActsThisTurn
+
+  // ── Step 10b: Counter Attack (Monk passive) ────────────────────────────────────
+  // 12% chance to fire a basic attack after the monster acts (or attempted to act).
+  if (character.classId === "monk" && character.level >= 35 && monsterLife > 0 && playerLife > 0 && Math.random() < MONK_COUNTER_ATTACK_CHANCE) {
+    const isCrit = Math.random() < critChance;
+    let counterDmg = Math.round(randomInRange(stats.damage) * electrocuteMult * deathwhisperMult);
+    if (isCrit) counterDmg = Math.round(counterDmg * critMultiplier);
+    monsterLife -= counterDmg;
+    damageDealt += counterDmg;
+    log.push({
+      actor: "player",
+      message: isCrit
+        ? `Counter Attack! Critical hit for ${counterDmg} damage!`
+        : `Counter Attack! You strike back for ${counterDmg} damage.`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+    if (monsterLife <= 0) {
+      return { state: makeState(), log, status: "victory", damageDealt };
+    }
+  }
 
   // ── Step 11: Frost Shield duration tick ───────────────────────────────────────
   if (frostShieldRounds > 0) {
