@@ -137,9 +137,12 @@ export function Hub({
               />
             </div>
             <div className="hub-char-info">
-              <div className="level-display">
-                Level {character.level}
-                {character.unspentStatPoints > 0 && <span className="stat-point-inline">+</span>}
+              <div className="hub-name-level-row">
+                <div className="hub-char-name">{character.name}</div>
+                <div className="level-display">
+                  Level {character.level}
+                  {character.unspentStatPoints > 0 && <span className="stat-point-inline">+</span>}
+                </div>
               </div>
               <div className="gold-display"><CoinIcon size={15} /> {character.gold}</div>
               <div className="potions-display">

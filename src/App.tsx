@@ -64,6 +64,7 @@ function App() {
     setLoaded(true);
   }, []);
 
+
   useEffect(() => {
     if (!dungeonRun) return;
     function onBeforeUnload(e: BeforeUnloadEvent) {

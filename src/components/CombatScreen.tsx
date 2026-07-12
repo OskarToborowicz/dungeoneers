@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CLASSES } from "../game/data/classes";
 import { CONSUMABLES } from "../game/data/consumables";
 import { xpToNextLevel } from "../game/character";
@@ -21,7 +21,8 @@ import {
 import type { Character, ConsumableId, EquipmentSlot, Item, MonsterDefinition } from "../game/types";
 import { CharacterSprite, type SpriteState } from "./sprites/CharacterSprite";
 import { MonsterSprite } from "./sprites/MonsterSprite";
-import { AbilityEffect } from "./AbilityEffect";
+import { AbilityEffect, ATTACK_EFFECT_CLASSES } from "./AbilityEffect";
+import { ProjectileEffect, type ProjectileKind } from "./ProjectileEffect";
 import { MonsterSpellEffect } from "./MonsterSpellEffect";
 import { PotionIcon } from "./PotionIcon";
 
@@ -44,6 +45,8 @@ interface Props {
   onEscape: () => void;
 }
 
+const PROJECTILE_MAP: Partial<Record<string, { ability?: ProjectileKind; ability2?: ProjectileKind }>> = {};
+
 export function CombatScreen({
   character,
   derived,
@@ -64,6 +67,20 @@ export function CombatScreen({
 }: Props) {
   const def = CLASSES[character.classId];
   const logRef = useRef<HTMLDivElement | null>(null);
+  const playerSideRef = useRef<HTMLDivElement>(null);
+  const monsterSideRef = useRef<HTMLDivElement>(null);
+  const arenaRef = useRef<HTMLDivElement>(null);
+  const [travelDist, setTravelDist] = useState(136);
+
+  useLayoutEffect(() => {
+    if (!playerSideRef.current || !monsterSideRef.current || !arenaRef.current) return;
+    const playerRect = playerSideRef.current.getBoundingClientRect();
+    const monsterRect = monsterSideRef.current.getBoundingClientRect();
+    const arenaRect = arenaRef.current.getBoundingClientRect();
+    const pixelDist = (monsterRect.left + monsterRect.width / 2) - (playerRect.left + playerRect.width / 2);
+    const scale = Math.min(arenaRect.width / 200, arenaRect.height / 120);
+    setTravelDist(Math.round(pixelDist / scale));
+  }, []);
 
   const [battle, setBattle] = useState<BattleState>(() =>
     createBattleState(monster, startingLife, startingMana, startingCooldown, startingCooldown2)
@@ -76,11 +93,13 @@ export function CombatScreen({
   const [monsterAnim, setMonsterAnim] = useState<SpriteState>("idle");
   const [abilityEffect, setAbilityEffect] = useState(0);
   const [ability2Effect, setAbility2Effect] = useState(0);
+  const [attackEffect, setAttackEffect] = useState(0);
   const [trapDetonateEffect, setTrapDetonateEffect] = useState(false);
   const [monsterSpellEffect, setMonsterSpellEffect] = useState<string | null>(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [showFleePrompt, setShowFleePrompt] = useState(false);
   const [critFlash, setCritFlash] = useState(false);
+  const [projectile, setProjectile] = useState<{ kind: ProjectileKind; distance: number } | null>(null);
 
   useEffect(() => {
     if (logRef.current) {
@@ -124,12 +143,23 @@ export function CombatScreen({
     const wasAbility2 = action === "ability2" && canUseAbility2(character, battle);
     const result = resolveRound(character, derived, monster, battle, action, clearedDungeons);
 
+
     if (result.status === "victory") {
       if (result.log.some((e) => e.actor === "player" && e.message.includes("Critical hit!"))) {
         setCritFlash(true); setTimeout(() => setCritFlash(false), 600);
       }
       if (wasAbility) setAbilityEffect(n => n + 1);
       if (wasAbility2) setAbility2Effect(n => n + 1);
+      if (!wasAbility && !wasAbility2 && ATTACK_EFFECT_CLASSES.has(character.classId)) setAttackEffect(n => n + 1);
+      if ((wasAbility || wasAbility2) && playerSideRef.current && monsterSideRef.current) {
+        const projKind = wasAbility ? PROJECTILE_MAP[character.classId]?.ability : PROJECTILE_MAP[character.classId]?.ability2;
+        if (projKind) {
+          const playerRect = playerSideRef.current.getBoundingClientRect();
+          const monsterRect = monsterSideRef.current.getBoundingClientRect();
+          const distance = (monsterRect.left + monsterRect.width / 2) - (playerRect.left + playerRect.width / 2);
+          setProjectile({ kind: projKind, distance });
+        }
+      }
       setBattle(result.state);
       setLog((prev) => [...prev, ...result.log]);
       setStatus(result.status);
@@ -140,6 +170,16 @@ export function CombatScreen({
     } else if (result.status === "defeat") {
       if (wasAbility) setAbilityEffect(n => n + 1);
       if (wasAbility2) setAbility2Effect(n => n + 1);
+      if (!wasAbility && !wasAbility2 && ATTACK_EFFECT_CLASSES.has(character.classId)) setAttackEffect(n => n + 1);
+      if ((wasAbility || wasAbility2) && playerSideRef.current && monsterSideRef.current) {
+        const projKind = wasAbility ? PROJECTILE_MAP[character.classId]?.ability : PROJECTILE_MAP[character.classId]?.ability2;
+        if (projKind) {
+          const playerRect = playerSideRef.current.getBoundingClientRect();
+          const monsterRect = monsterSideRef.current.getBoundingClientRect();
+          const distance = (monsterRect.left + monsterRect.width / 2) - (playerRect.left + playerRect.width / 2);
+          setProjectile({ kind: projKind, distance });
+        }
+      }
       setBattle(result.state);
       setLog((prev) => [...prev, ...result.log]);
       setStatus(result.status);
@@ -160,6 +200,16 @@ export function CombatScreen({
       if (hasCrit) { setCritFlash(true); setTimeout(() => setCritFlash(false), 600); }
       if (wasAbility) setAbilityEffect(n => n + 1);
       if (wasAbility2) setAbility2Effect(n => n + 1);
+      if (!wasAbility && !wasAbility2 && ATTACK_EFFECT_CLASSES.has(character.classId)) setAttackEffect(n => n + 1);
+      if ((wasAbility || wasAbility2) && playerSideRef.current && monsterSideRef.current) {
+        const projKind = wasAbility ? PROJECTILE_MAP[character.classId]?.ability : PROJECTILE_MAP[character.classId]?.ability2;
+        if (projKind) {
+          const playerRect = playerSideRef.current.getBoundingClientRect();
+          const monsterRect = monsterSideRef.current.getBoundingClientRect();
+          const distance = (monsterRect.left + monsterRect.width / 2) - (playerRect.left + playerRect.width / 2);
+          setProjectile({ kind: projKind, distance });
+        }
+      }
       // Monster HP drops immediately as player starts swinging
       if (lastPlayer) {
         setBattle((b) => ({ ...b, monsterLife: lastPlayer.monsterLife, playerLife: lastPlayer.playerLife }));
@@ -224,7 +274,13 @@ export function CombatScreen({
       <div className="combat-middle">
       <h2 className="combat-title">{monster.name} <span className="monster-level">Lv.{monster.level}</span></h2>
 
-      <div className="battle-arena">
+      <div className="battle-arena" ref={arenaRef}>
+        {projectile && (
+          <ProjectileEffect key={projectile.kind} kind={projectile.kind} distance={projectile.distance} onDone={() => setProjectile(null)} />
+        )}
+        {attackEffect > 0 && (
+          <AbilityEffect key={`atk-${attackEffect}`} classId={character.classId} useAttack={true} onDone={() => setAttackEffect(0)} />
+        )}
         {abilityEffect > 0 && (
           <AbilityEffect key={abilityEffect} classId={character.classId} onDone={() => setAbilityEffect(0)} />
         )}
@@ -235,7 +291,7 @@ export function CombatScreen({
           <MonsterSpellEffect spellName={monsterSpellEffect} onDone={() => setMonsterSpellEffect(null)} />
         )}
         {trapDetonateEffect && (
-          <AbilityEffect classId="assassin" detonation={true} onDone={() => setTrapDetonateEffect(false)} />
+          <AbilityEffect classId="assassin" detonation={true} travelDist={travelDist} onDone={() => setTrapDetonateEffect(false)} />
         )}
         {battle.golemRounds > 0 && (
           <div className="golem-on-field">
@@ -278,7 +334,7 @@ export function CombatScreen({
             </svg>
           </div>
         )}
-        <div className={`battle-side player-side${battle.regenRounds > 0 ? " regen-aura-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}`}>
+        <div ref={playerSideRef} className={`battle-side player-side${battle.regenRounds > 0 ? " regen-aura-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}`}>
           <CharacterSprite
               classId={character.classId}
               size={80}
@@ -290,7 +346,7 @@ export function CombatScreen({
               ]}
             />
         </div>
-        <div className="battle-side monster-side">
+        <div ref={monsterSideRef} className="battle-side monster-side">
           <MonsterSprite name={monster.name} size={80} state={monsterAnim} />
         </div>
       </div>

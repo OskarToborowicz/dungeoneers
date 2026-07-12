@@ -1,4 +1,5 @@
 import { useEffect } from "react";
+import type React from "react";
 import type { ClassId } from "../game/types";
 
 interface Props {
@@ -6,23 +7,29 @@ interface Props {
   onDone: () => void;
   detonation?: boolean;
   useAbility2?: boolean;
+  useAttack?: boolean;
+  travelDist?: number;
 }
 
-export function AbilityEffect({ classId, onDone, detonation = false, useAbility2 = false }: Props) {
+export const ATTACK_EFFECT_CLASSES = new Set<ClassId>(["amazon"]);
+
+export function AbilityEffect({ classId, onDone, detonation = false, useAbility2 = false, useAttack = false, travelDist = 136 }: Props) {
   useEffect(() => {
-    const t = setTimeout(onDone, 800);
+    const t = setTimeout(onDone, 1200);
     return () => clearTimeout(t);
   }, [onDone]);
 
   return (
     <div className="ability-effect-overlay">
-      <svg viewBox="0 0 200 120" className="ability-effect-svg" overflow="visible">
+      <svg viewBox="0 0 200 120" className="ability-effect-svg" overflow="visible"
+        style={{ "--travel-dist": `${travelDist}px` } as React.CSSProperties}>
         {classId === "barbarian"   && <WhirlwindFx />}
         {classId === "necromancer" && !useAbility2 && <PoisonCloudFx />}
         {classId === "necromancer" && useAbility2 && <GolemRollInFx />}
         {classId === "sorceress"   && !useAbility2 && <FireballFx />}
         {classId === "sorceress"   && useAbility2  && <FrostShieldFx />}
-        {classId === "amazon"      && !useAbility2 && <MultishotFx />}
+        {classId === "amazon"      && useAttack     && <SingleArrowFx />}
+        {classId === "amazon"      && !useAbility2 && !useAttack && <MultishotFx />}
         {classId === "amazon"      && useAbility2  && <FreezingArrowFx />}
         {classId === "paladin"     && !useAbility2 && <HolyBoltFx />}
         {classId === "paladin"     && useAbility2  && <RegenNovaFx />}
@@ -39,16 +46,15 @@ export function AbilityEffect({ classId, onDone, detonation = false, useAbility2
 
 function WhirlwindFx() {
   return (
-    <g className="ae-whirlwind" style={{ transformOrigin: "130px 60px" }}>
-      <circle cx="130" cy="60" r="7" fill="#e04020" opacity="0.85" />
-      {/* 6 curved vortex arms */}
-      <path d="M130 60 Q153 41 172 60" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
-      <path d="M130 60 Q158 70 151 97" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
-      <path d="M130 60 Q135 89 109 97" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
-      <path d="M130 60 Q108 79 88 60"  fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
-      <path d="M130 60 Q102 50 109 23" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
-      <path d="M130 60 Q125 31 151 23" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
-      <circle cx="130" cy="60" r="42" fill="none" stroke="#e04020" strokeWidth="1.5" opacity="0.35" strokeDasharray="6 4"/>
+    <g className="ae-whirlwind" style={{ transformOrigin: "168px 60px" }}>
+      <circle cx="168" cy="60" r="7" fill="#e04020" opacity="0.85" />
+      <path d="M168 60 Q191 41 210 60" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
+      <path d="M168 60 Q196 70 189 97" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
+      <path d="M168 60 Q173 89 147 97" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
+      <path d="M168 60 Q146 79 126 60" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
+      <path d="M168 60 Q140 50 147 23" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
+      <path d="M168 60 Q163 31 189 23" fill="none" stroke="#e04020" strokeWidth="3.5" strokeLinecap="round"/>
+      <circle cx="168" cy="60" r="42" fill="none" stroke="#e04020" strokeWidth="1.5" opacity="0.35" strokeDasharray="6 4"/>
     </g>
   );
 }
@@ -69,16 +75,15 @@ function PoisonCloudFx() {
         <circle cx="82"  cy="86" r="2"  fill="#55cc33" opacity="0.6"/>
       </g>
       {/* Impact billow on monster side */}
-      <g className="ae-pcloud-burst" style={{ transformOrigin: "148px 60px" }}>
-        <circle cx="148" cy="60" r="22" fill="#33bb22" opacity="0.75"/>
-        <circle cx="136" cy="50" r="16" fill="#44cc33" opacity="0.7"/>
-        <circle cx="162" cy="48" r="14" fill="#22aa11" opacity="0.65"/>
-        <circle cx="148" cy="78" r="13" fill="#55dd44" opacity="0.6"/>
-        <circle cx="166" cy="70" r="11" fill="#33bb22" opacity="0.58"/>
-        {/* Toxic wisps */}
-        <circle cx="128" cy="42" r="7"  fill="#66ee44" opacity="0.5"/>
-        <circle cx="172" cy="40" r="6"  fill="#44cc22" opacity="0.48"/>
-        <circle cx="178" cy="65" r="8"  fill="#33bb11" opacity="0.5"/>
+      <g className="ae-pcloud-burst" style={{ transformOrigin: "168px 60px" }}>
+        <circle cx="168" cy="60" r="22" fill="#33bb22" opacity="0.75"/>
+        <circle cx="156" cy="50" r="16" fill="#44cc33" opacity="0.7"/>
+        <circle cx="182" cy="48" r="14" fill="#22aa11" opacity="0.65"/>
+        <circle cx="168" cy="78" r="13" fill="#55dd44" opacity="0.6"/>
+        <circle cx="186" cy="70" r="11" fill="#33bb22" opacity="0.58"/>
+        <circle cx="148" cy="42" r="7"  fill="#66ee44" opacity="0.5"/>
+        <circle cx="192" cy="40" r="6"  fill="#44cc22" opacity="0.48"/>
+        <circle cx="198" cy="65" r="8"  fill="#33bb11" opacity="0.5"/>
       </g>
     </g>
   );
@@ -87,34 +92,21 @@ function PoisonCloudFx() {
 function GolemRollInFx() {
   return (
     <g>
-      {/* Boulder rolling from player side toward enemy — trail dust */}
-      <ellipse className="ae-groll-dust ae-grd-1" cx="52" cy="80" rx="14" ry="5" fill="#b8a888" opacity="0.5"/>
-      <ellipse className="ae-groll-dust ae-grd-2" cx="78" cy="80" rx="10" ry="4" fill="#c0b090" opacity="0.45"/>
-      <ellipse className="ae-groll-dust ae-grd-3" cx="100" cy="80" rx="8"  ry="3" fill="#b8a888" opacity="0.4"/>
-      {/* Spinning boulder */}
+      {/* Trail dust — positioned along the boulder's path, staggered delays */}
+      <ellipse className="ae-grd-1" cx="55" cy="86" rx="13" ry="4" fill="#b8a888"
+        style={{ transformBox: "fill-box", transformOrigin: "center", opacity: 0 }}/>
+      <ellipse className="ae-grd-2" cx="85" cy="84" rx="10" ry="3.5" fill="#c0b090"
+        style={{ transformBox: "fill-box", transformOrigin: "center", opacity: 0 }}/>
+      <ellipse className="ae-grd-3" cx="112" cy="83" rx="8" ry="3" fill="#b8a888"
+        style={{ transformBox: "fill-box", transformOrigin: "center", opacity: 0 }}/>
+      {/* Spinning boulder — origin at (130,70), travels to ~x=148 (translateX 18px) */}
       <g className="ae-groll-boulder" style={{ transformOrigin: "130px 70px" }}>
         <circle cx="130" cy="70" r="22" fill="#7a7060" opacity="0.92"/>
         <circle cx="130" cy="70" r="14" fill="#8a8070" opacity="0.88"/>
-        {/* crack lines that spin to show rotation */}
         <line x1="130" y1="48" x2="130" y2="92" stroke="#4a4030" strokeWidth="2" opacity="0.5"/>
         <line x1="108" y1="70" x2="152" y2="70" stroke="#4a4030" strokeWidth="2" opacity="0.5"/>
         <line x1="114" y1="54" x2="146" y2="86" stroke="#4a4030" strokeWidth="1.5" opacity="0.4"/>
-        {/* impact glow */}
         <circle cx="130" cy="70" r="6" fill="#aadd88" opacity="0.85" className="ae-groll-eye"/>
-      </g>
-      {/* Impact burst on enemy side */}
-      <g className="ae-groll-impact" style={{ transformOrigin: "155px 62px" }}>
-        <circle cx="155" cy="62" r="18" fill="#8a8070" opacity="0.0"/>
-        <polygon points="155,38 151,56 159,56" fill="#7a7060" opacity="0.0"/>
-        <polygon points="179,62 163,58 163,66" fill="#7a7060" opacity="0.0"/>
-        <polygon points="155,86 159,68 151,68" fill="#7a7060" opacity="0.0"/>
-        <polygon points="131,62 147,66 147,58" fill="#7a7060" opacity="0.0"/>
-      </g>
-      {/* Stun stars around enemy */}
-      <g className="ae-groll-stun">
-        <text x="158" y="32" fontSize="12" textAnchor="middle" fill="#ffee44" opacity="0.9">★</text>
-        <text x="174" y="48" fontSize="10" textAnchor="middle" fill="#ffdd22" opacity="0.85">✦</text>
-        <text x="162" y="22" fontSize="9"  textAnchor="middle" fill="#ffee44" opacity="0.8">★</text>
       </g>
     </g>
   );
@@ -123,23 +115,31 @@ function GolemRollInFx() {
 function FireballFx() {
   return (
     <g>
-      {/* Core fireball */}
-      <g className="ae-fireball-core" style={{ transformOrigin: "130px 60px" }}>
-        <circle cx="130" cy="60" r="18" fill="#ff5500" opacity="0.9"/>
-        <circle cx="130" cy="60" r="11" fill="#ff9900" opacity="0.9"/>
-        <circle cx="130" cy="60" r="5"  fill="#ffee44" opacity="0.95"/>
+      <g className="ae-fb-orb" style={{ transformOrigin: "32px 60px" }}>
+        <ellipse cx="20" cy="60" rx="13" ry="4" fill="#ffaa44" opacity="0.4"/>
+        <circle cx="32" cy="60" r="11" fill="#ff6010" opacity="0.95"/>
+        <circle cx="29" cy="57" r="4"  fill="white"  opacity="0.4"/>
       </g>
-      {/* Explosion rays */}
-      <g className="ae-fireball-rays" style={{ transformOrigin: "130px 60px" }}>
-        <line x1="148" y1="60"  x2="172" y2="60"  stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round"/>
-        <line x1="143" y1="73"  x2="160" y2="90"  stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round"/>
-        <line x1="130" y1="78"  x2="130" y2="102" stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round"/>
-        <line x1="117" y1="73"  x2="100" y2="90"  stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round"/>
-        <line x1="112" y1="60"  x2="88"  y2="60"  stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round"/>
-        <line x1="117" y1="47"  x2="100" y2="30"  stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round"/>
-        <line x1="130" y1="42"  x2="130" y2="18"  stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round"/>
-        <line x1="143" y1="47"  x2="160" y2="30"  stroke="#ff6600" strokeWidth="2.5" strokeLinecap="round"/>
+      <g className="ae-fb-burst" style={{ transformOrigin: "168px 60px" }}>
+        <circle cx="168" cy="60" r="28" fill="#ff3300" opacity="0.85"/>
+        <circle cx="168" cy="60" r="17" fill="#ff7700"/>
+        <circle cx="168" cy="60" r="9"  fill="#ffee44"/>
+        {([0,45,90,135,180,225,270,315] as number[]).map((deg) => (
+          <line key={deg} x1="168" y1="60"
+            x2={168 + Math.cos(deg * Math.PI / 180) * 44}
+            y2={60  + Math.sin(deg * Math.PI / 180) * 44}
+            stroke="#ffcc44" strokeWidth="2.5" strokeLinecap="round"/>
+        ))}
       </g>
+    </g>
+  );
+}
+
+function SingleArrowFx() {
+  return (
+    <g className="ae-single-arrow">
+      <line x1="28" y1="60" x2="104" y2="60" stroke="#44bb55" strokeWidth="2.2" strokeLinecap="round"/>
+      <polygon points="104,55 122,60 104,65" fill="#44bb55"/>
     </g>
   );
 }
@@ -162,12 +162,19 @@ function MultishotFx() {
 
 function HolyBoltFx() {
   return (
-    <g className="ae-holy-bolt" style={{ transformOrigin: "130px 60px" }}>
-      <circle cx="130" cy="60" r="40" fill="none" stroke="#ddaa22" strokeWidth="1.5" opacity="0.5"/>
-      <line x1="130" y1="20" x2="130" y2="100" stroke="#ddaa22" strokeWidth="4" strokeLinecap="round"/>
-      <line x1="90"  y1="60" x2="170" y2="60"  stroke="#ddaa22" strokeWidth="4" strokeLinecap="round"/>
-      <circle cx="130" cy="60" r="9" fill="#ffee44" opacity="0.95"/>
-      <circle cx="130" cy="60" r="5" fill="#ffffff" opacity="0.8"/>
+    <g>
+      <g className="ae-hb-orb" style={{ transformOrigin: "32px 60px" }}>
+        <ellipse cx="20" cy="60" rx="11" ry="3.5" fill="white" opacity="0.3"/>
+        <circle cx="32" cy="60" r="9"   fill="#ffe066" opacity="0.95"/>
+        <circle cx="29" cy="57" r="3.5" fill="white"  opacity="0.5"/>
+      </g>
+      <g className="ae-hb-burst" style={{ transformOrigin: "168px 60px" }}>
+        <circle cx="168" cy="60" r="38" fill="none" stroke="#ddaa22" strokeWidth="1.5" opacity="0.5"/>
+        <line x1="168" y1="22" x2="168" y2="98" stroke="#ddaa22" strokeWidth="4" strokeLinecap="round"/>
+        <line x1="130" y1="60" x2="206" y2="60" stroke="#ddaa22" strokeWidth="4" strokeLinecap="round"/>
+        <circle cx="168" cy="60" r="9" fill="#ffee44" opacity="0.95"/>
+        <circle cx="168" cy="60" r="5" fill="#ffffff"  opacity="0.8"/>
+      </g>
     </g>
   );
 }
@@ -190,18 +197,23 @@ function BiteFx() {
 
 function TrapPlantFx() {
   return (
-    <g className="ae-trap-plant" style={{ transformOrigin: "70px 90px" }}>
-      {/* Trap device on the ground */}
-      <rect x="58" y="86" width="24" height="8" rx="3" fill="#33aacc" opacity="0.9" />
-      <rect x="66" y="82" width="8" height="4" rx="1" fill="#55ccee" opacity="0.85" />
-      {/* Spark lines radiating out */}
-      <line x1="70" y1="86" x2="70" y2="72" stroke="#33aacc" strokeWidth="2" strokeLinecap="round" className="ae-trap-spark ae-ts-1" />
-      <line x1="70" y1="86" x2="84" y2="76" stroke="#33aacc" strokeWidth="1.8" strokeLinecap="round" className="ae-trap-spark ae-ts-2" />
-      <line x1="70" y1="86" x2="56" y2="76" stroke="#33aacc" strokeWidth="1.8" strokeLinecap="round" className="ae-trap-spark ae-ts-3" />
-      <line x1="70" y1="86" x2="88" y2="86" stroke="#33aacc" strokeWidth="1.5" strokeLinecap="round" className="ae-trap-spark ae-ts-4" />
-      <line x1="70" y1="86" x2="52" y2="86" stroke="#33aacc" strokeWidth="1.5" strokeLinecap="round" className="ae-trap-spark ae-ts-5" />
-      {/* Glow ring */}
-      <circle cx="70" cy="87" r="16" fill="none" stroke="#33aacc" strokeWidth="1.5" opacity="0.5" className="ae-trap-ring" />
+    <g>
+      {/* Device thrown from player to enemy */}
+      <g className="ae-trap-throw" style={{ transformOrigin: "150px 84px" }}>
+        <rect x="143" y="80" width="14" height="8" rx="2" fill="#33aacc" opacity="0.9"/>
+        <rect x="147" y="76" width="6" height="4" rx="1" fill="#55ccee" opacity="0.85"/>
+      </g>
+      {/* Trap plants at enemy position after throw */}
+      <g className="ae-trap-plant" style={{ transformOrigin: "150px 88px" }}>
+        <rect x="138" y="84" width="24" height="8" rx="3" fill="#33aacc" opacity="0.9" />
+        <rect x="146" y="80" width="8" height="4" rx="1" fill="#55ccee" opacity="0.85" />
+        <line x1="150" y1="84" x2="150" y2="70" stroke="#33aacc" strokeWidth="2" strokeLinecap="round" className="ae-trap-spark ae-ts-1" />
+        <line x1="150" y1="84" x2="164" y2="74" stroke="#33aacc" strokeWidth="1.8" strokeLinecap="round" className="ae-trap-spark ae-ts-2" />
+        <line x1="150" y1="84" x2="136" y2="74" stroke="#33aacc" strokeWidth="1.8" strokeLinecap="round" className="ae-trap-spark ae-ts-3" />
+        <line x1="150" y1="84" x2="168" y2="84" stroke="#33aacc" strokeWidth="1.5" strokeLinecap="round" className="ae-trap-spark ae-ts-4" />
+        <line x1="150" y1="84" x2="132" y2="84" stroke="#33aacc" strokeWidth="1.5" strokeLinecap="round" className="ae-trap-spark ae-ts-5" />
+        <circle cx="150" cy="85" r="16" fill="none" stroke="#33aacc" strokeWidth="1.5" opacity="0.5" className="ae-trap-ring" />
+      </g>
     </g>
   );
 }
@@ -223,21 +235,18 @@ function FreezingArrowFx() {
         <circle cx="114" cy="54" r="1.5" fill="#bbf0ff" opacity="0.85"/>
       </g>
       {/* Icy explosion at impact */}
-      <g className="ae-ice-burst" style={{ transformOrigin: "152px 60px" }}>
-        <circle cx="152" cy="60" r="11" fill="#aaeeff" opacity="0.92"/>
-        <circle cx="152" cy="60" r="5"  fill="#eef9ff" opacity="0.97"/>
-        {/* Cardinal ice spikes */}
-        <polygon points="152,40 148,53 156,53" fill="#55aacc" opacity="0.9"/>
-        <polygon points="172,60 159,56 159,64" fill="#55aacc" opacity="0.9"/>
-        <polygon points="152,80 156,67 148,67" fill="#55aacc" opacity="0.9"/>
-        <polygon points="132,60 145,64 145,56" fill="#55aacc" opacity="0.9"/>
-        {/* Diagonal shards */}
-        <polygon points="167,45 157,56 163,49" fill="#88ccee" opacity="0.78"/>
-        <polygon points="167,75 163,62 157,65" fill="#88ccee" opacity="0.78"/>
-        <polygon points="137,75 143,65 137,62" fill="#88ccee" opacity="0.78"/>
-        <polygon points="137,45 143,55 137,49" fill="#88ccee" opacity="0.78"/>
-        {/* Outer frost ring */}
-        <circle cx="152" cy="60" r="27" fill="none" stroke="#88ccee" strokeWidth="1.5" opacity="0.4" strokeDasharray="5 3"/>
+      <g className="ae-ice-burst" style={{ transformOrigin: "168px 60px" }}>
+        <circle cx="168" cy="60" r="11" fill="#aaeeff" opacity="0.92"/>
+        <circle cx="168" cy="60" r="5"  fill="#eef9ff" opacity="0.97"/>
+        <polygon points="168,40 164,53 172,53" fill="#55aacc" opacity="0.9"/>
+        <polygon points="188,60 175,56 175,64" fill="#55aacc" opacity="0.9"/>
+        <polygon points="168,80 172,67 164,67" fill="#55aacc" opacity="0.9"/>
+        <polygon points="148,60 161,64 161,56" fill="#55aacc" opacity="0.9"/>
+        <polygon points="183,45 173,56 179,49" fill="#88ccee" opacity="0.78"/>
+        <polygon points="183,75 179,62 173,65" fill="#88ccee" opacity="0.78"/>
+        <polygon points="153,75 159,65 153,62" fill="#88ccee" opacity="0.78"/>
+        <polygon points="153,45 159,55 153,49" fill="#88ccee" opacity="0.78"/>
+        <circle cx="168" cy="60" r="27" fill="none" stroke="#88ccee" strokeWidth="1.5" opacity="0.4" strokeDasharray="5 3"/>
       </g>
     </g>
   );
@@ -279,17 +288,16 @@ function BlindingPowderFx() {
         <circle cx="38" cy="61" r="3" fill="#a07820" opacity="0.28" className="ae-powder-trail ae-pt-3" />
       </g>
       {/* Impact dust cloud on monster side */}
-      <g className="ae-powder-burst" style={{ transformOrigin: "148px 65px" }}>
-        <circle cx="148" cy="65" r="22" fill="#d4aa55" opacity="0.75" />
-        <circle cx="148" cy="65" r="14" fill="#e8cc88" opacity="0.85" />
-        <circle cx="148" cy="65" r="7"  fill="#fff8e0" opacity="0.9"  />
-        {/* Dust particle puffs expanding outward */}
-        <circle cx="126" cy="53" r="8"  fill="#c9a040" opacity="0.6" className="ae-powder-puff ae-pp-1" />
-        <circle cx="170" cy="50" r="7"  fill="#d4b050" opacity="0.55" className="ae-powder-puff ae-pp-2" />
-        <circle cx="174" cy="75" r="9"  fill="#c09030" opacity="0.58" className="ae-powder-puff ae-pp-3" />
-        <circle cx="128" cy="80" r="8"  fill="#ccaa44" opacity="0.55" className="ae-powder-puff ae-pp-4" />
-        <circle cx="148" cy="42" r="6"  fill="#ddc060" opacity="0.5"  className="ae-powder-puff ae-pp-5" />
-        <circle cx="148" cy="88" r="6"  fill="#bba030" opacity="0.5"  className="ae-powder-puff ae-pp-6" />
+      <g className="ae-powder-burst" style={{ transformOrigin: "152px 65px" }}>
+        <circle cx="152" cy="65" r="22" fill="#d4aa55" opacity="0.75" />
+        <circle cx="152" cy="65" r="14" fill="#e8cc88" opacity="0.85" />
+        <circle cx="152" cy="65" r="7"  fill="#fff8e0" opacity="0.9"  />
+        <circle cx="130" cy="53" r="8"  fill="#c9a040" opacity="0.6" className="ae-powder-puff ae-pp-1" />
+        <circle cx="174" cy="50" r="7"  fill="#d4b050" opacity="0.55" className="ae-powder-puff ae-pp-2" />
+        <circle cx="178" cy="75" r="9"  fill="#c09030" opacity="0.58" className="ae-powder-puff ae-pp-3" />
+        <circle cx="132" cy="80" r="8"  fill="#ccaa44" opacity="0.55" className="ae-powder-puff ae-pp-4" />
+        <circle cx="152" cy="42" r="6"  fill="#ddc060" opacity="0.5"  className="ae-powder-puff ae-pp-5" />
+        <circle cx="152" cy="88" r="6"  fill="#bba030" opacity="0.5"  className="ae-powder-puff ae-pp-6" />
       </g>
     </g>
   );

@@ -89,9 +89,6 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
       </div>
 
       <div className="creation-footer">
-        <button className="secondary-button creation-back" onClick={onBack}>
-          Back
-        </button>
         <input
           className="name-input"
           placeholder="Enter your name"
@@ -108,6 +105,9 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
             Begin Your Journey
           </button>
         </div>
+        <button className="secondary-button creation-back" onClick={onBack}>
+          Back
+        </button>
       </div>
     </div>
   );

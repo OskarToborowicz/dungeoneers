@@ -1450,6 +1450,26 @@
   padding: 12px 0 4px;
 }
 
+/* desktop default: name above level, both centered under sprite */
+.hub-name-level-row {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.hub-char-name {
+  font-family: var(--heading-font);
+  font-size: 13px;
+  color: var(--text-heading);
+  text-align: center;
+  letter-spacing: 0.03em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
 
 .class-sprite-preview {
   display: flex;
@@ -1481,7 +1501,36 @@
   position: relative;
 }
 
+/* ── Projectile effects ───────────────────────────────────────────────────── */
+
+.projectile-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+}
+
+@keyframes proj-fly {
+  from { transform: translateX(0);                          opacity: 1; }
+  to   { transform: translateX(var(--proj-dist, 222px));   opacity: 0; }
+}
+
+.proj-orb--fireball { animation: proj-fly 0.50s ease-in forwards; }
+.proj-orb--holy     { animation: proj-fly 0.44s ease-in forwards; }
+
+@keyframes proj-burst-anim {
+  0%   { transform: translate(-50%, -50%) scale(0.15); opacity: 0; }
+  25%  { opacity: 1; }
+  70%  { transform: translate(-50%, -50%) scale(1.1);  opacity: 1; }
+  100% { transform: translate(-50%, -50%) scale(1.6);  opacity: 0; }
+}
+
+.proj-burst--fireball { animation: proj-burst-anim 0.45s ease-out 0.44s both; }
+.proj-burst--poison   { animation: proj-burst-anim 0.70s ease-out 0s    both; }
+.proj-burst--frost    { animation: proj-burst-anim 0.45s ease-out 0s    both; }
+
 /* ── 12. Ability animations ───────────────────────────────────────────────── */
+
 .ability-effect-overlay {
   position: absolute;
   inset: 0;
@@ -1501,14 +1550,14 @@
   65%  { transform: scale(1.1) rotate(540deg); opacity: 1; }
   100% { transform: scale(1.3) rotate(720deg); opacity: 0; }
 }
-.ae-whirlwind { animation: ae-spin-fade 0.75s ease-out forwards; }
+.ae-whirlwind { animation: ae-spin-fade 0.95s ease-out forwards; }
 
 /* Poison Cloud – Necromancer */
 @keyframes ae-pcloud-fly {
-  0%   { transform: translateX(-60px) scale(0.5); opacity: 0; }
-  20%  { transform: translateX(-10px) scale(1);   opacity: 0.85; }
-  65%  { transform: translateX(50px)  scale(1.1); opacity: 0.8; }
-  100% { transform: translateX(90px)  scale(0.8); opacity: 0; }
+  0%   { transform: translateX(-60px) scale(0.5); opacity: 1; }
+  20%  { transform: translateX(30px) scale(1);   opacity: 0.85; }
+  65%  { transform: translateX(120px)  scale(1.1); opacity: 0.8; }
+  100% { transform: translateX(140px)  scale(0.8); opacity: 0; }
 }
 @keyframes ae-pcloud-impact {
   0%   { transform: scale(0.1); opacity: 0;   }
@@ -1516,7 +1565,7 @@
   65%  { transform: scale(1.3); opacity: 0.65; }
   100% { transform: scale(1.8); opacity: 0;   }
 }
-.ae-pcloud-travel { animation: ae-pcloud-fly    0.75s ease-out forwards; }
+.ae-pcloud-travel { animation: ae-pcloud-fly    1s ease-out forwards; }
 .ae-pcloud-burst  { animation: ae-pcloud-impact 0.75s ease-out 0.2s forwards; opacity: 0; }
 
 /* Golem on field */
@@ -1547,28 +1596,18 @@
 /* Golem summon effect */
 /* Golem roll-in */
 @keyframes ae-groll-boulder-roll {
-  0%   { transform: translateX(-90px) rotate(0deg);   opacity: 0; }
-  10%  { opacity: 1; }
-  65%  { transform: translateX(0px)   rotate(360deg); opacity: 1; }
-  78%  { transform: translateX(8px)   rotate(400deg) scale(1.15); opacity: 1; }
-  100% { transform: translateX(0px)   rotate(420deg) scale(0.8);  opacity: 0; }
+  0%   { transform: translateX(calc(var(--travel-dist, 136px) * -0.5)) rotate(0deg);                                   opacity: 0; }
+  8%   { opacity: 1; }
+  78%  { transform: translateX(calc(var(--travel-dist, 136px) * 0.5))       rotate(660deg);                            opacity: 1; }
+  88%  { transform: translateX(calc(var(--travel-dist, 136px) * 0.5 + 8px)) rotate(695deg) scale(0.97);                opacity: 1; }
+  94%  { transform: translateX(calc(var(--travel-dist, 136px) * 0.5 - 6px)) rotate(710deg) scale(1.02);               opacity: 1; }
+  100% { transform: translateX(calc(var(--travel-dist, 136px) * 0.5 - 6px)) rotate(720deg) scale(0.9);                opacity: 0; }
 }
 @keyframes ae-groll-dust-trail {
-  0%   { transform: scaleX(0); opacity: 0; }
-  30%  { transform: scaleX(1); opacity: 0.55; }
-  100% { transform: scaleX(1.4); opacity: 0; }
-}
-@keyframes ae-groll-impact-burst {
-  0%   { transform: scale(0); opacity: 0; }
-  60%  { transform: scale(0); opacity: 0; }
-  75%  { transform: scale(1.2); opacity: 0.9; }
-  100% { transform: scale(1.8); opacity: 0; }
-}
-@keyframes ae-groll-stun-float {
-  0%   { transform: translateY(0)   scale(0); opacity: 0; }
-  50%  { transform: translateY(0)   scale(0); opacity: 0; }
-  70%  { transform: translateY(-4px) scale(1); opacity: 1; }
-  100% { transform: translateY(-10px) scale(0.8); opacity: 0; }
+  0%   { opacity: 0;    transform: scaleX(0.3); }
+  18%  { opacity: 0.55; transform: scaleX(1); }
+  65%  { opacity: 0.4;  transform: scaleX(1.4); }
+  100% { opacity: 0;    transform: scaleX(1.9); }
 }
 @keyframes ae-groll-eye-pulse {
   0%, 100% { opacity: 0.85; }
@@ -1576,46 +1615,50 @@
 }
 .ae-groll-boulder { animation: ae-groll-boulder-roll 0.85s cubic-bezier(0.25,0.46,0.45,0.94) forwards; }
 .ae-groll-eye     { animation: ae-groll-eye-pulse 0.25s ease-in-out infinite; }
-.ae-groll-impact  { animation: ae-groll-impact-burst 0.85s ease-out forwards; }
-.ae-groll-stun    { animation: ae-groll-stun-float 0.85s ease-out forwards; }
-.ae-grd-1 { animation: ae-groll-dust-trail 0.85s ease-out 0s    forwards; }
-.ae-grd-2 { animation: ae-groll-dust-trail 0.85s ease-out 0.08s forwards; }
-.ae-grd-3 { animation: ae-groll-dust-trail 0.85s ease-out 0.15s forwards; }
+.ae-grd-1 { animation: ae-groll-dust-trail 0.45s ease-out 0.08s forwards; }
+.ae-grd-2 { animation: ae-groll-dust-trail 0.45s ease-out 0.25s forwards; }
+.ae-grd-3 { animation: ae-groll-dust-trail 0.45s ease-out 0.41s forwards; }
 
 /* Fireball – Sorceress */
-@keyframes ae-fireball-burst {
-  0%   { transform: scale(0.1); opacity: 0; }
-  20%  { transform: scale(1);   opacity: 1; }
-  65%  { transform: scale(1.1); opacity: 1; }
-  100% { transform: scale(2);   opacity: 0; }
+@keyframes ae-fb-fly {
+  0%   { transform: translateX(0);                          opacity: 0.95; }
+  85%  { transform: translateX(var(--travel-dist, 136px));  opacity: 0.95; }
+  100% { transform: translateX(var(--travel-dist, 136px));  opacity: 0; }
 }
-@keyframes ae-rays-burst {
-  0%   { transform: scale(0);   opacity: 0; }
-  35%  { transform: scale(0);   opacity: 0; }
-  55%  { transform: scale(1);   opacity: 1; }
-  100% { transform: scale(1.5); opacity: 0; }
+@keyframes ae-fb-burst {
+  0%   { transform: scale(0.15); opacity: 0; }
+  20%  { transform: scale(1);    opacity: 1; }
+  65%  { transform: scale(1.1);  opacity: 1; }
+  100% { transform: scale(2.2);  opacity: 0; }
 }
-.ae-fireball-core { animation: ae-fireball-burst 0.75s ease-out forwards; }
-.ae-fireball-rays { animation: ae-rays-burst    0.75s ease-out forwards; }
+.ae-fb-orb   { animation: ae-fb-fly   0.38s linear   forwards; }
+.ae-fb-burst { animation: ae-fb-burst 0.70s ease-out 0.34s forwards; opacity: 0; }
 
 /* Multishot – Amazon */
 @keyframes ae-arrow-fly {
   0%   { transform: translateX(-80px); opacity: 0; }
-  18%  { opacity: 1; }
-  80%  { opacity: 1; }
+  8%   { opacity: 1; }
+  82%  { opacity: 1; }
   100% { transform: translateX(110px); opacity: 0; }
 }
-.ae-arrow-1 { animation: ae-arrow-fly 0.65s ease-in forwards 0s;    }
-.ae-arrow-2 { animation: ae-arrow-fly 0.65s ease-in forwards 0.09s; }
+.ae-arrow-1    { animation: ae-arrow-fly 0.48s ease-out forwards 0s;    }
+.ae-arrow-2    { animation: ae-arrow-fly 0.48s ease-out forwards 0.07s; }
+.ae-single-arrow { animation: ae-arrow-fly 0.45s ease-out forwards; }
 
 /* Holy Bolt – Paladin */
+@keyframes ae-hb-fly {
+  0%   { transform: translateX(0);                          opacity: 0.95; }
+  85%  { transform: translateX(var(--travel-dist, 136px));  opacity: 0.95; }
+  100% { transform: translateX(var(--travel-dist, 136px));  opacity: 0; }
+}
 @keyframes ae-holy-pulse {
   0%   { transform: scale(0.15); opacity: 0; }
   25%  { transform: scale(1);    opacity: 1; }
   65%  { transform: scale(1);    opacity: 1; }
   100% { transform: scale(1.5);  opacity: 0; }
 }
-.ae-holy-bolt { animation: ae-holy-pulse 0.75s ease-out forwards; }
+.ae-hb-orb   { animation: ae-hb-fly    0.34s linear   forwards; }
+.ae-hb-burst { animation: ae-holy-pulse 0.88s ease-out 0.28s forwards; opacity: 0; }
 
 /* Werewolf Bite – Druid */
 @keyframes ae-slash-draw {
@@ -1623,11 +1666,17 @@
   50%  { stroke-dashoffset: 0;  opacity: 1; }
   100% { stroke-dashoffset: 0;  opacity: 0; }
 }
-.ae-claw-1 { animation: ae-slash-draw 0.65s ease-out 0s    forwards; }
-.ae-claw-2 { animation: ae-slash-draw 0.65s ease-out 0.09s forwards; }
-.ae-claw-3 { animation: ae-slash-draw 0.65s ease-out 0.18s forwards; }
+.ae-claw-1 { animation: ae-slash-draw 0.78s ease-out 0s    forwards; }
+.ae-claw-2 { animation: ae-slash-draw 0.78s ease-out 0.09s forwards; }
+.ae-claw-3 { animation: ae-slash-draw 0.78s ease-out 0.18s forwards; }
 
 /* Fire Trap plant – Assassin */
+@keyframes ae-trap-throw {
+  0%   { transform: translateX(calc(-1 * var(--travel-dist, 136px))) translateY(6px) rotate(0deg) scale(0.75); opacity: 0; }
+  10%  { opacity: 1; }
+  78%  { transform: translateX(0) translateY(0) rotate(310deg) scale(0.8); opacity: 1; }
+  100% { transform: translateX(0) translateY(0) rotate(360deg) scale(0.7); opacity: 0; }
+}
 @keyframes ae-trap-place {
   0%   { transform: scale(0.1); opacity: 0; }
   30%  { transform: scale(1.1); opacity: 1; }
@@ -1643,14 +1692,15 @@
   0%   { r: 4;  opacity: 0.7; }
   100% { r: 28; opacity: 0;   }
 }
-.ae-trap-plant        { animation: ae-trap-place 0.75s ease-out forwards; }
-.ae-trap-spark        { animation: ae-trap-spark-out 0.6s ease-out forwards; }
-.ae-ts-1 { animation-delay: 0.05s; }
-.ae-ts-2 { animation-delay: 0.10s; }
-.ae-ts-3 { animation-delay: 0.10s; }
-.ae-ts-4 { animation-delay: 0.15s; }
-.ae-ts-5 { animation-delay: 0.15s; }
-.ae-trap-ring         { animation: ae-trap-ring-expand 0.7s ease-out 0.2s forwards; }
+.ae-trap-throw        { animation: ae-trap-throw 0.26s cubic-bezier(0.15, 0, 0.6, 1) forwards; }
+.ae-trap-plant        { animation: ae-trap-place 0.50s ease-out 0.22s forwards; opacity: 0; }
+.ae-trap-spark        { animation: ae-trap-spark-out 0.40s ease-out forwards; }
+.ae-ts-1 { animation-delay: 0.27s; }
+.ae-ts-2 { animation-delay: 0.32s; }
+.ae-ts-3 { animation-delay: 0.32s; }
+.ae-ts-4 { animation-delay: 0.37s; }
+.ae-ts-5 { animation-delay: 0.37s; }
+.ae-trap-ring         { animation: ae-trap-ring-expand 0.40s ease-out 0.30s forwards; }
 
 /* Fire Trap detonation – Assassin */
 @keyframes ae-trap-det-burst {
@@ -2076,21 +2126,26 @@
 
 /* Freezing Shot animation */
 .ae-ice-arrow {
-  animation: ae-ice-arrow-fly 0.44s cubic-bezier(0.15, 0, 0.7, 1) forwards;
+  animation: ae-ice-arrow-fly 0.40s cubic-bezier(0.15, 0, 0.7, 1) forwards,
+             ae-ice-arrow-fade 0.06s 0.38s ease-in forwards;
 }
 @keyframes ae-ice-arrow-fly {
   0%   { transform: translateX(-90px); opacity: 0; }
   15%  { opacity: 1; }
-  100% { transform: translateX(0); }
+  100% { transform: translateX(calc(var(--travel-dist, 136px) - 104px)); opacity: 1; }
+}
+@keyframes ae-ice-arrow-fade {
+  from { opacity: 1; }
+  to   { opacity: 0; }
 }
 
 .ae-ice-burst {
-  animation: ae-ice-burst-pop 0.42s 0.38s ease-out both;
+  animation: ae-ice-burst-pop 0.70s 0.38s ease-out both;
 }
 @keyframes ae-ice-burst-pop {
   0%   { transform: scale(0.05); opacity: 0; }
-  60%  { transform: scale(1.18); opacity: 1; }
-  100% { transform: scale(1); opacity: 0.9; }
+  55%  { transform: scale(1.18); opacity: 1; }
+  100% { transform: scale(1);    opacity: 0; }
 }
 
 /* Blinding Powder ability effect */
@@ -2098,9 +2153,9 @@
   animation: ae-powder-fly 0.42s cubic-bezier(0.15, 0, 0.65, 1) forwards;
 }
 @keyframes ae-powder-fly {
-  0%   { transform: translateX(0px);   opacity: 1; }
-  80%  { transform: translateX(68px);  opacity: 1; }
-  100% { transform: translateX(72px);  opacity: 0; }
+  0%   { transform: translateX(0);                                         opacity: 1; }
+  80%  { transform: translateX(calc(var(--travel-dist, 136px) - 52px));   opacity: 1; }
+  100% { transform: translateX(calc(var(--travel-dist, 136px) - 48px));   opacity: 0; }
 }
 .ae-powder-trail {
   animation: ae-powder-trail-fade 0.35s ease-out both;
@@ -2113,12 +2168,12 @@
   100% { opacity: 0;   transform: scale(1.6); }
 }
 .ae-powder-burst {
-  animation: ae-powder-burst-expand 0.52s 0.38s ease-out both;
+  animation: ae-powder-burst-expand 0.40s 0.38s ease-out both;
 }
 @keyframes ae-powder-burst-expand {
   0%   { transform: scale(0.05); opacity: 0; }
-  50%  { transform: scale(1.15); opacity: 1; }
-  100% { transform: scale(1);    opacity: 0.85; }
+  45%  { transform: scale(1.1);  opacity: 1; }
+  100% { transform: scale(1.4);  opacity: 0; }
 }
 .ae-powder-puff {
   animation: ae-powder-puff-out 0.55s ease-out both;
@@ -2143,16 +2198,16 @@
   100% { transform: rotate(900deg) scale(1.15); opacity: 0; }
 }
 .ae-crane-spin {
-  animation: ae-crane-beyblade 0.75s cubic-bezier(0.2, 0, 0.5, 1) forwards;
+  animation: ae-crane-beyblade 0.95s cubic-bezier(0.2, 0, 0.5, 1) forwards;
 }
 @keyframes ae-crane-particle {
   0%   { opacity: 0.9; transform: scale(1);   }
   100% { opacity: 0;   transform: scale(2.5) translateY(-6px); }
 }
-.ae-crane-p1 { animation: ae-crane-particle 0.55s 0.1s ease-out forwards; }
-.ae-crane-p2 { animation: ae-crane-particle 0.55s 0.2s ease-out forwards; }
-.ae-crane-p3 { animation: ae-crane-particle 0.55s 0.15s ease-out forwards; }
-.ae-crane-p4 { animation: ae-crane-particle 0.55s 0.25s ease-out forwards; }
+.ae-crane-p1 { animation: ae-crane-particle 0.65s 0.12s ease-out forwards; }
+.ae-crane-p2 { animation: ae-crane-particle 0.65s 0.24s ease-out forwards; }
+.ae-crane-p3 { animation: ae-crane-particle 0.65s 0.18s ease-out forwards; }
+.ae-crane-p4 { animation: ae-crane-particle 0.65s 0.30s ease-out forwards; }
 
 /* Serenity – Monk ability2 */
 .ae-serenity-ring-1 {
@@ -2626,6 +2681,20 @@
     display: flex;
     flex-direction: column;
     gap: 1px;
+  }
+
+  /* name + level on same line in portrait mobile */
+  .hub-name-level-row {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+
+  .hub-char-name {
+    font-size: 13px;
+    text-align: left;
+    white-space: nowrap;
   }
 
   .level-display {
@@ -3128,6 +3197,7 @@
 
   .creation-back {
     flex-shrink: 0;
+    order: -1;
   }
 
   .creation-footer .name-input {
@@ -3216,6 +3286,14 @@
     border-bottom: none;
     overflow-y: auto;
     gap: 6px;
+    position: relative;
+  }
+
+  .reset-button {
+    order: -1;
+    margin-top: 0;
+    font-size: 10px;
+    padding: 3px 6px;
   }
 
   .hub-sprite-wrap {
@@ -3234,6 +3312,18 @@
     align-items: center;
     text-align: center;
     gap: 0;
+  }
+
+  /* name above level, centered, in landscape */
+  .hub-name-level-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .hub-char-name {
+    font-size: 11px;
+    text-align: center;
   }
 
   .level-display,
