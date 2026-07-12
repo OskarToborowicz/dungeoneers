@@ -226,6 +226,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
         className={`tab-panel${draggingId ? " is-dragging" : ""}${hasSelected ? " is-selecting" : ""}`}
         onClick={() => { if (hasSelected) setSelected(null); }}
       >
+        <div className="inventory-wrapper">
         <div className="paperdoll">
           {EQUIP_SLOTS.map((slot) => {
             const item = equipment[slot];
@@ -259,8 +260,8 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
             );
           })}
         </div>
-
-        <h3>Inventory ({inventory.length})</h3>
+        <div className="inventory-right">
+        <h3 className="inventory-label">Inventory ({inventory.length})</h3>
         {inventory.length === 0 && <p className="empty-note">No items yet. Clear dungeons to find loot.</p>}
         <InventoryDropzoneDnd isOver={dragOverId === "inventory"}>
           <div className="inventory-grid">
@@ -283,6 +284,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
         <p className="empty-note">
           {hasSelected ? "Tap a slot to equip — tap item again to deselect." : "Tap to select · tap slot to equip · double-tap to equip/unequip."}
         </p>
+        </div>
 
         {hovered && !draggingId && (
           <>
@@ -303,6 +305,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
           </div>
         )}
       </DragOverlay>
+      </div>
     </DndContext>
   );
 }

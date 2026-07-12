@@ -113,6 +113,7 @@ export function Hub({
       )}
       <div className="hub-layout">
         <div className="hub-sidebar">
+          <button className="mobile-menu-button" onClick={onQuitToMenu}>↩</button>
           <div className="hub-sprite-wrap">
             <div className="hub-sprite">
               <CharacterSprite

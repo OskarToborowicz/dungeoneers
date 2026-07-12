@@ -79,42 +79,49 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
         </span>
       </div>
 
-      <div className="derived-grid">
-        <div>Life: {derived.maxLife}</div>
-        <div>{def.resourceName}: {derived.maxMana}</div>
-        <div>Damage: {derived.damage[0]}-{derived.damage[1]}</div>
-        <div>Defense: {derived.defense}</div>
-        <div>Spell Bonus: +{derived.magicDamageBonus} dmg</div>
-        <div>Crit Chance: {Math.round(critChance * 100)}%</div>
-      </div>
+      
 
-      <h3>Attributes {character.unspentStatPoints > 0 && `(${character.unspentStatPoints} points to spend)`}</h3>
-      <div className="allocate-grid">
-        {(["strength", "dexterity", "vitality", "energy"] as const).map((stat) => (
-          <div className="allocate-row" key={stat}>
-            <span className="stat-name">
-              {stat}
-              {STAT_ICONS[stat] && (
-                <span className="stat-icon">
-                  <svg viewBox="0 0 12 12" width="13" height="13" style={{ background: STAT_ICONS[stat].bg, borderRadius: 2 }}>
-                    {STAT_ICONS[stat].svg}
-                  </svg>
-                  <div className="game-tooltip">{STAT_ICONS[stat].tip}</div>
+      <div className="char-stats-layout">
+        <div>
+          <h3>Attributes {character.unspentStatPoints > 0 && `(${character.unspentStatPoints} points to spend)`}</h3>
+          <div className="allocate-grid">
+            {(["strength", "dexterity", "vitality", "energy"] as const).map((stat) => (
+              <div className="allocate-row" key={stat}>
+                <span className="stat-name">
+                  {stat}
+                  {STAT_ICONS[stat] && (
+                    <span className="stat-icon">
+                      <svg viewBox="0 0 12 12" width="13" height="13" style={{ background: STAT_ICONS[stat].bg, borderRadius: 2 }}>
+                        {STAT_ICONS[stat].svg}
+                      </svg>
+                      <div className="game-tooltip">{STAT_ICONS[stat].tip}</div>
+                    </span>
+                  )}
                 </span>
-              )}
-            </span>
-            <span className="stat-value">{Math.round(derived.stats[stat])}</span>
-            <button
-              disabled={character.unspentStatPoints <= 0}
-              onClick={() => onAllocate(stat)}
-              className={`allocate-button${character.unspentStatPoints > 0 ? " allocate-button--glow" : ""}`}
-            >
-              +
-            </button>
+                <span className="stat-value">{Math.round(derived.stats[stat])}</span>
+                <button
+                  disabled={character.unspentStatPoints <= 0}
+                  onClick={() => onAllocate(stat)}
+                  className={`allocate-button${character.unspentStatPoints > 0 ? " allocate-button--glow" : ""}`}
+                >
+                  +
+                </button>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
+        <div>
+          <h3>Stats</h3>
+          <div className="derived-grid">
+            <div>Life: {derived.maxLife}</div>
+            <div>{def.resourceName}: {derived.maxMana}</div>
+            <div>Damage: {derived.damage[0]}-{derived.damage[1]}</div>
+            <div>Defense: {derived.defense}</div>
+            <div>Spell Bonus: +{derived.magicDamageBonus} dmg</div>
+            <div>Crit Chance: {Math.round(critChance * 100)}%</div>
+          </div>
+        </div>
       </div>
-
       <div className="ability-box">
         <strong>{def.ability.name}{def.ability.magic && <span className="spell-tag"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 1 L6.7 4.5 L10 3 L7.5 5.8 L11 6 L7.5 6.2 L10 9 L6.7 7.5 L6 11 L5.3 7.5 L2 9 L4.5 6.2 L1 6 L4.5 5.8 L2 3 L5.3 4.5 Z" fill="#88aaff"/></svg><div className="game-tooltip">Scales with Magic Damage bonus</div></span>}</strong>
         <div className="ability-cost">

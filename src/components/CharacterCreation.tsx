@@ -35,14 +35,18 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
         </div>
 
         <div className="class-detail">
-          <div className="class-sprite-preview">
-            <CharacterSprite classId={selected.id} size={56} state="idle" />
+          <div className="class-header">
+            <div className="class-sprite-preview">
+              <CharacterSprite classId={selected.id} size={56} state="idle" />
+            </div>
+            <div className="class-header-text">
+              <h2 className="class-detail-title">
+                <ClassIcon classId={selected.id} size={30} />
+                {selected.name}
+              </h2>
+              <p className="class-desc">{selected.description}</p>
+            </div>
           </div>
-          <h2 className="class-detail-title">
-            <ClassIcon classId={selected.id} size={30} />
-            {selected.name}
-          </h2>
-          <p className="class-desc">{selected.description}</p>
           <div className="ability-box ability-box--compact">
             <strong>{selected.ability.name}{selected.ability.magic && <span className="spell-tag"><svg width="11" height="11" viewBox="0 0 12 12"><path d="M6 1 L6.7 4.5 L10 3 L7.5 5.8 L11 6 L7.5 6.2 L10 9 L6.7 7.5 L6 11 L5.3 7.5 L2 9 L4.5 6.2 L1 6 L4.5 5.8 L2 3 L5.3 4.5 Z" fill="#88aaff"/></svg><div className="game-tooltip">Scales with Magic Damage bonus</div></span>}</strong>
             <p>{selected.ability.short ?? selected.ability.description}</p>

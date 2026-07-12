@@ -1,5 +1,5 @@
 .screen {
-  padding: 20px 20px 20px;
+  padding: 5px 20px 20px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -10,6 +10,7 @@
 .creation-screen {
   align-items: center;
   text-align: center;
+  overflow-y: auto;
 }
 
 .game-title {
@@ -85,9 +86,26 @@
   padding-left: 20px;
 }
 
+.class-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.class-header .class-sprite-preview {
+  flex-shrink: 0;
+}
+
+.class-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
 .class-desc {
   color: var(--text-dim);
-  margin-bottom: 12px;
+  margin-bottom: 0;
 }
 
 .ability-box {
@@ -95,7 +113,7 @@
   border: 1px solid var(--border-gold);
   border-radius: 4px;
   padding: 10px 12px;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .ability-box strong {
@@ -329,7 +347,7 @@
   flex-direction: column;
   gap: 20px;
   position: sticky;
-  top: 24px;
+  top: 2px;
   align-self: flex-start;
   min-height: calc(100svh - 96px);
 }
@@ -337,10 +355,7 @@
 .hub-content {
   flex: 1;
   min-width: 0;
-  max-height: calc(100svh - 96px);
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: var(--class-color) #1a1208;
+  max-height: 97vh;
 }
 
 .hub-content::-webkit-scrollbar {
@@ -422,6 +437,10 @@
   margin-top: auto;
 }
 
+.mobile-menu-button {
+  display: none;
+}
+
 .reset-button:hover {
   border-color: var(--accent-red-bright);
   color: var(--accent-red-bright);
@@ -464,6 +483,10 @@
   border: 1px solid var(--border-gold);
   border-radius: 6px;
   padding: 20px;
+  max-height: 97vh;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: var(--class-color) #1a1208;
 }
 
 /* ---------- Character Tab ---------- */
@@ -514,6 +537,26 @@
   justify-content: center;
   font-size: 11px;
   color: var(--text);
+}
+
+.char-stats-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.char-stats-layout .allocate-grid {
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+.char-stats-layout .derived-grid {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
 }
 
 .derived-grid {
@@ -591,7 +634,7 @@
   grid-template-columns: repeat(3, 64px);
   grid-template-rows: repeat(5, 64px);
   grid-template-areas:
-    "helm helm amulet"
+    "helm  helm amulet"
     "weapon armor shield"
     "weapon armor shield"
     "gloves belt boots"
@@ -786,6 +829,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
+  margin-top: 24px;
   margin-bottom: 4px;
 }
 
@@ -2281,7 +2325,7 @@
 }
 
 .combat-result {
-  margin-top: 16px;
+  margin-top: 2px;
   text-align: center;
   background: var(--bg-panel);
   border: 1px solid var(--border-gold);
@@ -2384,7 +2428,7 @@
   .hub-sidebar {
     width: 100%;
     min-height: unset;
-    position: static;
+    position: relative;
     flex-direction: column;
     gap: 0;
     border-right: none !important;
@@ -2398,6 +2442,15 @@
     min-height: 0;
     max-height: none;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .hub-content .tab-panel {
+    flex: 1;
+    min-height: 0;
+
   }
 
   /* Sprite + info row */
@@ -2467,9 +2520,34 @@
     display: none;
   }
 
+  .mobile-menu-button {
+    display: block;
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: none;
+    border: 1px solid var(--border-gold);
+    color: var(--text-dim);
+    border-radius: 4px;
+    font-size: 16px;
+    padding: 2px 8px;
+    line-height: 1;
+    z-index: 10;
+  }
+
+  .mobile-menu-button:hover {
+    border-color: var(--accent-red-bright);
+    color: var(--accent-red-bright);
+  }
+
   /* Smaller tab panel padding */
   .tab-panel {
     padding: 14px 12px;
+  }
+
+  .char-stats-layout {
+    flex-direction: column;
+    gap: 12px;
   }
 
   /* Stats grid: 2 cols */
@@ -2528,17 +2606,30 @@
   }
 
   /* Combat screen */
+  .combat-screen {
+    overflow: hidden;
+  }
+
   .combat-bars {
     gap: 12px;
+    flex-shrink: 0;
   }
 
   .combat-log {
-    max-height: 160px;
+    flex: 1;
+    min-height: 60px;
+    height: auto;
+    max-height: none;
     font-size: 13px;
   }
 
   .combat-actions {
     gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .battle-arena {
+    flex-shrink: 0;
   }
 
   .combat-button {
@@ -2550,7 +2641,10 @@
   .equipment-grid {
     gap: 8px;
   }
-
+  .inventory-wrapper {
+  display: flex;
+  flex-direction: column;
+  }
   /* Dungeons */
   .dungeon-list {
     gap: 8px;
@@ -2561,11 +2655,14 @@
     max-width: 100%;
   }
 }
-
 /* ── Landscape combat layout ──────────────────────────────────────────────── */
 @media (orientation: landscape) and (max-height: 500px) {
+  /* inventory tab */
+
+  /* // COMBAT SCREEN ON MOBILE// */
   .combat-screen {
-    display: grid;
+    display: grid !important;
+    align-items: stretch;
     grid-template-columns: 140px 1fr 100px;
     grid-template-rows: auto 1fr;
     grid-template-areas:
@@ -2574,6 +2671,7 @@
     gap: 8px;
     padding: 8px;
     height: 100dvh;
+    width: 100%;
     overflow: hidden;
   }
 
@@ -2585,20 +2683,20 @@
     min-width: 0;
     order: 0;
     background: var(--bg-panel);
+    position: relative;
   }
-
   .combat-title {
     display: none;
   }
 
   .combat-middle .battle-arena {
     flex-shrink: 0;
-    order: 0;
+    order: 1;
     margin-bottom: 4px;
     max-width: 100%;
   }
 
-.combat-middle .combat-log {
+  .combat-middle .combat-log {
     flex: 1;
     height: 0;
     min-height: 0;
@@ -2607,18 +2705,7 @@
     padding: 6px 10px;
     order: 1;
     max-width: 100%;
-    /* Ensure combat log always expands to fill available space */
-    min-height: 50px;
   }
-
-  .combat-bars {
-    grid-area: bars;
-    order: 0;
-    flex-direction: column;
-    gap: 4px;
-    align-items: stretch;
-  }
-
   .combat-bars .combat-bar-block:last-child { display: none; }
 
   .combat-bars .hp-bar,
@@ -2684,13 +2771,25 @@
   }
 
   .combat-result {
-    order: 2;
-    flex-shrink: 0;
-    margin-top: 4px;
-    padding: 8px 12px 10px;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    margin-top: 0;
+    padding: 6px 10px;
     max-width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-radius: 6px 6px 0 0;
   }
-  .combat-result .primary-button { padding: 6px 16px; font-size: 13px; }
+  .combat-result .victory-text,
+  .combat-result .defeat-text { font-size: 13px; margin: 0; }
+  .combat-result p { font-size: 11px; margin: 0; }
+  .combat-result .primary-button { margin-top: 0; padding: 6px 14px; font-size: 12px; flex-shrink: 0; }
 
   .combat-actions {
     display: contents;
@@ -2715,13 +2814,17 @@
     order: 0;
     display: flex;
     flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
     gap: 4px;
   }
 
   .combat-flee .action-button {
-    flex: 1;
+    flex: none;
     font-size: 11px;
     padding: 6px 8px;
+    height: 48px;
   }
 
   .landscape-monster-name {
@@ -2731,12 +2834,12 @@
     font-size: 11px;
     text-align: center;
     padding: 2px 0;
+    word-break: break-word;
   }
-
 }
 
 /* ── Hub landscape layout ─────────────────────────────────────────────────── */
-@media (orientation: landscape) and (max-height: 500px) and (max-width: 900px) {
+@media (orientation: landscape) and (max-height: 500px) and (max-width: 960px) {
   .hub-screen {
     flex-direction: row;
     padding: 0;
@@ -2815,5 +2918,153 @@
     min-width: 0;
     max-height: 100%;
     overflow-y: auto;
+
+  }
+  .inventory-wrapper {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: flex-start;
+    overflow: hidden;
+  }
+
+  .paperdoll {
+    flex-shrink: 0;
+    grid-template-columns: repeat(3, 44px);
+    grid-template-rows: repeat(5, 44px);
+  }
+
+  .doll-slot {
+    width: 44px;
+    height: 44px;
+    font-size: 9px;
+  }
+
+  .slot-item svg,
+  .doll-slot svg {
+    width: 28px !important;
+    height: 28px !important;
+  }
+
+  .inventory-right {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .inventory-right .inventory-label {
+    flex-shrink: 0;
+  }
+
+  .inventory-right .inventory-dropzone {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .inventory-right > .empty-note {
+    flex-shrink: 0;
+  }
+
+  .shop-top-row {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .shop-potions-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .shop-potions-heading {
+    margin-bottom: 0;
+    font-size: 12px;
+  }
+
+  .shop-potions {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    margin-bottom: 0;
+  }
+
+  .shop-potion-card {
+    padding: 5px 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .shop-potion-name {
+    font-size: 11px;
+    margin-bottom: 0;
+  }
+
+  .shop-potion-desc {
+    display: none;
+  }
+
+  .shop-potion-footer {
+    margin-top: 0;
+  }
+
+  .shop-potion-footer .primary-button.small {
+    font-size: 11px;
+    padding: 3px 8px;
+  }
+
+  .shop-inventory-section {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .shop-inventory-section .inventory-header {
+    flex-shrink: 0;
+  }
+
+  .shop-inventory-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .tab-panel:has(.shop-top-row) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .shop-top-row {
+    flex-shrink: 0;
+  }
+
+  .shop-merchant-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .shop-header-row--inline {
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 0;
+  }
+
+  .shop-header-row--inline h3 {
+    font-size: 12px;
+    margin-bottom: 0;
   }
 }

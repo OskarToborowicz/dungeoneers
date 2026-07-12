@@ -53,105 +53,114 @@ export function ShopTab({
 
   return (
     <div className="tab-panel">
-      <h3>Potions</h3>
-      <div className="shop-potions">
-        {availableConsumables.map((def) => (
-          <div className="shop-potion-card" key={def.id}>
-            <div className="shop-potion-name">{def.name}</div>
-            <p className="shop-potion-desc">
-              {def.id === "healthPotion"
-                ? `Restores ${potionRestorePct}% of max life instantly. 3-turn cooldown.`
-                : `Restores ${potionRestorePct}% of max mana instantly. 3-turn cooldown.`}
-            </p>
-            <div className="shop-potion-footer">
-              <span className="owned-count">Owned: {consumables[def.id]}</span>
-              <button
-                className="primary-button small"
-                disabled={character.gold < potionCost || consumables[def.id] >= 5}
-                onClick={() => onBuyConsumable(def.id)}
-              >
-                {consumables[def.id] >= 5 ? "Full (5/5)" : `Buy for ${potionCost}g`}
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="shop-header-row">
-        <h3>Merchant's Wares</h3>
-        <button className="restock-button" disabled={character.gold < restockFee} onClick={onRestock}>
-          Restock ({restockFee}g)
-        </button>
-      </div>
-      <div className="shop-grid">
-        {shopStock.map((item) => {
-          const price = buyValue(item);
-          return (
-            <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}
-              onMouseEnter={(e) => onMouseEnter(item, e)}
-              onMouseLeave={onMouseLeave}
-              onClick={(e) => showTooltip(item, e.currentTarget as HTMLElement)}
-            >
-              <ItemIcon item={item} />
-              <button className="buy-button" disabled={character.gold < price} onClick={(e) => { e.stopPropagation(); onBuyItem(item); clearHover(); }}>
-                <CoinIcon size={9} /> {price}
-              </button>
-            </div>
-          );
-        })}
-        {shopStock.length === 0 && <p className="empty-note">Sold out. Restock to see new wares.</p>}
-      </div>
-
-      <div className="inventory-header" style={{ marginTop: 24 }}>
-        <h3>Your Inventory ({inventory.length})</h3>
-        {inventory.length > 0 && (
-          <div className="sell-all-row">
-            {confirmSellAll ? (
-              <>
-                <span className="sell-all-warning">Sell all {inventory.length} items for {totalSellValue}g?</span>
-                <button
-                  className="sell-all-confirm"
-                  onClick={() => { onSellAll(); setConfirmSellAll(false); }}
-                >
-                  Confirm
-                </button>
-                <button className="sell-all-cancel" onClick={() => setConfirmSellAll(false)}>
-                  Cancel
-                </button>
-              </>
-            ) : (
-              <>
-                {junkCount > 0 && (
-                  <button className="sell-junk-button" onClick={onSellJunk}>
-                    Sell Junk ({junkCount})
+      <div className="shop-top-row">
+        <div className="shop-potions-wrap">
+          <h3 className="shop-potions-heading">Potions</h3>
+          <div className="shop-potions">
+            {availableConsumables.map((def) => (
+              <div className="shop-potion-card" key={def.id}>
+                <div className="shop-potion-name">{def.name}</div>
+                <p className="shop-potion-desc">
+                  {def.id === "healthPotion"
+                    ? `Restores ${potionRestorePct}% of max life instantly. 3-turn cooldown.`
+                    : `Restores ${potionRestorePct}% of max mana instantly. 3-turn cooldown.`}
+                </p>
+                <div className="shop-potion-footer">
+                  <button
+                    className="primary-button small"
+                    disabled={character.gold < potionCost || consumables[def.id] >= 5}
+                    onClick={() => onBuyConsumable(def.id)}
+                  >
+                    {consumables[def.id] >= 5 ? `Full (5/5)` : `${consumables[def.id]}/5 · ${potionCost}g`}
                   </button>
-                )}
-                <button className="sell-all-button" onClick={() => setConfirmSellAll(true)}>
-                  Sell All
-                </button>
-              </>
-            )}
+                </div>
+              </div>
+            ))}
           </div>
-        )}
-      </div>
-      {inventory.length === 0 ? (
-        <p className="empty-note">Your inventory is empty.</p>
-      ) : (
-        <div className="shop-grid">
-          {inventory.map((item) => (
-            <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}
-              onMouseEnter={(e) => onMouseEnter(item, e)}
-              onMouseLeave={onMouseLeave}
-              onClick={(e) => showTooltip(item, e.currentTarget as HTMLElement)}
-            >
-              <ItemIcon item={item} />
-              <button className="sell-button" onClick={(e) => { e.stopPropagation(); onSell(item); clearHover(); }}>
-                <CoinIcon size={9} /> {sellValue(item)}
-              </button>
-            </div>
-          ))}
         </div>
-      )}
+
+        <div className="shop-merchant-col">
+          <div className="shop-header-row shop-header-row--inline">
+            <h3>Merchant's Wares</h3>
+            <button className="restock-button" disabled={character.gold < restockFee} onClick={onRestock}>
+              Restock ({restockFee}g)
+            </button>
+          </div>
+          <div className="shop-grid">
+            {shopStock.map((item) => {
+              const price = buyValue(item);
+              return (
+                <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}
+                  onMouseEnter={(e) => onMouseEnter(item, e)}
+                  onMouseLeave={onMouseLeave}
+                  onClick={(e) => showTooltip(item, e.currentTarget as HTMLElement)}
+                >
+                  <ItemIcon item={item} />
+                  <button className="buy-button" disabled={character.gold < price} onClick={(e) => { e.stopPropagation(); onBuyItem(item); clearHover(); }}>
+                    <CoinIcon size={9} /> {price}
+                  </button>
+                </div>
+              );
+            })}
+            {shopStock.length === 0 && <p className="empty-note">Sold out. Restock to see new wares.</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="shop-inventory-section">
+        <div className="inventory-header">
+          <h3>Your Inventory ({inventory.length})</h3>
+          {inventory.length > 0 && (
+            <div className="sell-all-row">
+              {confirmSellAll ? (
+                <>
+                  <span className="sell-all-warning">Sell all {inventory.length} items for {totalSellValue}g?</span>
+                  <button
+                    className="sell-all-confirm"
+                    onClick={() => { onSellAll(); setConfirmSellAll(false); }}
+                  >
+                    Confirm
+                  </button>
+                  <button className="sell-all-cancel" onClick={() => setConfirmSellAll(false)}>
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  {junkCount > 0 && (
+                    <button className="sell-junk-button" onClick={onSellJunk}>
+                      Sell Junk ({junkCount})
+                    </button>
+                  )}
+                  <button className="sell-all-button" onClick={() => setConfirmSellAll(true)}>
+                    Sell All
+                  </button>
+                </>
+              )}
+            </div>
+          )}
+        </div>
+        <div className="shop-inventory-scroll">
+          {inventory.length === 0 ? (
+            <p className="empty-note">Your inventory is empty.</p>
+          ) : (
+            <div className="shop-grid">
+              {inventory.map((item) => (
+                <div key={item.id} className="shop-item-cell" style={{ color: RARITY_COLORS[item.rarity] }}
+                  onMouseEnter={(e) => onMouseEnter(item, e)}
+                  onMouseLeave={onMouseLeave}
+                  onClick={(e) => showTooltip(item, e.currentTarget as HTMLElement)}
+                >
+                  <ItemIcon item={item} />
+                  <button className="sell-button" onClick={(e) => { e.stopPropagation(); onSell(item); clearHover(); }}>
+                    <CoinIcon size={9} /> {sellValue(item)}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
       {shopHovered && (
         <>
           <div ref={tooltipRef} style={tooltipStyle()!}>
