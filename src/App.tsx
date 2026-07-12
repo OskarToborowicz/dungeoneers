@@ -258,21 +258,27 @@ function App() {
     setInventory(nextInventory);
   }
 
+  function handleToggleFavorite(itemId: string) {
+    setInventory((prev) => prev.map((i) => i.id === itemId ? { ...i, favorite: !i.favorite } : i));
+  }
+
   function handleSell(item: Item) {
+    if (item.favorite) return;
     setInventory((prev) => prev.filter((i) => i.id !== item.id));
     setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + sellValue(item) } : prev));
   }
 
   function handleSellAll() {
-    const total = inventory.reduce((sum, item) => sum + sellValue(item), 0);
-    setInventory([]);
+    const sellable = inventory.filter((i) => !i.favorite);
+    const total = sellable.reduce((sum, item) => sum + sellValue(item), 0);
+    setInventory((prev) => prev.filter((i) => i.favorite));
     setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + total } : prev));
   }
 
   function handleSellJunk() {
-    const junk = inventory.filter((i) => i.rarity === "normal" || i.rarity === "magic");
+    const junk = inventory.filter((i) => !i.favorite && (i.rarity === "normal" || i.rarity === "magic"));
     const total = junk.reduce((sum, item) => sum + sellValue(item), 0);
-    setInventory((prev) => prev.filter((i) => i.rarity !== "normal" && i.rarity !== "magic"));
+    setInventory((prev) => prev.filter((i) => i.favorite || (i.rarity !== "normal" && i.rarity !== "magic")));
     setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + total } : prev));
   }
 
@@ -477,6 +483,7 @@ function App() {
         shopStock={shopStock}
         onAllocate={handleAllocate}
         onMoveItem={handleMoveItem}
+        onToggleFavorite={handleToggleFavorite}
         onSell={handleSell}
         onSellAll={handleSellAll}
         onSellJunk={handleSellJunk}

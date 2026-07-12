@@ -741,8 +741,16 @@ Gold rarity multipliers: Normal ×1, Magic ×2, Rare ×4, Unique ×8.
 
 Items can be sold individually from the Shop tab or all at once. Two bulk-sell options are available:
 
-- **Sell Junk** — instantly sells all Normal and Magic items with no confirmation prompt. Shows the count of items to be sold on the button.
-- **Sell All** — sells every inventory item; shows the total value and requires a confirmation step before executing.
+- **Sell Junk** — instantly sells all Normal and Magic items with no confirmation prompt. Shows the count of items to be sold on the button. Skips favorited items.
+- **Sell All** — sells every inventory item; shows the total value and requires a confirmation step before executing. Skips favorited items.
+
+### Favorite Items
+
+Any item in the inventory can be marked as a favorite by clicking the **★** icon in its top-left corner. The star turns gold when active.
+
+- Favorited items **cannot be sold** — individually, via Sell Junk, or via Sell All.
+- The ★ toggle is available both in the **Inventory tab** (paperdoll screen) and in the **Shop tab** sell panel.
+- A favorited item shows a **★ favorite** label in the shop panel instead of the sell button.
 
 ### Shop Restock
 

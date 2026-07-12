@@ -20,6 +20,7 @@ interface Props {
   onBuyItem: (item: Item) => void;
   onRestock: () => void;
   restockFee: number;
+  onToggleFavorite: (itemId: string) => void;
   onSell: (item: Item) => void;
   onSellAll: () => void;
   onSellJunk: () => void;
@@ -36,6 +37,7 @@ export function ShopTab({
   onBuyItem,
   onRestock,
   restockFee,
+  onToggleFavorite,
   onSell,
   onSellAll,
   onSellJunk,
@@ -155,9 +157,18 @@ export function ShopTab({
                   onClick={(e) => showTooltip(item, e.currentTarget as HTMLElement)}
                 >
                   <ItemIcon item={item} />
-                  <button className="sell-button" onClick={(e) => { e.stopPropagation(); onSell(item); clearHover(); }}>
-                    <CoinIcon size={9} /> {sellValue(item)}
-                  </button>
+                  <button
+                    className={`fav-btn${item.favorite ? " fav-btn--active" : ""}`}
+                    onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id); }}
+                    aria-label={item.favorite ? "Unmark favorite" : "Mark as favorite"}
+                  >★</button>
+                  {item.favorite ? (
+                    <span className="fav-locked">★ favorite</span>
+                  ) : (
+                    <button className="sell-button" onClick={(e) => { e.stopPropagation(); onSell(item); clearHover(); }}>
+                      <CoinIcon size={9} /> {sellValue(item)}
+                    </button>
+                  )}
                 </div>
               ))}
             </div>

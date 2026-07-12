@@ -82,6 +82,7 @@ export interface Item {
   baseDamage?: [number, number];
   baseDefense?: number;
   twoHanded?: boolean;
+  favorite?: boolean;
   weaponType?: string;
   affixes: ItemAffix[];
   mirrorRing?: boolean;

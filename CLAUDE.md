@@ -332,7 +332,16 @@ The fill stays as a normal-flow block element (not absolute). The bar-num overla
 
 ### Sell Junk
 
-`handleSellJunk` in `App.tsx` filters `inventory` to `rarity === "normal" || rarity === "magic"` and sells them instantly (no confirmation). Wired through `Hub → ShopTab` as `onSellJunk`. The "Sell Junk (N)" button in `ShopTab` only renders when `junkCount > 0`.
+`handleSellJunk` in `App.tsx` filters `inventory` to `rarity === "normal" || rarity === "magic"` and sells them instantly (no confirmation). Wired through `Hub → ShopTab` as `onSellJunk`. The "Sell Junk (N)" button in `ShopTab` only renders when `junkCount > 0`. Favorited items are always skipped.
+
+### Favorite Items
+
+`Item.favorite?: boolean` in `types.ts`. Toggled via `handleToggleFavorite(itemId)` in `App.tsx`, passed as `onToggleFavorite` through `Hub → InventoryTab` and `Hub → ShopTab`.
+
+- `★` button (`.fav-btn`) in the top-left corner of each `.inv-cell` and each `.shop-item-cell`
+- Active color: `#E3A454` (gold), inactive: nearly invisible white
+- `handleSell` returns early if `item.favorite`; `handleSellAll` and `handleSellJunk` filter out favorites
+- Shop panel shows `★ favorite` label (`.fav-locked`) instead of sell button for favorited items
 
 ### Paladin starting equipment
 

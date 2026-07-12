@@ -25,6 +25,7 @@ interface Props {
   shopStock: Item[];
   onAllocate: (stat: keyof BaseStats) => void;
   onMoveItem: (itemId: string, from: EquipmentSlot | "inventory", to: EquipmentSlot | "inventory") => void;
+  onToggleFavorite: (itemId: string) => void;
   onSell: (item: Item) => void;
   onSellAll: () => void;
   onSellJunk: () => void;
@@ -54,6 +55,7 @@ export function Hub({
   shopStock,
   onAllocate,
   onMoveItem,
+  onToggleFavorite,
   onSell,
   onSellAll,
   onSellJunk,
@@ -172,7 +174,7 @@ export function Hub({
         <div className="hub-content">
           {tab === "character" && <CharacterTab character={character} derived={derived} onAllocate={onAllocate} />}
           {tab === "inventory" && (
-            <InventoryTab equipment={equipment} inventory={inventory} classId={character.classId} onMoveItem={onMoveItem} />
+            <InventoryTab equipment={equipment} inventory={inventory} classId={character.classId} onMoveItem={onMoveItem} onToggleFavorite={onToggleFavorite} />
           )}
           {tab === "shop" && (
             <ShopTab
@@ -186,6 +188,7 @@ export function Hub({
               onBuyItem={onBuyItem}
               onRestock={onRestockShop}
               restockFee={restockFee}
+              onToggleFavorite={onToggleFavorite}
               onSell={onSell}
               onSellAll={onSellAll}
               onSellJunk={onSellJunk}

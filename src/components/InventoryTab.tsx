@@ -25,6 +25,7 @@ interface Props {
   inventory: Item[];
   classId: ClassId;
   onMoveItem: (itemId: string, from: Location, to: Location) => void;
+  onToggleFavorite: (itemId: string) => void;
 }
 
 const EQUIP_SLOTS: EquipmentSlot[] = [
@@ -49,7 +50,7 @@ function bestSlot(item: Item, equipment: Partial<Record<EquipmentSlot, Item>>): 
 
 function InvCellDnd({
   item, isDragging, isSelected, onTap, onDoubleTap,
-  onMouseEnter, onMouseLeave, onShowTooltip,
+  onMouseEnter, onMouseLeave, onShowTooltip, onToggleFavorite,
 }: {
   item: Item;
   isDragging: boolean;
@@ -59,6 +60,7 @@ function InvCellDnd({
   onMouseEnter: (e: React.MouseEvent) => void;
   onMouseLeave: () => void;
   onShowTooltip: (el: HTMLElement) => void;
+  onToggleFavorite: () => void;
 }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: item.id,
@@ -76,6 +78,11 @@ function InvCellDnd({
       <div ref={setNodeRef} {...listeners} {...attributes} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", touchAction: "none" }}>
         <ItemIcon item={item} />
       </div>
+      <button
+        className={`fav-btn${item.favorite ? " fav-btn--active" : ""}`}
+        onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+        aria-label={item.favorite ? "Unmark favorite" : "Mark as favorite"}
+      >★</button>
     </div>
   );
 }
@@ -143,7 +150,7 @@ function InventoryDropzoneDnd({ children, isOver }: { children: React.ReactNode;
 
 // ── main component ────────────────────────────────────────────────────────────
 
-export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Props) {
+export function InventoryTab({ equipment, inventory, classId, onMoveItem, onToggleFavorite }: Props) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [selected, setSelected] = useState<{ id: string; from: Location } | null>(null);
@@ -276,6 +283,7 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem }: Prop
                 onMouseEnter={(e) => onMouseEnter(item, e)}
                 onMouseLeave={onMouseLeave}
                 onShowTooltip={(el) => showTooltip(item, el)}
+                onToggleFavorite={() => onToggleFavorite(item.id)}
               />
             ))}
           </div>
