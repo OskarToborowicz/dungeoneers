@@ -25,7 +25,7 @@ Build check: `npx tsc --noEmit`
 | `src/game/data/drops.ts` | `UNIQUE_DROP_TABLE` — declarative unique drop entries, looped in `App.tsx` on boss kill |
 | `src/game/storage.ts` | localStorage read/write (`SaveSlot[]` array — NOT an object) |
 | `src/App.tsx` | Root state, routing between screens |
-| `src/App.css` | All styles |
+| `src/App.css` | All styles — divided into 19 numbered sections with `/* ── N. */` markers |
 | `src/components/useItemHover.ts` | Shared hook for fixed-position item tooltip + compare panel on hover |
 | `src/components/ItemTooltip.tsx` | `UniqueEffectLines` — renders unique effect text per boolean flag; `sortAffixes()` — display order |
 
@@ -232,16 +232,27 @@ All Act 1 and Act 2 monsters have unique sprites. New monsters need entries in a
 - CSS class names use kebab-case matching the component name (e.g. `.combat-screen`, `.flee-modal`)
 - All new overlay/modal elements need `position: relative` on their parent container
 - Dark theme only — all colors are hardcoded dark palette values in App.css
+- `src/index.css` height-lock uses two separate media queries:
+  - `@media (max-width: 768px)` → `#root { overflow: hidden }` — portrait mobile, no scroll
+  - `@media (orientation: landscape) and (max-height: 500px) and (max-width: 960px)` → `#root { overflow-y: auto }` — landscape, allows character select to scroll while hub manages its own overflow internally
 - Mobile responsive breakpoint at `@media (max-width: 768px)` at the bottom of App.css:
   - Hub sidebar collapses to a horizontal top bar (sprite shrinks, tabs go horizontal)
   - `derived-grid` switches from 3-col to 2-col
   - Padding reduced to 12px
-  - `.reset-button` (desktop sidebar) hidden; `.mobile-menu-button` (↩ top-right) shown instead with inline "Exit? Yes/No" confirm
+  - `.reset-button` (desktop sidebar) hidden; `.mobile-menu-button` (top-right) shown instead with inline "Exit? Yes/No" confirm — button uses a custom SVG arrow icon (13×13px, `fillRule="nonzero"`)
   - Combat log uses `flex: 1; min-height: 0; height: auto` so action buttons are never cut off on short screens (iPhone SE 375×667)
+  - Shop potion cards: `grid-template-columns: repeat(2, 1fr)` — both cards in one row
 - Hub landscape breakpoint at `@media (orientation: landscape) and (max-height: 500px) and (max-width: 960px)`:
   - Sidebar moves to left column (130px wide, vertical)
   - Shop: potions + merchant wares in one flex row; only inventory items scroll
-  - Inventory: paperdoll left (44px slots), inventory-right column fills remaining space with fixed label + scrollable grid + fixed instruction
+  - Inventory: paperdoll left (**32px** slots — reduced from default), `doll-shield` label uses `font-size: 0` + `::after { content: "OH" }` to fit "OFF HAND" in tight space; inventory-right column fills remaining space with fixed label + scrollable grid + fixed instruction
+  - Scroll containment: `.hub-content .tab-panel:has(.inventory-wrapper) { overflow: hidden }` — only inventory tab gets `overflow: hidden`; other tabs (Character, Dungeons) use `overflow-y: auto` so they scroll normally
+  - Shop potion cards show compact `.shop-potion-stat` div (`35% HP` / `35% Mana`), hidden by default, shown in landscape
+- Character creation landscape breakpoint at `@media (orientation: landscape) and (max-height: 500px)` (section `18b` in App.css):
+  - Title and subtitle hidden; padding reduced
+  - Class buttons become a horizontal wrapping row
+  - Skills shown as a 3-column grid (`grid-template-columns: repeat(3, 1fr)`) with `-webkit-line-clamp: 3` on descriptions
+  - Footer becomes a single row: Back button | name input (flex: 1) | Begin button
 - Combat landscape breakpoint at `@media (orientation: landscape) and (max-height: 500px)`:
   - 3-column grid: `140px 1fr 100px` (bars | arena | flee)
   - Flee button: `height: 48px; flex: none`, centered in column — not stretched full height
@@ -266,6 +277,14 @@ Instead use `useItemHover` hook (`src/components/useItemHover.ts`):
 defense → damage → magicDamage → strength → dexterity → vitality → energy → (rest)
 ```
 This is render-only — it never mutates the stored `item.affixes` array.
+
+### Shop potion buttons
+
+`.potion-buy-button` is the base class for potion buy buttons. Two modifiers:
+- `.potion-buy-button--health` — red-tinted border/text (`var(--hp-color-bright)`), red glow on hover
+- `.potion-buy-button--mana` — blue-tinted border/text (`#4a7fc1`), blue glow on hover
+
+Button text: `"X/5 · Yg"` when under cap, `"Full (5/5)"` when capped.
 
 ### Drop banner
 
