@@ -28,6 +28,7 @@ Build check: `npx tsc --noEmit`
 | `src/App.css` | All styles — divided into 19 numbered sections with `/* ── N. */` markers |
 | `src/components/useItemHover.ts` | Shared hook for fixed-position item tooltip + compare panel on hover |
 | `src/components/ItemTooltip.tsx` | `UniqueEffectLines` — renders unique effect text per boolean flag; `sortAffixes()` — display order |
+| `src/components/AbilityEffect.tsx` | Per-class combat animations (ability, ability2, attack, detonation); exports `ATTACK_EFFECT_CLASSES` |
 
 ### Component tree
 
@@ -207,6 +208,7 @@ src/components/sprites/
     paladin.tsx
     assassin.tsx
     druid.tsx
+    monk.tsx
   weapons/
     axe.tsx                  parametric Axe component
     staff.tsx                StaffShaft, OrbHead, ScytheBlade, TotemHead
@@ -342,6 +344,27 @@ The fill stays as a normal-flow block element (not absolute). The bar-num overla
 - Active color: `#E3A454` (gold), inactive: nearly invisible white
 - `handleSell` returns early if `item.favorite`; `handleSellAll` and `handleSellJunk` filter out favorites
 - Shop panel shows `★ favorite` label (`.fav-locked`) instead of sell button for favorited items
+
+### Combat animation system
+
+All visual effects during combat live in `AbilityEffect.tsx` (SVG-based, rendered inside `.battle-arena`).
+
+**Props:** `classId`, `onDone`, `detonation?`, `useAbility2?`, `useAttack?`, `travelDist?` (default 136 — SVG units from player cx=32 to monster cx=168)
+
+**Rendering conditions:**
+- `useAttack=true` → basic attack animation (e.g. `SingleArrowFx` for amazon)
+- neither flag → ability 1
+- `useAbility2=true` → ability 2
+- `detonation=true` → detonation effect (assassin trap only)
+
+**Basic attack animation system:** `ATTACK_EFFECT_CLASSES` (exported `Set<ClassId>`) controls which classes show an attack animation. `CombatScreen` imports and checks it — adding a new class requires only editing `AbilityEffect.tsx`:
+1. Add classId to `ATTACK_EFFECT_CLASSES`
+2. Add `{classId === "newclass" && useAttack && <NewClassFx />}` in the render
+3. Write the component + CSS keyframes
+
+**SVG coordinate system:** All animations use a `200×120` viewBox. Player sprite center: `cx=32`. Monster sprite center: `cx=168`. Travel distance = 136 SVG units (168−32). CSS variable `--travel-dist: 136px` is set on the SVG element; keyframes use `var(--travel-dist, 136px)` for translateX.
+
+**`travelDist` is always 136** — DOM measurement was removed because with `xMidYMid meet`, SVG coordinate distance between fixed positions is scale-invariant.
 
 ### Paladin starting equipment
 

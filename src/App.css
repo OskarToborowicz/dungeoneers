@@ -1501,33 +1501,6 @@
   position: relative;
 }
 
-/* ── Projectile effects ───────────────────────────────────────────────────── */
-
-.projectile-layer {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  z-index: 10;
-}
-
-@keyframes proj-fly {
-  from { transform: translateX(0);                          opacity: 1; }
-  to   { transform: translateX(var(--proj-dist, 222px));   opacity: 0; }
-}
-
-.proj-orb--fireball { animation: proj-fly 0.50s ease-in forwards; }
-.proj-orb--holy     { animation: proj-fly 0.44s ease-in forwards; }
-
-@keyframes proj-burst-anim {
-  0%   { transform: translate(-50%, -50%) scale(0.15); opacity: 0; }
-  25%  { opacity: 1; }
-  70%  { transform: translate(-50%, -50%) scale(1.1);  opacity: 1; }
-  100% { transform: translate(-50%, -50%) scale(1.6);  opacity: 0; }
-}
-
-.proj-burst--fireball { animation: proj-burst-anim 0.45s ease-out 0.44s both; }
-.proj-burst--poison   { animation: proj-burst-anim 0.70s ease-out 0s    both; }
-.proj-burst--frost    { animation: proj-burst-anim 0.45s ease-out 0s    both; }
 
 /* ── 12. Ability animations ───────────────────────────────────────────────── */
 
