@@ -3191,7 +3191,7 @@
     align-items: stretch;
     flex: 1;
     min-height: 0;
-    overflow: hidden;
+    overflow: scroll;
   }
 
   .paperdoll {
@@ -3202,7 +3202,9 @@
     padding: 6px;
     margin: 0;
   }
-
+  .tab-panel:has(.dungeons-header) {
+     overflow: scroll;
+ }
   .doll-slot {
     width: 32px;
     height: 32px;
