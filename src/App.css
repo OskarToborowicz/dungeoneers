@@ -3003,7 +3003,9 @@
     grid-template-columns: repeat(3, 44px);
     grid-template-rows: repeat(5, 44px);
   }
-
+  .tab-panel:has(.dungeons-header) {
+     overflow: scroll;
+ }
   .doll-slot {
     width: 44px;
     height: 44px;
