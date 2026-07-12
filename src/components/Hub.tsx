@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { CharacterSprite, CLASS_COLORS } from "./sprites/CharacterSprite";
 import { CoinIcon } from "./CoinIcon";
@@ -72,6 +72,7 @@ export function Hub({
   selectedTab: tab,
   onSelectTab: setTab,
 }: Props) {
+  const [confirmQuit, setConfirmQuit] = useState(false);
 
   const dismissRef = useRef(onDismissDroppedItem);
   dismissRef.current = onDismissDroppedItem;
@@ -113,7 +114,15 @@ export function Hub({
       )}
       <div className="hub-layout">
         <div className="hub-sidebar">
-          <button className="mobile-menu-button" onClick={onQuitToMenu}>↩</button>
+          {confirmQuit ? (
+            <div className="mobile-quit-confirm">
+              <span>Exit?</span>
+              <button className="mobile-quit-yes" onClick={onQuitToMenu}>Yes</button>
+              <button className="mobile-quit-no" onClick={() => setConfirmQuit(false)}>No</button>
+            </div>
+          ) : (
+            <button className="mobile-menu-button" onClick={() => setConfirmQuit(true)}>↩</button>
+          )}
           <div className="hub-sprite-wrap">
             <div className="hub-sprite">
               <CharacterSprite
