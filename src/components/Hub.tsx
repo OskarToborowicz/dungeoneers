@@ -7,13 +7,15 @@ import { CharacterTab } from "./CharacterTab";
 import { InventoryTab } from "./InventoryTab";
 import { DungeonsTab } from "./DungeonsTab";
 import { ShopTab } from "./ShopTab";
+import { GamblerTab } from "./GamblerTab";
 import { ItemIcon } from "./ItemIcon";
 import { CLASSES } from "../game/data/classes";
 import { RARITY_COLORS } from "../game/data/items";
 import type { DerivedStats } from "../game/character";
 import type { BaseStats, Character, ConsumableId, EquipmentSlot, Item } from "../game/types";
+import type { GambleOffer } from "../game/data/gambler";
 
-type TabId = "character" | "inventory" | "dungeons" | "shop";
+type TabId = "character" | "inventory" | "dungeons" | "shop" | "gambler";
 
 interface Props {
   character: Character;
@@ -26,6 +28,7 @@ interface Props {
   onAllocate: (stat: keyof BaseStats) => void;
   onMoveItem: (itemId: string, from: EquipmentSlot | "inventory", to: EquipmentSlot | "inventory") => void;
   onToggleFavorite: (itemId: string) => void;
+  onSortInventory: () => void;
   onSell: (item: Item) => void;
   onSellAll: () => void;
   onSellJunk: () => void;
@@ -35,6 +38,7 @@ interface Props {
   onBuyItem: (item: Item) => void;
   onRestockShop: () => void;
   restockFee: number;
+  onGamble: (offer: GambleOffer) => void;
   showPortalMessage?: boolean;
   onDismissPortal?: () => void;
   droppedItem?: Item | null;
@@ -56,6 +60,7 @@ export function Hub({
   onAllocate,
   onMoveItem,
   onToggleFavorite,
+  onSortInventory,
   onSell,
   onSellAll,
   onSellJunk,
@@ -65,6 +70,7 @@ export function Hub({
   onBuyItem,
   onRestockShop,
   restockFee,
+  onGamble,
   showPortalMessage,
   onDismissPortal,
   droppedItem,
@@ -167,6 +173,9 @@ export function Hub({
             <button className={tab === "dungeons" ? "active" : ""} onClick={() => setTab("dungeons")}>
               Dungeons
             </button>
+            <button className={tab === "gambler" ? "active" : ""} onClick={() => setTab("gambler")}>
+              Gambler
+            </button>
           </nav>
 
           <button className="reset-button" onClick={onQuitToMenu}>
@@ -177,7 +186,7 @@ export function Hub({
         <div className="hub-content">
           {tab === "character" && <CharacterTab character={character} derived={derived} onAllocate={onAllocate} />}
           {tab === "inventory" && (
-            <InventoryTab equipment={equipment} inventory={inventory} classId={character.classId} onMoveItem={onMoveItem} onToggleFavorite={onToggleFavorite} />
+            <InventoryTab equipment={equipment} inventory={inventory} classId={character.classId} onMoveItem={onMoveItem} onToggleFavorite={onToggleFavorite} onSort={onSortInventory} />
           )}
           {tab === "shop" && (
             <ShopTab
@@ -199,6 +208,9 @@ export function Hub({
           )}
           {tab === "dungeons" && (
             <DungeonsTab clearedDungeons={clearedDungeons} onStart={onStartDungeon} selectedAct={selectedAct} onSelectAct={onSelectAct} />
+          )}
+          {tab === "gambler" && (
+            <GamblerTab character={character} equipment={equipment} inventory={inventory} onGamble={onGamble} onToggleFavorite={onToggleFavorite} />
           )}
         </div>
       </div>

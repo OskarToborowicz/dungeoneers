@@ -23,6 +23,8 @@ Build check: `npx tsc --noEmit`
 | `src/game/data/dungeons.ts` | All dungeon + monster definitions, `getXpCapLevel()` |
 | `src/game/data/items.ts` | Item generation — random items + all `generate*` unique functions |
 | `src/game/data/drops.ts` | `UNIQUE_DROP_TABLE` — declarative unique drop entries, looped in `App.tsx` on boss kill |
+| `src/game/data/gambler.ts` | `rollGambleItem()`, `UNIQUE_POOL`, `CLASS_WEAPON_POOL`, `gamblePrice()` — Gheedon gambling logic |
+| `src/components/GamblerTab.tsx` | Gambler UI — 8/9 slot offer cards + inline inventory |
 | `src/game/storage.ts` | localStorage read/write (`SaveSlot[]` array — NOT an object) |
 | `src/App.tsx` | Root state, routing between screens |
 | `src/App.css` | All styles — divided into 19 numbered sections with `/* ── N. */` markers |
@@ -40,7 +42,8 @@ App
 │   ├── CharacterTab
 │   ├── InventoryTab
 │   ├── ShopTab
-│   └── DungeonsTab
+│   ├── DungeonsTab
+│   └── GamblerTab
 ├── CombatScreen
 └── GameOverScreen
 ```
@@ -331,6 +334,24 @@ Key rules:
 }
 ```
 The fill stays as a normal-flow block element (not absolute). The bar-num overlays absolutely on top. **Do NOT use `display: flex` on the bar container + `position: absolute` on the fill** — this breaks on iOS Safari with `overflow: hidden`.
+
+### Gheedon the Gambler
+
+`GamblerTab` (tab `"gambler"` in Hub) — mystery item purchases. Slots: 8 base + shield for Paladin. Price: flat 2500g.
+
+`src/game/data/gambler.ts`:
+- `rollGambleItem(slot, level, classId, clearedDungeons)` — 2% unique / 35% rare / 63% magic
+- `UNIQUE_POOL` — per-slot uniques with `minLevel?` / `clearedAny?` gates matching UNIQUE_DROP_TABLE progression
+- `CLASS_WEAPON_POOL` — per-classId weapon uniques; druid/monk absent → fall back to rare
+- `generateItemForSlot()` in `items.ts` — creates magic/rare items for a specific slot/class combo
+
+Gamble result shows via existing drop banner (`setDroppedItem`).
+
+### Inventory: item order and sort
+
+New items (drops, gamble, shop buy) are **prepended** — `[item, ...prev]` — so newest always appears first.
+
+Sort button (`.sort-btn`) in `.inventory-label-row` next to "Inventory (N)" label. Calls `onSort` → `handleSortInventory` in `App.tsx` → `sortInventory()` (exported from `InventoryTab.tsx`). Sort order: rarity → ilvl descending → slot. One-time mutation of inventory state; subsequent drops continue prepending.
 
 ### Sell Junk
 

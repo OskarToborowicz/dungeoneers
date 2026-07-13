@@ -333,6 +333,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       manaCost: 18,
       cooldown: 1,
       kind: "multi",
+      canMiss: false,
       power: 0.45,
       magic: false,
       hits: 3,

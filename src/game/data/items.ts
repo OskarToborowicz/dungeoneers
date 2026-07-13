@@ -826,6 +826,61 @@ export function generateDeathwhisper(): Item {
   };
 }
 
+export function generateItemForSlot(
+  slot: EquipmentSlot,
+  itemLevel: number,
+  classId: ClassId,
+  rarity: "magic" | "rare",
+  affixCount: number,
+): Item {
+  let base: ItemBase;
+
+  if (slot === "weapon") {
+    const matches = WEAPON_BASES.filter((w) => w.allowedClasses?.includes(classId));
+    base = matches[Math.floor(Math.random() * matches.length)] ?? WEAPON_BASES[0];
+  } else if (slot === "amulet") {
+    base = JEWELRY_BASES.find((b) => b.slot === "amulet")!;
+  } else if (slot === "ring1") {
+    base = JEWELRY_BASES.find((b) => b.slot === "ring1")!;
+  } else {
+    base = ARMOR_BASES.find((a) => a.slot === slot) ?? ARMOR_BASES[0];
+  }
+
+  const rarityEntry = RARITY_ROLLS.find((r) => r.rarity === rarity) ?? RARITY_ROLLS[1];
+
+  itemCounter += 1;
+  const id = `item-${Date.now()}-${itemCounter}`;
+  const affixes = rollAffixes(affixCount, itemLevel, slot);
+
+  const item: Item = {
+    id,
+    name: base.name,
+    slot,
+    rarity,
+    itemLevel,
+    affixes,
+  };
+
+  if (base.baseDamage) {
+    item.baseDamage = [
+      Math.round(base.baseDamage[0] * rarityEntry.multiplier + itemLevel * 0.25),
+      Math.round(base.baseDamage[1] * rarityEntry.multiplier + itemLevel * 0.35),
+    ];
+    item.twoHanded = base.twoHanded ?? false;
+  }
+  if (base.baseDefense) {
+    item.baseDefense = Math.round(base.baseDefense * rarityEntry.multiplier + itemLevel * 0.25);
+  }
+
+  if (affixes.length > 0) {
+    const prefix = affixes[0].label.replace("of ", "");
+    const suffix = affixes.length > 1 ? " " + affixes[affixes.length - 1].label : "";
+    item.name = `${prefix} ${base.name}${suffix}`.trim();
+  }
+
+  return item;
+}
+
 export function generateShopStock(characterLevel: number, classId?: ClassId, count = 4): Item[] {
   const maxRarity = shopMaxRarity(characterLevel);
   const items: Item[] = [];

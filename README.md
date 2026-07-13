@@ -867,6 +867,26 @@ Unique items have fixed stats and are not generated through the normal rarity ro
 | Shadowfang | Weapon (Assassin) | Andariel + Act 2 early bosses, Assassin only | 0.2% | Base 9–15 dmg; +30–45 Dexterity, +20–30 Damage, −15 Vitality; **20% chance after each hit to call a phantom strike at 50% damage** |
 | Deathwhisper | Weapon (Assassin) | Act 2 late bosses, Assassin only | 0.2% | Base 15–23 dmg; +55–75 Dexterity, +35–50 Damage, +6% Crit Chance; **all damage +30% while the enemy is blinded or disoriented** |
 
+### Gheedon the Gambler
+
+The **Gambler** tab in the Hub lets players purchase mystery items from Gheedon for a flat **2500 gold** each. All eight equipment slots are available (nine for the Paladin, who also sees a Shield offer).
+
+**Rarity distribution per purchase:**
+
+| Rarity | Chance |
+|---|---|
+| Unique | 2% |
+| Rare | 35% |
+| Magic | 63% |
+
+Unique items from gambling follow the same progression gates as dungeon drops — higher-tier uniques only become available after clearing the relevant dungeons and/or reaching the required character level. Class-restricted weapon uniques (e.g., Blooddrinker for Barbarian) can only roll for the matching class; Druid and Monk have no weapon uniques in the pool and always receive a Rare weapon instead.
+
+The result appears in inventory immediately and is announced via the existing drop banner. Favorited items cannot be sold.
+
+### Inventory Sort
+
+The **Sort** button (next to the "Inventory" label) sorts all items in place by: **rarity** (Unique first) → **item level** (descending) → **slot**. The sort is a one-time action — subsequent drops and gamble results continue to appear at the top of the list regardless.
+
 ### Permadeath
 
 If the player dies during a dungeon run, the character is **permanently deleted**. A death summary screen shows final stats before returning to character selection. Use the Flee action to escape a fight before dying (consumes the one-time Escape Token).

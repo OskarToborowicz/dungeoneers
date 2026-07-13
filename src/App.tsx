@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import { CharacterCreation } from "./components/CharacterCreation";
 import { CharacterSelect } from "./components/CharacterSelect";
 import { Hub } from "./components/Hub";
+import { sortInventory } from "./components/InventoryTab";
 import { CombatScreen } from "./components/CombatScreen";
 import { GameOverScreen } from "./components/GameOverScreen";
 import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
 import { EMPTY_CONSUMABLES, getPotionCost } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
 import { buyValue, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
+import { rollGambleItem, type GambleOffer } from "./game/data/gambler";
 import { UNIQUE_DROP_TABLE } from "./game/data/drops";
 import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
@@ -53,7 +55,7 @@ function App() {
   const [shopStock, setShopStock] = useState<Item[]>([]);
   const [dungeonRun, setDungeonRun] = useState<DungeonRunState | null>(null);
   const [selectedAct, setSelectedAct] = useState<1 | 2>(1);
-  const [hubTab, setHubTab] = useState<"character" | "inventory" | "dungeons" | "shop">("character");
+  const [hubTab, setHubTab] = useState<"character" | "inventory" | "dungeons" | "shop" | "gambler">("character");
   const [deathSummary, setDeathSummary] = useState<DeathSummary | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [showPortalMessage, setShowPortalMessage] = useState(false);
@@ -307,6 +309,18 @@ function App() {
     setShopStock(shopStock.filter((i) => i.id !== item.id));
   }
 
+  function handleSortInventory() {
+    setInventory((prev) => sortInventory(prev));
+  }
+
+  function handleGamble(offer: GambleOffer) {
+    if (!character || character.gold < offer.price) return;
+    const item = rollGambleItem(offer.slot, character.level, character.classId, clearedDungeons);
+    setCharacter((prev) => (prev ? { ...prev, gold: prev.gold - offer.price } : prev));
+    setInventory((prev) => [item, ...prev]);
+    setDroppedItem(item);
+  }
+
   function handleRestockShop() {
     if (!character) return;
     const fee = restockFee(character.level);
@@ -405,14 +419,14 @@ function App() {
         if (entry.classId && entry.classId !== character.classId) continue;
         if (Math.random() >= entry.chance) continue;
         const item = entry.generator();
-        setInventory((prev) => [...prev, item]);
+        setInventory((prev) => [item, ...prev]);
         setDroppedItem((prev) => prev === null || rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity) ? item : prev);
       }
     }
     const dropChance = isBoss ? 1 : 0.35;
     if (Math.random() < dropChance) {
       const item = generateRandomItem(monster.level, character.classId);
-      setInventory((prev) => [...prev, item]);
+      setInventory((prev) => [item, ...prev]);
       setDroppedItem((prev) =>
         prev === null || rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity) ? item : prev
       );
@@ -485,6 +499,7 @@ function App() {
         onAllocate={handleAllocate}
         onMoveItem={handleMoveItem}
         onToggleFavorite={handleToggleFavorite}
+        onSortInventory={handleSortInventory}
         onSell={handleSell}
         onSellAll={handleSellAll}
         onSellJunk={handleSellJunk}
@@ -494,6 +509,7 @@ function App() {
         onBuyItem={handleBuyItem}
         onRestockShop={handleRestockShop}
         restockFee={restockFee(character.level)}
+        onGamble={handleGamble}
         showPortalMessage={showPortalMessage}
         onDismissPortal={() => setShowPortalMessage(false)}
         droppedItem={droppedItem}

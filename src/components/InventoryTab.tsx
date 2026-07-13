@@ -26,6 +26,7 @@ interface Props {
   classId: ClassId;
   onMoveItem: (itemId: string, from: Location, to: Location) => void;
   onToggleFavorite: (itemId: string) => void;
+  onSort: () => void;
 }
 
 const EQUIP_SLOTS: EquipmentSlot[] = [
@@ -150,7 +151,20 @@ function InventoryDropzoneDnd({ children, isOver }: { children: React.ReactNode;
 
 // ── main component ────────────────────────────────────────────────────────────
 
-export function InventoryTab({ equipment, inventory, classId, onMoveItem, onToggleFavorite }: Props) {
+const RARITY_RANK: Record<string, number> = { unique: 0, "very rare": 1, rare: 2, magic: 3, normal: 4 };
+const SLOT_RANK: Record<string, number> = { weapon: 0, helm: 1, armor: 2, belt: 3, gloves: 4, boots: 5, amulet: 6, ring1: 7, ring2: 8, shield: 9 };
+
+export function sortInventory(items: Item[]): Item[] {
+  return [...items].sort((a, b) => {
+    const rd = RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity];
+    if (rd !== 0) return rd;
+    const ld = (b.level ?? 0) - (a.level ?? 0);
+    if (ld !== 0) return ld;
+    return (SLOT_RANK[a.slot] ?? 99) - (SLOT_RANK[b.slot] ?? 99);
+  });
+}
+
+export function InventoryTab({ equipment, inventory, classId, onMoveItem, onToggleFavorite, onSort }: Props) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [selected, setSelected] = useState<{ id: string; from: Location } | null>(null);
@@ -268,7 +282,10 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem, onTogg
           })}
         </div>
         <div className="inventory-right">
-        <h3 className="inventory-label">Inventory ({inventory.length})</h3>
+        <div className="inventory-label-row">
+          <h3 className="inventory-label">Inventory ({inventory.length})</h3>
+          <button className="sort-btn" onClick={onSort}>Sort</button>
+        </div>
         {inventory.length === 0 && <p className="empty-note">No items yet. Clear dungeons to find loot.</p>}
         <InventoryDropzoneDnd isOver={dragOverId === "inventory"}>
           <div className="inventory-grid">
