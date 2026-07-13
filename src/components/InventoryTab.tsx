@@ -158,7 +158,7 @@ export function sortInventory(items: Item[]): Item[] {
   return [...items].sort((a, b) => {
     const rd = RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity];
     if (rd !== 0) return rd;
-    const ld = (b.level ?? 0) - (a.level ?? 0);
+    const ld = b.itemLevel - a.itemLevel;
     if (ld !== 0) return ld;
     return (SLOT_RANK[a.slot] ?? 99) - (SLOT_RANK[b.slot] ?? 99);
   });
