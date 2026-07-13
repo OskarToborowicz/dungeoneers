@@ -13,7 +13,7 @@ const CLASS_NAMES: Record<ClassId, string> = {
   paladin: "Paladin",
   druid: "Druid",
   assassin: "Assasin",
-  monk: "Monk"
+  monk: "Monk",
 };
 
 interface Props {
@@ -43,7 +43,9 @@ export function CharacterSelect({ slots, onSelect, onDelete, onNew }: Props) {
 
       <div className="select-panel">
         {slots.length === 0 && (
-          <p className="empty-note select-empty">No heroes yet. Create your first hero to begin.</p>
+          <p className="empty-note select-empty">
+            No heroes yet. Create your first hero to begin.
+          </p>
         )}
         {slots.map((slot) => {
           const { character, equipment } = slot.save;
@@ -60,14 +62,18 @@ export function CharacterSelect({ slots, onSelect, onDelete, onNew }: Props) {
                   classId={character.classId}
                   size={32}
                   state="idle"
-                  isUnique={equipment.weapon?.rarity === "very rare" || equipment.weapon?.rarity === "unique"}
+                  isUnique={
+                    equipment.weapon?.rarity === "very rare" ||
+                    equipment.weapon?.rarity === "unique"
+                  }
                 />
               </div>
               <div className="hero-card-info">
                 <div className="hero-card-name">{character.name}</div>
                 <div className="hero-card-meta">
                   <ClassIcon classId={character.classId} size={13} />
-                  {CLASS_NAMES[character.classId]} &middot; Level {character.level}
+                  {CLASS_NAMES[character.classId]} &middot; Level{" "}
+                  {character.level}
                 </div>
               </div>
               <div className="hero-card-actions">

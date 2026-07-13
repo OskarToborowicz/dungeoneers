@@ -20,11 +20,15 @@ function readSlots(): SaveSlot[] {
   if (legacy) {
     try {
       const legacySave = JSON.parse(legacy) as SaveGame;
-      const slots: SaveSlot[] = [{ id: generateId(), lastPlayedAt: Date.now(), save: legacySave }];
+      const slots: SaveSlot[] = [
+        { id: generateId(), lastPlayedAt: Date.now(), save: legacySave },
+      ];
       localStorage.setItem(SAVES_KEY, JSON.stringify(slots));
       localStorage.removeItem(LEGACY_KEY);
       return slots;
-    } catch { /* ignore corrupt legacy */ }
+    } catch {
+      /* ignore corrupt legacy */
+    }
   }
 
   const raw = localStorage.getItem(SAVES_KEY);

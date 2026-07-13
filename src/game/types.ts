@@ -23,7 +23,21 @@ export interface ClassPassive {
   short?: string;
 }
 
-export type AbilityKind = "burst" | "dot" | "multi" | "heal" | "bite" | "trap" | "buff" | "obliterate" | "freeze" | "regen" | "blind_powder" | "frost_shield" | "golem" | "serenity";
+export type AbilityKind =
+  | "burst"
+  | "dot"
+  | "multi"
+  | "heal"
+  | "bite"
+  | "trap"
+  | "buff"
+  | "obliterate"
+  | "freeze"
+  | "regen"
+  | "blind_powder"
+  | "frost_shield"
+  | "golem"
+  | "serenity";
 
 export interface AbilityDefinition {
   name: string;
@@ -69,7 +83,19 @@ export type ItemRarity = "normal" | "magic" | "rare" | "very rare" | "unique";
 
 export interface ItemAffix {
   label: string;
-  stat: keyof BaseStats | "damage" | "defense" | "life" | "mana" | "magicDamage" | "goldFind" | "lifeLeech" | "manaRegen" | "magicDmgReduction" | "physDmgReduction" | "critChance";
+  stat:
+    | keyof BaseStats
+    | "damage"
+    | "defense"
+    | "life"
+    | "mana"
+    | "magicDamage"
+    | "goldFind"
+    | "lifeLeech"
+    | "manaRegen"
+    | "magicDmgReduction"
+    | "physDmgReduction"
+    | "critChance";
   value: number;
 }
 

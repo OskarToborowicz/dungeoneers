@@ -1,9 +1,16 @@
 import { useState } from "react";
 import {
-  DndContext, DragOverlay,
-  PointerSensor, TouchSensor, useSensor, useSensors,
-  useDraggable, useDroppable,
-  type DragStartEvent, type DragEndEvent, type DragOverEvent,
+  DndContext,
+  DragOverlay,
+  PointerSensor,
+  TouchSensor,
+  useSensor,
+  useSensors,
+  useDraggable,
+  useDroppable,
+  type DragStartEvent,
+  type DragEndEvent,
+  type DragOverEvent,
 } from "@dnd-kit/core";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
 import { ItemIcon, SlotIcon } from "./ItemIcon";
@@ -14,7 +21,6 @@ import { useItemHover } from "./useItemHover";
 import type { ClassId, EquipmentSlot, Item } from "../game/types";
 
 type Location = EquipmentSlot | "inventory";
-
 
 interface DragData {
   itemId: string;
@@ -31,15 +37,22 @@ interface Props {
 }
 
 const EQUIP_SLOTS: EquipmentSlot[] = [
-  "helm", "amulet", "weapon", "armor", "shield",
-  "gloves", "belt", "boots", "ring1", "ring2",
+  "helm",
+  "amulet",
+  "weapon",
+  "armor",
+  "shield",
+  "gloves",
+  "belt",
+  "boots",
+  "ring1",
+  "ring2",
 ];
 
-// const SLOT_LABELS: Partial<Record<EquipmentSlot, string>> = {
-//   shield: "off hand",
-// };
-
-function bestSlot(item: Item, equipment: Partial<Record<EquipmentSlot, Item>>): EquipmentSlot {
+function bestSlot(
+  item: Item,
+  equipment: Partial<Record<EquipmentSlot, Item>>,
+): EquipmentSlot {
   if (item.slot === "ring1" || item.slot === "ring2") {
     if (!equipment.ring1) return "ring1";
     if (!equipment.ring2) return "ring2";
@@ -51,8 +64,15 @@ function bestSlot(item: Item, equipment: Partial<Record<EquipmentSlot, Item>>): 
 // ── sub-components (must live inside DndContext) ──────────────────────────────
 
 function InvCellDnd({
-  item, isDragging, isSelected, onTap, onDoubleTap,
-  onMouseEnter, onMouseLeave, onShowTooltip, onToggleFavorite,
+  item,
+  isDragging,
+  isSelected,
+  onTap,
+  onDoubleTap,
+  onMouseEnter,
+  onMouseLeave,
+  onShowTooltip,
+  onToggleFavorite,
 }: {
   item: Item;
   isDragging: boolean;
@@ -72,26 +92,52 @@ function InvCellDnd({
     <div
       className={`inv-cell${isDragging ? " dragging" : ""}${isSelected ? " tap-selected" : ""}`}
       style={{ color: RARITY_COLORS[item.rarity] }}
-      onClick={(e) => { e.stopPropagation(); onTap(); onShowTooltip(e.currentTarget as HTMLElement); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onTap();
+        onShowTooltip(e.currentTarget as HTMLElement);
+      }}
       onDoubleClick={onDoubleTap}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
     >
-      <div ref={setNodeRef} {...listeners} {...attributes} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", touchAction: "none" }}>
+      <div
+        ref={setNodeRef}
+        {...listeners}
+        {...attributes}
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          touchAction: "none",
+        }}
+      >
         <ItemIcon item={item} />
       </div>
       <button
         className={`fav-btn${item.favorite ? " fav-btn--active" : ""}`}
-        onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+        onClick={(e) => {
+          e.stopPropagation();
+          onToggleFavorite();
+        }}
         onTouchStart={(e) => e.stopPropagation()}
         aria-label={item.favorite ? "Unmark favorite" : "Mark as favorite"}
-      >★</button>
+      >
+        ★
+      </button>
     </div>
   );
 }
 
 function SlotItemDnd({
-  item, slot, isDragging, isSelected, onTap, onDoubleClick,
+  item,
+  slot,
+  isDragging,
+  isSelected,
+  onTap,
+  onDoubleClick,
 }: {
   item: Item;
   slot: EquipmentSlot;
@@ -108,10 +154,25 @@ function SlotItemDnd({
     <div
       className={`slot-item${isDragging ? " dragging" : ""}${isSelected ? " tap-selected" : ""}`}
       style={{ color: RARITY_COLORS[item.rarity] }}
-      onClick={(e) => { e.stopPropagation(); onTap(); }}
+      onClick={(e) => {
+        e.stopPropagation();
+        onTap();
+      }}
       onDoubleClick={onDoubleClick}
     >
-      <div ref={setNodeRef} {...listeners} {...attributes} style={{ position: "absolute", inset: 0, display: "flex", alignItems: "center", justifyContent: "center", touchAction: "none" }}>
+      <div
+        ref={setNodeRef}
+        {...listeners}
+        {...attributes}
+        style={{
+          position: "absolute",
+          inset: 0,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          touchAction: "none",
+        }}
+      >
         <ItemIcon item={item} />
       </div>
       <ItemTooltip item={item} />
@@ -120,7 +181,13 @@ function SlotItemDnd({
 }
 
 function DollSlotDnd({
-  slot, isOver, isValid, isTapTarget, extraClass, children, onSlotClick,
+  slot,
+  isOver,
+  isValid,
+  isTapTarget,
+  extraClass,
+  children,
+  onSlotClick,
 }: {
   slot: EquipmentSlot;
   isOver: boolean;
@@ -131,7 +198,11 @@ function DollSlotDnd({
   onSlotClick: (e: React.MouseEvent) => void;
 }) {
   const { setNodeRef } = useDroppable({ id: slot });
-  const overClass = isOver ? (isValid ? " drag-over" : " drag-over-invalid") : "";
+  const overClass = isOver
+    ? isValid
+      ? " drag-over"
+      : " drag-over-invalid"
+    : "";
   return (
     <div
       ref={setNodeRef}
@@ -143,10 +214,19 @@ function DollSlotDnd({
   );
 }
 
-function InventoryDropzoneDnd({ children, isOver }: { children: React.ReactNode; isOver: boolean }) {
+function InventoryDropzoneDnd({
+  children,
+  isOver,
+}: {
+  children: React.ReactNode;
+  isOver: boolean;
+}) {
   const { setNodeRef } = useDroppable({ id: "inventory" });
   return (
-    <div ref={setNodeRef} className={`inventory-dropzone${isOver ? " drag-over" : ""}`}>
+    <div
+      ref={setNodeRef}
+      className={`inventory-dropzone${isOver ? " drag-over" : ""}`}
+    >
       {children}
     </div>
   );
@@ -154,8 +234,25 @@ function InventoryDropzoneDnd({ children, isOver }: { children: React.ReactNode;
 
 // ── main component ────────────────────────────────────────────────────────────
 
-const RARITY_RANK: Record<string, number> = { unique: 0, "very rare": 1, rare: 2, magic: 3, normal: 4 };
-const SLOT_RANK: Record<string, number> = { weapon: 0, helm: 1, armor: 2, belt: 3, gloves: 4, boots: 5, amulet: 6, ring1: 7, ring2: 8, shield: 9 };
+const RARITY_RANK: Record<string, number> = {
+  unique: 0,
+  "very rare": 1,
+  rare: 2,
+  magic: 3,
+  normal: 4,
+};
+const SLOT_RANK: Record<string, number> = {
+  weapon: 0,
+  helm: 1,
+  armor: 2,
+  belt: 3,
+  gloves: 4,
+  boots: 5,
+  amulet: 6,
+  ring1: 7,
+  ring2: 8,
+  shield: 9,
+};
 
 export function sortInventory(items: Item[]): Item[] {
   return [...items].sort((a, b) => {
@@ -169,22 +266,48 @@ export function sortInventory(items: Item[]): Item[] {
   });
 }
 
-export function InventoryTab({ equipment, inventory, classId, onMoveItem, onToggleFavorite, onSort }: Props) {
+export function InventoryTab({
+  equipment,
+  inventory,
+  classId,
+  onMoveItem,
+  onToggleFavorite,
+  onSort,
+}: Props) {
   const [draggingId, setDraggingId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
-  const [selected, setSelected] = useState<{ id: string; from: Location } | null>(null);
-  const { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, clearHover, showTooltip, tooltipRef, compareRef } = useItemHover();
+  const [selected, setSelected] = useState<{
+    id: string;
+    from: Location;
+  } | null>(null);
+  const {
+    hovered,
+    onMouseEnter,
+    onMouseLeave,
+    tooltipStyle,
+    compareStyle,
+    clearHover,
+    showTooltip,
+    tooltipRef,
+    compareRef,
+  } = useItemHover();
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+    useSensor(TouchSensor, {
+      activationConstraint: { delay: 250, tolerance: 5 },
+    }),
   );
 
   const hasSelected = selected !== null;
-  const isSelected = (id: string, from: Location) => selected?.id === id && selected.from === from;
+  const isSelected = (id: string, from: Location) =>
+    selected?.id === id && selected.from === from;
 
   function findItem(id: string): Item | undefined {
-    return inventory.find(i => i.id === id) ?? Object.values(equipment).find(i => i?.id === id);
+    return (
+      inventory.find((i) => i.id === id) ??
+      Object.values(equipment).find((i) => i?.id === id)
+    );
   }
 
   function isValidTarget(slot: string): boolean {
@@ -192,15 +315,24 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem, onTogg
     if (!activeId) return false;
     const item = findItem(activeId);
     if (!item) return false;
-    if (item.slot === "ring1" || item.slot === "ring2") return slot === "ring1" || slot === "ring2";
-    if (slot === "shield" && item.slot === "weapon" && !item.twoHanded && !equipment.weapon?.twoHanded) {
+    if (item.slot === "ring1" || item.slot === "ring2")
+      return slot === "ring1" || slot === "ring2";
+    if (
+      slot === "shield" &&
+      item.slot === "weapon" &&
+      !item.twoHanded &&
+      !equipment.weapon?.twoHanded
+    ) {
       return classId === "barbarian" || classId === "assassin";
     }
     return slot === item.slot;
   }
 
   function tapItem(item: Item, from: Location) {
-    if (selected?.id === item.id && selected.from === from) { setSelected(null); return; }
+    if (selected?.id === item.id && selected.from === from) {
+      setSelected(null);
+      return;
+    }
     if (!selected && from !== "inventory") return;
     if (selected) {
       if (selected.from === "inventory" && from !== "inventory") {
@@ -247,103 +379,143 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem, onTogg
   const activeItem = draggingId ? findItem(draggingId) : null;
 
   return (
-    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragOver={handleDragOver} onDragEnd={handleDragEnd}>
+    <DndContext
+      sensors={sensors}
+      onDragStart={handleDragStart}
+      onDragOver={handleDragOver}
+      onDragEnd={handleDragEnd}
+    >
       <div
         className={`tab-panel${draggingId ? " is-dragging" : ""}${hasSelected ? " is-selecting" : ""}`}
-        onClick={() => { if (hasSelected) setSelected(null); }}
+        onClick={() => {
+          if (hasSelected) setSelected(null);
+        }}
       >
         <div className="inventory-wrapper">
-        <div className="paperdoll">
-          {EQUIP_SLOTS.map((slot) => {
-            const item = equipment[slot];
-            const is2hMirror = slot === "shield" && (equipment.weapon?.twoHanded ?? false);
-            const isOver = !is2hMirror && dragOverId === slot;
-            const valid = isValidTarget(slot);
-            return (
-              <DollSlotDnd
-                key={slot}
-                slot={slot}
-                isOver={isOver}
-                isValid={valid}
-                isTapTarget={!is2hMirror && valid && hasSelected}
-                extraClass={is2hMirror ? " doll-slot--2h" : ""}
-                onSlotClick={(e) => {
-                  e.stopPropagation();
-                  if (is2hMirror) return;
-                  if (hasSelected) { if (valid) tapSlot(slot); else setSelected(null); }
-                }}
-              >
-                {is2hMirror ? (
-                  <div className="doll-slot-2h">
-                    <ItemIcon item={equipment.weapon!} />
-                  </div>
-                ) : item ? (
-                  <SlotItemDnd
+          <div className="paperdoll">
+            {EQUIP_SLOTS.map((slot) => {
+              const item = equipment[slot];
+              const is2hMirror =
+                slot === "shield" && (equipment.weapon?.twoHanded ?? false);
+              const isOver = !is2hMirror && dragOverId === slot;
+              const valid = isValidTarget(slot);
+              return (
+                <DollSlotDnd
+                  key={slot}
+                  slot={slot}
+                  isOver={isOver}
+                  isValid={valid}
+                  isTapTarget={!is2hMirror && valid && hasSelected}
+                  extraClass={is2hMirror ? " doll-slot--2h" : ""}
+                  onSlotClick={(e) => {
+                    e.stopPropagation();
+                    if (is2hMirror) return;
+                    if (hasSelected) {
+                      if (valid) tapSlot(slot);
+                      else setSelected(null);
+                    }
+                  }}
+                >
+                  {is2hMirror ? (
+                    <div className="doll-slot-2h">
+                      <ItemIcon item={equipment.weapon!} />
+                    </div>
+                  ) : item ? (
+                    <SlotItemDnd
+                      item={item}
+                      slot={slot}
+                      isDragging={draggingId === item.id}
+                      isSelected={isSelected(item.id, slot)}
+                      onTap={() => {
+                        if (hasSelected) {
+                          if (valid) tapSlot(slot);
+                          else setSelected(null);
+                        } else tapItem(item, slot);
+                      }}
+                      onDoubleClick={() =>
+                        onMoveItem(item.id, slot, "inventory")
+                      }
+                    />
+                  ) : (
+                    <div className="doll-slot-empty">
+                      <SlotIcon slot={slot} />
+                    </div>
+                  )}
+                </DollSlotDnd>
+              );
+            })}
+          </div>
+          <div className="inventory-right">
+            <div className="inventory-label-row">
+              <h3 className="inventory-label">
+                Inventory ({inventory.length})
+              </h3>
+              <button className="sort-btn" onClick={onSort}>
+                Sort
+              </button>
+            </div>
+            {inventory.length === 0 && (
+              <p className="empty-note">
+                No items yet. Clear dungeons to find loot.
+              </p>
+            )}
+            <InventoryDropzoneDnd isOver={dragOverId === "inventory"}>
+              <div className="inventory-grid">
+                {inventory.map((item) => (
+                  <InvCellDnd
+                    key={item.id}
                     item={item}
-                    slot={slot}
                     isDragging={draggingId === item.id}
-                    isSelected={isSelected(item.id, slot)}
-                    onTap={() => { if (hasSelected) { if (valid) tapSlot(slot); else setSelected(null); } else tapItem(item, slot); }}
-                    onDoubleClick={() => onMoveItem(item.id, slot, "inventory")}
+                    isSelected={isSelected(item.id, "inventory")}
+                    onTap={() => tapItem(item, "inventory")}
+                    onDoubleTap={() =>
+                      onMoveItem(
+                        item.id,
+                        "inventory",
+                        bestSlot(item, equipment),
+                      )
+                    }
+                    onMouseEnter={(e) => onMouseEnter(item, e)}
+                    onMouseLeave={onMouseLeave}
+                    onShowTooltip={(el) => showTooltip(item, el)}
+                    onToggleFavorite={() => onToggleFavorite(item.id)}
                   />
-                ) : (
-                  <div className="doll-slot-empty">
-                    <SlotIcon slot={slot} />
-                  </div>
-                )}
-              </DollSlotDnd>
-            );
-          })}
-        </div>
-        <div className="inventory-right">
-        <div className="inventory-label-row">
-          <h3 className="inventory-label">Inventory ({inventory.length})</h3>
-          <button className="sort-btn" onClick={onSort}>Sort</button>
-        </div>
-        {inventory.length === 0 && <p className="empty-note">No items yet. Clear dungeons to find loot.</p>}
-        <InventoryDropzoneDnd isOver={dragOverId === "inventory"}>
-          <div className="inventory-grid">
-            {inventory.map((item) => (
-              <InvCellDnd
-                key={item.id}
-                item={item}
-                isDragging={draggingId === item.id}
-                isSelected={isSelected(item.id, "inventory")}
-                onTap={() => tapItem(item, "inventory")}
-                onDoubleTap={() => onMoveItem(item.id, "inventory", bestSlot(item, equipment))}
-                onMouseEnter={(e) => onMouseEnter(item, e)}
-                onMouseLeave={onMouseLeave}
-                onShowTooltip={(el) => showTooltip(item, el)}
-                onToggleFavorite={() => onToggleFavorite(item.id)}
-              />
-            ))}
+                ))}
+              </div>
+            </InventoryDropzoneDnd>
+
+            <p className="empty-note">
+              {hasSelected
+                ? "Tap a slot to equip — tap item again to deselect."
+                : "Tap to select · tap slot to equip · double-tap to equip/unequip."}
+            </p>
           </div>
-        </InventoryDropzoneDnd>
 
-        <p className="empty-note">
-          {hasSelected ? "Tap a slot to equip — tap item again to deselect." : "Tap to select · tap slot to equip · double-tap to equip/unequip."}
-        </p>
+          {hovered && !draggingId && (
+            <>
+              <div ref={tooltipRef} style={tooltipStyle()!}>
+                <ItemTooltip item={hovered.item} />
+              </div>
+              <div ref={compareRef} style={compareStyle()!}>
+                <CompareGroup
+                  slot={hovered.item.slot}
+                  equipment={equipment}
+                  hoveredItem={hovered.item}
+                />
+              </div>
+            </>
+          )}
         </div>
 
-        {hovered && !draggingId && (
-          <>
-            <div ref={tooltipRef} style={tooltipStyle()!}>
-              <ItemTooltip item={hovered.item} />
+        <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
+          {activeItem && (
+            <div
+              style={{ color: RARITY_COLORS[activeItem.rarity], opacity: 0.85 }}
+            >
+              <ItemIcon item={activeItem} />
             </div>
-            <div ref={compareRef} style={compareStyle()!}>
-              <CompareGroup slot={hovered.item.slot} equipment={equipment} hoveredItem={hovered.item} />
-            </div>
-          </>
-        )}
-      </div>
-
-      <DragOverlay dropAnimation={null} modifiers={[snapCenterToCursor]}>
-        {activeItem && (
-          <div style={{ color: RARITY_COLORS[activeItem.rarity], opacity: 0.85 }}>
-            <ItemIcon item={activeItem} />
-          </div>
-        )}
-      </DragOverlay>
+          )}
+        </DragOverlay>
       </div>
     </DndContext>
   );

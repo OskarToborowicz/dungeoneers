@@ -11,7 +11,10 @@ export function xpToNextLevel(level: number): number {
   return Math.round(40 * Math.pow(level, 1.55));
 }
 
-export function createCharacter(name: string, classId: Character["classId"]): Character {
+export function createCharacter(
+  name: string,
+  classId: Character["classId"],
+): Character {
   return {
     name,
     classId,
@@ -26,7 +29,9 @@ export function createCharacter(name: string, classId: Character["classId"]): Ch
   };
 }
 
-export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, Item>>): {
+export function getEquipmentStatBonus(
+  equipment: Partial<Record<EquipmentSlot, Item>>,
+): {
   stats: BaseStats;
   damageBonus: number;
   defenseBonus: number;
@@ -41,7 +46,12 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
   critChanceBonus: number;
   weaponDamage?: [number, number];
 } {
-  const stats: BaseStats = { strength: 0, dexterity: 0, vitality: 0, energy: 0 };
+  const stats: BaseStats = {
+    strength: 0,
+    dexterity: 0,
+    vitality: 0,
+    energy: 0,
+  };
   let damageBonus = 0;
   let defenseBonus = 0;
   let lifeBonus = 0;
@@ -62,7 +72,9 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
       weaponDamage = item.baseDamage;
     } else if (item.slot === "shield" && item.baseDamage) {
       // Off-hand weapon (dual-wield): grants bonus flat damage instead of replacing the main hand.
-      damageBonus += Math.round(((item.baseDamage[0] + item.baseDamage[1]) / 2) * 0.5);
+      damageBonus += Math.round(
+        ((item.baseDamage[0] + item.baseDamage[1]) / 2) * 0.5,
+      );
     }
     for (const affix of item.affixes) {
       if (affix.stat === "damage") damageBonus += affix.value;
@@ -73,16 +85,20 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
       else if (affix.stat === "goldFind") goldFindBonus += affix.value;
       else if (affix.stat === "lifeLeech") lifeLeechBonus += affix.value;
       else if (affix.stat === "manaRegen") manaRegenBonus += affix.value;
-      else if (affix.stat === "magicDmgReduction") magicDmgReduction += affix.value;
-      else if (affix.stat === "physDmgReduction") physDmgReduction += affix.value;
+      else if (affix.stat === "magicDmgReduction")
+        magicDmgReduction += affix.value;
+      else if (affix.stat === "physDmgReduction")
+        physDmgReduction += affix.value;
       else if (affix.stat === "critChance") critChanceBonus += affix.value;
       else stats[affix.stat] += affix.value;
     }
   }
 
-  const mirrorSource = equipment.ring1?.mirrorRing ? equipment.ring2
-    : equipment.ring2?.mirrorRing ? equipment.ring1
-    : null;
+  const mirrorSource = equipment.ring1?.mirrorRing
+    ? equipment.ring2
+    : equipment.ring2?.mirrorRing
+      ? equipment.ring1
+      : null;
   if (mirrorSource) {
     for (const affix of mirrorSource.affixes) {
       if (affix.stat === "damage") damageBonus += affix.value;
@@ -93,14 +109,30 @@ export function getEquipmentStatBonus(equipment: Partial<Record<EquipmentSlot, I
       else if (affix.stat === "goldFind") goldFindBonus += affix.value;
       else if (affix.stat === "lifeLeech") lifeLeechBonus += affix.value;
       else if (affix.stat === "manaRegen") manaRegenBonus += affix.value;
-      else if (affix.stat === "magicDmgReduction") magicDmgReduction += affix.value;
-      else if (affix.stat === "physDmgReduction") physDmgReduction += affix.value;
+      else if (affix.stat === "magicDmgReduction")
+        magicDmgReduction += affix.value;
+      else if (affix.stat === "physDmgReduction")
+        physDmgReduction += affix.value;
       else if (affix.stat === "critChance") critChanceBonus += affix.value;
       else stats[affix.stat] += affix.value;
     }
   }
 
-  return { stats, damageBonus, defenseBonus, lifeBonus, manaBonus, magicDamageBonus, goldFindBonus, lifeLeechBonus, manaRegenBonus, magicDmgReduction, physDmgReduction, critChanceBonus, weaponDamage };
+  return {
+    stats,
+    damageBonus,
+    defenseBonus,
+    lifeBonus,
+    manaBonus,
+    magicDamageBonus,
+    goldFindBonus,
+    lifeLeechBonus,
+    manaRegenBonus,
+    magicDmgReduction,
+    physDmgReduction,
+    critChanceBonus,
+    weaponDamage,
+  };
 }
 
 export interface DerivedStats {
@@ -135,21 +167,33 @@ export interface DerivedStats {
 
 export function getDerivedStats(
   character: Character,
-  equipment: Partial<Record<EquipmentSlot, Item>>
+  equipment: Partial<Record<EquipmentSlot, Item>>,
 ): DerivedStats {
   const def = CLASSES[character.classId];
   const base = def.baseStats;
   const equip = getEquipmentStatBonus(equipment);
 
   const stats: BaseStats = {
-    strength: base.strength + character.allocatedStats.strength + equip.stats.strength,
-    dexterity: base.dexterity + character.allocatedStats.dexterity + equip.stats.dexterity,
-    vitality: base.vitality + character.allocatedStats.vitality + equip.stats.vitality,
+    strength:
+      base.strength + character.allocatedStats.strength + equip.stats.strength,
+    dexterity:
+      base.dexterity +
+      character.allocatedStats.dexterity +
+      equip.stats.dexterity,
+    vitality:
+      base.vitality + character.allocatedStats.vitality + equip.stats.vitality,
     energy: base.energy + character.allocatedStats.energy + equip.stats.energy,
   };
 
-  const maxLife = Math.round(30 + stats.vitality * 3 + character.level * 5 + equip.lifeBonus);
-  const maxMana = def.resourceType === "fury" ? FURY_MAX : MANA_MAX + Math.floor(Math.max(0, stats.energy - 10) / 5) + equip.manaBonus;
+  const maxLife = Math.round(
+    30 + stats.vitality * 3 + character.level * 5 + equip.lifeBonus,
+  );
+  const maxMana =
+    def.resourceType === "fury"
+      ? FURY_MAX
+      : MANA_MAX +
+        Math.floor(Math.max(0, stats.energy - 10) / 5) +
+        equip.manaBonus;
 
   const weaponDamage = equip.weaponDamage ?? [1, 3];
   const flatPhysicalDamage = (stats.strength * 2 + stats.dexterity) / 5;
@@ -159,29 +203,74 @@ export function getDerivedStats(
   ];
 
   const defense = Math.round(equip.defenseBonus + stats.vitality / 4);
-  const critChance = Math.min(0.6, 0.05 + stats.dexterity * 0.001 + equip.critChanceBonus / 100);
-  const magicDamageBonus = Math.floor(stats.energy / 2) + equip.magicDamageBonus;
-  const magicDamageMult = character.classId === "sorceress" && character.level >= 20 ? 1.20 : 1.0;
-  const mindOverMatterBonus = character.classId === "sorceress" && character.level >= 35 ? Math.round(maxMana * 0.15) : 0;
+  const critChance = Math.min(
+    0.6,
+    0.05 + stats.dexterity * 0.001 + equip.critChanceBonus / 100,
+  );
+  const magicDamageBonus =
+    Math.floor(stats.energy / 2) + equip.magicDamageBonus;
+  const magicDamageMult =
+    character.classId === "sorceress" && character.level >= 20 ? 1.2 : 1.0;
+  const mindOverMatterBonus =
+    character.classId === "sorceress" && character.level >= 35
+      ? Math.round(maxMana * 0.15)
+      : 0;
 
   const igniteChance = equipment.belt?.demonsTail ? 20 : 0;
   const disorientOnAttackChance = equipment.helm?.reapersHood ? 20 : 0;
   const poisonDamageMult = equipment.belt?.venomweaveWrap ? 1.25 : 1.0;
-  const thornReflect = equipment.armor?.thornback ? 0.10 : 0;
-  const manaRegenMult = (equipment.ring1?.eyeOfTheStorm || equipment.ring2?.eyeOfTheStorm) ? 1.15 : 1.0;
+  const thornReflect = equipment.armor?.thornback ? 0.1 : 0;
+  const manaRegenMult =
+    equipment.ring1?.eyeOfTheStorm || equipment.ring2?.eyeOfTheStorm
+      ? 1.15
+      : 1.0;
   const blockChance = equipment.gloves?.boneweaveGloves ? 5 : 0;
   const lowLifeDamageBonus = equipment.helm?.crownOfTheFallen ? 0.25 : 0;
   const electrocuteOnHit = equipment.weapon?.stormstring === true;
   const heartseekerBoost = equipment.weapon?.doomcrier === true;
   const arcanistStaff = equipment.weapon?.arcanist === true;
-  const burstEchoChance = equipment.weapon?.eternitysEdge ? 0.30 : 0;
-  const shadowfangProc = equipment.weapon?.shadowfang === true || equipment.shield?.shadowfang === true;
+  const burstEchoChance = equipment.weapon?.eternitysEdge ? 0.3 : 0;
+  const shadowfangProc =
+    equipment.weapon?.shadowfang === true ||
+    equipment.shield?.shadowfang === true;
   const deathwhisperBoost = equipment.weapon?.deathwhisper === true;
   const spellbladesMask = equipment.helm?.spellbladesMask === true;
-  return { stats, maxLife: maxLife + mindOverMatterBonus, maxMana, damage, defense, critChance, magicDamageBonus, magicDamageMult, goldFindBonus: equip.goldFindBonus, lifeLeechBonus: equip.lifeLeechBonus, manaRegenBonus: equip.manaRegenBonus, magicDmgReduction: equip.magicDmgReduction, physDmgReduction: equip.physDmgReduction, igniteChance, disorientOnAttackChance, poisonDamageMult, thornReflect, manaRegenMult, blockChance, lowLifeDamageBonus, electrocuteOnHit, heartseekerBoost, arcanistStaff, burstEchoChance, shadowfangProc, deathwhisperBoost, spellbladesMask };
+  return {
+    stats,
+    maxLife: maxLife + mindOverMatterBonus,
+    maxMana,
+    damage,
+    defense,
+    critChance,
+    magicDamageBonus,
+    magicDamageMult,
+    goldFindBonus: equip.goldFindBonus,
+    lifeLeechBonus: equip.lifeLeechBonus,
+    manaRegenBonus: equip.manaRegenBonus,
+    magicDmgReduction: equip.magicDmgReduction,
+    physDmgReduction: equip.physDmgReduction,
+    igniteChance,
+    disorientOnAttackChance,
+    poisonDamageMult,
+    thornReflect,
+    manaRegenMult,
+    blockChance,
+    lowLifeDamageBonus,
+    electrocuteOnHit,
+    heartseekerBoost,
+    arcanistStaff,
+    burstEchoChance,
+    shadowfangProc,
+    deathwhisperBoost,
+    spellbladesMask,
+  };
 }
 
-export function getStartingResource(character: Character, derived: DerivedStats, previousEnding?: number): number {
+export function getStartingResource(
+  character: Character,
+  derived: DerivedStats,
+  previousEnding?: number,
+): number {
   const def = CLASSES[character.classId];
   if (def.resourceType === "fury") return FURY_START;
   return previousEnding ?? derived.maxMana;
@@ -189,7 +278,7 @@ export function getStartingResource(character: Character, derived: DerivedStats,
 
 export function grantXp(
   character: Character,
-  xp: number
+  xp: number,
 ): { character: Character; leveledUp: boolean; levelsGained: number } {
   let updated = { ...character, xp: character.xp + xp };
   let levelsGained = 0;

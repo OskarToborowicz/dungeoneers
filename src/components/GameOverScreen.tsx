@@ -17,7 +17,8 @@ export function GameOverScreen({ summary, onContinue }: Props) {
         <CharacterSprite classId={summary.classId} size={90} state="dead" />
       </div>
       <p className="subtitle">
-        {summary.characterName} the {def.name} has fallen. Their legend ends here.
+        {summary.characterName} the {def.name} has fallen. Their legend ends
+        here.
       </p>
 
       <div className="death-stats-panel">
@@ -39,7 +40,9 @@ export function GameOverScreen({ summary, onContinue }: Props) {
         </div>
       </div>
 
-      <p className="empty-note">Death is permanent. All gear, gold, and progress have been lost.</p>
+      <p className="empty-note">
+        Death is permanent. All gear, gold, and progress have been lost.
+      </p>
 
       <button className="primary-button" onClick={onContinue}>
         Begin a New Legend

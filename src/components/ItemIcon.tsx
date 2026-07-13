@@ -19,7 +19,12 @@ function iconKind(item: Item): string {
 }
 
 export function SlotIcon({ slot, size = 34 }: { slot: string; size?: number }) {
-  const key = (slot === "ring1" || slot === "ring2") ? "ring" : slot === "weapon" ? "sword" : slot;
+  const key =
+    slot === "ring1" || slot === "ring2"
+      ? "ring"
+      : slot === "weapon"
+        ? "sword"
+        : slot;
   return (
     <svg width={size} height={size} viewBox="0 0 40 40" className="item-icon">
       {ICONS[key] ?? ICONS.armor}
@@ -39,8 +44,21 @@ export function ItemIcon({ item, size = 34 }: { item: Item; size?: number }) {
 const ICONS: Record<string, ReactNode> = {
   scythe: (
     <g strokeLinecap="round" strokeLinejoin="round">
-      <line x1="30" y1="38" x2="10" y2="10" stroke="currentColor" strokeWidth="2" fill="none" />
-      <path d="M10 10 C14 2 34 2 32 18 C28 12 18 8 10 10 Z" fill="currentColor" stroke="currentColor" strokeWidth="1.5" />
+      <line
+        x1="30"
+        y1="38"
+        x2="10"
+        y2="10"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+      />
+      <path
+        d="M10 10 C14 2 34 2 32 18 C28 12 18 8 10 10 Z"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
     </g>
   ),
   sword: (
@@ -52,10 +70,39 @@ const ICONS: Record<string, ReactNode> = {
   ),
   totem: (
     <g strokeLinecap="round" strokeLinejoin="round">
-      <line x1="20" y1="38" x2="20" y2="23" stroke="currentColor" strokeWidth="2.5" fill="none" />
-      <polygon points="20,6 30,15 20,24 10,15" fill="currentColor" stroke="currentColor" strokeWidth="1.5" />
-      <line x1="10" y1="28" x2="30" y2="28" stroke="currentColor" strokeWidth="2" fill="none" />
-      <line x1="13" y1="32" x2="27" y2="32" stroke="currentColor" strokeWidth="2" fill="none" />
+      <line
+        x1="20"
+        y1="38"
+        x2="20"
+        y2="23"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        fill="none"
+      />
+      <polygon
+        points="20,6 30,15 20,24 10,15"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
+      <line
+        x1="10"
+        y1="28"
+        x2="30"
+        y2="28"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+      />
+      <line
+        x1="13"
+        y1="32"
+        x2="27"
+        y2="32"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+      />
     </g>
   ),
   claw: (
@@ -67,28 +114,113 @@ const ICONS: Record<string, ReactNode> = {
     </g>
   ),
   axe: (
-    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <line x1="28" y1="38" x2="14" y2="8" />
       <polygon points="14,8 4,3 4,20 14,16" fill="currentColor" />
     </g>
   ),
   mace: (
     <g strokeLinecap="round">
-      <line x1="9" y1="36" x2="19" y2="26" stroke="currentColor" strokeWidth="2.5" fill="none" />
-      <circle cx="26" cy="15" r="7" fill="currentColor" stroke="currentColor" strokeWidth="1" />
-      <line x1="26" y1="8" x2="26" y2="3" stroke="currentColor" strokeWidth="2" />
-      <line x1="33" y1="15" x2="38" y2="15" stroke="currentColor" strokeWidth="2" />
-      <line x1="31" y1="9" x2="34" y2="5" stroke="currentColor" strokeWidth="2" />
-      <line x1="21" y1="9" x2="18" y2="5" stroke="currentColor" strokeWidth="2" />
-      <line x1="19" y1="15" x2="14" y2="15" stroke="currentColor" strokeWidth="2" />
-      <line x1="21" y1="21" x2="18" y2="25" stroke="currentColor" strokeWidth="2" />
-      <line x1="31" y1="21" x2="34" y2="25" stroke="currentColor" strokeWidth="2" />
+      <line
+        x1="9"
+        y1="36"
+        x2="19"
+        y2="26"
+        stroke="currentColor"
+        strokeWidth="2.5"
+        fill="none"
+      />
+      <circle
+        cx="26"
+        cy="15"
+        r="7"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="1"
+      />
+      <line
+        x1="26"
+        y1="8"
+        x2="26"
+        y2="3"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <line
+        x1="33"
+        y1="15"
+        x2="38"
+        y2="15"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <line
+        x1="31"
+        y1="9"
+        x2="34"
+        y2="5"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <line
+        x1="21"
+        y1="9"
+        x2="18"
+        y2="5"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <line
+        x1="19"
+        y1="15"
+        x2="14"
+        y2="15"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <line
+        x1="21"
+        y1="21"
+        x2="18"
+        y2="25"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <line
+        x1="31"
+        y1="21"
+        x2="34"
+        y2="25"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
     </g>
   ),
   staff: (
     <g strokeLinecap="round">
-      <line x1="10" y1="36" x2="23" y2="15" stroke="currentColor" strokeWidth="2" fill="none" />
-      <circle cx="27" cy="9" r="6" fill="currentColor" stroke="currentColor" strokeWidth="1.5" />
+      <line
+        x1="10"
+        y1="36"
+        x2="23"
+        y2="15"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+      />
+      <circle
+        cx="27"
+        cy="9"
+        r="6"
+        fill="currentColor"
+        stroke="currentColor"
+        strokeWidth="1.5"
+      />
     </g>
   ),
   bow: (
@@ -123,7 +255,13 @@ const ICONS: Record<string, ReactNode> = {
     />
   ),
   gloves: (
-    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <g
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M14 34 V18 C14 15 17 15 17 18 V22" />
       <path d="M17 22 V15 C17 12 20 12 20 15 V22" />
       <path d="M20 22 V14 C20 11 23 11 23 14 V22" />

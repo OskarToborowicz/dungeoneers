@@ -63,7 +63,8 @@ body {
 }
 
 @media (max-width: 768px) {
-  html, body {
+  html,
+  body {
     height: 100%;
     overflow: hidden;
   }
@@ -76,7 +77,8 @@ body {
 }
 
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 960px) {
-  html, body {
+  html,
+  body {
     height: 100%;
     overflow: hidden;
   }
@@ -88,7 +90,9 @@ body {
   }
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
   font-family: var(--heading-font);
   color: var(--text-heading);
   margin: 0 0 8px;

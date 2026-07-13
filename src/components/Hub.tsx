@@ -161,6 +161,9 @@ export function Hub({
           </div>
 
           <nav className="tab-bar">
+            <button className={tab === "dungeons" ? "active" : ""} onClick={() => setTab("dungeons")}>
+              Dungeons
+            </button>            
             <button className={tab === "character" ? "active" : ""} onClick={() => setTab("character")}>
               Character
             </button>
@@ -170,11 +173,8 @@ export function Hub({
             <button className={tab === "shop" ? "active" : ""} onClick={() => setTab("shop")}>
               Shop
             </button>
-            <button className={tab === "dungeons" ? "active" : ""} onClick={() => setTab("dungeons")}>
-              Dungeons
-            </button>
             <button className={tab === "gambler" ? "active" : ""} onClick={() => setTab("gambler")}>
-              Gambler
+              Gamble
             </button>
           </nav>
 

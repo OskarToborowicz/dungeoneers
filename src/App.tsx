@@ -5,13 +5,30 @@ import { Hub } from "./components/Hub";
 import { sortInventory } from "./components/InventoryTab";
 import { CombatScreen } from "./components/CombatScreen";
 import { GameOverScreen } from "./components/GameOverScreen";
-import { createCharacter, getDerivedStats, getStartingResource, grantXp } from "./game/character";
+import {
+  createCharacter,
+  getDerivedStats,
+  getStartingResource,
+  grantXp,
+} from "./game/character";
 import { EMPTY_CONSUMABLES, getPotionCost } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
-import { buyValue, generateRandomItem, generateShopStock, generateStartingEquipment, sellValue } from "./game/data/items";
+import {
+  buyValue,
+  generateRandomItem,
+  generateShopStock,
+  generateStartingEquipment,
+  sellValue,
+} from "./game/data/items";
 import { rollGambleItem, type GambleOffer } from "./game/data/gambler";
 import { UNIQUE_DROP_TABLE } from "./game/data/drops";
-import { getAllSaves, getSave, writeSave, createSave, deleteSave } from "./game/storage";
+import {
+  getAllSaves,
+  getSave,
+  writeSave,
+  createSave,
+  deleteSave,
+} from "./game/storage";
 import type { SaveSlot } from "./game/storage";
 import type { CombatResult } from "./game/combat";
 import type {
@@ -48,24 +65,30 @@ function App() {
   const [activeSlotId, setActiveSlotId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [character, setCharacter] = useState<Character | null>(null);
-  const [equipment, setEquipment] = useState<Partial<Record<EquipmentSlot, Item>>>({});
+  const [equipment, setEquipment] = useState<
+    Partial<Record<EquipmentSlot, Item>>
+  >({});
   const [inventory, setInventory] = useState<Item[]>([]);
   const [clearedDungeons, setClearedDungeons] = useState<string[]>([]);
-  const [consumables, setConsumables] = useState<Record<ConsumableId, number>>(EMPTY_CONSUMABLES);
+  const [consumables, setConsumables] =
+    useState<Record<ConsumableId, number>>(EMPTY_CONSUMABLES);
   const [shopStock, setShopStock] = useState<Item[]>([]);
   const [dungeonRun, setDungeonRun] = useState<DungeonRunState | null>(null);
   const [selectedAct, setSelectedAct] = useState<1 | 2>(1);
-  const [hubTab, setHubTab] = useState<"character" | "inventory" | "dungeons" | "shop" | "gambler">("character");
+  const [hubTab, setHubTab] = useState<
+    "character" | "inventory" | "dungeons" | "shop" | "gambler"
+  >("character");
   const [deathSummary, setDeathSummary] = useState<DeathSummary | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [showPortalMessage, setShowPortalMessage] = useState(false);
-  const [droppedItem, setDroppedItem] = useState<import("./game/types").Item | null>(null);
+  const [droppedItem, setDroppedItem] = useState<
+    import("./game/types").Item | null
+  >(null);
 
   useEffect(() => {
     setSlots(getAllSaves());
     setLoaded(true);
   }, []);
-
 
   useEffect(() => {
     if (!dungeonRun) return;
@@ -78,9 +101,27 @@ function App() {
 
   useEffect(() => {
     if (!loaded || !activeSlotId || !character || dungeonRun) return;
-    const save: SaveGame = { character, equipment, inventory, clearedDungeons, consumables, shopStock, inCombat: false };
+    const save: SaveGame = {
+      character,
+      equipment,
+      inventory,
+      clearedDungeons,
+      consumables,
+      shopStock,
+      inCombat: false,
+    };
     writeSave(activeSlotId, save);
-  }, [loaded, activeSlotId, character, equipment, inventory, clearedDungeons, consumables, shopStock, dungeonRun]);
+  }, [
+    loaded,
+    activeSlotId,
+    character,
+    equipment,
+    inventory,
+    clearedDungeons,
+    consumables,
+    shopStock,
+    dungeonRun,
+  ]);
 
   if (!loaded) return null;
 
@@ -113,36 +154,36 @@ function App() {
   if (!character) {
     return (
       <>
-      <CharacterCreation
-        onBack={() => setCreating(false)}
-        onCreate={(name: string, classId: ClassId) => {
-          const newCharacter = createCharacter(name, classId);
-          const newShopStock = generateShopStock(1, classId);
-          const startingEquipment = generateStartingEquipment(classId);
-          const save: SaveGame = {
-            character: newCharacter,
-            equipment: startingEquipment,
-            inventory: [],
-            clearedDungeons: [],
-            consumables: { healthPotion: 1, manaPotion: 0 },
-            shopStock: newShopStock,
-          };
-          const id = createSave(save);
-          setSlots(getAllSaves());
-          setActiveSlotId(id);
-          setCharacter(newCharacter);
-          setEquipment(startingEquipment);
-          setInventory([]);
-          setClearedDungeons([]);
-          setConsumables({ healthPotion: 1, manaPotion: 0 });
-          setShopStock(newShopStock);
-          setHubTab("character");
-          setSelectedAct(1);
-          setCreating(false);
-        }}
-      />
-      <FullscreenButton />
-    </>
+        <CharacterCreation
+          onBack={() => setCreating(false)}
+          onCreate={(name: string, classId: ClassId) => {
+            const newCharacter = createCharacter(name, classId);
+            const newShopStock = generateShopStock(1, classId);
+            const startingEquipment = generateStartingEquipment(classId);
+            const save: SaveGame = {
+              character: newCharacter,
+              equipment: startingEquipment,
+              inventory: [],
+              clearedDungeons: [],
+              consumables: { healthPotion: 1, manaPotion: 0 },
+              shopStock: newShopStock,
+            };
+            const id = createSave(save);
+            setSlots(getAllSaves());
+            setActiveSlotId(id);
+            setCharacter(newCharacter);
+            setEquipment(startingEquipment);
+            setInventory([]);
+            setClearedDungeons([]);
+            setConsumables({ healthPotion: 1, manaPotion: 0 });
+            setShopStock(newShopStock);
+            setHubTab("character");
+            setSelectedAct(1);
+            setCreating(false);
+          }}
+        />
+        <FullscreenButton />
+      </>
     );
   }
 
@@ -161,7 +202,10 @@ function App() {
         setInventory(save.inventory);
         setClearedDungeons(save.clearedDungeons);
         setConsumables(save.consumables ?? EMPTY_CONSUMABLES);
-        setShopStock(save.shopStock ?? generateShopStock(save.character.level, save.character.classId));
+        setShopStock(
+          save.shopStock ??
+            generateShopStock(save.character.level, save.character.classId),
+        );
         setSelectedAct(1);
         setDungeonRun({
           dungeonId: run.dungeonId,
@@ -181,7 +225,10 @@ function App() {
     setInventory(save.inventory);
     setClearedDungeons(save.clearedDungeons);
     setConsumables(save.consumables ?? EMPTY_CONSUMABLES);
-    setShopStock(save.shopStock ?? generateShopStock(save.character.level, save.character.classId));
+    setShopStock(
+      save.shopStock ??
+        generateShopStock(save.character.level, save.character.classId),
+    );
     setDungeonRun(null);
     setSelectedAct(1);
   }
@@ -197,7 +244,10 @@ function App() {
       return {
         ...prev,
         unspentStatPoints: prev.unspentStatPoints - 1,
-        allocatedStats: { ...prev.allocatedStats, [stat]: prev.allocatedStats[stat] + 1 },
+        allocatedStats: {
+          ...prev.allocatedStats,
+          [stat]: prev.allocatedStats[stat] + 1,
+        },
       };
     });
   }
@@ -212,15 +262,24 @@ function App() {
     if (targetSlot === "shield") {
       if (equipment.weapon?.twoHanded) return false;
       if (character.classId === "paladin") return item.slot === "shield";
-      if (character.classId === "barbarian") return item.slot === "weapon" && !item.twoHanded;
-      if (character.classId === "assassin") return item.slot === "weapon" && !item.twoHanded;
+      if (character.classId === "barbarian")
+        return item.slot === "weapon" && !item.twoHanded;
+      if (character.classId === "assassin")
+        return item.slot === "weapon" && !item.twoHanded;
       return false;
     }
     return slotCategory(item.slot) === slotCategory(targetSlot);
   }
 
-  function handleMoveItem(itemId: string, from: EquipmentSlot | "inventory", to: EquipmentSlot | "inventory") {
-    const sourceItem = from === "inventory" ? inventory.find((i) => i.id === itemId) : equipment[from];
+  function handleMoveItem(
+    itemId: string,
+    from: EquipmentSlot | "inventory",
+    to: EquipmentSlot | "inventory",
+  ) {
+    const sourceItem =
+      from === "inventory"
+        ? inventory.find((i) => i.id === itemId)
+        : equipment[from];
     if (!sourceItem || from === to) return;
 
     if (to === "inventory") {
@@ -262,27 +321,41 @@ function App() {
   }
 
   function handleToggleFavorite(itemId: string) {
-    setInventory((prev) => prev.map((i) => i.id === itemId ? { ...i, favorite: !i.favorite } : i));
+    setInventory((prev) =>
+      prev.map((i) => (i.id === itemId ? { ...i, favorite: !i.favorite } : i)),
+    );
   }
 
   function handleSell(item: Item) {
     if (item.favorite) return;
     setInventory((prev) => prev.filter((i) => i.id !== item.id));
-    setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + sellValue(item) } : prev));
+    setCharacter((prev) =>
+      prev ? { ...prev, gold: prev.gold + sellValue(item) } : prev,
+    );
   }
 
   function handleSellAll() {
     const sellable = inventory.filter((i) => !i.favorite);
     const total = sellable.reduce((sum, item) => sum + sellValue(item), 0);
     setInventory((prev) => prev.filter((i) => i.favorite));
-    setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + total } : prev));
+    setCharacter((prev) =>
+      prev ? { ...prev, gold: prev.gold + total } : prev,
+    );
   }
 
   function handleSellJunk() {
-    const junk = inventory.filter((i) => !i.favorite && (i.rarity === "normal" || i.rarity === "magic"));
+    const junk = inventory.filter(
+      (i) => !i.favorite && (i.rarity === "normal" || i.rarity === "magic"),
+    );
     const total = junk.reduce((sum, item) => sum + sellValue(item), 0);
-    setInventory((prev) => prev.filter((i) => i.favorite || (i.rarity !== "normal" && i.rarity !== "magic")));
-    setCharacter((prev) => (prev ? { ...prev, gold: prev.gold + total } : prev));
+    setInventory((prev) =>
+      prev.filter(
+        (i) => i.favorite || (i.rarity !== "normal" && i.rarity !== "magic"),
+      ),
+    );
+    setCharacter((prev) =>
+      prev ? { ...prev, gold: prev.gold + total } : prev,
+    );
   }
 
   const POTION_STACK_LIMIT = 5;
@@ -315,8 +388,15 @@ function App() {
 
   function handleGamble(offer: GambleOffer) {
     if (!character || character.gold < offer.price) return;
-    const item = rollGambleItem(offer.slot, character.level, character.classId, clearedDungeons);
-    setCharacter((prev) => (prev ? { ...prev, gold: prev.gold - offer.price } : prev));
+    const item = rollGambleItem(
+      offer.slot,
+      character.level,
+      character.classId,
+      clearedDungeons,
+    );
+    setCharacter((prev) =>
+      prev ? { ...prev, gold: prev.gold - offer.price } : prev,
+    );
     setInventory((prev) => [item, ...prev]);
     setDroppedItem(item);
   }
@@ -336,7 +416,23 @@ function App() {
     const startingLife = derived.maxLife;
     const startingMana = getStartingResource(character, derived);
     if (activeSlotId) {
-      writeSave(activeSlotId, { character, equipment, inventory, clearedDungeons, consumables, shopStock, inCombat: true, activeDungeonRun: { dungeonId, index: 0, currentLife: startingLife, currentMana: startingMana, currentCooldown: 0, currentCooldown2: 0 } });
+      writeSave(activeSlotId, {
+        character,
+        equipment,
+        inventory,
+        clearedDungeons,
+        consumables,
+        shopStock,
+        inCombat: true,
+        activeDungeonRun: {
+          dungeonId,
+          index: 0,
+          currentLife: startingLife,
+          currentMana: startingMana,
+          currentCooldown: 0,
+          currentCooldown2: 0,
+        },
+      });
     }
     setDungeonRun({
       dungeonId,
@@ -350,7 +446,11 @@ function App() {
   }
 
   function handleEscape() {
-    setCharacter((prev) => prev ? { ...prev, escapeTokens: Math.max(0, prev.escapeTokens - 1) } : prev);
+    setCharacter((prev) =>
+      prev
+        ? { ...prev, escapeTokens: Math.max(0, prev.escapeTokens - 1) }
+        : prev,
+    );
     setDungeonRun(null);
   }
 
@@ -400,27 +500,53 @@ function App() {
 
     const xpCap = getXpCapLevel(clearedDungeons, dungeonRun.dungeonId);
     const isReclear = clearedDungeons.includes(dungeonRun.dungeonId);
-    const reducedReclearIds = new Set(["diablo", "imp-field", "lava-river", "ashen-caves", "higher-hell", "lower-hell", "hellcore"]);
-    const reclearMult = isReclear && reducedReclearIds.has(dungeonRun.dungeonId) ? 0.25 : 1;
+    const reducedReclearIds = new Set([
+      "diablo",
+      "imp-field",
+      "lava-river",
+      "ashen-caves",
+      "higher-hell",
+      "lower-hell",
+      "hellcore",
+    ]);
+    const reclearMult =
+      isReclear && reducedReclearIds.has(dungeonRun.dungeonId) ? 0.25 : 1;
     setCharacter((prev) => {
       if (!prev) return prev;
-      const withGold = { ...prev, gold: prev.gold + result.goldReward, runStats: updatedRunStats };
-      const cappedXp = prev.level >= xpCap ? 0 : Math.round(result.xpReward * reclearMult);
+      const withGold = {
+        ...prev,
+        gold: prev.gold + result.goldReward,
+        runStats: updatedRunStats,
+      };
+      const cappedXp =
+        prev.level >= xpCap ? 0 : Math.round(result.xpReward * reclearMult);
       const { character: withXp } = grantXp(withGold, cappedXp);
       return withXp;
     });
 
     const isBoss = dungeonRun.index === dungeonRun.queue.length - 1;
-    const rarityOrder: import("./game/types").ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+    const rarityOrder: import("./game/types").ItemRarity[] = [
+      "normal",
+      "magic",
+      "rare",
+      "very rare",
+      "unique",
+    ];
     if (isBoss) {
       for (const entry of UNIQUE_DROP_TABLE) {
-        if (entry.dungeons && !entry.dungeons.includes(dungeonRun.dungeonId)) continue;
+        if (entry.dungeons && !entry.dungeons.includes(dungeonRun.dungeonId))
+          continue;
         if (entry.minLevel && character.level < entry.minLevel) continue;
         if (entry.classId && entry.classId !== character.classId) continue;
         if (Math.random() >= entry.chance) continue;
         const item = entry.generator();
         setInventory((prev) => [item, ...prev]);
-        setDroppedItem((prev) => prev === null || rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity) ? item : prev);
+        setDroppedItem((prev) =>
+          prev === null ||
+          rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity)
+            ? item
+            : prev,
+        );
       }
     }
     const dropChance = isBoss ? 1 : 0.35;
@@ -428,16 +554,26 @@ function App() {
       const item = generateRandomItem(monster.level, character.classId);
       setInventory((prev) => [item, ...prev]);
       setDroppedItem((prev) =>
-        prev === null || rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity) ? item : prev
+        prev === null ||
+        rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity)
+          ? item
+          : prev,
       );
     }
 
     const nextIndex = dungeonRun.index + 1;
     if (nextIndex >= dungeonRun.queue.length) {
       const wasNew = !clearedDungeons.includes(dungeonRun.dungeonId);
-      setClearedDungeons((prev) => (prev.includes(dungeonRun.dungeonId) ? prev : [...prev, dungeonRun.dungeonId]));
-      if (wasNew && dungeonRun.dungeonId === "diablo") setShowPortalMessage(true);
-      const completedDungeon = DUNGEONS.find((d) => d.id === dungeonRun.dungeonId);
+      setClearedDungeons((prev) =>
+        prev.includes(dungeonRun.dungeonId)
+          ? prev
+          : [...prev, dungeonRun.dungeonId],
+      );
+      if (wasNew && dungeonRun.dungeonId === "diablo")
+        setShowPortalMessage(true);
+      const completedDungeon = DUNGEONS.find(
+        (d) => d.id === dungeonRun.dungeonId,
+      );
       setSelectedAct((completedDungeon?.act ?? 1) as 1 | 2);
       setHubTab("dungeons");
       setDungeonRun(null);
@@ -453,7 +589,23 @@ function App() {
       currentCooldown2: result.endingCooldown2,
     };
     if (activeSlotId) {
-      writeSave(activeSlotId, { character, equipment, inventory, clearedDungeons, consumables, shopStock, inCombat: true, activeDungeonRun: { dungeonId: nextRunState.dungeonId, index: nextRunState.index, currentLife: nextRunState.currentLife, currentMana: nextRunState.currentMana, currentCooldown: nextRunState.currentCooldown, currentCooldown2: nextRunState.currentCooldown2 } });
+      writeSave(activeSlotId, {
+        character,
+        equipment,
+        inventory,
+        clearedDungeons,
+        consumables,
+        shopStock,
+        inCombat: true,
+        activeDungeonRun: {
+          dungeonId: nextRunState.dungeonId,
+          index: nextRunState.index,
+          currentLife: nextRunState.currentLife,
+          currentMana: nextRunState.currentMana,
+          currentCooldown: nextRunState.currentCooldown,
+          currentCooldown2: nextRunState.currentCooldown2,
+        },
+      });
     }
     setDungeonRun(nextRunState);
   }
@@ -462,27 +614,43 @@ function App() {
     const monster = dungeonRun.queue[dungeonRun.index];
     return (
       <>
-      <CombatScreen
-        key={`${dungeonRun.dungeonId}-${dungeonRun.index}`}
-        character={character}
-        derived={derived}
-        equipment={equipment}
-        monster={monster}
-        startingLife={dungeonRun.currentLife}
-        startingMana={dungeonRun.currentMana}
-        startingCooldown={dungeonRun.currentCooldown}
-        startingCooldown2={dungeonRun.currentCooldown2}
-        consumables={consumables}
-        escapeTokens={character.escapeTokens ?? 0}
-        xpCapped={character.level >= getXpCapLevel(clearedDungeons, dungeonRun.dungeonId)}
-        xpMultiplier={clearedDungeons.includes(dungeonRun.dungeonId) && new Set(["diablo","imp-field","lava-river","ashen-caves","higher-hell","lower-hell","hellcore"]).has(dungeonRun.dungeonId) ? 0.25 : 1}
-        clearedDungeons={clearedDungeons}
-        onUsePotion={handleUsePotion}
-        onFinished={handleFightFinished}
-        onEscape={handleEscape}
-      />
-      <FullscreenButton />
-    </>
+        <CombatScreen
+          key={`${dungeonRun.dungeonId}-${dungeonRun.index}`}
+          character={character}
+          derived={derived}
+          equipment={equipment}
+          monster={monster}
+          startingLife={dungeonRun.currentLife}
+          startingMana={dungeonRun.currentMana}
+          startingCooldown={dungeonRun.currentCooldown}
+          startingCooldown2={dungeonRun.currentCooldown2}
+          consumables={consumables}
+          escapeTokens={character.escapeTokens ?? 0}
+          xpCapped={
+            character.level >=
+            getXpCapLevel(clearedDungeons, dungeonRun.dungeonId)
+          }
+          xpMultiplier={
+            clearedDungeons.includes(dungeonRun.dungeonId) &&
+            new Set([
+              "diablo",
+              "imp-field",
+              "lava-river",
+              "ashen-caves",
+              "higher-hell",
+              "lower-hell",
+              "hellcore",
+            ]).has(dungeonRun.dungeonId)
+              ? 0.25
+              : 1
+          }
+          clearedDungeons={clearedDungeons}
+          onUsePotion={handleUsePotion}
+          onFinished={handleFightFinished}
+          onEscape={handleEscape}
+        />
+        <FullscreenButton />
+      </>
     );
   }
 

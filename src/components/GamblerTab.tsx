@@ -20,7 +20,16 @@ const SLOT_LABELS: Record<EquipmentSlot, string> = {
   ring2: "Ring",
 };
 
-const BASE_SLOTS: EquipmentSlot[] = ["weapon", "helm", "armor", "belt", "gloves", "boots", "amulet", "ring1"];
+const BASE_SLOTS: EquipmentSlot[] = [
+  "weapon",
+  "helm",
+  "armor",
+  "belt",
+  "gloves",
+  "boots",
+  "amulet",
+  "ring1",
+];
 
 interface Props {
   character: Character;
@@ -31,47 +40,72 @@ interface Props {
   onSort: () => void;
 }
 
-export function GamblerTab({ character, equipment, inventory, onGamble, onToggleFavorite, onSort }: Props) {
-  const { hovered, onMouseEnter, onMouseLeave, tooltipStyle, compareStyle, tooltipRef, compareRef } = useItemHover();
+export function GamblerTab({
+  character,
+  equipment,
+  inventory,
+  onGamble,
+  onToggleFavorite,
+  onSort,
+}: Props) {
+  const {
+    hovered,
+    onMouseEnter,
+    onMouseLeave,
+    tooltipStyle,
+    compareStyle,
+    tooltipRef,
+    compareRef,
+  } = useItemHover();
 
-  const slots = character.classId === "paladin" ? [...BASE_SLOTS, "shield" as EquipmentSlot] : BASE_SLOTS;
-  const offers: GambleOffer[] = slots.map((slot) => ({ slot, price: gamblePrice(slot, character.level) }));
+  const slots =
+    character.classId === "paladin"
+      ? [...BASE_SLOTS, "shield" as EquipmentSlot]
+      : BASE_SLOTS;
+  const offers: GambleOffer[] = slots.map((slot) => ({
+    slot,
+    price: gamblePrice(slot, character.level),
+  }));
 
   return (
     <div className="gambler-tab tab-panel">
       <div className="gambler-left">
-      <div className="gambler-header">
-        <div>
-          <div className="gambler-title">Gheedon <span className="gambler-epithet">the Gambler</span></div>
-        </div>
-      </div>
-
-      <div className="gambler-grid">
-        {offers.map((offer, i) => (
-          <div key={i} className="gamble-offer">
-            <div className="gamble-mystery">?</div>
-            <div className="gamble-slot">{SLOT_LABELS[offer.slot]}</div>
-            <div className="gamble-price">
-              <CoinIcon size={13} />
-              {offer.price}
+        <div className="gambler-header">
+          <div>
+            <div className="gambler-title">
+              Gheedon <span className="gambler-epithet">the Gambler</span>
             </div>
-            <button
-              className="gamble-button"
-              disabled={character.gold < offer.price}
-              onClick={() => onGamble(offer)}
-            >
-              Gamble
-            </button>
           </div>
-        ))}
-      </div>
+        </div>
+
+        <div className="gambler-grid">
+          {offers.map((offer, i) => (
+            <div key={i} className="gamble-offer">
+              <div className="gamble-mystery">?</div>
+              <div className="gamble-slot">{SLOT_LABELS[offer.slot]}</div>
+              <div className="gamble-price">
+                <CoinIcon size={13} />
+                {offer.price}
+              </div>
+              <button
+                className="gamble-button"
+                disabled={character.gold < offer.price}
+                onClick={() => onGamble(offer)}
+              >
+                Gamble
+              </button>
+            </div>
+          ))}
+        </div>
       </div>
 
       {inventory.length > 0 && (
         <div className="gambler-inventory">
           <div className="inventory-label-row">
             <h3 className="inventory-label">Inventory ({inventory.length})</h3>
-            <button className="sort-btn" onClick={onSort}>Sort</button>
+            <button className="sort-btn" onClick={onSort}>
+              Sort
+            </button>
           </div>
           <div className="inventory-grid">
             {inventory.map((item) => (
@@ -85,9 +119,16 @@ export function GamblerTab({ character, equipment, inventory, onGamble, onToggle
                 <ItemIcon item={item} />
                 <button
                   className={`fav-btn${item.favorite ? " fav-btn--active" : ""}`}
-                  onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id); }}
-                  aria-label={item.favorite ? "Unmark favorite" : "Mark as favorite"}
-                >★</button>
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleFavorite(item.id);
+                  }}
+                  aria-label={
+                    item.favorite ? "Unmark favorite" : "Mark as favorite"
+                  }
+                >
+                  ★
+                </button>
               </div>
             ))}
           </div>
@@ -100,7 +141,11 @@ export function GamblerTab({ character, equipment, inventory, onGamble, onToggle
             <ItemTooltip item={hovered.item} />
           </div>
           <div ref={compareRef} style={compareStyle()!}>
-            <CompareGroup slot={hovered.item.slot} equipment={equipment} hoveredItem={hovered.item} />
+            <CompareGroup
+              slot={hovered.item.slot}
+              equipment={equipment}
+              hoveredItem={hovered.item}
+            />
           </div>
         </>
       )}

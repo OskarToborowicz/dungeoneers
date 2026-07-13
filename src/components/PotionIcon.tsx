@@ -5,15 +5,19 @@ interface Props {
 
 export function PotionIcon({ type, size = 20 }: Props) {
   const liquid = type === "health" ? "#cc2222" : "#2255cc";
-  const shine  = type === "health" ? "#ff6666" : "#66aaff";
-  const cork   = "#8b6914";
+  const shine = type === "health" ? "#ff6666" : "#66aaff";
+  const cork = "#8b6914";
 
   return (
     <svg
       width={size}
       height={size}
       viewBox="0 0 20 24"
-      style={{ display: "inline-block", verticalAlign: "middle", flexShrink: 0 }}
+      style={{
+        display: "inline-block",
+        verticalAlign: "middle",
+        flexShrink: 0,
+      }}
     >
       {/* Cork */}
       <rect x="7" y="1" width="6" height="3.5" rx="1" fill={cork} />
@@ -40,7 +44,16 @@ export function PotionIcon({ type, size = 20 }: Props) {
         opacity="0.45"
       />
       {/* Neck outline */}
-      <rect x="8" y="4.5" width="4" height="4" fill="none" stroke={liquid} strokeWidth="0.5" opacity="0.4" />
+      <rect
+        x="8"
+        y="4.5"
+        width="4"
+        height="4"
+        fill="none"
+        stroke={liquid}
+        strokeWidth="0.5"
+        opacity="0.4"
+      />
     </svg>
   );
 }
