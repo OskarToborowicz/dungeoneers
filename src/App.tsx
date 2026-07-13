@@ -266,6 +266,8 @@ function App() {
         return item.slot === "weapon" && !item.twoHanded;
       if (character.classId === "assassin")
         return item.slot === "weapon" && !item.twoHanded;
+      if (character.classId === "monk")
+        return item.slot === "weapon" && !item.twoHanded;
       return false;
     }
     return slotCategory(item.slot) === slotCategory(targetSlot);

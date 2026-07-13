@@ -1,4 +1,10 @@
-import type { ClassId, EquipmentSlot, Item, ItemAffix, ItemRarity } from "../types";
+import type {
+  ClassId,
+  EquipmentSlot,
+  Item,
+  ItemAffix,
+  ItemRarity,
+} from "../types";
 
 interface ItemBase {
   name: string;
@@ -10,14 +16,62 @@ interface ItemBase {
 }
 
 const WEAPON_BASES: ItemBase[] = [
-  { name: "Axe",      slot: "weapon", baseDamage: [2, 6], twoHanded: false, allowedClasses: ["barbarian"] },
-  { name: "Scythe",   slot: "weapon", baseDamage: [3, 8], twoHanded: true,  allowedClasses: ["necromancer"] },
-  { name: "War Staff",slot: "weapon", baseDamage: [2, 8], twoHanded: true,  allowedClasses: ["sorceress"] },
-  { name: "Bow",      slot: "weapon", baseDamage: [3, 7], twoHanded: true,  allowedClasses: ["amazon"] },
-  { name: "Mace",     slot: "weapon", baseDamage: [3, 4], twoHanded: false, allowedClasses: ["paladin"] },
-  { name: "Totem",    slot: "weapon", baseDamage: [2, 6], twoHanded: true,  allowedClasses: ["druid"] },
-  { name: "Claw",     slot: "weapon", baseDamage: [2, 5], twoHanded: false, allowedClasses: ["assassin"] },
-  { name: "Katar",    slot: "weapon", baseDamage: [2, 5], twoHanded: false, allowedClasses: ["monk"] },
+  {
+    name: "Axe",
+    slot: "weapon",
+    baseDamage: [2, 6],
+    twoHanded: false,
+    allowedClasses: ["barbarian"],
+  },
+  {
+    name: "Scythe",
+    slot: "weapon",
+    baseDamage: [3, 8],
+    twoHanded: true,
+    allowedClasses: ["necromancer"],
+  },
+  {
+    name: "War Staff",
+    slot: "weapon",
+    baseDamage: [2, 8],
+    twoHanded: true,
+    allowedClasses: ["sorceress"],
+  },
+  {
+    name: "Bow",
+    slot: "weapon",
+    baseDamage: [3, 7],
+    twoHanded: true,
+    allowedClasses: ["amazon"],
+  },
+  {
+    name: "Mace",
+    slot: "weapon",
+    baseDamage: [3, 4],
+    twoHanded: false,
+    allowedClasses: ["paladin"],
+  },
+  {
+    name: "Totem",
+    slot: "weapon",
+    baseDamage: [2, 6],
+    twoHanded: true,
+    allowedClasses: ["druid"],
+  },
+  {
+    name: "Claw",
+    slot: "weapon",
+    baseDamage: [2, 5],
+    twoHanded: false,
+    allowedClasses: ["assassin"],
+  },
+  {
+    name: "Fists",
+    slot: "weapon",
+    baseDamage: [2, 5],
+    twoHanded: false,
+    allowedClasses: ["monk"],
+  },
 ];
 
 const ARMOR_BASES: ItemBase[] = [
@@ -34,14 +88,28 @@ const JEWELRY_BASES: ItemBase[] = [
   { name: "Ring", slot: "ring1" },
 ];
 
-const RARITY_ROLLS: { rarity: ItemRarity; weight: number; affixCount: number; multiplier: number }[] = [
+const RARITY_ROLLS: {
+  rarity: ItemRarity;
+  weight: number;
+  affixCount: number;
+  multiplier: number;
+}[] = [
   { rarity: "normal", weight: 55, affixCount: 0, multiplier: 1 },
   { rarity: "magic", weight: 30, affixCount: 1, multiplier: 1.15 },
   { rarity: "rare", weight: 12, affixCount: 3, multiplier: 1.3 },
   { rarity: "very rare", weight: 3, affixCount: 4, multiplier: 1.5 },
 ];
 
-const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: number; noScale?: boolean; itemLevelMin?: number; scaleFromLevel?: number; scaleRate?: number }[] = [
+const AFFIX_POOL: {
+  label: string;
+  stat: ItemAffix["stat"];
+  min: number;
+  max: number;
+  noScale?: boolean;
+  itemLevelMin?: number;
+  scaleFromLevel?: number;
+  scaleRate?: number;
+}[] = [
   { label: "of Strength", stat: "strength", min: 2, max: 8 },
   { label: "of Dexterity", stat: "dexterity", min: 2, max: 8 },
   { label: "of Vitality", stat: "vitality", min: 2, max: 8 },
@@ -54,12 +122,37 @@ const AFFIX_POOL: { label: string; stat: ItemAffix["stat"]; min: number; max: nu
   { label: "of Greed", stat: "goldFind", min: 15, max: 25 },
   { label: "of Vampirism", stat: "lifeLeech", min: 3, max: 9, noScale: true },
   { label: "of Clarity", stat: "manaRegen", min: 3, max: 7, noScale: true },
-  { label: "of Warding", stat: "magicDmgReduction", min: 3, max: 6, itemLevelMin: 25, scaleFromLevel: 25, scaleRate: 0.04 },
-  { label: "of Fortitude", stat: "physDmgReduction", min: 3, max: 6, itemLevelMin: 25, scaleFromLevel: 25, scaleRate: 0.04 },
+  {
+    label: "of Warding",
+    stat: "magicDmgReduction",
+    min: 3,
+    max: 6,
+    itemLevelMin: 25,
+    scaleFromLevel: 25,
+    scaleRate: 0.04,
+  },
+  {
+    label: "of Fortitude",
+    stat: "physDmgReduction",
+    min: 3,
+    max: 6,
+    itemLevelMin: 25,
+    scaleFromLevel: 25,
+    scaleRate: 0.04,
+  },
 ];
 
-function rollRarity(maxRarity: ItemRarity = "very rare", minRarity: ItemRarity = "normal"): (typeof RARITY_ROLLS)[number] {
-  const order: ItemRarity[] = ["normal", "magic", "rare", "very rare", "unique"];
+function rollRarity(
+  maxRarity: ItemRarity = "very rare",
+  minRarity: ItemRarity = "normal",
+): (typeof RARITY_ROLLS)[number] {
+  const order: ItemRarity[] = [
+    "normal",
+    "magic",
+    "rare",
+    "very rare",
+    "unique",
+  ];
   const allowed = RARITY_ROLLS.filter((r) => {
     const idx = order.indexOf(r.rarity);
     return idx >= order.indexOf(minRarity) && idx <= order.indexOf(maxRarity);
@@ -79,32 +172,64 @@ function shopMaxRarity(characterLevel: number): ItemRarity {
   return "very rare";
 }
 
-const DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = ["weapon", "shield", "ring1", "ring2", "amulet", "gloves"];
-const MAGIC_DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = ["weapon", "shield", "ring1", "ring2", "amulet", "gloves"];
+const DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = [
+  "weapon",
+  "shield",
+  "ring1",
+  "ring2",
+  "amulet",
+  "gloves",
+];
+const MAGIC_DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = [
+  "weapon",
+  "shield",
+  "ring1",
+  "ring2",
+  "amulet",
+  "gloves",
+];
 const GOLD_FIND_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "belt"];
 const LIFE_LEECH_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "gloves"];
 const MANA_REGEN_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "belt"];
 const MAGIC_RESIST_AFFIX_SLOTS: EquipmentSlot[] = ["helm", "armor", "boots"];
 
-function rollAffixes(count: number, itemLevel: number, slot: EquipmentSlot): ItemAffix[] {
+function rollAffixes(
+  count: number,
+  itemLevel: number,
+  slot: EquipmentSlot,
+): ItemAffix[] {
   const affixes: ItemAffix[] = [];
   const pool = AFFIX_POOL.filter((a) => {
     if (a.stat === "damage") return DAMAGE_AFFIX_SLOTS.includes(slot);
-    if (a.stat === "magicDamage") return MAGIC_DAMAGE_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "magicDamage")
+      return MAGIC_DAMAGE_AFFIX_SLOTS.includes(slot);
     if (a.stat === "goldFind") return GOLD_FIND_AFFIX_SLOTS.includes(slot);
     if (a.stat === "lifeLeech") return LIFE_LEECH_AFFIX_SLOTS.includes(slot);
     if (a.stat === "manaRegen") return MANA_REGEN_AFFIX_SLOTS.includes(slot);
-    if (a.stat === "magicDmgReduction") return MAGIC_RESIST_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
-    if (a.stat === "physDmgReduction") return MAGIC_RESIST_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
+    if (a.stat === "magicDmgReduction")
+      return (
+        MAGIC_RESIST_AFFIX_SLOTS.includes(slot) &&
+        itemLevel >= (a.itemLevelMin ?? 0)
+      );
+    if (a.stat === "physDmgReduction")
+      return (
+        MAGIC_RESIST_AFFIX_SLOTS.includes(slot) &&
+        itemLevel >= (a.itemLevelMin ?? 0)
+      );
     return true;
   });
   for (let i = 0; i < count && pool.length > 0; i++) {
     const index = Math.floor(Math.random() * pool.length);
     const [chosen] = pool.splice(index, 1);
-    const effectiveLevel = chosen.scaleFromLevel != null ? Math.max(0, itemLevel - chosen.scaleFromLevel) : itemLevel;
+    const effectiveLevel =
+      chosen.scaleFromLevel != null
+        ? Math.max(0, itemLevel - chosen.scaleFromLevel)
+        : itemLevel;
     const rate = chosen.scaleRate ?? 0.08;
     const scale = chosen.noScale ? 1 : 1 + effectiveLevel * rate;
-    const value = Math.round((chosen.min + Math.random() * (chosen.max - chosen.min)) * scale);
+    const value = Math.round(
+      (chosen.min + Math.random() * (chosen.max - chosen.min)) * scale,
+    );
     affixes.push({ label: chosen.label, stat: chosen.stat, value });
   }
   return affixes;
@@ -112,13 +237,20 @@ function rollAffixes(count: number, itemLevel: number, slot: EquipmentSlot): Ite
 
 let itemCounter = 0;
 
-export function generateRandomItem(itemLevel: number, classId?: ClassId, maxRarity?: ItemRarity): Item {
+export function generateRandomItem(
+  itemLevel: number,
+  classId?: ClassId,
+  maxRarity?: ItemRarity,
+): Item {
   const weapons = classId
-    ? WEAPON_BASES.filter((w) => !w.allowedClasses || w.allowedClasses.includes(classId))
+    ? WEAPON_BASES.filter(
+        (w) => !w.allowedClasses || w.allowedClasses.includes(classId),
+      )
     : WEAPON_BASES;
-  const armor = classId && classId !== "paladin"
-    ? ARMOR_BASES.filter((a) => a.slot !== "shield")
-    : ARMOR_BASES;
+  const armor =
+    classId && classId !== "paladin"
+      ? ARMOR_BASES.filter((a) => a.slot !== "shield")
+      : ARMOR_BASES;
   const bag = [...weapons, ...armor, ...JEWELRY_BASES];
   const base = bag[Math.floor(Math.random() * bag.length)];
   const rarityEntry = rollRarity(maxRarity);
@@ -129,14 +261,20 @@ export function generateRandomItem(itemLevel: number, classId?: ClassId, maxRari
   const id = `item-${Date.now()}-${itemCounter}`;
 
   const isJewelry = base.slot === "amulet" || base.slot === "ring1";
-  const effectiveRarityEntry = isJewelry && rarityEntry.rarity === "normal"
-    ? rollRarity(maxRarity, "magic")
-    : rarityEntry;
-  const affixCount = isJewelry ? Math.max(1, effectiveRarityEntry.affixCount) : effectiveRarityEntry.affixCount;
+  const effectiveRarityEntry =
+    isJewelry && rarityEntry.rarity === "normal"
+      ? rollRarity(maxRarity, "magic")
+      : rarityEntry;
+  const affixCount = isJewelry
+    ? Math.max(1, effectiveRarityEntry.affixCount)
+    : effectiveRarityEntry.affixCount;
 
   const item: Item = {
     id,
-    name: effectiveRarityEntry.rarity === "normal" ? base.name : `${base.name} ${effectiveRarityEntry.rarity === "very rare" ? "of the Ancients" : ""}`.trim(),
+    name:
+      effectiveRarityEntry.rarity === "normal"
+        ? base.name
+        : `${base.name} ${effectiveRarityEntry.rarity === "very rare" ? "of the Ancients" : ""}`.trim(),
     slot,
     rarity: effectiveRarityEntry.rarity,
     itemLevel,
@@ -145,13 +283,19 @@ export function generateRandomItem(itemLevel: number, classId?: ClassId, maxRari
 
   if (base.baseDamage) {
     item.baseDamage = [
-      Math.round(base.baseDamage[0] * rarityEntry.multiplier + itemLevel * 0.25),
-      Math.round(base.baseDamage[1] * rarityEntry.multiplier + itemLevel * 0.35),
+      Math.round(
+        base.baseDamage[0] * rarityEntry.multiplier + itemLevel * 0.25,
+      ),
+      Math.round(
+        base.baseDamage[1] * rarityEntry.multiplier + itemLevel * 0.35,
+      ),
     ];
     item.twoHanded = base.twoHanded ?? false;
   }
   if (base.baseDefense) {
-    item.baseDefense = Math.round(base.baseDefense * rarityEntry.multiplier + itemLevel * 0.25);
+    item.baseDefense = Math.round(
+      base.baseDefense * rarityEntry.multiplier + itemLevel * 0.25,
+    );
   }
 
   if (rarityEntry.rarity !== "normal" && item.affixes.length > 0) {
@@ -163,7 +307,13 @@ export function generateRandomItem(itemLevel: number, classId?: ClassId, maxRari
 }
 
 export function sellValue(item: Item): number {
-  const rarityMult = { normal: 1, magic: 2, rare: 4, "very rare": 8, unique: 12 }[item.rarity];
+  const rarityMult = {
+    normal: 1,
+    magic: 2,
+    rare: 4,
+    "very rare": 8,
+    unique: 12,
+  }[item.rarity];
   return Math.max(1, Math.round(item.itemLevel * 2 * rarityMult));
 }
 
@@ -174,8 +324,16 @@ export function buyValue(item: Item): number {
 function generateItemFromBase(base: ItemBase, itemLevel: number): Item {
   itemCounter += 1;
   const id = `item-${Date.now()}-${itemCounter}`;
-  const slot: EquipmentSlot = base.slot === "ring1" && Math.random() < 0.5 ? "ring2" : base.slot;
-  const item: Item = { id, name: base.name, slot, rarity: "normal", itemLevel, affixes: [] };
+  const slot: EquipmentSlot =
+    base.slot === "ring1" && Math.random() < 0.5 ? "ring2" : base.slot;
+  const item: Item = {
+    id,
+    name: base.name,
+    slot,
+    rarity: "normal",
+    itemLevel,
+    affixes: [],
+  };
   if (base.baseDamage) {
     item.baseDamage = [
       Math.round(base.baseDamage[0] + itemLevel * 0.25),
@@ -189,8 +347,12 @@ function generateItemFromBase(base: ItemBase, itemLevel: number): Item {
   return item;
 }
 
-export function generateStartingEquipment(classId: ClassId): Partial<Record<EquipmentSlot, Item>> {
-  const weaponBase = WEAPON_BASES.find((w) => w.allowedClasses?.includes(classId)) ?? WEAPON_BASES[0];
+export function generateStartingEquipment(
+  classId: ClassId,
+): Partial<Record<EquipmentSlot, Item>> {
+  const weaponBase =
+    WEAPON_BASES.find((w) => w.allowedClasses?.includes(classId)) ??
+    WEAPON_BASES[0];
   const weapon = generateItemFromBase(weaponBase, 1);
   if (classId === "paladin") {
     const shieldBase = ARMOR_BASES.find((a) => a.slot === "shield")!;
@@ -414,9 +576,7 @@ export function generateThornback(): Item {
     rarity: "unique",
     itemLevel: 12,
     baseDefense: 18,
-    affixes: [
-      { label: "", stat: "defense", value: 30 },
-    ],
+    affixes: [{ label: "", stat: "defense", value: 30 }],
     thornback: true,
   };
 }
@@ -463,9 +623,7 @@ export function generateVenomweaveWrap(): Item {
     rarity: "unique",
     itemLevel: 15,
     baseDefense: 7,
-    affixes: [
-      { label: "", stat: "dexterity", value: 20 },
-    ],
+    affixes: [{ label: "", stat: "dexterity", value: 20 }],
     venomweaveWrap: true,
   };
 }
@@ -836,8 +994,11 @@ export function generateItemForSlot(
   let base: ItemBase;
 
   if (slot === "weapon") {
-    const matches = WEAPON_BASES.filter((w) => w.allowedClasses?.includes(classId));
-    base = matches[Math.floor(Math.random() * matches.length)] ?? WEAPON_BASES[0];
+    const matches = WEAPON_BASES.filter((w) =>
+      w.allowedClasses?.includes(classId),
+    );
+    base =
+      matches[Math.floor(Math.random() * matches.length)] ?? WEAPON_BASES[0];
   } else if (slot === "amulet") {
     base = JEWELRY_BASES.find((b) => b.slot === "amulet")!;
   } else if (slot === "ring1") {
@@ -846,7 +1007,8 @@ export function generateItemForSlot(
     base = ARMOR_BASES.find((a) => a.slot === slot) ?? ARMOR_BASES[0];
   }
 
-  const rarityEntry = RARITY_ROLLS.find((r) => r.rarity === rarity) ?? RARITY_ROLLS[1];
+  const rarityEntry =
+    RARITY_ROLLS.find((r) => r.rarity === rarity) ?? RARITY_ROLLS[1];
 
   itemCounter += 1;
   const id = `item-${Date.now()}-${itemCounter}`;
@@ -863,29 +1025,42 @@ export function generateItemForSlot(
 
   if (base.baseDamage) {
     item.baseDamage = [
-      Math.round(base.baseDamage[0] * rarityEntry.multiplier + itemLevel * 0.25),
-      Math.round(base.baseDamage[1] * rarityEntry.multiplier + itemLevel * 0.35),
+      Math.round(
+        base.baseDamage[0] * rarityEntry.multiplier + itemLevel * 0.25,
+      ),
+      Math.round(
+        base.baseDamage[1] * rarityEntry.multiplier + itemLevel * 0.35,
+      ),
     ];
     item.twoHanded = base.twoHanded ?? false;
   }
   if (base.baseDefense) {
-    item.baseDefense = Math.round(base.baseDefense * rarityEntry.multiplier + itemLevel * 0.25);
+    item.baseDefense = Math.round(
+      base.baseDefense * rarityEntry.multiplier + itemLevel * 0.25,
+    );
   }
 
   if (affixes.length > 0) {
     const prefix = affixes[0].label.replace("of ", "");
-    const suffix = affixes.length > 1 ? " " + affixes[affixes.length - 1].label : "";
+    const suffix =
+      affixes.length > 1 ? " " + affixes[affixes.length - 1].label : "";
     item.name = `${prefix} ${base.name}${suffix}`.trim();
   }
 
   return item;
 }
 
-export function generateShopStock(characterLevel: number, classId?: ClassId, count = 4): Item[] {
+export function generateShopStock(
+  characterLevel: number,
+  classId?: ClassId,
+  count = 4,
+): Item[] {
   const maxRarity = shopMaxRarity(characterLevel);
   const items: Item[] = [];
   for (let i = 0; i < count; i++) {
-    items.push(generateRandomItem(Math.max(1, characterLevel), classId, maxRarity));
+    items.push(
+      generateRandomItem(Math.max(1, characterLevel), classId, maxRarity),
+    );
   }
   return items;
 }

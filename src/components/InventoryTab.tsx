@@ -323,7 +323,9 @@ export function InventoryTab({
       !item.twoHanded &&
       !equipment.weapon?.twoHanded
     ) {
-      return classId === "barbarian" || classId === "assassin";
+      return (
+        classId === "barbarian" || classId === "assassin" || classId === "monk"
+      );
     }
     return slot === item.slot;
   }
