@@ -360,24 +360,45 @@
   box-shadow: 0 0 12px color-mix(in srgb, var(--class-color) 18%, transparent);
 }
 .tab-bar button:nth-of-type(1) {
-  animation: torch 2.5s infinite;
+  color: #ffc84d;
+  animation: dungeonGlow 3.5s ease-in-out infinite;
 }
-@keyframes torch {
+
+@keyframes dungeonGlow {
   0%,
   100% {
-    text-shadow: 0 0 2px #ff8800;
+    color: #ffc84d;
+    text-shadow:
+      0 0 1px rgba(255, 200, 70, 0.4),
+      0 0 3px rgba(255, 120, 0, 0.3);
   }
 
   20% {
-    text-shadow: 0 0 5px #ff6600;
+    color: #ffd76b;
+    text-shadow:
+      0 0 2px rgba(255, 215, 107, 0.6),
+      0 0 4px rgba(255, 150, 0, 0.4);
   }
 
   40% {
-    text-shadow: 0 0 3px #ffaa00;
+    color: #ffc84d;
+    text-shadow:
+      0 0 1px rgba(255, 200, 70, 0.4),
+      0 0 3px rgba(255, 120, 0, 0.3);
   }
 
-  70% {
-    text-shadow: 0 0 7px #ff5500;
+  55% {
+    color: #ffe08a;
+    text-shadow:
+      0 0 2px rgba(255, 224, 138, 0.7),
+      0 0 5px rgba(255, 140, 0, 0.5);
+  }
+
+  75% {
+    color: #ffc84d;
+    text-shadow:
+      0 0 1px rgba(255, 200, 70, 0.4),
+      0 0 3px rgba(255, 120, 0, 0.3);
   }
 }
 .hub-screen .tab-bar button.active {
