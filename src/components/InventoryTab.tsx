@@ -35,9 +35,9 @@ const EQUIP_SLOTS: EquipmentSlot[] = [
   "gloves", "belt", "boots", "ring1", "ring2",
 ];
 
-const SLOT_LABELS: Partial<Record<EquipmentSlot, string>> = {
-  shield: "off hand",
-};
+// const SLOT_LABELS: Partial<Record<EquipmentSlot, string>> = {
+//   shield: "off hand",
+// };
 
 function bestSlot(item: Item, equipment: Partial<Record<EquipmentSlot, Item>>): EquipmentSlot {
   if (item.slot === "ring1" || item.slot === "ring2") {
@@ -289,7 +289,6 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem, onTogg
                 ) : (
                   <div className="doll-slot-empty">
                     <SlotIcon slot={slot} />
-                    <span className="doll-slot-label">{SLOT_LABELS[slot] ?? slot}</span>
                   </div>
                 )}
               </DollSlotDnd>
