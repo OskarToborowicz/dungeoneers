@@ -21,6 +21,7 @@ interface Props {
   onRestock: () => void;
   restockFee: number;
   onToggleFavorite: (itemId: string) => void;
+  onSort: () => void;
   onSell: (item: Item) => void;
   onSellAll: () => void;
   onSellJunk: () => void;
@@ -38,6 +39,7 @@ export function ShopTab({
   onRestock,
   restockFee,
   onToggleFavorite,
+  onSort,
   onSell,
   onSellAll,
   onSellJunk,
@@ -114,7 +116,10 @@ export function ShopTab({
 
       <div className="shop-inventory-section">
         <div className="inventory-header">
-          <h3>Your Inventory ({inventory.length})</h3>
+          <div className="inventory-label-row">
+            <h3>Your Inventory ({inventory.length})</h3>
+            <button className="sort-btn" onClick={onSort}>Sort</button>
+          </div>
           {inventory.length > 0 && (
             <div className="sell-all-row">
               {confirmSellAll ? (
@@ -162,9 +167,7 @@ export function ShopTab({
                     onClick={(e) => { e.stopPropagation(); onToggleFavorite(item.id); }}
                     aria-label={item.favorite ? "Unmark favorite" : "Mark as favorite"}
                   >★</button>
-                  {item.favorite ? (
-                    <span className="fav-locked">★ favorite</span>
-                  ) : (
+                  {!item.favorite && (
                     <button className="sell-button" onClick={(e) => { e.stopPropagation(); onSell(item); clearHover(); }}>
                       <CoinIcon size={9} /> {sellValue(item)}
                     </button>

@@ -82,6 +82,7 @@ function InvCellDnd({
       <button
         className={`fav-btn${item.favorite ? " fav-btn--active" : ""}`}
         onClick={(e) => { e.stopPropagation(); onToggleFavorite(); }}
+        onTouchStart={(e) => e.stopPropagation()}
         aria-label={item.favorite ? "Unmark favorite" : "Mark as favorite"}
       >★</button>
     </div>
@@ -156,6 +157,8 @@ const SLOT_RANK: Record<string, number> = { weapon: 0, helm: 1, armor: 2, belt: 
 
 export function sortInventory(items: Item[]): Item[] {
   return [...items].sort((a, b) => {
+    const fd = (b.favorite ? 1 : 0) - (a.favorite ? 1 : 0);
+    if (fd !== 0) return fd;
     const rd = RARITY_RANK[a.rarity] - RARITY_RANK[b.rarity];
     if (rd !== 0) return rd;
     const ld = b.itemLevel - a.itemLevel;

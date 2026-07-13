@@ -201,6 +201,7 @@ export function Hub({
               onRestock={onRestockShop}
               restockFee={restockFee}
               onToggleFavorite={onToggleFavorite}
+              onSort={onSortInventory}
               onSell={onSell}
               onSellAll={onSellAll}
               onSellJunk={onSellJunk}
@@ -210,7 +211,7 @@ export function Hub({
             <DungeonsTab clearedDungeons={clearedDungeons} onStart={onStartDungeon} selectedAct={selectedAct} onSelectAct={onSelectAct} />
           )}
           {tab === "gambler" && (
-            <GamblerTab character={character} equipment={equipment} inventory={inventory} onGamble={onGamble} onToggleFavorite={onToggleFavorite} />
+            <GamblerTab character={character} equipment={equipment} inventory={inventory} onGamble={onGamble} onToggleFavorite={onToggleFavorite} onSort={onSortInventory} />
           )}
         </div>
       </div>
