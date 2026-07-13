@@ -6,7 +6,7 @@ import {
   type DragStartEvent, type DragEndEvent, type DragOverEvent,
 } from "@dnd-kit/core";
 import { snapCenterToCursor } from "@dnd-kit/modifiers";
-import { ItemIcon } from "./ItemIcon";
+import { ItemIcon, SlotIcon } from "./ItemIcon";
 import { ItemTooltip } from "./ItemTooltip";
 import { CompareGroup } from "./ComparePanel";
 import { RARITY_COLORS } from "../game/data/items";
@@ -14,6 +14,7 @@ import { useItemHover } from "./useItemHover";
 import type { ClassId, EquipmentSlot, Item } from "../game/types";
 
 type Location = EquipmentSlot | "inventory";
+
 
 interface DragData {
   itemId: string;
@@ -119,12 +120,13 @@ function SlotItemDnd({
 }
 
 function DollSlotDnd({
-  slot, isOver, isValid, isTapTarget, children, onSlotClick,
+  slot, isOver, isValid, isTapTarget, extraClass, children, onSlotClick,
 }: {
   slot: EquipmentSlot;
   isOver: boolean;
   isValid: boolean;
   isTapTarget: boolean;
+  extraClass?: string;
   children: React.ReactNode;
   onSlotClick: (e: React.MouseEvent) => void;
 }) {
@@ -133,7 +135,7 @@ function DollSlotDnd({
   return (
     <div
       ref={setNodeRef}
-      className={`doll-slot doll-${slot}${overClass}${isTapTarget ? " tap-target" : ""}`}
+      className={`doll-slot doll-${slot}${overClass}${isTapTarget ? " tap-target" : ""}${extraClass ?? ""}`}
       onClick={onSlotClick}
     >
       {children}
@@ -254,7 +256,8 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem, onTogg
         <div className="paperdoll">
           {EQUIP_SLOTS.map((slot) => {
             const item = equipment[slot];
-            const isOver = dragOverId === slot;
+            const is2hMirror = slot === "shield" && (equipment.weapon?.twoHanded ?? false);
+            const isOver = !is2hMirror && dragOverId === slot;
             const valid = isValidTarget(slot);
             return (
               <DollSlotDnd
@@ -262,13 +265,19 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem, onTogg
                 slot={slot}
                 isOver={isOver}
                 isValid={valid}
-                isTapTarget={valid && hasSelected}
+                isTapTarget={!is2hMirror && valid && hasSelected}
+                extraClass={is2hMirror ? " doll-slot--2h" : ""}
                 onSlotClick={(e) => {
                   e.stopPropagation();
+                  if (is2hMirror) return;
                   if (hasSelected) { if (valid) tapSlot(slot); else setSelected(null); }
                 }}
               >
-                {item ? (
+                {is2hMirror ? (
+                  <div className="doll-slot-2h">
+                    <ItemIcon item={equipment.weapon!} />
+                  </div>
+                ) : item ? (
                   <SlotItemDnd
                     item={item}
                     slot={slot}
@@ -278,7 +287,10 @@ export function InventoryTab({ equipment, inventory, classId, onMoveItem, onTogg
                     onDoubleClick={() => onMoveItem(item.id, slot, "inventory")}
                   />
                 ) : (
-                  <span className="doll-slot-label">{SLOT_LABELS[slot] ?? slot}</span>
+                  <div className="doll-slot-empty">
+                    <SlotIcon slot={slot} />
+                    <span className="doll-slot-label">{SLOT_LABELS[slot] ?? slot}</span>
+                  </div>
                 )}
               </DollSlotDnd>
             );

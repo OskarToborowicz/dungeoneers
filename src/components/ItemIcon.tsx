@@ -18,6 +18,15 @@ function iconKind(item: Item): string {
   return item.slot;
 }
 
+export function SlotIcon({ slot, size = 34 }: { slot: string; size?: number }) {
+  const key = (slot === "ring1" || slot === "ring2") ? "ring" : slot === "weapon" ? "sword" : slot;
+  return (
+    <svg width={size} height={size} viewBox="0 0 40 40" className="item-icon">
+      {ICONS[key] ?? ICONS.armor}
+    </svg>
+  );
+}
+
 export function ItemIcon({ item, size = 34 }: { item: Item; size?: number }) {
   const kind = iconKind(item);
   return (
