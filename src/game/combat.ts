@@ -571,6 +571,26 @@ export function resolveRound(
       });
     }
 
+    // Judgement (Paladin lv.35): basic attacks deal bonus holy damage equal to 25% of total Magic damage
+    if (
+      character.classId === "paladin" &&
+      character.level >= 35 &&
+      basicHitDmg > 0 &&
+      monsterLife > 0
+    ) {
+      const holyDmg = Math.round(stats.magicDamageBonus * 0.25);
+      if (holyDmg > 0) {
+        monsterLife -= holyDmg;
+        damageDealt += holyDmg;
+        log.push({
+          actor: "player",
+          message: `Judgement strikes for ${holyDmg} holy damage!`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+      }
+    }
+
     // Venom (Assassin lv.20): basic attacks apply 2-turn poison at 30% of hit damage
     if (
       character.classId === "assassin" &&
@@ -1509,18 +1529,6 @@ export function resolveRound(
           // Divine Retribution: 15% of spell damage taken → life
           const healBack = Math.round(spellDmg * PALADIN_DAMAGE_TAKEN_HEAL);
           playerLife = Math.min(stats.maxLife, playerLife + healBack);
-          if (character.level >= 35) {
-            // Thorns Aura: 20% of spell damage reflected back
-            const thornsDmg = Math.round(spellDmg * 0.2);
-            monsterLife -= thornsDmg;
-            damageDealt += thornsDmg;
-            log.push({
-              actor: "player",
-              message: `Thorns Aura reflects ${thornsDmg} damage back!`,
-              playerLife: Math.max(0, playerLife),
-              monsterLife: Math.max(0, monsterLife),
-            });
-          }
         }
         // Thornback unique armor: reflects % of any damage taken
         if (stats.thornReflect > 0 && spellDmg > 0) {
@@ -1620,13 +1628,6 @@ export function resolveRound(
           const healBack = Math.round(dmg * PALADIN_DAMAGE_TAKEN_HEAL);
           playerLife = Math.min(stats.maxLife, playerLife + healBack);
           message += ` Divine Retribution restores ${healBack} life.`;
-          if (character.level >= 35) {
-            // Thorns Aura: 20% of physical damage reflected
-            const thornsDmg = Math.round(dmg * 0.2);
-            monsterLife -= thornsDmg;
-            damageDealt += thornsDmg;
-            message += ` Thorns Aura reflects ${thornsDmg} damage!`;
-          }
         }
         // Thornback unique armor
         if (stats.thornReflect > 0) {

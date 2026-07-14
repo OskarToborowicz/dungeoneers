@@ -190,7 +190,7 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
               ⚔️ Damage: {derived.damage[0]}-{derived.damage[1]}
             </div>
             <div>🛡️Defense: {derived.defense}</div>
-            <div>🌀Spell Bonus: +{derived.magicDamageBonus}</div>
+            <div>🌀Magic Damage: +{derived.magicDamageBonus}</div>
             <div>🎯Crit Chance: {Math.round(critChance * 100)}%</div>
           </div>
         </div>

@@ -204,9 +204,9 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       levelRequirement: 20,
     },
     passive3: {
-      name: "Thorns Aura",
-      description: "Reflects 20% of all damage taken back to the attacker.",
-      short: "Every hit you take is partially reflected back to the enemy.",
+      name: "Judgement",
+      description: "Your basic attacks deal bonus holy damage equal to 25% of your total Magic damage.",
+      short: "Your basic attacks are empowered with holy energy.",
       levelRequirement: 35,
     },
     ability: {
