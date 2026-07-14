@@ -588,7 +588,7 @@ export function resolveRound(
         damageDealt += judgementDmg;
         log.push({
           actor: "player",
-          message: `Judgement strikes for ${judgementDmg} damage (${holyDmg} holy, ${strDmg} strength)!`,
+          message: `Judgement strikes for ${judgementDmg} holy damage!`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
