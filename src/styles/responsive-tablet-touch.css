@@ -47,4 +47,26 @@
     padding: 8px 16px;
     font-size: 13px;
   }
+
+  /* Tall tablet viewports (e.g. iPad Pro portrait 1024x1366) leave the
+     hub panel and combat log hugging their content height, with a large
+     empty gap below on the sidebar/action-buttons side. Stretch them to
+     fill the available height here only — desktop and mobile keep their
+     original fixed/content-hugging sizing. */
+  .hub-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tab-panel {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .combat-log {
+    flex: 1;
+    min-height: 260px;
+    max-height: 320px;
+    height: auto;
+  }
 }

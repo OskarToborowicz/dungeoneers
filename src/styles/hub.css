@@ -97,8 +97,21 @@
   flex: 1;
   min-width: 0;
   max-height: 97vh;
+}
+
+/* The gambler tab's inventory section (.gambler-inventory) uses flex: 1
+   to fill leftover height after the offer grid — it needs .tab-panel
+   itself to be a stretched flex container to have any space to grow
+   into. Scoped to just this tab so other tabs keep their content-hugging
+   height on desktop/mobile, per the tablet-only responsive request. */
+.hub-content:has(.gambler-tab) {
   display: flex;
   flex-direction: column;
+}
+
+.hub-content:has(.gambler-tab) .tab-panel {
+  flex: 1;
+  min-height: 0;
 }
 
 .hub-content::-webkit-scrollbar {
@@ -235,8 +248,6 @@
   border: 1px solid var(--border-gold);
   border-radius: 6px;
   padding: 20px;
-  flex: 1;
-  min-height: 0;
   max-height: 97vh;
   overflow-y: scroll;
   scrollbar-width: thin;

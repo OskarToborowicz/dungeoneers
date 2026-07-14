@@ -99,14 +99,16 @@ export function GamblerTab({
         </div>
       </div>
 
-      {inventory.length > 0 && (
-        <div className="gambler-inventory">
-          <div className="inventory-label-row">
-            <h3 className="inventory-label">Inventory ({inventory.length})</h3>
-            <button className="sort-btn" onClick={onSort}>
-              Sort
-            </button>
-          </div>
+      <div className="gambler-inventory">
+        <div className="inventory-label-row">
+          <h3 className="inventory-label">Inventory ({inventory.length})</h3>
+          <button className="sort-btn" onClick={onSort}>
+            Sort
+          </button>
+        </div>
+        {inventory.length === 0 ? (
+          <p className="empty-note">No items yet. Clear dungeons to find loot.</p>
+        ) : (
           <div className="inventory-grid">
             {inventory.map((item) => (
               <div
@@ -132,8 +134,8 @@ export function GamblerTab({
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {hovered && (
         <>
