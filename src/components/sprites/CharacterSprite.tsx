@@ -33,10 +33,53 @@ export const CLASS_COLORS: Record<ClassId, string> = {
 
 const UNIQUE_COLOR = "#ffa040";
 
+const CLASS_GLOW_INTENSITY: Record<ClassId, number> = {
+  barbarian: 1,
+  necromancer: 1,
+  sorceress: 1,
+  amazon: 1,
+  paladin: 1,
+  druid: 1,
+  assassin: 1,
+  monk: 1,
+};
+
+const CLASS_WEAPON_GLOW_INTENSITY: Record<ClassId, number> = {
+  barbarian: 1,
+  necromancer: 1,
+  sorceress: 1.7,
+  amazon: 1,
+  paladin: 1,
+  druid: 1,
+  assassin: 1,
+  monk: 1,
+};
+
+function withAlpha(color: string, alpha: number): string {
+  const hex = color.replace("#", "");
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+}
+
+function glowFilter(color: string, intensity: number): string {
+  const clamped = Math.max(0, intensity);
+  const fullLayers = Math.floor(clamped);
+  const remainder = clamped - fullLayers;
+  const layer = (c: string) =>
+    `drop-shadow(0 0 8px ${c}) drop-shadow(0 0 3px ${c})`;
+  const layers = Array(fullLayers).fill(layer(color));
+  if (remainder > 0.01) layers.push(layer(withAlpha(color, remainder)));
+  if (layers.length === 0) layers.push(layer(withAlpha(color, 0)));
+  return layers.join(" ");
+}
+
 type ClassSpriteModule = {
   body: () => React.ReactNode;
   weapon: (color: string) => React.ReactNode;
   uniqueWeapon: (color: string) => React.ReactNode;
+  offHand?: () => React.ReactNode;
 };
 
 const CLASS_SPRITES: Record<ClassId, ClassSpriteModule> = {
@@ -81,7 +124,8 @@ export function CharacterSprite({
   const weaponColor = isUnique ? UNIQUE_COLOR : classColor;
   const height = Math.round(size * 1.5);
   const sprite = CLASS_SPRITES[classId];
-
+  const glowIntensity = CLASS_GLOW_INTENSITY[classId];
+  const weaponGlowIntensity = CLASS_WEAPON_GLOW_INTENSITY[classId];
   const sharedG = {
     fill: "#120e0a" as const,
     strokeWidth: 1.8,
@@ -131,22 +175,30 @@ export function CharacterSprite({
         <g
           {...sharedG}
           stroke={classColor}
-          style={{
-            filter: `drop-shadow(0 0 6px ${classColor}) drop-shadow(0 0 2px ${classColor})`,
-          }}
+          style={{ filter: glowFilter(classColor, glowIntensity) }}
         >
           {sprite.body()}
         </g>
         <g
           {...sharedG}
+          stroke={classColor}
+          style={{ filter: glowFilter(classColor, glowIntensity) }}
+        >
+          {sprite.body()}
+        </g>
+        {sprite.offHand && (
+          <g
+            {...sharedG}
+            stroke={classColor}
+            style={{ filter: glowFilter(classColor, glowIntensity) }}
+          >
+            {sprite.offHand()}
+          </g>
+        )}
+        <g
+          {...sharedG}
           stroke={weaponColor}
-          style={
-            isUnique
-              ? {
-                  filter: `drop-shadow(0 0 6px ${weaponColor}) drop-shadow(0 0 2px ${weaponColor})`,
-                }
-              : undefined
-          }
+          style={{ filter: glowFilter(weaponColor, weaponGlowIntensity) }}
         >
           {isUnique
             ? sprite.uniqueWeapon(weaponColor)
