@@ -84,6 +84,7 @@ function App() {
   const [droppedItem, setDroppedItem] = useState<
     import("./game/types").Item | null
   >(null);
+  const [hasUnseenDrops, setHasUnseenDrops] = useState(false);
 
   useEffect(() => {
     setSlots(getAllSaves());
@@ -557,6 +558,8 @@ function App() {
             ? item
             : prev,
         );
+        if (["rare", "very rare", "unique"].includes(item.rarity))
+          setHasUnseenDrops(true);
       }
     }
     const dropChance = isBoss ? 1 : 0.35;
@@ -569,6 +572,8 @@ function App() {
           ? item
           : prev,
       );
+      if (["rare", "very rare", "unique"].includes(item.rarity))
+        setHasUnseenDrops(true);
     }
 
     const nextIndex = dungeonRun.index + 1;
@@ -695,7 +700,8 @@ function App() {
         selectedAct={selectedAct}
         onSelectAct={setSelectedAct}
         selectedTab={hubTab}
-        onSelectTab={setHubTab}
+        onSelectTab={(t) => { if (t === "inventory") setHasUnseenDrops(false); setHubTab(t); }}
+        hasUnseenDrops={hasUnseenDrops}
       />
       <FullscreenButton />
     </>

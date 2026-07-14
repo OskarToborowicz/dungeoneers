@@ -1026,7 +1026,7 @@
   max-width: 560px;
   flex: 1;
   min-height: 260px;
-  height: auto;
+  max-height: 320px;
   overflow-y: auto;
   background: var(--bg-panel);
   border: 1px solid var(--border-gold);

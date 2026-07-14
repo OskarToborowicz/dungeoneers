@@ -1,5 +1,14 @@
 /* ── 4. Hub layout + sidebar ─────────────────────────────────────────────── */
 
+@keyframes tab-icon-shine {
+  0%, 100% { filter: drop-shadow(0 0 0px currentColor); opacity: 1; }
+  50% { filter: drop-shadow(0 0 3px currentColor); opacity: 0.7; }
+}
+
+.tab-icon-shine {
+  animation: tab-icon-shine 1.6s ease-in-out infinite;
+}
+
 .hub-screen {
   --class-color: var(--border-gold);
   position: relative;
@@ -210,6 +219,9 @@
   padding: 10px 14px;
   font-size: 15px;
   border-radius: 4px 0 0 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .tab-bar button.active {
