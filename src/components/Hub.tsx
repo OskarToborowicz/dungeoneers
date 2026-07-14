@@ -207,7 +207,7 @@ export function Hub({
                 <div className="level-display">
                   Level {character.level}
                   {character.unspentStatPoints > 0 && (
-                    <span className="stat-point-inline">+</span>
+                    <span className="stat-point-inline" onClick={() => setTab("character")} style={{ cursor: "pointer" }}>+</span>
                   )}
                 </div>
               </div>
