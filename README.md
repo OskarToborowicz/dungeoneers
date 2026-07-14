@@ -581,10 +581,9 @@ maxLife += round(maxMana × 0.15)
 - Increases effective Defense by **10%** when calculating monster physical hit chance.
 - Health Potions restore an additional **10% of maximum life** on top of the standard 35%.
 
-### Paladin — Thorns Aura *(unlocks at level 35)*
-- After every physical hit or spell that damages the player, deals **20% of that damage** back to the attacker.
-- Applies after Divine Retribution; the reflected damage is tracked in `damageDealt` for the run summary.
-- Can kill a monster via reflected damage.
+### Paladin — Judgement *(unlocks at level 35)*
+- Each basic attack deals bonus holy damage equal to **25% of total Magic Damage** plus **25% of Strength**.
+- Both bonuses are combined into a single hit logged as `Judgement strikes for X holy damage!`
 
 ### Druid — Thick Hide
 - On every monster hit, reduces incoming damage by a percentage based on Dexterity:
