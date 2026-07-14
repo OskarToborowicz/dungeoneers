@@ -323,7 +323,6 @@ export function InventoryTab({
   equipment,
   inventory,
   classId,
-  character,
   derived,
   onMoveItem,
   onToggleFavorite,
