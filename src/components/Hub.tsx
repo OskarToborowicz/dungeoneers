@@ -280,7 +280,6 @@ export function Hub({
               equipment={equipment}
               inventory={inventory}
               classId={character.classId}
-              character={character}
               derived={derived}
               onMoveItem={onMoveItem}
               onToggleFavorite={onToggleFavorite}

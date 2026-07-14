@@ -6,7 +6,11 @@ Browser-based Diablo-style dungeon crawler. React 18 + TypeScript + Vite.
 Working directory: `C:\nowy poczatek\diabolo`
 
 Dev server: `npm run dev` (port 5173)
-Build check: `npx tsc --noEmit`
+Build check: `npx tsc -b --force` — NOT `npx tsc --noEmit` at the root. The root
+`tsconfig.json` is solution-style (`"files": []`, only `references`), so a bare
+`tsc --noEmit` type-checks zero files and always exits clean even with real
+errors in `src/`. Only `-b` (build mode) actually follows the references to
+`tsconfig.app.json` / `tsconfig.node.json` and type-checks the project.
 
 ---
 
@@ -27,7 +31,8 @@ Build check: `npx tsc --noEmit`
 | `src/components/GamblerTab.tsx` | Gambler UI — 8/9 slot offer cards + inline inventory |
 | `src/game/storage.ts` | localStorage read/write (`SaveSlot[]` array — NOT an object) |
 | `src/App.tsx` | Root state, routing between screens |
-| `src/App.css` | All styles — divided into 19 numbered sections with `/* ── N. */` markers |
+| `src/App.css` | Aggregator only — `@import`s every file in `src/styles/` in cascade order. Never add rules directly here. |
+| `src/styles/*.css` | One file per section (e.g. `combat-screen.css`, `responsive-mobile.css`, `responsive-hub-landscape.css`). **Import order in `App.css` is load-bearing** — several responsive rules rely on later-in-cascade wins between equal-specificity selectors across files (e.g. `responsive-tablet-touch.css` must stay after `responsive-hub-landscape.css`). Adding a new file requires adding its `@import` line in the correct position, not just alphabetically. |
 | `src/components/useItemHover.ts` | Shared hook for fixed-position item tooltip + compare panel on hover |
 | `src/components/ItemTooltip.tsx` | `UniqueEffectLines` — renders unique effect text per boolean flag; `sortAffixes()` — display order |
 | `src/components/AbilityEffect.tsx` | Per-class combat animations (ability, ability2, attack, detonation); exports `ATTACK_EFFECT_CLASSES` |
@@ -250,11 +255,11 @@ All Act 1 and Act 2 monsters have unique sprites. New monsters need entries in a
 - No unused variables — TypeScript strict mode will catch them
 - CSS class names use kebab-case matching the component name (e.g. `.combat-screen`, `.flee-modal`)
 - All new overlay/modal elements need `position: relative` on their parent container
-- Dark theme only — all colors are hardcoded dark palette values in App.css
+- Dark theme only — all colors are hardcoded dark palette values in `src/styles/*.css`
 - `src/index.css` height-lock uses two separate media queries:
   - `@media (max-width: 768px)` → `#root { overflow: hidden }` — portrait mobile, no scroll
   - `@media (orientation: landscape) and (max-height: 500px) and (max-width: 960px)` → `#root { overflow-y: auto }` — landscape, allows character select to scroll while hub manages its own overflow internally
-- Mobile responsive breakpoint at `@media (max-width: 768px)` at the bottom of App.css:
+- Mobile responsive breakpoint at `@media (max-width: 768px)` in `src/styles/responsive-mobile.css`:
   - Hub sidebar collapses to a horizontal top bar (sprite shrinks, tabs go horizontal)
   - `derived-grid` switches from 3-col to 2-col
   - Padding reduced to 12px
@@ -267,7 +272,7 @@ All Act 1 and Act 2 monsters have unique sprites. New monsters need entries in a
   - Inventory: paperdoll left (**32px** slots — reduced from default), `doll-shield` label uses `font-size: 0` + `::after { content: "OH" }` to fit "OFF HAND" in tight space; inventory-right column fills remaining space with fixed label + scrollable grid + fixed instruction
   - Scroll containment: `.hub-content .tab-panel:has(.inventory-wrapper) { overflow: hidden }` — only inventory tab gets `overflow: hidden`; other tabs (Character, Dungeons) use `overflow-y: auto` so they scroll normally
   - Shop potion cards show compact `.shop-potion-stat` div (`35% HP` / `35% Mana`), hidden by default, shown in landscape
-- Character creation landscape breakpoint at `@media (orientation: landscape) and (max-height: 500px)` (section `18b` in App.css):
+- Character creation landscape breakpoint at `@media (orientation: landscape) and (max-height: 500px)` (`src/styles/responsive-creation-landscape.css`):
   - Title and subtitle hidden; padding reduced
   - Class buttons become a horizontal wrapping row
   - Skills shown as a 3-column grid (`grid-template-columns: repeat(3, 1fr)`) with `-webkit-line-clamp: 3` on descriptions

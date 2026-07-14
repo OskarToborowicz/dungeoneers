@@ -1,0 +1,147 @@
+/* ── 16b. Gambler Tab ────────────────────────────────────────────────────── */
+
+.gambler-tab {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  overflow: hidden;
+}
+
+.gambler-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.gambler-title {
+  font-size: 17px;
+  font-weight: 700;
+  color: #c9a84c;
+  letter-spacing: 0.5px;
+}
+
+.gambler-subtitle {
+  font-size: 12px;
+  color: #777;
+  margin-top: 3px;
+}
+
+.gambler-epithet {
+  font-size: 12px;
+  font-weight: 400;
+  color: #888;
+  letter-spacing: 0;
+}
+
+.gambler-refresh {
+  padding: 6px 14px;
+  background: transparent;
+  border: 1px solid #4a4a4a;
+  border-radius: 4px;
+  color: #999;
+  cursor: pointer;
+  font-size: 12px;
+  white-space: nowrap;
+  transition:
+    border-color 0.15s,
+    color 0.15s;
+}
+
+.gambler-refresh:hover {
+  border-color: #c9a84c;
+  color: #c9a84c;
+}
+
+.gambler-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  overflow-y: auto;
+  align-content: start;
+}
+
+.gamble-offer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: #141422;
+  border: 1px solid #2e2e48;
+  border-radius: 6px;
+  padding: 8px 8px 10px;
+}
+
+.gamble-mystery {
+  font-size: 24px;
+  line-height: 1;
+  color: #c9a84c;
+  text-shadow: 0 0 14px rgba(201, 168, 76, 0.55);
+  user-select: none;
+}
+
+.gamble-slot {
+  font-size: 11px;
+  color: #ccc;
+  font-weight: 600;
+  text-align: center;
+}
+
+.gamble-price {
+  font-size: 11px;
+  color: #f0c040;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.gamble-button {
+  padding: 3px 12px;
+  background: transparent;
+  border: 1px solid #c9a84c;
+  border-radius: 4px;
+  color: #c9a84c;
+  cursor: pointer;
+  font-size: 11px;
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+}
+
+.gamble-button:hover:not(:disabled) {
+  background: rgba(201, 168, 76, 0.14);
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.3);
+}
+
+.gamble-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: #444;
+  color: #666;
+}
+
+.gambler-left {
+  display: contents;
+}
+
+.gambler-inventory {
+  flex: 1;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.gambler-inventory .inventory-label {
+  flex-shrink: 0;
+  margin-bottom: 6px;
+}
+
+.gambler-inventory .inventory-grid {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+}
+

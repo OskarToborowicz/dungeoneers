@@ -1,0 +1,207 @@
+/* ── 18. Responsive: combat landscape ────────────────────────────────────── */
+@media (orientation: landscape) and (max-height: 500px) {
+  /* inventory tab */
+  .restock-button,
+  .sell-all-button,
+  .sell-junk-button,
+  .sort-btn {
+    font-size: 10px;
+  }
+  /* // COMBAT SCREEN ON MOBILE// */
+  .combat-screen {
+    display: grid !important;
+    align-items: stretch;
+    grid-template-columns: 140px 1fr 100px;
+    grid-template-rows: auto 1fr;
+    grid-template-areas:
+      "bars middle flee"
+      "spells middle flee";
+    gap: 8px;
+    padding: 8px;
+    height: 100dvh;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .combat-middle {
+    grid-area: middle;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-width: 0;
+    order: 0;
+    background: var(--bg-panel);
+    position: relative;
+  }
+  .combat-title {
+    display: none;
+  }
+
+  .combat-middle .battle-arena {
+    flex-shrink: 0;
+    order: 1;
+    margin-bottom: 4px;
+    max-width: 100%;
+  }
+
+  .combat-middle .combat-log {
+    flex: 1;
+    height: 0;
+    min-height: 0;
+    overflow-y: auto;
+    font-size: 11px;
+    padding: 6px 10px;
+    order: 1;
+    max-width: 100%;
+  }
+  .combat-bars .combat-bar-block:last-child {
+    display: none;
+  }
+
+  .combat-bars .hp-bar,
+  .combat-bars .resource-bar,
+  .combat-bars .xp-bar-combat {
+    height: 14px;
+  }
+
+  .combat-bars .resource-bar {
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* bar-num overlays absolutely on top of normal-flow bar-fill */
+  .combat-bars .bar-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 3px rgba(0, 0, 0, 1);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .combat-bars .combat-stat-row {
+    display: none;
+  }
+  .combat-bars .status-effects {
+    font-size: 9px;
+  }
+  .landscape-hide {
+    display: none;
+  }
+
+  .combat-bars .potion-row {
+    display: flex;
+    gap: 4px;
+    margin-top: 2px;
+  }
+
+  .combat-bars .potion-compact {
+    flex: 1;
+    padding: 2px 4px;
+    font-size: 9px;
+  }
+
+  .landscape-monster-hp {
+    display: block;
+  }
+
+  .landscape-monster-hp .hp-bar {
+    height: 14px;
+  }
+
+  .landscape-monster-hp .bar-num {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    color: rgba(255, 255, 255, 0.9);
+    text-shadow: 0 0 3px rgba(0, 0, 0, 1);
+    line-height: 1;
+    pointer-events: none;
+  }
+
+  .combat-result {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 2;
+    margin-top: 0;
+    padding: 6px 10px;
+    max-width: 100%;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    border-radius: 6px 6px 0 0;
+  }
+  .combat-result .victory-text,
+  .combat-result .defeat-text {
+    font-size: 13px;
+    margin: 0;
+  }
+  .combat-result p {
+    font-size: 11px;
+    margin: 0;
+  }
+  .combat-result .primary-button {
+    margin-top: 0;
+    padding: 6px 14px;
+    font-size: 12px;
+    flex-shrink: 0;
+  }
+
+  .combat-actions {
+    display: contents;
+  }
+
+  .combat-spells {
+    grid-area: spells;
+    order: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .combat-spells .action-button {
+    flex: 1;
+    font-size: 11px;
+    padding: 6px 8px;
+  }
+
+  .combat-flee {
+    grid-area: flee;
+    order: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    overflow: hidden;
+    gap: 4px;
+  }
+
+  .combat-flee .action-button {
+    flex: none;
+    font-size: 11px;
+    padding: 6px 8px;
+    height: 48px;
+  }
+
+  .landscape-monster-name {
+    display: block;
+    font-family: var(--heading-font);
+    color: var(--text-heading);
+    font-size: 11px;
+    text-align: center;
+    padding: 2px 0;
+    word-break: break-word;
+  }
+}
+

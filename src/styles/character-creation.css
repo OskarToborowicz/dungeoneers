@@ -1,0 +1,206 @@
+/* ── 2. Character Creation ───────────────────────────────────────────────── */
+
+.creation-screen {
+  align-items: center;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.game-title {
+  font-family: var(--heading-font);
+  text-transform: uppercase;
+  font-size: 52px;
+  letter-spacing: 6px;
+  text-shadow: 0 0 18px rgba(201, 162, 75, 0.5);
+  margin-bottom: 4px;
+}
+
+.subtitle {
+  color: var(--text-dim);
+  font-style: italic;
+  margin-bottom: 28px;
+}
+
+.creation-panel {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 640px;
+  flex: 1;
+  min-height: 0;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-gold);
+  border-radius: 6px;
+  padding: 20px;
+  text-align: left;
+}
+
+.class-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 140px;
+}
+
+.class-button {
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border-gold);
+  color: var(--text);
+  padding: 10px 12px;
+  border-radius: 4px;
+  text-align: left;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.class-icon {
+  flex-shrink: 0;
+  color: currentColor;
+}
+
+.class-detail-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.class-button.selected,
+.class-button:hover {
+  border-color: var(--border-gold-bright);
+  color: var(--text-heading);
+  background: #2c2319;
+}
+
+.class-detail {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  border-left: 1px solid var(--border-gold);
+  padding-left: 20px;
+}
+
+.class-header {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.class-header .class-sprite-preview {
+  flex-shrink: 0;
+}
+
+.class-header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.class-desc {
+  color: var(--text-dim);
+  margin-bottom: 0;
+}
+
+.ability-box {
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border-gold);
+  border-radius: 4px;
+  padding: 10px 12px;
+  margin-top: 10px;
+}
+
+.ability-box strong {
+  color: var(--text-heading);
+}
+
+.ability-box p {
+  color: var(--text-dim);
+  margin-top: 4px;
+  font-size: 14px;
+}
+
+.passive-box {
+  margin-top: 10px;
+  border-color: var(--mana-color);
+}
+
+.passive-box strong {
+  color: #6f9fe0;
+}
+
+.name-input {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 320px;
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border-gold);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 4px;
+  font-size: 16px;
+  text-align: center;
+}
+
+.primary-button {
+  margin-top: 16px;
+  background: linear-gradient(
+    180deg,
+    var(--accent-red-bright),
+    var(--accent-red)
+  );
+  border: 1px solid var(--border-gold-bright);
+  color: #f0e6c8;
+  padding: 12px 28px;
+  border-radius: 4px;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.primary-button:hover:not(:disabled) {
+  filter: brightness(1.15);
+}
+
+.creation-bottom-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: center;
+}
+
+.creation-bottom-row .primary-button {
+  margin-top: 0;
+}
+
+.creation-footer .primary-button:not(:disabled),
+.creation-bottom-row .primary-button:not(:disabled) {
+  box-shadow: 0 0 10px 2px
+    color-mix(in srgb, var(--border-gold-bright) 55%, transparent);
+  transition: box-shadow 0.3s ease;
+}
+
+.secondary-button {
+  background: transparent;
+  border: 1px solid var(--border-gold);
+  color: var(--text-muted);
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-size: 16px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.secondary-button:hover {
+  border-color: var(--border-gold-bright);
+  color: var(--text-primary);
+}
+
+.primary-button.small {
+  padding: 8px 16px;
+  font-size: 13px;
+  margin-top: 8px;
+}
+

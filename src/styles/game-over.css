@@ -1,0 +1,46 @@
+/* ── 16. Game Over / Victory ──────────────────────────────────────────────── */
+
+.game-over-screen {
+  align-items: center;
+  text-align: center;
+  justify-content: center;
+}
+
+.death-title {
+  font-size: 44px;
+  letter-spacing: 4px;
+  color: var(--accent-red-bright);
+  text-shadow: 0 0 18px rgba(194, 50, 31, 0.5);
+}
+
+.death-stats-panel {
+  width: 100%;
+  max-width: 360px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-gold);
+  border-radius: 6px;
+  padding: 8px 20px;
+  margin: 24px 0;
+}
+
+.death-stat-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border-gold);
+}
+
+.death-stat-row:last-child {
+  border-bottom: none;
+}
+
+.death-stat-label {
+  color: var(--text-dim);
+}
+
+.death-stat-value {
+  color: var(--text-heading);
+  font-family: var(--heading-font);
+  font-size: 18px;
+}
+

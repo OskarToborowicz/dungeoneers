@@ -1,0 +1,194 @@
+/* ── 9b. Item drop banner + Flee modal ───────────────────────────────────── */
+
+.drop-banner {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-gold);
+  border-radius: 6px;
+  padding: 8px 12px;
+  z-index: 50;
+  cursor: pointer;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  white-space: nowrap;
+  animation: drop-slide-in 0.3s ease;
+}
+
+.drop-banner--unique {
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.5),
+    0 0 14px 3px #ff6a0088,
+    0 0 28px 6px #ff6a0033;
+  border-color: #ff6a00;
+}
+
+@keyframes drop-slide-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+.drop-banner-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.drop-banner-icon {
+  display: flex;
+  align-items: center;
+}
+
+.drop-banner-name {
+  font-family: var(--heading-font);
+  font-size: 14px;
+}
+
+.drop-banner-dismiss {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0 2px;
+  line-height: 1;
+  margin-left: 4px;
+}
+
+.drop-banner-dismiss:hover {
+  color: var(--text-light);
+}
+
+.flee-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.flee-modal {
+  background: var(--bg-panel);
+  border: 2px solid #888;
+  border-radius: 6px;
+  padding: 28px 36px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+}
+
+.flee-question {
+  font-family: var(--heading-font);
+  font-size: 18px;
+  color: var(--text-light);
+  margin: 0 0 20px;
+}
+
+.flee-buttons {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.flee-confirm {
+  background: #5a1010;
+  border: 1px solid #aa3333;
+  color: #ffaaaa;
+  padding: 6px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--heading-font);
+}
+
+.flee-confirm:hover {
+  background: #7a1a1a;
+}
+
+.flee-cancel {
+  background: #1a2a1a;
+  border: 1px solid #336633;
+  color: #aaffaa;
+  padding: 6px 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--heading-font);
+}
+
+.flee-cancel:hover {
+  background: #223322;
+}
+
+.dungeon-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dungeon-card {
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border-gold);
+  border-radius: 6px;
+  padding: 14px 16px;
+}
+
+.dungeon-card.locked {
+  opacity: 0.5;
+}
+
+.dungeon-card.dungeon-endgame {
+  border-color: var(--accent-red-bright);
+  box-shadow: 0 0 14px rgba(194, 50, 31, 0.25);
+}
+
+.dungeon-card.endgame-locked-hint {
+  border-style: dashed;
+  opacity: 0.55;
+}
+
+.primary-button.endgame-button {
+  background: linear-gradient(180deg, #8a1a10, #5a0e08);
+  border-color: var(--accent-red-bright);
+  font-size: 12px;
+  padding: 8px 14px;
+}
+
+.dungeon-name {
+  font-family: var(--heading-font);
+  color: var(--text-heading);
+  font-size: 17px;
+  margin-bottom: 4px;
+}
+
+.cleared-badge {
+  color: #8fd18f;
+  font-size: 12px;
+  border: 1px solid #8fd18f;
+  border-radius: 3px;
+  padding: 1px 6px;
+  margin-left: 8px;
+}
+
+.dungeon-desc {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.dungeon-meta {
+  color: var(--text-dim);
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+

@@ -1,0 +1,233 @@
+/* ── 4. Hub layout + sidebar ─────────────────────────────────────────────── */
+
+.hub-screen {
+  --class-color: var(--border-gold);
+  position: relative;
+}
+
+.hub-sidebar {
+  border-right-color: var(--class-color) !important;
+}
+
+.hub-screen .tab-panel {
+  border-color: var(--class-color);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--class-color) 18%, transparent);
+}
+.tab-bar button:nth-of-type(1) {
+  color: #ffc84d;
+  animation: dungeonGlow 3.5s ease-in-out infinite;
+}
+
+@keyframes dungeonGlow {
+  0%,
+  100% {
+    color: #ffc84d;
+    text-shadow:
+      0 0 1px rgba(255, 200, 70, 0.4),
+      0 0 3px rgba(255, 120, 0, 0.3);
+  }
+
+  20% {
+    color: #ffd76b;
+    text-shadow:
+      0 0 2px rgba(255, 215, 107, 0.6),
+      0 0 4px rgba(255, 150, 0, 0.4);
+  }
+
+  40% {
+    color: #ffc84d;
+    text-shadow:
+      0 0 1px rgba(255, 200, 70, 0.4),
+      0 0 3px rgba(255, 120, 0, 0.3);
+  }
+
+  55% {
+    color: #ffe08a;
+    text-shadow:
+      0 0 2px rgba(255, 224, 138, 0.7),
+      0 0 5px rgba(255, 140, 0, 0.5);
+  }
+
+  75% {
+    color: #ffc84d;
+    text-shadow:
+      0 0 1px rgba(255, 200, 70, 0.4),
+      0 0 3px rgba(255, 120, 0, 0.3);
+  }
+}
+.hub-screen .tab-bar button.active {
+  border-left-color: var(--class-color);
+  color: var(--class-color);
+}
+
+.hub-screen .tab-bar button:hover:not(.active) {
+  color: var(--class-color);
+  opacity: 0.8;
+}
+
+.hub-layout {
+  display: flex;
+  gap: 24px;
+  align-items: stretch;
+  flex: 1;
+}
+
+.hub-sidebar {
+  width: 170px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  position: sticky;
+  top: 2px;
+  align-self: flex-start;
+  min-height: calc(100svh - 96px);
+}
+
+.hub-content {
+  flex: 1;
+  min-width: 0;
+  max-height: 97vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.hub-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hub-content::-webkit-scrollbar-track {
+  background: #1a1208;
+  border-radius: 3px;
+}
+
+.hub-content::-webkit-scrollbar-thumb {
+  background: var(--class-color);
+  border-radius: 3px;
+  opacity: 0.7;
+}
+
+.hub-content::-webkit-scrollbar-thumb:hover {
+  background: var(--class-color);
+  filter: brightness(1.4);
+}
+
+.gold-display {
+  display: flex;
+  align-items: center;
+  justify-content: left;
+  gap: 5px;
+  color: var(--text-heading);
+  font-family: var(--heading-font);
+  font-size: 18px;
+}
+
+.level-display {
+  font-size: 15px;
+  color: var(--text-muted, #888);
+  font-family: var(--heading-font);
+}
+
+.stat-point-inline {
+  margin-left: 6px;
+  color: #ffe066;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  vertical-align: middle;
+  text-shadow:
+    0 0 8px #ffe066,
+    0 0 16px #ffe066;
+  animation: stat-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes stat-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+.potions-display {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--text-dim);
+}
+
+.potions-display span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.reset-button,
+.restock-button {
+  background: none;
+  border: 1px solid var(--border-gold);
+  color: var(--text-dim);
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.reset-button {
+  margin-top: auto;
+}
+
+.mobile-menu-button {
+  display: none;
+}
+
+.reset-button:hover {
+  border-color: var(--accent-red-bright);
+  color: var(--accent-red-bright);
+}
+
+.restock-button:hover:not(:disabled) {
+  border-color: var(--border-gold-bright);
+  color: var(--text-heading);
+}
+
+.tab-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-right: 1px solid var(--border-gold);
+  padding-right: 4px;
+}
+
+.tab-bar button {
+  background: none;
+  border: none;
+  border-left: 2px solid transparent;
+  color: var(--text-dim);
+  text-align: left;
+  padding: 10px 14px;
+  font-size: 15px;
+  border-radius: 4px 0 0 4px;
+}
+
+.tab-bar button.active {
+  color: var(--text-heading);
+  background: var(--bg-panel-light);
+  border-left-color: var(--border-gold-bright);
+}
+
+.tab-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-gold);
+  border-radius: 6px;
+  padding: 20px;
+  flex: 1;
+  min-height: 0;
+  max-height: 97vh;
+  overflow-y: scroll;
+  scrollbar-width: thin;
+  scrollbar-color: var(--class-color) #1a1208;
+}
+

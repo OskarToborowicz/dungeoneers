@@ -1,0 +1,17 @@
+/* ── 11. Battle Arena ─────────────────────────────────────────────────────── */
+.battle-arena {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  width: 100%;
+  max-width: 560px;
+  height: 148px;
+  background: linear-gradient(to bottom, #1a0d08, #0d0605);
+  border: 1px solid var(--border-gold);
+  border-radius: 6px;
+  padding: 12px 28px;
+  margin-bottom: 16px;
+  overflow: visible;
+  position: relative;
+}
+

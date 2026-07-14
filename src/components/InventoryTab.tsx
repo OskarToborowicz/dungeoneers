@@ -18,7 +18,7 @@ import { ItemTooltip } from "./ItemTooltip";
 import { CompareGroup } from "./ComparePanel";
 import { RARITY_COLORS } from "../game/data/items";
 import { useItemHover } from "./useItemHover";
-import type { ClassId, Character, EquipmentSlot, Item } from "../game/types";
+import type { ClassId, EquipmentSlot, Item } from "../game/types";
 import type { DerivedStats } from "../game/character";
 
 type Location = EquipmentSlot | "inventory";
@@ -82,7 +82,6 @@ interface Props {
   equipment: Partial<Record<EquipmentSlot, Item>>;
   inventory: Item[];
   classId: ClassId;
-  character: Character;
   derived: DerivedStats;
   onMoveItem: (itemId: string, from: Location, to: Location) => void;
   onToggleFavorite: (itemId: string) => void;
@@ -323,7 +322,6 @@ export function InventoryTab({
   equipment,
   inventory,
   classId,
-  character,
   derived,
   onMoveItem,
   onToggleFavorite,

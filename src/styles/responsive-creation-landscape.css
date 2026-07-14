@@ -1,0 +1,141 @@
+/* ── 18b. Responsive: character creation landscape ───────────────────────── */
+@media (orientation: landscape) and (max-height: 500px) {
+  .creation-screen .game-title,
+  .creation-screen .subtitle {
+    display: none;
+  }
+
+  .creation-screen {
+    padding: 6px 12px;
+  }
+
+  .creation-panel {
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+    max-width: 100%;
+    padding: 10px 12px;
+    gap: 8px;
+  }
+
+  .class-list {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    min-width: unset;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+
+  .class-button {
+    padding: 5px 8px;
+    font-size: 12px;
+    gap: 6px;
+  }
+
+  .class-detail {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    border-left: none;
+    border-top: 1px solid var(--border-gold);
+    padding-left: 0;
+    padding-top: 8px;
+  }
+
+  .class-sprite-preview {
+    display: none;
+  }
+
+  .class-detail-title {
+    margin-bottom: 2px;
+  }
+
+  .class-detail-title {
+    font-size: 13px;
+  }
+
+  .class-desc {
+    font-size: 11px;
+    margin-bottom: 4px;
+  }
+
+  .class-detail .class-header {
+    margin-bottom: 6px;
+  }
+
+  .class-skills-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-auto-rows: 1fr;
+    gap: 5px;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .class-skills-grid .ability-box--compact {
+    margin-top: 0;
+    padding: 6px 8px;
+    overflow: hidden;
+  }
+
+  .class-skills-grid .ability-box--compact strong {
+    font-size: 12px;
+  }
+
+  .class-skills-grid .ability-box--compact p {
+    font-size: 11px;
+    margin-top: 3px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .creation-footer {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0 4px;
+  }
+
+  .creation-back {
+    flex-shrink: 0;
+    order: -1;
+  }
+
+  .creation-footer .name-input {
+    flex: 1;
+    min-width: 0;
+    max-width: none;
+    margin-top: 0;
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .creation-footer .creation-bottom-row {
+    margin-top: 0;
+    flex-shrink: 0;
+  }
+
+  .creation-footer .primary-button {
+    font-size: 12px;
+    padding: 6px 14px;
+    background: var(--bg-panel-light);
+    border-color: var(--border-gold-bright);
+    color: var(--text-heading);
+  }
+
+  .creation-footer .primary-button:hover:not(:disabled) {
+    background: #2c2319;
+    border-color: var(--border-gold-bright);
+    color: #f0d080;
+  }
+
+  .creation-footer .secondary-button {
+    font-size: 12px;
+    padding: 6px 14px;
+  }
+}
+

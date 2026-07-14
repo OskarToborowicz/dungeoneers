@@ -1,0 +1,41 @@
+/* ── 8. Dungeons Tab ─────────────────────────────────────────────────────── */
+
+.dungeons-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.dungeons-header h3 {
+  margin: 0;
+}
+
+.act-selector {
+  display: flex;
+  gap: 4px;
+}
+
+.act-tab {
+  padding: 4px 14px;
+  font-family: var(--heading-font);
+  font-size: 13px;
+  background: var(--bg-panel-light);
+  border: 1px solid var(--border-gold);
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 3px;
+  transition:
+    background 0.15s,
+    color 0.15s;
+}
+
+.act-tab.active {
+  background: var(--border-gold);
+  color: #1a1209;
+}
+
+.act-tab:hover:not(.active) {
+  color: var(--text-heading);
+}
+

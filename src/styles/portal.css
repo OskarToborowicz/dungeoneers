@@ -1,0 +1,41 @@
+/* ── 9a. Portal overlay ──────────────────────────────────────────────────── */
+
+.portal-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.portal-modal {
+  background: var(--bg-panel);
+  border: 2px solid #cc2211;
+  border-radius: 6px;
+  padding: 32px 40px;
+  text-align: center;
+  max-width: 360px;
+  box-shadow: 0 0 40px rgba(200, 30, 10, 0.5);
+}
+
+.portal-modal h2 {
+  font-family: var(--heading-font);
+  color: #e84433;
+  margin: 8px 0 12px;
+  font-size: 20px;
+}
+
+.portal-modal p {
+  color: var(--text-dim);
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.portal-icon {
+  font-size: 40px;
+  filter: drop-shadow(0 0 12px rgba(220, 40, 20, 0.8));
+}
+

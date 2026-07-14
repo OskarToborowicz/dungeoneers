@@ -192,12 +192,20 @@ function App() {
   function handleSelectSlot(slotId: string) {
     const save = getSave(slotId);
     if (!save) return;
+    const loadedCharacter: Character = {
+      ...save.character,
+      runStats: save.character.runStats ?? {
+        damageDealt: 0,
+        goldEarned: 0,
+        kills: 0,
+      },
+    };
     if (save.inCombat && save.activeDungeonRun) {
       const run = save.activeDungeonRun;
       const dungeon = DUNGEONS.find((d) => d.id === run.dungeonId);
       if (dungeon) {
         setActiveSlotId(slotId);
-        setCharacter(save.character);
+        setCharacter(loadedCharacter);
         setEquipment(save.equipment);
         setInventory(save.inventory);
         setClearedDungeons(save.clearedDungeons);
@@ -220,7 +228,7 @@ function App() {
       }
     }
     setActiveSlotId(slotId);
-    setCharacter(save.character);
+    setCharacter(loadedCharacter);
     setEquipment(save.equipment);
     setInventory(save.inventory);
     setClearedDungeons(save.clearedDungeons);

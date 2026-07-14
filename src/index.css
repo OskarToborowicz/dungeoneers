@@ -90,6 +90,14 @@ body {
   }
 }
 
+/* Tablets in landscape have a lot of unused width past the 960px desktop
+   cap; give touch tablets more room instead of large empty side margins. */
+@media (min-width: 961px) and (max-width: 1400px) and (pointer: coarse) {
+  #root {
+    max-width: 1160px;
+  }
+}
+
 h1,
 h2,
 h3 {
@@ -97,6 +105,7 @@ h3 {
   color: var(--text-heading);
   margin: 0 0 8px;
   letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
 p {

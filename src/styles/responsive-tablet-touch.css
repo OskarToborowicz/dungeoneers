@@ -1,0 +1,50 @@
+/* ── 21. Responsive: tablet touch ────────────────────────────────────────
+   Scoped to touchscreens only (pointer: coarse) in the tablet width band,
+   so mouse-driven desktop windows in the same width range are unaffected.
+   Widens the smaller "mouse-sized" hit targets that the mobile layout
+   already handles differently, without touching the mobile (≤768px) or
+   mobile-landscape (max-height:500px) breakpoints above.
+   min-height:501px is required so this never fires alongside the
+   mobile-landscape query above — large phones in landscape (e.g. iPhone
+   14 Pro Max at 932×430) are pointer:coarse and land in this width band
+   too, and without the height guard these rules (being later in the
+   file) clobbered the compact landscape button/grid sizing.           ── */
+@media (min-width: 769px) and (max-width: 1180px) and (min-height: 501px) and (pointer: coarse) {
+  .tab-bar button {
+    padding: 14px 16px;
+    font-size: 16px;
+  }
+
+  .allocate-button {
+    width: 36px;
+    height: 36px;
+    font-size: 16px;
+  }
+
+  .delete-button {
+    width: 34px;
+    height: 34px;
+    font-size: 20px;
+  }
+
+  .reset-button,
+  .restock-button {
+    padding: 10px 16px;
+    font-size: 13px;
+  }
+
+  .sort-btn {
+    padding: 6px 14px;
+    font-size: 12px;
+  }
+
+  .potion-buy-button {
+    padding: 9px 14px;
+    font-size: 13px;
+  }
+
+  .gamble-button {
+    padding: 8px 16px;
+    font-size: 13px;
+  }
+}

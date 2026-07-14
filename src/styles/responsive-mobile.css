@@ -1,0 +1,430 @@
+/* ── 17. Responsive: mobile (≤768px) ─────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .screen {
+    padding: 12px;
+  }
+
+  /* Title */
+  .game-title {
+    font-size: 36px;
+    letter-spacing: 3px;
+  }
+
+  /* Hub: stack sidebar above content, fill viewport height */
+  .hub-screen {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+  }
+
+  .hub-layout {
+    flex-direction: column;
+    gap: 0;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  .hub-sidebar {
+    width: 100%;
+    min-height: unset;
+    position: relative;
+    flex-direction: column;
+    gap: 0;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-gold);
+    padding: 6px 8px 0;
+    flex-shrink: 0;
+  }
+
+  .hub-content {
+    flex: 1;
+    min-height: 0;
+    max-height: none;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding: 12px;
+  }
+
+  .hub-content .tab-panel {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .hub-content:has(.gambler-tab) {
+    overflow: hidden;
+  }
+
+  .shop-potions {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .shop-potion-card {
+    padding: 8px 10px;
+  }
+
+  .shop-potion-name {
+    font-size: 13px;
+    margin-bottom: 2px;
+  }
+
+  .shop-potion-desc {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  /* Sprite + info row */
+  .hub-sprite-wrap {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 4px;
+  }
+
+  .hub-sprite svg {
+    width: 36px !important;
+    height: 54px !important;
+  }
+
+  .hub-char-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  /* name + level on same line in portrait mobile */
+  .hub-name-level-row {
+    flex-direction: row;
+    align-items: baseline;
+    gap: 6px;
+    justify-content: flex-start;
+  }
+
+  .hub-char-name {
+    font-size: 13px;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  .level-display {
+    font-size: 13px;
+  }
+
+  .gold-display {
+    font-size: 13px;
+  }
+
+  .potions-display {
+    font-size: 13px;
+  }
+
+  /* Tab bar: horizontal row below sprite row */
+  .tab-bar {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    border-right: none;
+    border-bottom: none;
+    padding-right: 0;
+    gap: 0;
+    width: 100%;
+  }
+
+  .tab-bar button {
+    border-left: none;
+    border-bottom: 2px solid transparent;
+    border-radius: 4px 4px 0 0;
+    padding: 6px 4px;
+    font-size: 12px;
+    text-align: center;
+    flex: 1;
+  }
+
+  .tab-bar button.active {
+    border-left: none;
+    border-bottom-color: var(--border-gold-bright);
+  }
+
+  .hub-screen .tab-bar button.active {
+    border-left-color: transparent;
+    border-bottom-color: var(--class-color);
+  }
+
+  .reset-button {
+    display: none;
+  }
+
+  .mobile-menu-button {
+    display: block;
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    background: none;
+    border: 1px solid var(--border-gold);
+    color: var(--text-dim);
+    border-radius: 4px;
+    font-size: 16px;
+    padding: 2px 8px;
+    line-height: 1;
+    z-index: 10;
+  }
+
+  .mobile-menu-button:hover {
+    border-color: var(--accent-red-bright);
+    color: var(--accent-red-bright);
+  }
+
+  .mobile-quit-confirm {
+    position: absolute;
+    top: 6px;
+    right: 8px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    z-index: 10;
+    background: var(--bg-panel);
+    border: 1px solid var(--border-gold);
+    border-radius: 4px;
+    padding: 3px 8px;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .mobile-quit-yes,
+  .mobile-quit-no {
+    background: none;
+    border: 1px solid var(--border-gold);
+    color: var(--text-dim);
+    border-radius: 3px;
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+
+  .mobile-quit-yes {
+    border-color: var(--accent-red-bright);
+    color: var(--accent-red-bright);
+  }
+
+  /* Smaller tab panel padding */
+  .tab-panel {
+    padding: 14px 12px;
+  }
+
+  .char-stats-layout {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* Stats grid: 2 cols */
+  .derived-grid {
+    grid-template-columns: 1fr 1fr;
+    justify-items: left;
+  }
+
+  /* Hero header: stack name + level */
+  .hero-header {
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  /* Character creation */
+  .class-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .creation-screen {
+    overflow-y: auto;
+  }
+
+  .creation-panel {
+    flex: 0 0 auto;
+    flex-direction: column;
+    max-width: 100%;
+    min-height: unset;
+  }
+
+  .class-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+    min-width: unset;
+  }
+
+  .class-button {
+    flex: 1 1 auto;
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .class-detail {
+    flex: 0 0 auto;
+    min-height: unset;
+    border-left: none;
+    border-top: 1px solid var(--border-gold);
+    padding-left: 0;
+    padding-top: 14px;
+    overflow-y: visible;
+  }
+
+  .class-sprite-preview {
+    overflow: hidden;
+    padding: 4px 0 0;
+    height: 72px;
+  }
+
+  /* Combat screen */
+  .combat-screen {
+    overflow: hidden;
+  }
+
+  .combat-bars {
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .combat-log {
+    flex: 1;
+    min-height: 60px;
+    height: auto;
+    max-height: none;
+    font-size: 13px;
+  }
+
+  .combat-actions {
+    gap: 8px;
+    flex-shrink: 0;
+  }
+
+  .battle-arena {
+    flex-shrink: 0;
+  }
+
+  .combat-button {
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  /* Inventory */
+  .equipment-grid {
+    gap: 8px;
+  }
+  .inventory-wrapper {
+    display: flex;
+    flex-direction: column;
+  }
+  .inv-left-col {
+    flex-direction: row;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+  }
+  .inv-stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 16px;
+    width: auto;
+    flex: 1;
+  }
+  .inv-stats-col {
+    align-items: center;
+  }
+  .inv-stat-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 1px;
+  }
+  /* Dungeons */
+  .dungeon-list {
+    gap: 8px;
+  }
+
+  /* Select screen */
+  .select-panel {
+    max-width: 100%;
+  }
+
+  /* Gambler tab */
+  .gambler-tab {
+    gap: 8px;
+    padding: 12px;
+  }
+
+  .gambler-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 6px;
+  }
+
+  .gamble-mystery {
+    display: none;
+  }
+
+  .gamble-offer {
+    padding: 6px 6px 8px;
+    gap: 3px;
+  }
+
+  .gamble-slot {
+    font-size: 10px;
+  }
+  .gamble-price {
+    font-size: 10px;
+  }
+  .gamble-button {
+    padding: 2px 8px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 400px) {
+  .paperdoll {
+    grid-template-columns: repeat(3, 48px);
+    grid-template-rows: repeat(5, 48px);
+    gap: 4px;
+    padding: 10px;
+    margin: 0 auto 12px;
+  }
+  .inv-stats {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px 16px;
+    width: auto;
+  }
+  .inv-stat-label {
+    font-size: 8px;
+  }
+  .inv-stat-value {
+    font-size: 9px;
+  }
+  .shop-potions {
+    gap: 6px;
+  }
+  .shop-potion-card {
+    padding: 6px 8px;
+  }
+  .shop-potion-name {
+    font-size: 12px;
+  }
+  .shop-potion-desc {
+    font-size: 10px;
+    margin-bottom: 4px;
+  }
+  .potion-buy-button {
+    font-size: 10px;
+  }
+  .restock-button,
+  .sell-all-button,
+  .sell-junk-button,
+  .sort-btn {
+    font-size: 10px;
+  }
+  .inventory-right > .empty-note {
+    flex-shrink: 0;
+    font-size: 12px;
+  }
+}

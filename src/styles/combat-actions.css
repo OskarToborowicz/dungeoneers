@@ -1,0 +1,109 @@
+/* ── 15. Combat: action buttons ──────────────────────────────────────────── */
+.action-button {
+  background: linear-gradient(180deg, #2c2319, #1a1512);
+  border: 1px solid var(--border-gold);
+  color: var(--text);
+  padding: 12px 14px;
+  border-radius: 4px;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.hotkey-badge {
+  position: absolute;
+  top: 4px;
+  left: 5px;
+  font-size: 10px;
+  color: var(--text-dim);
+  opacity: 0.6;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.action-button {
+  position: relative;
+}
+
+.action-button:hover:not(:disabled) {
+  border-color: var(--border-gold-bright);
+  color: var(--text-heading);
+}
+
+.action-button.ability {
+  background: linear-gradient(180deg, #1c2c3a, #121a22);
+  border-color: var(--mana-color);
+}
+
+.action-button.ability:hover:not(:disabled) {
+  border-color: #3a6fc2;
+}
+
+.action-button.potion.health {
+  background: linear-gradient(180deg, #2c1919, #1a1212);
+  border-color: var(--hp-color-bright);
+}
+
+.action-button.potion.health:hover:not(:disabled) {
+  border-color: #e04747;
+}
+
+.action-button.potion.mana {
+  background: linear-gradient(180deg, #19212c, #12171a);
+  border-color: #3a6fc2;
+}
+
+.action-button.potion.mana:hover:not(:disabled) {
+  border-color: #6f9fe0;
+}
+
+.action-button.run {
+  background: linear-gradient(180deg, #2a1f14, #1a1410);
+  border-color: #6b5a3e;
+  color: var(--text-dim);
+}
+
+.action-button.run:hover:not(:disabled) {
+  border-color: #c8a96e;
+  color: var(--text-heading);
+}
+
+.action-cost {
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.action-dmg-type {
+  font-size: 10px;
+  color: var(--border-gold);
+  opacity: 0.85;
+}
+
+.combat-result {
+  margin-top: 2px;
+  text-align: center;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-gold);
+  border-radius: 8px;
+  padding: 16px 24px 20px;
+  width: 100%;
+  max-width: 560px;
+  box-shadow: 0 0 24px color-mix(in srgb, var(--border-gold) 20%, transparent);
+}
+
+.victory-text {
+  color: var(--border-gold-bright);
+}
+
+.defeat-text {
+  color: var(--accent-red-bright);
+}
+
+.level-up-notice {
+  color: #ffe066;
+  font-weight: bold;
+  margin-top: 4px;
+}
+
