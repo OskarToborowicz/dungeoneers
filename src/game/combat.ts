@@ -869,11 +869,21 @@ export function resolveRound(
           monsterLife -= hitDmg;
           damageDealt += hitDmg;
 
+          let multiMsg = isHitCrit
+            ? `Critical hit! ${def.ability.name} strikes for ${hitDmg} damage!`
+            : `${def.ability.name} strikes for ${hitDmg} damage.`;
+
+          if (stats.lifeLeechBonus > 0) {
+            const leeched = Math.round((hitDmg * stats.lifeLeechBonus) / 100);
+            if (leeched > 0) {
+              applyHeal(leeched);
+              multiMsg += ` Life Leech restores ${leeched} life.`;
+            }
+          }
+
           log.push({
             actor: "player",
-            message: isHitCrit
-              ? `Critical hit! ${def.ability.name} strikes for ${hitDmg} damage!`
-              : `${def.ability.name} strikes for ${hitDmg} damage.`,
+            message: multiMsg,
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
