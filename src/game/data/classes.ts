@@ -205,8 +205,8 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     },
     passive3: {
       name: "Judgement",
-      description: "Your basic attacks deal bonus holy damage equal to 25% of your total Magic damage.",
-      short: "Your basic attacks are empowered with holy energy.",
+      description: "Your basic attacks deal bonus holy damage equal to 25% of your total Magic damage, and additional damage equal to 25% of your Strength.",
+      short: "Your basic attacks are empowered with holy energy and raw strength.",
       levelRequirement: 35,
     },
     ability: {

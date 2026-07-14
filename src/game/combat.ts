@@ -571,7 +571,7 @@ export function resolveRound(
       });
     }
 
-    // Judgement (Paladin lv.35): basic attacks deal bonus holy damage equal to 25% of total Magic damage
+    // Judgement (Paladin lv.35): bonus holy damage (25% Magic) + strength damage (30% Strength)
     if (
       character.classId === "paladin" &&
       character.level >= 35 &&
@@ -579,12 +579,16 @@ export function resolveRound(
       monsterLife > 0
     ) {
       const holyDmg = Math.round(stats.magicDamageBonus * 0.25);
-      if (holyDmg > 0) {
-        monsterLife -= holyDmg;
-        damageDealt += holyDmg;
+      const strDmg = Math.round(
+        (character.allocatedStats.strength + def.baseStats.strength) * 0.25,
+      );
+      const judgementDmg = holyDmg + strDmg;
+      if (judgementDmg > 0) {
+        monsterLife -= judgementDmg;
+        damageDealt += judgementDmg;
         log.push({
           actor: "player",
-          message: `Judgement strikes for ${holyDmg} holy damage!`,
+          message: `Judgement strikes for ${judgementDmg} damage (${holyDmg} holy, ${strDmg} strength)!`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
