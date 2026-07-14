@@ -164,8 +164,16 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
                       </span>
                     )}
                   </span>
-                  <span className="stat-value">
-                    {Math.round(derived.stats[stat])}
+                  <span className="stat-value-wrap">
+                    <span className="stat-value">
+                      {Math.round(derived.stats[stat])}
+                    </span>
+                    <div className="game-tooltip">
+                      <div>Allocated: {def.baseStats[stat] + character.allocatedStats[stat]}</div>
+                      {Math.round(derived.stats[stat]) - def.baseStats[stat] - character.allocatedStats[stat] !== 0 && (
+                        <div>From items: {Math.round(derived.stats[stat]) - def.baseStats[stat] - character.allocatedStats[stat]}</div>
+                      )}
+                    </div>
                   </span>
                   <button
                     disabled={character.unspentStatPoints <= 0}

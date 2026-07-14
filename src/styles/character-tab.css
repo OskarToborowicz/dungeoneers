@@ -116,6 +116,15 @@
   color: var(--text-heading);
 }
 
+.stat-value-wrap {
+  position: relative;
+  cursor: help;
+}
+
+.stat-value-wrap:hover .game-tooltip {
+  display: block;
+}
+
 .allocate-button {
   background: var(--bg-panel-light);
   border: 1px solid var(--border-gold-bright);
