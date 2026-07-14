@@ -12,6 +12,7 @@ import { ItemIcon } from "./ItemIcon";
 import { CLASSES } from "../game/data/classes";
 import { RARITY_COLORS } from "../game/data/items";
 import type { DerivedStats } from "../game/character";
+import { isSoundMuted } from "../game/sound";
 import type {
   BaseStats,
   Character,
@@ -97,7 +98,7 @@ export function Hub({
 
   useEffect(() => {
     if (!droppedItem || showPortalMessage) return;
-    if (droppedItem.rarity === "unique") {
+    if (droppedItem.rarity === "unique" && !isSoundMuted()) {
       const sfx = new Audio(import.meta.env.BASE_URL + "divine_drop.mp3");
       sfx.volume = 0.05;
       sfx.play().catch(() => {});
@@ -279,6 +280,8 @@ export function Hub({
               equipment={equipment}
               inventory={inventory}
               classId={character.classId}
+              character={character}
+              derived={derived}
               onMoveItem={onMoveItem}
               onToggleFavorite={onToggleFavorite}
               onSort={onSortInventory}

@@ -4,6 +4,7 @@ import { CharacterSprite } from "./sprites/CharacterSprite";
 import type { SaveSlot } from "../game/storage";
 import { MAX_SAVE_SLOTS } from "../game/storage";
 import type { ClassId } from "../game/types";
+import { isSoundMuted, toggleSoundMuted } from "../game/sound";
 
 const CLASS_NAMES: Record<ClassId, string> = {
   barbarian: "Barbarian",
@@ -25,6 +26,7 @@ interface Props {
 
 export function CharacterSelect({ slots, onSelect, onDelete, onNew }: Props) {
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [muted, setMuted] = useState(isSoundMuted());
 
   function handleDeleteClick(e: React.MouseEvent, id: string) {
     e.stopPropagation();
@@ -38,6 +40,14 @@ export function CharacterSelect({ slots, onSelect, onDelete, onNew }: Props) {
 
   return (
     <div className="screen select-screen">
+      <button
+        className="sound-toggle-button"
+        onClick={() => setMuted(toggleSoundMuted())}
+        aria-label={muted ? "Unmute sounds" : "Mute sounds"}
+        title={muted ? "Unmute sounds" : "Mute sounds"}
+      >
+        {muted ? "🔇" : "🔊"}
+      </button>
       <div className="game-title">DIABOLO</div>
       <p className="subtitle">Select your hero</p>
 

@@ -13,6 +13,7 @@ interface ItemBase {
   baseDefense?: number;
   twoHanded?: boolean;
   allowedClasses?: ClassId[];
+  weaponType?: string;
 }
 
 const WEAPON_BASES: ItemBase[] = [
@@ -68,6 +69,7 @@ const WEAPON_BASES: ItemBase[] = [
   {
     name: "Fists",
     slot: "weapon",
+    weaponType: "fist",
     baseDamage: [2, 5],
     twoHanded: false,
     allowedClasses: ["monk"],
@@ -291,6 +293,7 @@ export function generateRandomItem(
       ),
     ];
     item.twoHanded = base.twoHanded ?? false;
+    if (base.weaponType) item.weaponType = base.weaponType;
   }
   if (base.baseDefense) {
     item.baseDefense = Math.round(
@@ -340,6 +343,7 @@ function generateItemFromBase(base: ItemBase, itemLevel: number): Item {
       Math.round(base.baseDamage[1] + itemLevel * 0.35),
     ];
     item.twoHanded = base.twoHanded ?? false;
+    if (base.weaponType) item.weaponType = base.weaponType;
   }
   if (base.baseDefense) {
     item.baseDefense = Math.round(base.baseDefense + itemLevel * 0.25);
@@ -1033,6 +1037,7 @@ export function generateItemForSlot(
       ),
     ];
     item.twoHanded = base.twoHanded ?? false;
+    if (base.weaponType) item.weaponType = base.weaponType;
   }
   if (base.baseDefense) {
     item.baseDefense = Math.round(

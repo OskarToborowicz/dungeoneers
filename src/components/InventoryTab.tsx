@@ -18,9 +18,60 @@ import { ItemTooltip } from "./ItemTooltip";
 import { CompareGroup } from "./ComparePanel";
 import { RARITY_COLORS } from "../game/data/items";
 import { useItemHover } from "./useItemHover";
-import type { ClassId, EquipmentSlot, Item } from "../game/types";
+import type { ClassId, Character, EquipmentSlot, Item } from "../game/types";
+import type { DerivedStats } from "../game/character";
 
 type Location = EquipmentSlot | "inventory";
+
+function InvStatsPanel({
+  derived,
+  className,
+}: {
+  derived: DerivedStats;
+  className: string;
+}) {
+  const crit = Math.round(derived.critChance * 100);
+  return (
+    <div className={className}>
+      <div className="inv-stats-col">
+        <div className="inv-stat-row">
+          <span className="inv-stat-label">❤️</span>
+          <span className="inv-stat-value inv-stat--life">
+            {derived.maxLife}
+          </span>
+        </div>
+        <div className="inv-stat-row">
+          <span className="inv-stat-label">🔵</span>
+          <span className="inv-stat-value inv-stat--mana">
+            {derived.maxMana}
+          </span>
+        </div>
+        <div className="inv-stat-row">
+          <span className="inv-stat-label">🛡️</span>
+          <span className="inv-stat-value">{derived.defense}</span>
+        </div>
+      </div>
+      <div className="inv-stats-col">
+        <div className="inv-stat-row">
+          <span className="inv-stat-label">⚔️</span>
+          <span className="inv-stat-value">
+            {derived.damage[0]}–{derived.damage[1]}
+          </span>
+        </div>
+        {derived.magicDamageBonus > 0 && (
+          <div className="inv-stat-row">
+            <span className="inv-stat-label">🌀</span>
+            <span className="inv-stat-value">+{derived.magicDamageBonus}</span>
+          </div>
+        )}
+        <div className="inv-stat-row">
+          <span className="inv-stat-label">🎯</span>
+          <span className="inv-stat-value">{crit}%</span>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 interface DragData {
   itemId: string;
@@ -31,6 +82,8 @@ interface Props {
   equipment: Partial<Record<EquipmentSlot, Item>>;
   inventory: Item[];
   classId: ClassId;
+  character: Character;
+  derived: DerivedStats;
   onMoveItem: (itemId: string, from: Location, to: Location) => void;
   onToggleFavorite: (itemId: string) => void;
   onSort: () => void;
@@ -270,6 +323,8 @@ export function InventoryTab({
   equipment,
   inventory,
   classId,
+  character,
+  derived,
   onMoveItem,
   onToggleFavorite,
   onSort,
@@ -394,66 +449,78 @@ export function InventoryTab({
         }}
       >
         <div className="inventory-wrapper">
-          <div className="paperdoll">
-            {EQUIP_SLOTS.map((slot) => {
-              const item = equipment[slot];
-              const is2hMirror =
-                slot === "shield" && (equipment.weapon?.twoHanded ?? false);
-              const isOver = !is2hMirror && dragOverId === slot;
-              const valid = isValidTarget(slot);
-              return (
-                <DollSlotDnd
-                  key={slot}
-                  slot={slot}
-                  isOver={isOver}
-                  isValid={valid}
-                  isTapTarget={!is2hMirror && valid && hasSelected}
-                  extraClass={is2hMirror ? " doll-slot--2h" : ""}
-                  onSlotClick={(e) => {
-                    e.stopPropagation();
-                    if (is2hMirror) return;
-                    if (hasSelected) {
-                      if (valid) tapSlot(slot);
-                      else setSelected(null);
-                    }
-                  }}
-                >
-                  {is2hMirror ? (
-                    <div className="doll-slot-2h">
-                      <ItemIcon item={equipment.weapon!} />
-                    </div>
-                  ) : item ? (
-                    <SlotItemDnd
-                      item={item}
-                      slot={slot}
-                      isDragging={draggingId === item.id}
-                      isSelected={isSelected(item.id, slot)}
-                      onTap={() => {
-                        if (hasSelected) {
-                          if (valid) tapSlot(slot);
-                          else setSelected(null);
-                        } else tapItem(item, slot);
-                      }}
-                      onDoubleClick={() =>
-                        onMoveItem(item.id, slot, "inventory")
+          <div className="inv-left-col">
+            <div className="paperdoll">
+              {EQUIP_SLOTS.map((slot) => {
+                const item = equipment[slot];
+                const is2hMirror =
+                  slot === "shield" && (equipment.weapon?.twoHanded ?? false);
+                const isOver = !is2hMirror && dragOverId === slot;
+                const valid = isValidTarget(slot);
+                return (
+                  <DollSlotDnd
+                    key={slot}
+                    slot={slot}
+                    isOver={isOver}
+                    isValid={valid}
+                    isTapTarget={!is2hMirror && valid && hasSelected}
+                    extraClass={is2hMirror ? " doll-slot--2h" : ""}
+                    onSlotClick={(e) => {
+                      e.stopPropagation();
+                      if (is2hMirror) return;
+                      if (hasSelected) {
+                        if (valid) tapSlot(slot);
+                        else setSelected(null);
                       }
-                    />
-                  ) : (
-                    <div className="doll-slot-empty">
-                      <SlotIcon slot={slot} />
-                    </div>
-                  )}
-                </DollSlotDnd>
-              );
-            })}
-          </div>
+                    }}
+                  >
+                    {is2hMirror ? (
+                      <div className="doll-slot-2h">
+                        <ItemIcon item={equipment.weapon!} />
+                      </div>
+                    ) : item ? (
+                      <SlotItemDnd
+                        item={item}
+                        slot={slot}
+                        isDragging={draggingId === item.id}
+                        isSelected={isSelected(item.id, slot)}
+                        onTap={() => {
+                          if (hasSelected) {
+                            if (valid) tapSlot(slot);
+                            else setSelected(null);
+                          } else tapItem(item, slot);
+                        }}
+                        onDoubleClick={() =>
+                          onMoveItem(item.id, slot, "inventory")
+                        }
+                      />
+                    ) : (
+                      <div className="doll-slot-empty">
+                        <SlotIcon slot={slot} />
+                      </div>
+                    )}
+                  </DollSlotDnd>
+                );
+              })}
+            </div>{" "}
+            {/* .paperdoll */}
+            <InvStatsPanel
+              derived={derived}
+              className="inv-stats inv-stats--side"
+            />
+          </div>{" "}
+          {/* .inv-left-col */}
           <div className="inventory-right">
+            <InvStatsPanel
+              derived={derived}
+              className="inv-stats inv-stats--top"
+            />
             <div className="inventory-label-row">
               <h3 className="inventory-label">
                 Inventory ({inventory.length})
               </h3>
               <button className="sort-btn" onClick={onSort}>
-                Sort
+                ⇅ Sort
               </button>
             </div>
             {inventory.length === 0 && (
@@ -492,7 +559,6 @@ export function InventoryTab({
                 : "Tap to select · tap slot to equip · double-tap to equip/unequip."}
             </p>
           </div>
-
           {hovered && !draggingId && (
             <>
               <div ref={tooltipRef} style={tooltipStyle()!}>

@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { CLASSES } from "../game/data/classes";
 import { CONSUMABLES } from "../game/data/consumables";
 import { xpToNextLevel } from "../game/character";
+import { isSoundMuted } from "../game/sound";
 import type { DerivedStats } from "../game/character";
 import {
   canUseAbility,
@@ -116,7 +117,7 @@ export function CombatScreen({
       simLevel++;
       levelsGained++;
     }
-    if (levelsGained > 0) {
+    if (levelsGained > 0 && !isSoundMuted()) {
       const sfx = new Audio(import.meta.env.BASE_URL + "levelup.mp3");
       sfx.volume = 1;
       sfx.play().catch(() => {});

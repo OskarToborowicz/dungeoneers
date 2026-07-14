@@ -8,7 +8,7 @@ import {
 } from "../game/combat";
 import type { BaseStats, Character } from "../game/types";
 
-const STAT_ICONS: Record<
+export const STAT_ICONS: Record<
   string,
   { bg: string; tip: string; svg: React.ReactNode }
 > = {
@@ -182,16 +182,16 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
         <div>
           <h3>Stats</h3>
           <div className="derived-grid">
-            <div>Life: {derived.maxLife}</div>
+            <div>❤️ Life: {derived.maxLife}</div>
             <div>
-              {def.resourceName}: {derived.maxMana}
+              🔵 {def.resourceName}: {derived.maxMana}
             </div>
             <div>
-              Damage: {derived.damage[0]}-{derived.damage[1]}
+              ⚔️ Damage: {derived.damage[0]}-{derived.damage[1]}
             </div>
-            <div>Defense: {derived.defense}</div>
-            <div>Spell Bonus: +{derived.magicDamageBonus} dmg</div>
-            <div>Crit Chance: {Math.round(critChance * 100)}%</div>
+            <div>🛡️Defense: {derived.defense}</div>
+            <div>🌀Spell Bonus: +{derived.magicDamageBonus}</div>
+            <div>🎯Crit Chance: {Math.round(critChance * 100)}%</div>
           </div>
         </div>
       </div>
