@@ -1074,6 +1074,6 @@ export const RARITY_COLORS: Record<ItemRarity, string> = {
   normal: "#c7c7c7",
   magic: "#6f8fff",
   rare: "#ffd54a",
-  "very rare": "#c99a4b",
+  "very rare": "#ffd54a",
   unique: "#ff6a00",
 };
