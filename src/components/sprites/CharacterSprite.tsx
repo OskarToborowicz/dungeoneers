@@ -47,7 +47,7 @@ const CLASS_GLOW_INTENSITY: Record<ClassId, number> = {
 const CLASS_WEAPON_GLOW_INTENSITY: Record<ClassId, number> = {
   barbarian: 1,
   necromancer: 1,
-  sorceress: 1.7,
+  sorceress: 1.1,
   amazon: 1,
   paladin: 1,
   druid: 1,
