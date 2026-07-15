@@ -64,15 +64,12 @@ function withAlpha(color: string, alpha: number): string {
 }
 
 function glowFilter(color: string, intensity: number): string {
-  const clamped = Math.max(0, intensity);
-  const fullLayers = Math.floor(clamped);
-  const remainder = clamped - fullLayers;
-  const layer = (c: string) =>
-    `drop-shadow(0 0 8px ${c}) drop-shadow(0 0 3px ${c})`;
-  const layers = Array(fullLayers).fill(layer(color));
-  if (remainder > 0.01) layers.push(layer(withAlpha(color, remainder)));
-  if (layers.length === 0) layers.push(layer(withAlpha(color, 0)));
-  return layers.join(" ");
+  const t = Math.max(0, intensity);
+  const outerBlur = 8 + t * 6;
+  const outerAlpha = Math.min(1, 0.35 + t * 0.25);
+  const coreBlur = 3 + t * 2;
+  const coreAlpha = Math.min(1, 0.6 + t * 0.3);
+  return `drop-shadow(0 0 ${outerBlur}px ${withAlpha(color, outerAlpha)}) drop-shadow(0 0 ${coreBlur}px ${withAlpha(color, coreAlpha)})`;
 }
 
 type ClassSpriteModule = {
