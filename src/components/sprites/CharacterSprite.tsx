@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type { ClassId } from "../../game/types";
 import * as barbarian from "./classes/barbarian";
 import * as necromancer from "./classes/necromancer";
@@ -47,7 +47,7 @@ const CLASS_GLOW_INTENSITY: Record<ClassId, number> = {
 const CLASS_WEAPON_GLOW_INTENSITY: Record<ClassId, number> = {
   barbarian: 1,
   necromancer: 1,
-  sorceress: 1.1,
+  sorceress: 3,
   amazon: 1,
   paladin: 1,
   druid: 1,
@@ -55,8 +55,33 @@ const CLASS_WEAPON_GLOW_INTENSITY: Record<ClassId, number> = {
   monk: 1,
 };
 
-function glowFilter(color: string, intensity: number): string {
-  return `drop-shadow(0 0 ${6 * intensity}px ${color}) drop-shadow(0 0 ${2 * intensity}px ${color})`;
+function GlowFilterDef({
+  id,
+  color,
+  intensity,
+}: {
+  id: string;
+  color: string;
+  intensity: number;
+}) {
+  return (
+    <filter id={id} x="-150%" y="-150%" width="400%" height="400%">
+      <feDropShadow
+        dx="0"
+        dy="0"
+        stdDeviation={3 * intensity}
+        floodColor={color}
+        floodOpacity="1"
+      />
+      <feDropShadow
+        dx="0"
+        dy="0"
+        stdDeviation={1 * intensity}
+        floodColor={color}
+        floodOpacity="1"
+      />
+    </filter>
+  );
 }
 
 type ClassSpriteModule = {
@@ -103,6 +128,9 @@ export function CharacterSprite({
   useEffect(() => {
     setAnimKey((k) => k + 1);
   }, [state]);
+  const uid = useId();
+  const bodyGlowId = `${uid}-body-glow`;
+  const weaponGlowId = `${uid}-weapon-glow`;
 
   const classColor = CLASS_COLORS[classId];
   const weaponColor = isUnique ? UNIQUE_COLOR : classColor;
@@ -125,6 +153,10 @@ export function CharacterSprite({
       overflow="visible"
       style={{ display: "block" }}
     >
+      <defs>
+        <GlowFilterDef id={bodyGlowId} color={classColor} intensity={glowIntensity} />
+        <GlowFilterDef id={weaponGlowId} color={weaponColor} intensity={weaponGlowIntensity} />
+      </defs>
       <motion.g
         key={animKey}
         animate={getAnimate(state)}
@@ -156,34 +188,18 @@ export function CharacterSprite({
             strokeOpacity="0.7"
           />
         )}
-        <g
-          {...sharedG}
-          stroke={classColor}
-          style={{ filter: glowFilter(classColor, glowIntensity) }}
-        >
+        <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
           {sprite.body()}
         </g>
-        <g
-          {...sharedG}
-          stroke={classColor}
-          style={{ filter: glowFilter(classColor, glowIntensity) }}
-        >
+        <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
           {sprite.body()}
         </g>
         {sprite.offHand && (
-          <g
-            {...sharedG}
-            stroke={classColor}
-            style={{ filter: glowFilter(classColor, glowIntensity) }}
-          >
+          <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
             {sprite.offHand()}
           </g>
         )}
-        <g
-          {...sharedG}
-          stroke={weaponColor}
-          style={{ filter: glowFilter(weaponColor, weaponGlowIntensity) }}
-        >
+        <g {...sharedG} stroke={weaponColor} filter={`url(#${weaponGlowId})`}>
           {isUnique
             ? sprite.uniqueWeapon(weaponColor)
             : sprite.weapon(weaponColor)}
