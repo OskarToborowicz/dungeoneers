@@ -140,7 +140,7 @@ export function CharacterSprite({
       key={animKey}
       animate={getAnimate(state, scale)}
       transition={getTransition(state)}
-      style={{ display: "block", width: size, height }}
+      style={{ display: "inline-block" }}
     >
       <svg
         width={size}
