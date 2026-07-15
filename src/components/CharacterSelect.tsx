@@ -72,6 +72,7 @@ export function CharacterSelect({ slots, onSelect, onDelete, onNew }: Props) {
                   classId={character.classId}
                   size={32}
                   state="idle"
+                  animated={false}
                   isUnique={
                     equipment.weapon?.rarity === "very rare" ||
                     equipment.weapon?.rarity === "unique"

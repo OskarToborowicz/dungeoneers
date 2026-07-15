@@ -37,7 +37,12 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
         <div className="class-detail">
           <div className="class-header">
             <div className="class-sprite-preview">
-              <CharacterSprite classId={selected.id} size={56} state="idle" />
+              <CharacterSprite
+                classId={selected.id}
+                size={56}
+                state="idle"
+                animated={false}
+              />
             </div>
             <div className="class-header-text">
               <h2 className="class-detail-title">

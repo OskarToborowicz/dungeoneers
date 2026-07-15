@@ -18,6 +18,8 @@ interface Props {
   state?: SpriteState;
   isUnique?: boolean;
   statusEffects?: Array<"poison" | "burn">;
+  /** Idle/attack/hit/dead motion — only combat needs this in motion. */
+  animated?: boolean;
 }
 
 export const CLASS_COLORS: Record<ClassId, string> = {
@@ -113,6 +115,7 @@ export function CharacterSprite({
   state = "idle",
   isUnique = false,
   statusEffects = [],
+  animated = true,
 }: Props) {
   const [animKey, setAnimKey] = useState(0);
   useEffect(() => {
@@ -135,6 +138,75 @@ export function CharacterSprite({
     strokeLinecap: "round" as const,
   };
 
+  const svg = (
+    <svg
+      width={size}
+      height={height}
+      viewBox="0 0 64 96"
+      overflow="visible"
+      style={{ display: "block" }}
+    >
+      <defs>
+        <GlowFilterDef id={bodyGlowId} color={classColor} intensity={glowIntensity} />
+        <GlowFilterDef id={weaponGlowId} color={weaponColor} intensity={glowIntensity} />
+      </defs>
+      {statusEffects.includes("poison") && (
+        <ellipse
+          cx="32"
+          cy="50"
+          rx="28"
+          ry="48"
+          fill="none"
+          stroke="#44cc22"
+          strokeWidth="2.5"
+          className="status-aura-poison"
+          strokeOpacity="0.7"
+        />
+      )}
+      {statusEffects.includes("burn") && (
+        <ellipse
+          cx="32"
+          cy="50"
+          rx="28"
+          ry="48"
+          fill="none"
+          stroke="#ff6600"
+          strokeWidth="2.5"
+          className="status-aura-burn"
+          strokeOpacity="0.7"
+        />
+      )}
+      <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
+        {sprite.body()}
+      </g>
+      {sprite.offHand && (
+        <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
+          {sprite.offHand()}
+        </g>
+      )}
+      <g {...sharedG} stroke={weaponColor} filter={`url(#${weaponGlowId})`}>
+        {isUnique
+          ? sprite.uniqueWeapon(weaponColor)
+          : sprite.weapon(weaponColor)}
+      </g>
+    </svg>
+  );
+
+  if (!animated) {
+    // Static pose only — e.g. the Hub sidebar and character select list
+    // shouldn't idle-bob forever, but a dead sprite should still read as
+    // fallen/faded rather than snapping back to a normal standing pose.
+    const staticStyle =
+      state === "dead"
+        ? {
+            display: "inline-block" as const,
+            transform: `translateY(${28 * scale}px)`,
+            opacity: 0.25,
+          }
+        : { display: "inline-block" as const };
+    return <div style={staticStyle}>{svg}</div>;
+  }
+
   return (
     <motion.div
       key={animKey}
@@ -142,57 +214,7 @@ export function CharacterSprite({
       transition={getTransition(state)}
       style={{ display: "inline-block" }}
     >
-      <svg
-        width={size}
-        height={height}
-        viewBox="0 0 64 96"
-        overflow="visible"
-        style={{ display: "block" }}
-      >
-        <defs>
-          <GlowFilterDef id={bodyGlowId} color={classColor} intensity={glowIntensity} />
-          <GlowFilterDef id={weaponGlowId} color={weaponColor} intensity={glowIntensity} />
-        </defs>
-        {statusEffects.includes("poison") && (
-          <ellipse
-            cx="32"
-            cy="50"
-            rx="28"
-            ry="48"
-            fill="none"
-            stroke="#44cc22"
-            strokeWidth="2.5"
-            className="status-aura-poison"
-            strokeOpacity="0.7"
-          />
-        )}
-        {statusEffects.includes("burn") && (
-          <ellipse
-            cx="32"
-            cy="50"
-            rx="28"
-            ry="48"
-            fill="none"
-            stroke="#ff6600"
-            strokeWidth="2.5"
-            className="status-aura-burn"
-            strokeOpacity="0.7"
-          />
-        )}
-        <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
-          {sprite.body()}
-        </g>
-        {sprite.offHand && (
-          <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
-            {sprite.offHand()}
-          </g>
-        )}
-        <g {...sharedG} stroke={weaponColor} filter={`url(#${weaponGlowId})`}>
-          {isUnique
-            ? sprite.uniqueWeapon(weaponColor)
-            : sprite.weapon(weaponColor)}
-        </g>
-      </svg>
+      {svg}
     </motion.div>
   );
 }
