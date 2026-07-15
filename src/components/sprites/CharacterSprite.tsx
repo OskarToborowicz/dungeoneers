@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type { ClassId } from "../../game/types";
 import * as barbarian from "./classes/barbarian";
 import * as necromancer from "./classes/necromancer";
@@ -44,8 +44,33 @@ const CLASS_GLOW_INTENSITY: Record<ClassId, number> = {
   monk: 1,
 };
 
-function glowFilter(color: string, intensity: number): string {
-  return `drop-shadow(0 0 ${6 * intensity}px ${color}) drop-shadow(0 0 ${2 * intensity}px ${color})`;
+function GlowFilterDef({
+  id,
+  color,
+  intensity,
+}: {
+  id: string;
+  color: string;
+  intensity: number;
+}) {
+  return (
+    <filter id={id} x="-150%" y="-150%" width="400%" height="400%">
+      <feDropShadow
+        dx="0"
+        dy="0"
+        stdDeviation={3 * intensity}
+        floodColor={color}
+        floodOpacity="1"
+      />
+      <feDropShadow
+        dx="0"
+        dy="0"
+        stdDeviation={1 * intensity}
+        floodColor={color}
+        floodOpacity="1"
+      />
+    </filter>
+  );
 }
 
 type ClassSpriteModule = {
@@ -66,11 +91,12 @@ const CLASS_SPRITES: Record<ClassId, ClassSpriteModule> = {
   monk,
 };
 
-function getAnimate(state: SpriteState) {
-  if (state === "idle") return { y: [0, -5, 0] };
-  if (state === "attack") return { y: [0, -12, 5, 0] };
-  if (state === "hit") return { x: [0, -10, 10, -6, 6, 0] };
-  return { y: 28, opacity: 0.25 };
+function getAnimate(state: SpriteState, scale: number) {
+  if (state === "idle") return { y: [0, -5 * scale, 0] };
+  if (state === "attack") return { y: [0, -12 * scale, 5 * scale, 0] };
+  if (state === "hit")
+    return { x: [0, -10 * scale, 10 * scale, -6 * scale, 6 * scale, 0] };
+  return { y: 28 * scale, opacity: 0.25 };
 }
 
 function getTransition(state: SpriteState) {
@@ -92,10 +118,14 @@ export function CharacterSprite({
   useEffect(() => {
     setAnimKey((k) => k + 1);
   }, [state]);
+  const uid = useId();
+  const bodyGlowId = `${uid}-body-glow`;
+  const weaponGlowId = `${uid}-weapon-glow`;
 
   const classColor = CLASS_COLORS[classId];
   const weaponColor = isUnique ? UNIQUE_COLOR : classColor;
   const height = Math.round(size * 1.5);
+  const scale = size / 64;
   const sprite = CLASS_SPRITES[classId];
   const glowIntensity = CLASS_GLOW_INTENSITY[classId];
   const sharedG = {
@@ -106,18 +136,23 @@ export function CharacterSprite({
   };
 
   return (
-    <svg
-      width={size}
-      height={height}
-      viewBox="0 0 64 96"
-      overflow="visible"
-      style={{ display: "block" }}
+    <motion.div
+      key={animKey}
+      animate={getAnimate(state, scale)}
+      transition={getTransition(state)}
+      style={{ display: "block", width: size, height }}
     >
-      <motion.g
-        key={animKey}
-        animate={getAnimate(state)}
-        transition={getTransition(state)}
+      <svg
+        width={size}
+        height={height}
+        viewBox="0 0 64 96"
+        overflow="visible"
+        style={{ display: "block" }}
       >
+        <defs>
+          <GlowFilterDef id={bodyGlowId} color={classColor} intensity={glowIntensity} />
+          <GlowFilterDef id={weaponGlowId} color={weaponColor} intensity={glowIntensity} />
+        </defs>
         {statusEffects.includes("poison") && (
           <ellipse
             cx="32"
@@ -144,32 +179,20 @@ export function CharacterSprite({
             strokeOpacity="0.7"
           />
         )}
-        <g
-          {...sharedG}
-          stroke={classColor}
-          style={{ filter: glowFilter(classColor, glowIntensity) }}
-        >
+        <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
           {sprite.body()}
         </g>
         {sprite.offHand && (
-          <g
-            {...sharedG}
-            stroke={classColor}
-            style={{ filter: glowFilter(classColor, glowIntensity) }}
-          >
+          <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
             {sprite.offHand()}
           </g>
         )}
-        <g
-          {...sharedG}
-          stroke={weaponColor}
-          style={{ filter: glowFilter(weaponColor, glowIntensity) }}
-        >
+        <g {...sharedG} stroke={weaponColor} filter={`url(#${weaponGlowId})`}>
           {isUnique
             ? sprite.uniqueWeapon(weaponColor)
             : sprite.weapon(weaponColor)}
         </g>
-      </motion.g>
-    </svg>
+      </svg>
+    </motion.div>
   );
 }
