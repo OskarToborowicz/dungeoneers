@@ -37,7 +37,7 @@ export function AbilityEffect({
         {classId === "barbarian" && <WhirlwindFx />}
         {classId === "necromancer" && !useAbility2 && <PoisonCloudFx />}
         {classId === "necromancer" && useAbility2 && <GolemRollInFx />}
-        {classId === "sorceress" && !useAbility2 && <FireballFx />}
+        {classId === "sorceress" && !useAbility2 && <FrostBoltFx />}
         {classId === "sorceress" && useAbility2 && <FrostShieldFx />}
         {classId === "amazon" && useAttack && <SingleArrowFx />}
         {classId === "amazon" && !useAbility2 && !useAttack && <MultishotFx />}
@@ -234,29 +234,25 @@ function GolemRollInFx() {
   );
 }
 
-function FireballFx() {
+function FrostBoltFx() {
   return (
     <g>
-      <g className="ae-fb-orb" style={{ transformOrigin: "32px 60px" }}>
-        <ellipse cx="20" cy="60" rx="13" ry="4" fill="#ffaa44" opacity="0.4" />
-        <circle cx="32" cy="60" r="11" fill="#ff6010" opacity="0.95" />
-        <circle cx="29" cy="57" r="4" fill="white" opacity="0.4" />
+      <g className="ae-frost-orb" style={{ transformOrigin: "32px 60px" }}>
+        <ellipse cx="18" cy="60" rx="14" ry="4" fill="#bfe9ff" opacity="0.4" />
+        <polygon points="19,60 30,52 45,60 30,68" fill="#3fb6f0" opacity="0.95" />
+        <circle cx="27" cy="57" r="3.2" fill="white" opacity="0.6" />
       </g>
-      <g className="ae-fb-burst" style={{ transformOrigin: "168px 60px" }}>
-        <circle cx="168" cy="60" r="28" fill="#ff3300" opacity="0.85" />
-        <circle cx="168" cy="60" r="17" fill="#ff7700" />
-        <circle cx="168" cy="60" r="9" fill="#ffee44" />
-        {([0, 45, 90, 135, 180, 225, 270, 315] as number[]).map((deg) => (
-          <line
-            key={deg}
-            x1="168"
-            y1="60"
-            x2={168 + Math.cos((deg * Math.PI) / 180) * 44}
-            y2={60 + Math.sin((deg * Math.PI) / 180) * 44}
-            stroke="#ffcc44"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-          />
+      <g>
+        <circle cx="168" cy="60" r="20" fill="#eafcff" className="ae-frost-flash" />
+        {([0, 45, 90, 135, 180, 225, 270, 315] as number[]).map((deg, i) => (
+          <g key={deg} transform={`translate(168,60) rotate(${deg})`}>
+            <polygon
+              className="ae-frost-shard"
+              style={{ animationDelay: `${i * 0.015}s` }}
+              points="0,-3 15,0 0,3 3,0"
+              fill="#8fd9ff"
+            />
+          </g>
         ))}
       </g>
     </g>

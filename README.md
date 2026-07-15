@@ -256,7 +256,7 @@ Monsters always have at least a 15% chance to hit regardless of the player's def
 | Player (base) | 5% + dex×0.001 (cap 60%) | ×1.50 |
 | Monster | 10% | ×1.75 |
 
-Basic attacks always roll for crits. The following abilities also crit on their direct-damage roll: **Fireball** (Sorceress), **Holy Bolt** damage (Paladin), **Poison Cloud initial hit** (Necromancer), and **Golem Defense detonation** (Necromancer). DoT ticks, burn stacks, and the Paladin's heal component never crit independently — if Holy Bolt's damage crits, the `round(dmg × 0.35)` heal is derived from the already-critted value and scales up naturally.
+Basic attacks always roll for crits. The following abilities also crit on their direct-damage roll: **Frost Bolt** (Sorceress), **Holy Bolt** damage (Paladin), **Poison Cloud initial hit** (Necromancer), and **Golem Defense detonation** (Necromancer). DoT ticks, burn stacks, and the Paladin's heal component never crit independently — if Holy Bolt's damage crits, the `round(dmg × 0.35)` heal is derived from the already-critted value and scales up naturally.
 
 ### Mana Regeneration
 
@@ -336,7 +336,7 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 | Barbarian | Obliterate | Red spinning vortex |
 | Necromancer | Poison Cloud | Green toxic cloud flies toward the enemy and billows on impact |
 | Necromancer | Golem Defense | Stone boulder rolls in with dust trails, impacts the enemy with stun stars, then the golem stands guard next to the Necromancer |
-| Sorceress | Fireball | Expanding fireball with rays |
+| Sorceress | Frost Bolt | Icy bolt that shatters into shards on impact |
 | Amazon | Multishot | Two green arrows flying toward the enemy |
 | Amazon | Freezing Shot | Icy blue arrow flying toward the enemy + frost explosion on impact |
 | Paladin | Holy Bolt | Golden holy cross with radiant pulse |
@@ -421,7 +421,7 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Redirect**: Each turn the golem is active, **30% of all incoming damage** (physical and spell) is redirected back at the enemy; the player receives only the remaining 70%
 - **Display**: Golem appears on the left/player side of the arena as an SVG with a round countdown badge; cannot be re-summoned while active
 
-### Sorceress — Fireball
+### Sorceress — Frost Bolt
 - **Kind**: burst (magic — gains `magicDamageBonus` and `magicDamageMult`)
 - **Mana Cost**: 30
 - **Cooldown**: 0 (can cast every turn)
@@ -516,7 +516,7 @@ For `burst`, `dot`, `multi`, and `heal` kinds:
 base   = round(randomInRange(damage) × power)
 result = magic ? round((base + magicDamageBonus × magicPower) × magicDamageMult) : base
 ```
-`randomInRange` picks a uniformly random integer between damage min and max. `magicPower` defaults to 1 for all abilities; Fireball sets it to 2. `magicDamageMult` is 1.0 for all classes except the Sorceress at level ≥ 20 (1.20 via Ancient Wisdom).
+`randomInRange` picks a uniformly random integer between damage min and max. `magicPower` defaults to 1 for all abilities; Frost Bolt sets it to 2. `magicDamageMult` is 1.0 for all classes except the Sorceress at level ≥ 20 (1.20 via Ancient Wisdom).
 
 ---
 
@@ -556,7 +556,7 @@ reduction = floor(missingLifePct / 5) × 2%
 - Passively regenerates **10% of max mana every turn**, regardless of the action taken. Replaces the standard 5% mana regen.
 
 ### Sorceress — Ancient Wisdom *(unlocks at level 20)*
-- Increases all **Magic Damage by 20%** via a multiplicative multiplier applied after the flat `magicDamageBonus` is added. Affects Fireball and any future magic abilities.
+- Increases all **Magic Damage by 20%** via a multiplicative multiplier applied after the flat `magicDamageBonus` is added. Affects Frost Bolt and any future magic abilities.
 
 ### Sorceress — Mind over Matter *(unlocks at level 35)*
 - Channels arcane reserves into vitality: **maximum life is increased by 15% of maximum mana**.
@@ -860,8 +860,8 @@ Unique items have fixed stats and are not generated through the normal rarity ro
 | Stormstring | Weapon (Amazon) | Any boss (lv 28+), Amazon only | 0.15% | Base 16–28 dmg (two-handed); +30–45 Dexterity, +25–35 Damage, −15 Strength; **Electrocute on hit** — enemy takes 20% more damage for 2 turns |
 | Doomcrier | Weapon (Amazon) | Any boss (lv 50+), Amazon only | 0.15% | Base 28–46 dmg (two-handed); +55–75 Damage, +40–55 Dexterity, +8% Crit Chance; **Heartseeker fires at 70%** instead of 50% |
 | Apprentice's Focus | Weapon (Sorceress) | Act 1 bosses, Sorceress only | 0.2% | Base 4–11 dmg (two-handed); +12–18 Energy, +12–18 Magic Damage, +8–12 Mana |
-| The Arcanist | Weapon (Sorceress) | Andariel + Act 2 early bosses, Sorceress only | 0.1% | Base 9–18 dmg (two-handed); +30–45 Magic Damage, +20–30 Energy, −15 Vitality; **Fireball deals +40% damage while Frost Shield is active** |
-| Eternity's Edge | Weapon (Sorceress) | Act 2 late bosses, Sorceress only | 0.1% | Base 15–26 dmg (two-handed); +55–75 Magic Damage, +40–55 Energy, +6% Crit Chance; **30% chance for Fireball to echo at 50% power** |
+| The Arcanist | Weapon (Sorceress) | Andariel + Act 2 early bosses, Sorceress only | 0.1% | Base 9–18 dmg (two-handed); +30–45 Magic Damage, +20–30 Energy, −15 Vitality; **Frost Bolt deals +40% damage while Frost Shield is active** |
+| Eternity's Edge | Weapon (Sorceress) | Act 2 late bosses, Sorceress only | 0.1% | Base 15–26 dmg (two-handed); +55–75 Magic Damage, +40–55 Energy, +6% Crit Chance; **30% chance for Frost Bolt to echo at 50% power** |
 | Viper's Kiss | Weapon (Assassin) | Act 1 bosses, Assassin only | 0.2% | Base 4–8 dmg; +12–18 Dexterity, +10–15 Damage, +8–12 Vitality |
 | Shadowfang | Weapon (Assassin) | Andariel + Act 2 early bosses, Assassin only | 0.2% | Base 9–15 dmg; +30–45 Dexterity, +20–30 Damage, −15 Vitality; **20% chance after each hit to call a phantom strike at 50% damage** |
 | Deathwhisper | Weapon (Assassin) | Act 2 late bosses, Assassin only | 0.2% | Base 15–23 dmg; +55–75 Dexterity, +35–50 Damage, +6% Crit Chance; **all damage +30% while the enemy is blinded or disoriented** |

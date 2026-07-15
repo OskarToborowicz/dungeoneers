@@ -144,13 +144,14 @@ export function UniqueEffectLines({ item }: { item: Item }) {
       {item.arcanist && (
         <div className="item-line mirror-flavor">
           <em>
-            While Frost Shield is active, Fireball deals 40% increased damage
+            While Frost Shield is active, Frost Bolt deals 40% increased
+            damage
           </em>
         </div>
       )}
       {item.eternitysEdge && (
         <div className="item-line mirror-flavor">
-          <em>30% chance for Fireball to echo at 50% power</em>
+          <em>30% chance for Frost Bolt to echo at 50% power</em>
         </div>
       )}
     </>

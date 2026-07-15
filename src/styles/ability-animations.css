@@ -194,8 +194,8 @@
   animation: ae-groll-dust-trail 0.45s ease-out 0.41s forwards;
 }
 
-/* Fireball – Sorceress */
-@keyframes ae-fb-fly {
+/* Frost Bolt – Sorceress */
+@keyframes ae-frost-fly {
   0% {
     transform: translateX(0);
     opacity: 0.95;
@@ -209,29 +209,41 @@
     opacity: 0;
   }
 }
-@keyframes ae-fb-burst {
+@keyframes ae-frost-flash {
   0% {
-    transform: scale(0.15);
+    transform: scale(0.2);
+    opacity: 0.9;
+  }
+  30% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.7);
     opacity: 0;
   }
-  20% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  65% {
-    transform: scale(1.1);
+}
+@keyframes ae-frost-shard {
+  0% {
+    transform: translateX(0) scale(1);
     opacity: 1;
   }
   100% {
-    transform: scale(2.2);
+    transform: translateX(32px) scale(0.3);
     opacity: 0;
   }
 }
-.ae-fb-orb {
-  animation: ae-fb-fly 0.38s linear forwards;
+.ae-frost-orb {
+  animation: ae-frost-fly 0.42s linear forwards;
 }
-.ae-fb-burst {
-  animation: ae-fb-burst 0.7s ease-out 0.34s forwards;
+.ae-frost-flash {
+  transform-origin: 168px 60px;
+  animation: ae-frost-flash 0.45s ease-out 0.42s forwards;
+  opacity: 0;
+}
+.ae-frost-shard {
+  transform-origin: center;
+  animation: ae-frost-shard 0.7s ease-out 0.42s forwards;
   opacity: 0;
 }
 

@@ -760,7 +760,7 @@ export function resolveRound(
         });
         doBasicAttack();
 
-        // ── Fireball / burst abilities (Sorceress) ────────────────────────────
+        // ── Frost Bolt / burst abilities (Sorceress) ───────────────────────────
         // Single-hit magic damage. Arcanist staff adds +40% when Frost Shield is up.
         // Eternity's Edge: 30% chance to echo at 50% power.
       } else if (def.ability.kind === "burst") {

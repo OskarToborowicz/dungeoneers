@@ -117,9 +117,9 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       levelRequirement: 35,
     },
     ability: {
-      name: "Fireball",
-      description: "A searing bolt of fire dealing weapon damage plus twice your Magic Damage bonus.",
-      short: "A searing bolt of fire dealing magic damage.",
+      name: "Frost Bolt",
+      description: "A crystalline bolt of ice dealing weapon damage plus twice your Magic Damage bonus, shattering on impact.",
+      short: "An icy bolt dealing magic damage that shatters on impact.",
       manaCost: 30,
       cooldown: 0,
       kind: "burst",
