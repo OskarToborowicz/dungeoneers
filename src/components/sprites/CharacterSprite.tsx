@@ -55,21 +55,8 @@ const CLASS_WEAPON_GLOW_INTENSITY: Record<ClassId, number> = {
   monk: 1,
 };
 
-function withAlpha(color: string, alpha: number): string {
-  const hex = color.replace("#", "");
-  const r = parseInt(hex.slice(0, 2), 16);
-  const g = parseInt(hex.slice(2, 4), 16);
-  const b = parseInt(hex.slice(4, 6), 16);
-  return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-}
-
 function glowFilter(color: string, intensity: number): string {
-  const t = Math.max(0, intensity);
-  const outerBlur = 8 + t * 6;
-  const outerAlpha = Math.min(1, 0.35 + t * 0.25);
-  const coreBlur = 3 + t * 2;
-  const coreAlpha = Math.min(1, 0.6 + t * 0.3);
-  return `drop-shadow(0 0 ${outerBlur}px ${withAlpha(color, outerAlpha)}) drop-shadow(0 0 ${coreBlur}px ${withAlpha(color, coreAlpha)})`;
+  return `drop-shadow(0 0 ${6 * intensity}px ${color}) drop-shadow(0 0 ${2 * intensity}px ${color})`;
 }
 
 type ClassSpriteModule = {
