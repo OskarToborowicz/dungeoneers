@@ -22,26 +22,29 @@ const STAT_LABEL: Record<string, string> = {
 export function getComparisons(
   slot: EquipmentSlot,
   equipment: Partial<Record<EquipmentSlot, Item>>,
-  hoveredItem?: { twoHanded?: boolean },
+  hoveredItem?: { id?: string; twoHanded?: boolean },
 ): { item: Item; label: string }[] {
+  let result: { item: Item; label: string }[];
   if (slot === "ring1" || slot === "ring2") {
-    const result: { item: Item; label: string }[] = [];
+    result = [];
     if (equipment.ring1)
       result.push({ item: equipment.ring1, label: "Ring slot 1" });
     if (equipment.ring2)
       result.push({ item: equipment.ring2, label: "Ring slot 2" });
-    return result;
-  }
-  if (slot === "weapon" && !hoveredItem?.twoHanded) {
-    const result: { item: Item; label: string }[] = [];
+  } else if (slot === "weapon" && !hoveredItem?.twoHanded) {
+    result = [];
     if (equipment.weapon)
       result.push({ item: equipment.weapon, label: "Main hand" });
     if (equipment.shield)
       result.push({ item: equipment.shield, label: "Off hand" });
-    return result;
+  } else {
+    const equipped = equipment[slot];
+    result = equipped ? [{ item: equipped, label: "Equipped" }] : [];
   }
-  const equipped = equipment[slot];
-  return equipped ? [{ item: equipped, label: "Equipped" }] : [];
+  // Hovering an already-equipped item shouldn't compare it to itself.
+  return hoveredItem?.id
+    ? result.filter(({ item }) => item.id !== hoveredItem.id)
+    : result;
 }
 
 export function CompareGroup({
@@ -51,7 +54,7 @@ export function CompareGroup({
 }: {
   slot: EquipmentSlot;
   equipment: Partial<Record<EquipmentSlot, Item>>;
-  hoveredItem?: { twoHanded?: boolean };
+  hoveredItem?: { id?: string; twoHanded?: boolean };
 }) {
   const comparisons = getComparisons(slot, equipment, hoveredItem);
   if (comparisons.length === 0) return null;
@@ -69,6 +72,9 @@ function ComparePanel({ item, label }: { item: Item; label: string }) {
   return (
     <div className="compare-panel" style={{ borderColor: color }}>
       <div className="compare-label">{label}</div>
+      {label !== "Equipped" && (
+        <div className="compare-equipped-tag">Equipped</div>
+      )}
       <div className="item-name" style={{ color }}>
         {item.name}
       </div>

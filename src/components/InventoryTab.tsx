@@ -190,6 +190,9 @@ function SlotItemDnd({
   isSelected,
   onTap,
   onDoubleClick,
+  onMouseEnter,
+  onMouseLeave,
+  onShowTooltip,
 }: {
   item: Item;
   slot: EquipmentSlot;
@@ -197,6 +200,9 @@ function SlotItemDnd({
   isSelected: boolean;
   onTap: () => void;
   onDoubleClick: () => void;
+  onMouseEnter: (e: React.MouseEvent) => void;
+  onMouseLeave: () => void;
+  onShowTooltip: (el: HTMLElement) => void;
 }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: `equip-${item.id}`,
@@ -209,8 +215,11 @@ function SlotItemDnd({
       onClick={(e) => {
         e.stopPropagation();
         onTap();
+        onShowTooltip(e.currentTarget as HTMLElement);
       }}
       onDoubleClick={onDoubleClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       <div
         ref={setNodeRef}
@@ -227,7 +236,6 @@ function SlotItemDnd({
       >
         <ItemIcon item={item} />
       </div>
-      <ItemTooltip item={item} />
     </div>
   );
 }
@@ -482,6 +490,15 @@ export function InventoryTab({
                         slot={slot}
                         isDragging={draggingId === item.id}
                         isSelected={isSelected(item.id, slot)}
+                        onMouseEnter={(e) => onMouseEnter(item, e)}
+                        onMouseLeave={onMouseLeave}
+                        onShowTooltip={(el) => {
+                          // A tap here either equips or deselects when
+                          // something is already selected — hide the
+                          // tooltip instead of showing a now-stale one.
+                          if (hasSelected) clearHover();
+                          else showTooltip(item, el);
+                        }}
                         onTap={() => {
                           if (hasSelected) {
                             if (valid) tapSlot(slot);

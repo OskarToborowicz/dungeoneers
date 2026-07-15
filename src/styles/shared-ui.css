@@ -11,24 +11,6 @@
   pointer-events: none;
 }
 
-.slot-item .item-tooltip {
-  display: none;
-  position: absolute;
-  top: 50%;
-  left: calc(100% + 10px);
-  transform: translateY(-50%);
-  z-index: 9999;
-}
-
-.slot-item:hover .item-tooltip {
-  display: block;
-}
-
-.is-dragging .slot-item .item-tooltip,
-.is-selecting .slot-item .item-tooltip {
-  display: none !important;
-}
-
 .slot-item:hover,
 .inv-cell:hover {
   z-index: 30;
@@ -57,6 +39,13 @@
   color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+
+.compare-equipped-tag {
+  font-size: 10px;
+  font-style: italic;
+  color: var(--text-dim);
   margin-bottom: 5px;
 }
 

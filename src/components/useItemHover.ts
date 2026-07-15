@@ -7,10 +7,24 @@ interface HoveredItem {
 }
 
 const MARGIN = 8;
+const PANEL_WIDTH = 170;
+const SIDE_GAP = 10;
 
 function clampedTop(midY: number, elHeight: number): number {
   const raw = midY - elHeight / 2;
   return Math.max(MARGIN, Math.min(raw, window.innerHeight - elHeight - MARGIN));
+}
+
+// The desktop layout puts the tooltip to the right of the cell and the
+// compare panel to the left. Near the viewport's edges either one gets
+// clamped back onto the screen — which can clamp it right into the
+// other panel's space. Only use the side-by-side layout when both sides
+// actually have room; otherwise fall back to the centered/stacked layout
+// (the same one used on narrow phones) so they can never collide.
+function fitsSideBySide(rect: DOMRect): boolean {
+  const fitsRight = rect.right + SIDE_GAP + PANEL_WIDTH + MARGIN <= window.innerWidth;
+  const fitsLeft = rect.left - SIDE_GAP - PANEL_WIDTH - MARGIN >= 0;
+  return fitsRight && fitsLeft;
 }
 
 export function useItemHover() {
@@ -50,7 +64,8 @@ export function useItemHover() {
   function tooltipStyle(): CSSProperties | null {
     if (!hovered) return null;
     const midY = hovered.rect.top + hovered.rect.height / 2;
-    if (isMobile) {
+    const stacked = isMobile || !fitsSideBySide(hovered.rect);
+    if (stacked) {
       const totalH = tooltipHeight + (compareHeight > 0 ? compareHeight + 8 : 0);
       const top = totalH > 0 ? clampedTop(midY, totalH) : midY;
       return {
@@ -81,7 +96,8 @@ export function useItemHover() {
   function compareStyle(): CSSProperties | null {
     if (!hovered) return null;
     const midY = hovered.rect.top + hovered.rect.height / 2;
-    if (isMobile) {
+    const stacked = isMobile || !fitsSideBySide(hovered.rect);
+    if (stacked) {
       const totalH = tooltipHeight + (compareHeight > 0 ? compareHeight + 8 : 0);
       const top = totalH > 0 ? clampedTop(midY, totalH) + tooltipHeight + 8 : midY;
       return {
@@ -98,8 +114,7 @@ export function useItemHover() {
       };
     }
     const top = compareHeight > 0 ? clampedTop(midY, compareHeight) : midY;
-    const panelWidth = 170;
-    const rawLeft = hovered.rect.left - panelWidth - 10;
+    const rawLeft = hovered.rect.left - PANEL_WIDTH - 10;
     const clampedLeft = Math.max(MARGIN, rawLeft);
     return {
       position: "fixed",
