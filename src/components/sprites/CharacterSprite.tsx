@@ -16,7 +16,9 @@ interface Props {
   classId: ClassId;
   size?: number;
   state?: SpriteState;
-  isUnique?: boolean;
+  isUniqueWeapon?: boolean;
+  isUniqueOffHand?: boolean;
+
   statusEffects?: Array<"poison" | "burn">;
   /** Idle/attack/hit/dead motion — only combat needs this in motion. */
   animated?: boolean;
@@ -80,7 +82,7 @@ type ClassSpriteModule = {
   weapon: (color: string) => React.ReactNode;
   uniqueWeapon: (color: string) => React.ReactNode;
   offHand?: (color: string) => React.ReactNode;
-  // uniqueOffhand: (color: string) => React.ReactNode;
+  uniqueOffhand?: (color: string) => React.ReactNode;
 };
 
 const CLASS_SPRITES: Record<ClassId, ClassSpriteModule> = {
@@ -114,7 +116,8 @@ export function CharacterSprite({
   classId,
   size = 64,
   state = "idle",
-  isUnique = false,
+  isUniqueOffHand = false,
+  isUniqueWeapon = false,
   statusEffects = [],
   animated = true,
 }: Props) {
@@ -125,10 +128,10 @@ export function CharacterSprite({
   const uid = useId();
   const bodyGlowId = `${uid}-body-glow`;
   const weaponGlowId = `${uid}-weapon-glow`;
-  const offhandGlowId = `${uid}-weapon-glow`;
+  const offhandGlowId = `${uid}-offhand-glow`;
   const classColor = CLASS_COLORS[classId];
-  const weaponColor = isUnique ? UNIQUE_COLOR : classColor;
-  const offhandColor = isUnique ? UNIQUE_COLOR : classColor;
+  const weaponColor = isUniqueWeapon ? UNIQUE_COLOR : classColor;
+  const offhandColor = isUniqueOffHand ? UNIQUE_COLOR : classColor;
   const height = Math.round(size * 1.5);
   const scale = size / 64;
   const sprite = CLASS_SPRITES[classId];
@@ -159,20 +162,12 @@ export function CharacterSprite({
           color={weaponColor}
           intensity={glowIntensity}
         />
-      </defs>
-      {statusEffects.includes("poison") && (
-        <ellipse
-          cx="32"
-          cy="50"
-          rx="28"
-          ry="48"
-          fill="none"
-          stroke="#44cc22"
-          strokeWidth="2.5"
-          className="status-aura-poison"
-          strokeOpacity="0.7"
+        <GlowFilterDef
+          id={offhandGlowId}
+          color={offhandColor}
+          intensity={glowIntensity}
         />
-      )}
+      </defs>
       {statusEffects.includes("burn") && (
         <ellipse
           cx="32"
@@ -190,14 +185,24 @@ export function CharacterSprite({
         {sprite.body()}
       </g>
 
-      <g {...sharedG} stroke={weaponColor} filter={`url(#${offhandGlowId})`}>
-        {sprite.offHand && sprite.offHand(offhandColor)}
+      <g {...sharedG} stroke={offhandColor} filter={`url(#${offhandGlowId})`}>
+        {isUniqueOffHand
+          ? (sprite.uniqueOffhand?.(offhandColor) ??
+            sprite.offHand?.(offhandColor))
+          : sprite.offHand?.(offhandColor)}
       </g>
       <g {...sharedG} stroke={weaponColor} filter={`url(#${weaponGlowId})`}>
-        {isUnique
+        {isUniqueWeapon
           ? sprite.uniqueWeapon(weaponColor)
           : sprite.weapon(weaponColor)}
       </g>
+      {animated && statusEffects.includes("poison") && (
+        <>
+          <circle cx="20" cy="55" r="2.5" className="poisoned" />
+          <circle cx="34" cy="48" r="2" className="poisoned delay1" />
+          <circle cx="44" cy="58" r="3" className="poisoned delay2" />
+        </>
+      )}
     </svg>
   );
 

@@ -54,6 +54,7 @@ export function GamblerTab({
     onMouseLeave,
     tooltipStyle,
     compareStyle,
+    showTooltip,
     tooltipRef,
     compareRef,
   } = useItemHover();
@@ -117,6 +118,9 @@ export function GamblerTab({
                 style={{ color: RARITY_COLORS[item.rarity] }}
                 onMouseEnter={(e) => onMouseEnter(item, e)}
                 onMouseLeave={onMouseLeave}
+                onClick={(e) =>
+                  showTooltip(item, e.currentTarget as HTMLElement)
+                }
               >
                 <ItemIcon item={item} />
                 <button

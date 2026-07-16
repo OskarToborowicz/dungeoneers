@@ -18,7 +18,10 @@
       "spells middle flee";
     gap: 8px;
     padding: 8px;
-    height: 100dvh;
+    /* --app-vh (visualViewport, set in main.tsx) — 100dvh lies on iOS
+       Safari landscape when the tab bar is visible and cuts off the
+       bottom of the grid. */
+    height: var(--app-vh, 100dvh);
     width: 100%;
     overflow: hidden;
   }

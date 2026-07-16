@@ -311,9 +311,21 @@
   .equipment-grid {
     gap: 8px;
   }
+  /* Page stays fixed on the inventory tab — only the item grid scrolls.
+     Same containment pattern as the landscape layout. */
+  .hub-content:has(.inventory-wrapper) {
+    overflow: hidden;
+  }
+  .hub-content .tab-panel:has(.inventory-wrapper) {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
   .inventory-wrapper {
     display: flex;
     flex-direction: column;
+    flex: 1;
+    min-height: 0;
   }
   .inv-left-col {
     flex-direction: row;
@@ -321,6 +333,25 @@
     flex-wrap: wrap;
     justify-content: center;
     gap: 8px;
+    flex-shrink: 0;
+  }
+  .inventory-right {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .inventory-label-row {
+    flex-shrink: 0;
+  }
+  .inventory-right .inventory-dropzone {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+  .inventory-right > .empty-note {
+    flex-shrink: 0;
   }
   .inv-stats {
     flex-direction: row;
@@ -422,6 +453,12 @@
   .sell-junk-button,
   .sort-btn {
     font-size: 10px;
+  }
+  .sell-all-row {
+    flex-wrap: wrap;
+  }
+  .sell-all-warning {
+    width: 100%;
   }
   .inventory-right > .empty-note {
     flex-shrink: 0;

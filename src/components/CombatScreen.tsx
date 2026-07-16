@@ -551,9 +551,13 @@ export function CombatScreen({
               classId={character.classId}
               size={80}
               state={playerAnim}
-              isUnique={
+              isUniqueWeapon={
                 equipment.weapon?.rarity === "very rare" ||
                 equipment.weapon?.rarity === "unique"
+              }
+              isUniqueOffHand={
+                equipment.shield?.rarity === "very rare" ||
+                equipment.shield?.rarity === "unique"
               }
               statusEffects={[
                 ...(battle.playerPoisonRounds > 0 ? ["poison" as const] : []),

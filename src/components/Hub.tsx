@@ -118,7 +118,13 @@ export function Hub({
   dismissRef.current = onDismissDroppedItem;
 
   useEffect(() => {
-    if (!droppedItem || showPortalMessage || showSewersEscape || showAct4Message) return;
+    if (
+      !droppedItem ||
+      showPortalMessage ||
+      showSewersEscape ||
+      showAct4Message
+    )
+      return;
     if (droppedItem.rarity === "unique" && !isSoundMuted()) {
       const sfx = new Audio(import.meta.env.BASE_URL + "divine_drop.mp3");
       sfx.volume = 0.05;
@@ -135,32 +141,35 @@ export function Hub({
         { "--class-color": CLASS_COLORS[character.classId] } as CSSProperties
       }
     >
-      {droppedItem && !showPortalMessage && !showSewersEscape && !showAct4Message && (
-        <div
-          className={`drop-banner${droppedItem.rarity === "unique" ? " drop-banner--unique" : ""}`}
-          onClick={onDismissDroppedItem}
-        >
-          <span className="drop-banner-label">Item found</span>
-          <span
-            className="drop-banner-icon"
-            style={{ color: RARITY_COLORS[droppedItem.rarity] }}
-          >
-            <ItemIcon item={droppedItem} />
-          </span>
-          <span
-            className="drop-banner-name"
-            style={{ color: RARITY_COLORS[droppedItem.rarity] }}
-          >
-            {droppedItem.name}
-          </span>
-          <button
-            className="drop-banner-dismiss"
+      {droppedItem &&
+        !showPortalMessage &&
+        !showSewersEscape &&
+        !showAct4Message && (
+          <div
+            className={`drop-banner${droppedItem.rarity === "unique" ? " drop-banner--unique" : ""}`}
             onClick={onDismissDroppedItem}
           >
-            ×
-          </button>
-        </div>
-      )}
+            <span className="drop-banner-label">Item found</span>
+            <span
+              className="drop-banner-icon"
+              style={{ color: RARITY_COLORS[droppedItem.rarity] }}
+            >
+              <ItemIcon item={droppedItem} />
+            </span>
+            <span
+              className="drop-banner-name"
+              style={{ color: RARITY_COLORS[droppedItem.rarity] }}
+            >
+              {droppedItem.name}
+            </span>
+            <button
+              className="drop-banner-dismiss"
+              onClick={onDismissDroppedItem}
+            >
+              ×
+            </button>
+          </div>
+        )}
       {showSewersIntro && (
         <div className="portal-overlay">
           <div className="portal-modal">
@@ -168,8 +177,8 @@ export function Hub({
             <h2>Thrown Into the Sewers</h2>
             <p>
               By order of King Victor the Second, you have been cast into the
-              royal sewers for treason. No trial. No mercy. Survive, or rot
-              in the dark.
+              royal sewers for treason. No trial. No mercy. Survive, or rot in
+              the dark.
             </p>
             <button className="primary-button" onClick={onDismissSewersIntro}>
               Fight Your Way Out
@@ -183,8 +192,8 @@ export function Hub({
             <div className="portal-icon">🌅</div>
             <h2>You Escaped the Sewers</h2>
             <p>
-              Against all odds, you clawed your way out. The world lies ahead
-              — dungeons to plunder, enemies to conquer, and a king who will
+              Against all odds, you clawed your way out. The world lies ahead —
+              dungeons to plunder, enemies to conquer, and a king who will
               answer for what he did.
             </p>
             <button className="primary-button" onClick={onDismissSewersEscape}>
@@ -199,11 +208,10 @@ export function Hub({
             <div className="portal-icon">🌿</div>
             <h2>The Mountain Falls</h2>
             <p>
-              Sikktharkk's dying screech shook the peaks. An avalanche
-              tore the mountainside open and swept you down the far slope.
-              You survived — battered, half-frozen — and at the bottom you
-              saw it: a vast, deep jungle where the frozen wastelands end.
-              Act 3 awaits.
+              Sikktharkk's dying screech shook the peaks. An avalanche tore the
+              mountainside open and swept you down the far slope. You survived —
+              battered, half-frozen — and at the bottom you saw it: a vast, deep
+              jungle where the frozen wastelands end. Act 3 awaits.
             </p>
             <button className="primary-button" onClick={onDismissAct3Message}>
               Descend Into the Jungle
@@ -217,16 +225,22 @@ export function Hub({
             <div className="portal-icon">🌑</div>
             <h2>The Veil Has Torn</h2>
             <p>
-              Zam'Koro's final cry fades. The emerald flames die. The cursed masks shatter, releasing souls imprisoned for centuries.
+              Zam'Koro's final cry fades. The emerald flames die. The cursed
+              masks shatter, releasing souls imprisoned for centuries.
             </p>
+            <p>Then the shadows move.</p>
             <p>
-              Then the shadows move.
-            </p>
-            <p>
-              Darkness spills like liquid across the ground, swallowing the light. A jagged tear opens in the air itself — revealing ruined towers, twisted forests, and wandering spirits beyond. An icy wind carries whispers in a language long forgotten.
+              Darkness spills like liquid across the ground, swallowing the
+              light. A jagged tear opens in the air itself — revealing ruined
+              towers, twisted forests, and wandering spirits beyond. An icy wind
+              carries whispers in a language long forgotten.
             </p>
             <p style={{ fontStyle: "italic", opacity: 0.85 }}>
-              "The Loa's curse has fallen... but its prison has broken with it. The veil between the living and the dead has been torn open. Beyond this rift lies the Shadowlands, where lost souls wander and forgotten kings still reign. The darkness is no longer waiting — it is coming."
+              "The Loa's curse has fallen... but its prison has broken with it.
+              The veil between the living and the dead has been torn open.
+              Beyond this rift lies the Shadowlands, where lost souls wander and
+              forgotten kings still reign. The darkness is no longer waiting —
+              it is coming."
             </p>
             <button className="primary-button" onClick={onDismissAct4Message}>
               Act 4 Unlocked: Realm of the Endless Night
@@ -240,9 +254,9 @@ export function Hub({
             <div className="portal-icon">⛰️</div>
             <h2>The Gate Opens</h2>
             <p>
-              The Bandit Chieftain is dead. On the far side of town, the
-              heavy iron gate groans open — beyond it, a winding road
-              climbs into the mountains. Act 2 awaits.
+              The Bandit Chieftain is dead. On the far side of town, the heavy
+              iron gate groans open — beyond it, a winding road climbs into the
+              mountains. Act 2 awaits.
             </p>
             <button className="primary-button" onClick={onDismissPortal}>
               Enter the Mountains
@@ -290,9 +304,13 @@ export function Hub({
                 classId={character.classId}
                 size={90}
                 state="idle"
-                isUnique={
+                isUniqueWeapon={
                   equipment.weapon?.rarity === "very rare" ||
                   equipment.weapon?.rarity === "unique"
+                }
+                isUniqueOffHand={
+                  equipment.shield?.rarity === "very rare" ||
+                  equipment.shield?.rarity === "unique"
                 }
               />
             </div>
@@ -302,7 +320,13 @@ export function Hub({
                 <div className="level-display">
                   Level {character.level}
                   {character.unspentStatPoints > 0 && (
-                    <span className="stat-point-inline" onClick={() => setTab("character")} style={{ cursor: "pointer" }}>+</span>
+                    <span
+                      className="stat-point-inline"
+                      onClick={() => setTab("character")}
+                      style={{ cursor: "pointer" }}
+                    >
+                      +
+                    </span>
                   )}
                 </div>
               </div>
@@ -337,26 +361,35 @@ export function Hub({
             >
               Character{" "}
               {/* full knight great-helm: dome, brow ridge, visor bars, cheek plates, neck guard */}
-              <svg width="15" height="16" viewBox="0 0 20 22" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="15"
+                height="16"
+                viewBox="0 0 20 22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 {/* dome */}
-                <path d="M4 11 C4 4 16 4 16 11"/>
+                <path d="M4 11 C4 4 16 4 16 11" />
                 {/* brow ridge */}
-                <line x1="3.5" y1="11" x2="16.5" y2="11"/>
+                <line x1="3.5" y1="11" x2="16.5" y2="11" />
                 {/* face plate left cheek */}
-                <path d="M4 11 L3 15 Q3 18 5 18 L9 18"/>
+                <path d="M4 11 L3 15 Q3 18 5 18 L9 18" />
                 {/* face plate right cheek */}
-                <path d="M16 11 L17 15 Q17 18 15 18 L11 18"/>
+                <path d="M16 11 L17 15 Q17 18 15 18 L11 18" />
                 {/* chin bottom */}
-                <path d="M9 18 Q10 19 11 18"/>
+                <path d="M9 18 Q10 19 11 18" />
                 {/* visor slits */}
-                <line x1="5.5" y1="13" x2="8.5" y2="13"/>
-                <line x1="5" y1="15" x2="8.5" y2="15"/>
-                <line x1="11.5" y1="13" x2="14.5" y2="13"/>
-                <line x1="11.5" y1="15" x2="15" y2="15"/>
+                <line x1="5.5" y1="13" x2="8.5" y2="13" />
+                <line x1="5" y1="15" x2="8.5" y2="15" />
+                <line x1="11.5" y1="13" x2="14.5" y2="13" />
+                <line x1="11.5" y1="15" x2="15" y2="15" />
                 {/* center nose guard */}
-                <line x1="10" y1="11" x2="10" y2="18"/>
+                <line x1="10" y1="11" x2="10" y2="18" />
                 {/* crest / plume base */}
-                <path d="M7 4 Q10 1 13 4"/>
+                <path d="M7 4 Q10 1 13 4" />
               </svg>
             </button>
             <button
@@ -365,38 +398,57 @@ export function Hub({
             >
               Inventory{" "}
               {hasUnseenItems ? (
-                <svg width="15" height="16" viewBox="0 0 20 22" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" className="tab-icon-shine">
+                <svg
+                  width="15"
+                  height="16"
+                  viewBox="0 0 20 22"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="tab-icon-shine"
+                >
                   {/* handle loop */}
-                  <path d="M8 3 Q10 1 12 3"/>
+                  <path d="M8 3 Q10 1 12 3" />
                   {/* top strap */}
-                  <path d="M6 4 Q10 2.5 14 4 L15 7 L5 7 Z"/>
+                  <path d="M6 4 Q10 2.5 14 4 L15 7 L5 7 Z" />
                   {/* main body */}
-                  <rect x="3" y="7" width="14" height="13" rx="2.5"/>
+                  <rect x="3" y="7" width="14" height="13" rx="2.5" />
                   {/* closed flap covering body */}
-                  <path d="M3 7 Q3 13 10 13 Q17 13 17 7"/>
+                  <path d="M3 7 Q3 13 10 13 Q17 13 17 7" />
                   {/* buckle strap across flap */}
-                  <line x1="6" y1="10.5" x2="14" y2="10.5"/>
-                  <rect x="8.5" y="9.5" width="3" height="2" rx="0.5"/>
-                  <line x1="10" y1="9.5" x2="10" y2="11.5"/>
+                  <line x1="6" y1="10.5" x2="14" y2="10.5" />
+                  <rect x="8.5" y="9.5" width="3" height="2" rx="0.5" />
+                  <line x1="10" y1="9.5" x2="10" y2="11.5" />
                 </svg>
               ) : (
-                <svg width="15" height="16" viewBox="0 0 20 22" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+                <svg
+                  width="15"
+                  height="16"
+                  viewBox="0 0 20 22"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
                   {/* handle loop */}
-                  <path d="M8 3 Q10 1 12 3"/>
+                  <path d="M8 3 Q10 1 12 3" />
                   {/* shoulder strap attachment top */}
-                  <path d="M6 4 Q10 2.5 14 4 L15 7 L5 7 Z"/>
+                  <path d="M6 4 Q10 2.5 14 4 L15 7 L5 7 Z" />
                   {/* main body */}
-                  <rect x="3" y="7" width="14" height="13" rx="2.5"/>
+                  <rect x="3" y="7" width="14" height="13" rx="2.5" />
                   {/* curved top flap */}
-                  <path d="M3 10.5 Q10 14 17 10.5"/>
+                  <path d="M3 10.5 Q10 14 17 10.5" />
                   {/* center front pocket */}
-                  <rect x="6" y="13" width="8" height="5" rx="1.5"/>
+                  <rect x="6" y="13" width="8" height="5" rx="1.5" />
                   {/* buckle on pocket */}
-                  <rect x="8.5" y="14.5" width="3" height="2" rx="0.5"/>
-                  <line x1="10" y1="14.5" x2="10" y2="16.5"/>
+                  <rect x="8.5" y="14.5" width="3" height="2" rx="0.5" />
+                  <line x1="10" y1="14.5" x2="10" y2="16.5" />
                   {/* side stitching lines */}
-                  <line x1="5" y1="11.5" x2="5" y2="19"/>
-                  <line x1="15" y1="11.5" x2="15" y2="19"/>
+                  <line x1="5" y1="11.5" x2="5" y2="19" />
+                  <line x1="15" y1="11.5" x2="15" y2="19" />
                 </svg>
               )}
             </button>
@@ -405,18 +457,38 @@ export function Hub({
               disabled={!sewersCleared}
               onClick={() => setTab("shop")}
             >
-              Shop{" "}
-              {/* three loose coins */}
-              <svg width="15" height="16" viewBox="0 0 20 22" fill="none" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round">
+              Shop {/* three loose coins */}
+              <svg
+                width="15"
+                height="16"
+                viewBox="0 0 20 22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 {/* coin 1 - bottom left, flat face */}
-                <circle cx="6" cy="15" r="4.5"/>
-                <circle cx="6" cy="15" r="2.2"/>
+                <circle cx="6" cy="15" r="4.5" />
+                <circle cx="6" cy="15" r="2.2" />
                 {/* coin 2 - top center, flat face */}
-                <circle cx="11" cy="6" r="4.5"/>
-                <circle cx="11" cy="6" r="2.2"/>
+                <circle cx="11" cy="6" r="4.5" />
+                <circle cx="11" cy="6" r="2.2" />
                 {/* coin 3 - right side, slightly tilted (ellipse) */}
-                <ellipse cx="16" cy="14" rx="3" ry="4.5" transform="rotate(20 16 14)"/>
-                <ellipse cx="16" cy="14" rx="1.4" ry="2.2" transform="rotate(20 16 14)"/>
+                <ellipse
+                  cx="16"
+                  cy="14"
+                  rx="3"
+                  ry="4.5"
+                  transform="rotate(20 16 14)"
+                />
+                <ellipse
+                  cx="16"
+                  cy="14"
+                  rx="1.4"
+                  ry="2.2"
+                  transform="rotate(20 16 14)"
+                />
               </svg>
             </button>
             <button
@@ -426,22 +498,67 @@ export function Hub({
             >
               Gamble{" "}
               {/* isometric dice showing 3 faces: top (1 pip), front (3 pips), right (2 pips) */}
-              <svg width="15" height="16" viewBox="0 0 20 22" fill="none" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                width="15"
+                height="16"
+                viewBox="0 0 20 22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 {/* top face */}
-                <path d="M10 2 L18 6 L10 10 L2 6 Z"/>
+                <path d="M10 2 L18 6 L10 10 L2 6 Z" />
                 {/* left/front face */}
-                <path d="M2 6 L2 16 L10 20 L10 10 Z"/>
+                <path d="M2 6 L2 16 L10 20 L10 10 Z" />
                 {/* right face */}
-                <path d="M10 10 L10 20 L18 16 L18 6 Z"/>
+                <path d="M10 10 L10 20 L18 16 L18 6 Z" />
                 {/* top face pip — center */}
-                <circle cx="10" cy="6" r="1" fill="currentColor" stroke="none"/>
+                <circle
+                  cx="10"
+                  cy="6"
+                  r="1"
+                  fill="currentColor"
+                  stroke="none"
+                />
                 {/* front face pips — diagonal 3 */}
-                <circle cx="5" cy="12" r="0.9" fill="currentColor" stroke="none"/>
-                <circle cx="7" cy="15" r="0.9" fill="currentColor" stroke="none"/>
-                <circle cx="9" cy="18" r="0.9" fill="currentColor" stroke="none"/>
+                <circle
+                  cx="5"
+                  cy="12"
+                  r="0.9"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <circle
+                  cx="7"
+                  cy="15"
+                  r="0.9"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <circle
+                  cx="9"
+                  cy="18"
+                  r="0.9"
+                  fill="currentColor"
+                  stroke="none"
+                />
                 {/* right face pips — 2 */}
-                <circle cx="13" cy="12" r="0.9" fill="currentColor" stroke="none"/>
-                <circle cx="16" cy="15.5" r="0.9" fill="currentColor" stroke="none"/>
+                <circle
+                  cx="13"
+                  cy="12"
+                  r="0.9"
+                  fill="currentColor"
+                  stroke="none"
+                />
+                <circle
+                  cx="16"
+                  cy="15.5"
+                  r="0.9"
+                  fill="currentColor"
+                  stroke="none"
+                />
               </svg>
             </button>
           </nav>

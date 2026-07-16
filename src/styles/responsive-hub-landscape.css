@@ -22,6 +22,10 @@
     overflow-y: auto;
     gap: 6px;
     position: relative;
+    /* The desktop svh-based min-height would push the hub past the real
+       viewport on iOS Safari landscape with the tab bar shown; the sidebar
+       already fills the row via align-items: stretch. */
+    min-height: 0;
   }
 
   .reset-button {

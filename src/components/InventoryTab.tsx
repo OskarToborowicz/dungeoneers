@@ -123,17 +123,15 @@ function InvCellDnd({
   onDoubleTap,
   onMouseEnter,
   onMouseLeave,
-  onShowTooltip,
   onToggleFavorite,
 }: {
   item: Item;
   isDragging: boolean;
   isSelected: boolean;
-  onTap: () => void;
+  onTap: (el: HTMLElement) => void;
   onDoubleTap: () => void;
   onMouseEnter: (e: React.MouseEvent) => void;
   onMouseLeave: () => void;
-  onShowTooltip: (el: HTMLElement) => void;
   onToggleFavorite: () => void;
 }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
@@ -146,8 +144,7 @@ function InvCellDnd({
       style={{ color: RARITY_COLORS[item.rarity] }}
       onClick={(e) => {
         e.stopPropagation();
-        onTap();
-        onShowTooltip(e.currentTarget as HTMLElement);
+        onTap(e.currentTarget as HTMLElement);
       }}
       onDoubleClick={onDoubleTap}
       onMouseEnter={onMouseEnter}
@@ -192,17 +189,15 @@ function SlotItemDnd({
   onDoubleClick,
   onMouseEnter,
   onMouseLeave,
-  onShowTooltip,
 }: {
   item: Item;
   slot: EquipmentSlot;
   isDragging: boolean;
   isSelected: boolean;
-  onTap: () => void;
+  onTap: (el: HTMLElement) => void;
   onDoubleClick: () => void;
   onMouseEnter: (e: React.MouseEvent) => void;
   onMouseLeave: () => void;
-  onShowTooltip: (el: HTMLElement) => void;
 }) {
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: `equip-${item.id}`,
@@ -214,8 +209,7 @@ function SlotItemDnd({
       style={{ color: RARITY_COLORS[item.rarity] }}
       onClick={(e) => {
         e.stopPropagation();
-        onTap();
-        onShowTooltip(e.currentTarget as HTMLElement);
+        onTap(e.currentTarget as HTMLElement);
       }}
       onDoubleClick={onDoubleClick}
       onMouseEnter={onMouseEnter}
@@ -391,25 +385,37 @@ export function InventoryTab({
     return slot === item.slot;
   }
 
-  function tapItem(item: Item, from: Location) {
+  // The tooltip is controlled here, not in the cell's click handler: the
+  // selected item's tooltip stays pinned for as long as the selection
+  // lives, and every branch that ends the selection hides it. Without
+  // this, iOS Safari's synthetic mouseleave after a tap dismissed the
+  // tooltip right after selecting.
+  function tapItem(item: Item, from: Location, el: HTMLElement) {
     if (selected?.id === item.id && selected.from === from) {
       setSelected(null);
+      clearHover();
       return;
     }
-    if (!selected && from !== "inventory") return;
+    if (!selected && from !== "inventory") {
+      showTooltip(item, el);
+      return;
+    }
     if (selected) {
       if (selected.from === "inventory" && from !== "inventory") {
         onMoveItem(selected.id, "inventory", from as EquipmentSlot);
         setSelected(null);
+        clearHover();
         return;
       }
       if (selected.from !== "inventory" && from === "inventory") {
         onMoveItem(item.id, "inventory", selected.from as EquipmentSlot);
         setSelected(null);
+        clearHover();
         return;
       }
     }
     setSelected({ id: item.id, from });
+    showTooltip(item, el);
   }
 
   function tapSlot(slot: EquipmentSlot) {
@@ -451,7 +457,10 @@ export function InventoryTab({
       <div
         className={`tab-panel${draggingId ? " is-dragging" : ""}${hasSelected ? " is-selecting" : ""}`}
         onClick={() => {
-          if (hasSelected) setSelected(null);
+          if (hasSelected) {
+            setSelected(null);
+            clearHover();
+          }
         }}
       >
         <div className="inventory-wrapper">
@@ -476,7 +485,10 @@ export function InventoryTab({
                       if (is2hMirror) return;
                       if (hasSelected) {
                         if (valid) tapSlot(slot);
-                        else setSelected(null);
+                        else {
+                          setSelected(null);
+                          clearHover();
+                        }
                       }
                     }}
                   >
@@ -490,20 +502,20 @@ export function InventoryTab({
                         slot={slot}
                         isDragging={draggingId === item.id}
                         isSelected={isSelected(item.id, slot)}
-                        onMouseEnter={(e) => onMouseEnter(item, e)}
-                        onMouseLeave={onMouseLeave}
-                        onShowTooltip={(el) => {
-                          // A tap here either equips or deselects when
-                          // something is already selected — hide the
-                          // tooltip instead of showing a now-stale one.
-                          if (hasSelected) clearHover();
-                          else showTooltip(item, el);
+                        onMouseEnter={(e) => {
+                          if (!hasSelected) onMouseEnter(item, e);
                         }}
-                        onTap={() => {
+                        onMouseLeave={() => {
+                          if (!hasSelected) onMouseLeave();
+                        }}
+                        onTap={(el) => {
                           if (hasSelected) {
                             if (valid) tapSlot(slot);
-                            else setSelected(null);
-                          } else tapItem(item, slot);
+                            else {
+                              setSelected(null);
+                              clearHover();
+                            }
+                          } else tapItem(item, slot, el);
                         }}
                         onDoubleClick={() =>
                           onMoveItem(item.id, slot, "inventory")
@@ -551,7 +563,7 @@ export function InventoryTab({
                     item={item}
                     isDragging={draggingId === item.id}
                     isSelected={isSelected(item.id, "inventory")}
-                    onTap={() => tapItem(item, "inventory")}
+                    onTap={(el) => tapItem(item, "inventory", el)}
                     onDoubleTap={() =>
                       onMoveItem(
                         item.id,
@@ -559,9 +571,12 @@ export function InventoryTab({
                         bestSlot(item, equipment),
                       )
                     }
-                    onMouseEnter={(e) => onMouseEnter(item, e)}
-                    onMouseLeave={onMouseLeave}
-                    onShowTooltip={(el) => showTooltip(item, el)}
+                    onMouseEnter={(e) => {
+                      if (!hasSelected) onMouseEnter(item, e);
+                    }}
+                    onMouseLeave={() => {
+                      if (!hasSelected) onMouseLeave();
+                    }}
                     onToggleFavorite={() => onToggleFavorite(item.id)}
                   />
                 ))}

@@ -23,6 +23,16 @@
   pointer-events: none;
 }
 
+/* Short (landscape phone) viewports: panels sit side by side — a stacked
+   pair is taller than the screen. Threshold must match SHORT_MAX in
+   useItemHover.ts, which positions the [compare][tooltip] strip. */
+@media (max-height: 500px) {
+  .compare-group {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
 .compare-panel {
   width: 170px;
   background: var(--bg-panel);

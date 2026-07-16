@@ -256,6 +256,7 @@ All Act 1 and Act 2 monsters have unique sprites. New monsters need entries in a
 - CSS class names use kebab-case matching the component name (e.g. `.combat-screen`, `.flee-modal`)
 - All new overlay/modal elements need `position: relative` on their parent container
 - Dark theme only — all colors are hardcoded dark palette values in `src/styles/*.css`
+- **Viewport height on mobile: use `var(--app-vh, <fallback>)`, never bare `100dvh`/`100svh`.** `main.tsx` keeps `--app-vh` synced to `visualViewport.height` (skipped while pinch-zoomed) — iOS Safari's dvh/svh units ignore the landscape tab bar and report a too-tall viewport, cutting off the bottom of the game. Used by `#root` height-locks in `index.css` and `.combat-screen` in `responsive-combat-landscape.css`.
 - `src/index.css` height-lock uses two separate media queries:
   - `@media (max-width: 768px)` → `#root { overflow: hidden }` — portrait mobile, no scroll
   - `@media (orientation: landscape) and (max-height: 500px) and (max-width: 960px)` → `#root { overflow-y: auto }` — landscape, allows character select to scroll while hub manages its own overflow internally
@@ -265,6 +266,7 @@ All Act 1 and Act 2 monsters have unique sprites. New monsters need entries in a
   - Padding reduced to 12px
   - `.reset-button` (desktop sidebar) hidden; `.mobile-menu-button` (top-right) shown instead with inline "Exit? Yes/No" confirm — button uses a custom SVG arrow icon (13×13px, `fillRule="nonzero"`)
   - Combat log uses `flex: 1; min-height: 0; height: auto` so action buttons are never cut off on short screens (iPhone SE 375×667)
+  - Inventory tab: page is scroll-locked (`.hub-content:has(.inventory-wrapper) { overflow: hidden }`); only `.inventory-dropzone` (the item grid) scrolls — paperdoll + stats stay fixed above it, same containment pattern as landscape
   - Shop potion cards: `grid-template-columns: repeat(2, 1fr)` — both cards in one row
 - Hub landscape breakpoint at `@media (orientation: landscape) and (max-height: 500px) and (max-width: 960px)`:
   - Sidebar moves to left column (130px wide, vertical)
@@ -291,6 +293,10 @@ Instead use `useItemHover` hook (`src/components/useItemHover.ts`):
 - Returns `tooltipStyle()` → `position: fixed`, tooltip to the **right** of the cell
 - Returns `compareStyle()` → `position: fixed`, compare panel to the **left** of the cell
 - Both use `z-index: 9999` so they always render above everything
+- Heights are measured via `scrollHeight` (never `offsetHeight` — it gets clamped by the previous item's `maxHeight` and locks the measurement)
+- Three layout modes: side-by-side (desktop), stacked tooltip-over-compare (portrait phones / fallback, shared `stackedLayout()` math so they can't overlap), and a horizontal centered strip `[compare panels][tooltip]` on short viewports (`innerHeight <= 500` — must match the `@media (max-height: 500px)` rule in `shared-ui.css` that flips `.compare-group` to `flex-direction: row`)
+- In `InventoryTab`, tap-selecting an item **pins** its tooltip for the whole selection; hover events are suppressed while a selection is active and every branch that ends the selection calls `clearHover()`
+- On touch devices (`hover: none`) the hook ignores synthetic `mouseenter`/`mouseleave` entirely — tooltips open only via the tap/click path (`showTooltip`). Touch browsers fire mouseenter *before* click, so the hover tooltip used to cover mid-screen cells and swallow the click; every tab's item cells must therefore have an `onClick` that calls `showTooltip`
 
 **Paperdoll equipped items** (`.slot-item`) use plain CSS absolute positioning — they live inside the paperdoll which is not scroll-clipped, so no hook needed.
 
