@@ -209,7 +209,7 @@ export function JournalTab({ clearedDungeons }: Props) {
                 className="journal-act-label"
                 style={{ "--act-accent": section.accentColor } as React.CSSProperties}
               >
-                {section.label}
+                {anyUnlocked ? section.label : section.label.replace(/— .+$/, "— ????")}
               </div>
               <div className="journal-entries">
                 {section.entries.map((entry) => (
@@ -220,19 +220,19 @@ export function JournalTab({ clearedDungeons }: Props) {
                     tabIndex={entry.unlocked ? 0 : -1}
                   >
                     <div className="journal-entry-header">
-                      <span className="journal-entry-icon">{entry.icon}</span>
-                      <span className="journal-entry-title">{entry.title}</span>
+                      <span className="journal-entry-icon">{entry.unlocked ? entry.icon : "?"}</span>
+                      <span className="journal-entry-title">{entry.unlocked ? entry.title : "????"}</span>
                       {entry.unlocked && (
                         <span className="journal-entry-caret">›</span>
                       )}
                     </div>
-                    {entry.unlocked && (
+                    {entry.unlocked ? (
                       <div className="journal-entry-body">
                         <div className="journal-entry-inner">
                           {entry.content}
                         </div>
                       </div>
-                    )}
+                    ) : null}
                   </div>
                 ))}
               </div>

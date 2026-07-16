@@ -551,109 +551,57 @@ export function Hub({
               disabled={!sewersCleared}
               onClick={() => setTab("shop")}
             >
-              Shop {/* three loose coins */}
-              <svg
-                width="15"
-                height="16"
-                viewBox="0 0 20 22"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                {/* coin 1 - bottom left, flat face */}
-                <circle cx="6" cy="15" r="4.5" />
-                <circle cx="6" cy="15" r="2.2" />
-                {/* coin 2 - top center, flat face */}
-                <circle cx="11" cy="6" r="4.5" />
-                <circle cx="11" cy="6" r="2.2" />
-                {/* coin 3 - right side, slightly tilted (ellipse) */}
-                <ellipse
-                  cx="16"
-                  cy="14"
-                  rx="3"
-                  ry="4.5"
-                  transform="rotate(20 16 14)"
-                />
-                <ellipse
-                  cx="16"
-                  cy="14"
-                  rx="1.4"
-                  ry="2.2"
-                  transform="rotate(20 16 14)"
-                />
-              </svg>
+              {sewersCleared ? "Shop" : "????"}{" "}
+              {/* three loose coins */}
+              {sewersCleared ? (
+                <svg
+                  width="15"
+                  height="16"
+                  viewBox="0 0 20 22"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="6" cy="15" r="4.5" />
+                  <circle cx="6" cy="15" r="2.2" />
+                  <circle cx="11" cy="6" r="4.5" />
+                  <circle cx="11" cy="6" r="2.2" />
+                  <ellipse cx="16" cy="14" rx="3" ry="4.5" transform="rotate(20 16 14)" />
+                  <ellipse cx="16" cy="14" rx="1.4" ry="2.2" transform="rotate(20 16 14)" />
+                </svg>
+              ) : null}
             </button>
             <button
               className={`${tab === "gambler" ? "active" : ""}${!goblinsPathCleared ? " tab-locked" : ""}`}
               disabled={!goblinsPathCleared}
               onClick={() => setTab("gambler")}
             >
-              Gamble{" "}
+              {goblinsPathCleared ? "Gamble" : "????"}{" "}
               {/* isometric dice showing 3 faces: top (1 pip), front (3 pips), right (2 pips) */}
-              <svg
-                width="15"
-                height="16"
-                viewBox="0 0 20 22"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="1.3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                {/* top face */}
-                <path d="M10 2 L18 6 L10 10 L2 6 Z" />
-                {/* left/front face */}
-                <path d="M2 6 L2 16 L10 20 L10 10 Z" />
-                {/* right face */}
-                <path d="M10 10 L10 20 L18 16 L18 6 Z" />
-                {/* top face pip — center */}
-                <circle
-                  cx="10"
-                  cy="6"
-                  r="1"
-                  fill="currentColor"
-                  stroke="none"
-                />
-                {/* front face pips — diagonal 3 */}
-                <circle
-                  cx="5"
-                  cy="12"
-                  r="0.9"
-                  fill="currentColor"
-                  stroke="none"
-                />
-                <circle
-                  cx="7"
-                  cy="15"
-                  r="0.9"
-                  fill="currentColor"
-                  stroke="none"
-                />
-                <circle
-                  cx="9"
-                  cy="18"
-                  r="0.9"
-                  fill="currentColor"
-                  stroke="none"
-                />
-                {/* right face pips — 2 */}
-                <circle
-                  cx="13"
-                  cy="12"
-                  r="0.9"
-                  fill="currentColor"
-                  stroke="none"
-                />
-                <circle
-                  cx="16"
-                  cy="15.5"
-                  r="0.9"
-                  fill="currentColor"
-                  stroke="none"
-                />
-              </svg>
+              {goblinsPathCleared ? (
+                <svg
+                  width="15"
+                  height="16"
+                  viewBox="0 0 20 22"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M10 2 L18 6 L10 10 L2 6 Z" />
+                  <path d="M2 6 L2 16 L10 20 L10 10 Z" />
+                  <path d="M10 10 L10 20 L18 16 L18 6 Z" />
+                  <circle cx="10" cy="6" r="1" fill="currentColor" stroke="none" />
+                  <circle cx="5" cy="12" r="0.9" fill="currentColor" stroke="none" />
+                  <circle cx="7" cy="15" r="0.9" fill="currentColor" stroke="none" />
+                  <circle cx="9" cy="18" r="0.9" fill="currentColor" stroke="none" />
+                  <circle cx="13" cy="12" r="0.9" fill="currentColor" stroke="none" />
+                  <circle cx="16" cy="15.5" r="0.9" fill="currentColor" stroke="none" />
+                </svg>
+              ) : null}
             </button>
             <button
               className={tab === "journal" ? "active" : ""}

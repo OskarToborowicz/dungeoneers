@@ -103,9 +103,10 @@
 
 .journal-entry--locked .journal-entry-title {
   color: var(--text-dim);
-  filter: blur(3px);
+  opacity: 0.5;
   user-select: none;
 }
+
 
 .journal-entry-caret {
   color: var(--act-accent, var(--border-gold));
