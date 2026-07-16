@@ -1,4 +1,27 @@
 /* ── 20. Responsive: hub landscape ───────────────────────────────────────── */
+@media (orientation: landscape) and (max-height: 350px) {
+  .game-title {
+    display: none;
+  }
+
+  .screen {
+    padding: 4px;
+  }
+
+  button {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+
+  .inventory-grid {
+    gap: 2px;
+  }
+
+  .paperdoll {
+    transform: scale(0.9);
+    transform-origin: top center;
+  }
+}
 @media (orientation: landscape) and (max-height: 500px) and (max-width: 960px) {
   .hub-screen {
     flex-direction: row;
@@ -367,4 +390,3 @@
     padding-left: 10px;
   }
 }
-
