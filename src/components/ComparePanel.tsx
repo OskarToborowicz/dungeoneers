@@ -14,7 +14,6 @@ const STAT_LABEL: Record<string, string> = {
   magicDamage: "Magic Damage",
   goldFind: "% Gold Find",
   lifeLeech: "% Life Leech",
-  manaRegen: "Mana Regen / Turn",
   magicDmgReduction: "% Magic Damage Reduced",
   physDmgReduction: "% Physical Damage Reduced",
 };

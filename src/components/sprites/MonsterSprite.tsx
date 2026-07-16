@@ -68,6 +68,7 @@ const MONSTER_TYPES: Record<string, string> = {
   "Exiled City Guard": "boss_guard",
   "Veteran Bandit": "bandit",
   "Chieftain's Right Hand": "brute",
+  "Ursh, Bandit's Companion": "ursh",
   "Bandit Chieftain": "boss_chieftain",
   // Act 2 — ice
   "Snow Wolf": "snow_wolf",
@@ -143,6 +144,43 @@ const MONSTER_TYPES: Record<string, string> = {
   "Spirit of the Gorilla": "spirit_gorilla",
   "Spirit of the Eagle": "spirit_eagle",
   "Zam'Koro, The Loa of Endless Night": "zamkoro",
+  // ── Act 4 ──────────────────────────────────────────────────────────────────
+  "Veil Wraith":                "veil_wraith",
+  "Hollow Specter":             "specter",
+  "Lost Soul":                  "lost_soul",
+  "The Gatekeeper":             "boss_gatekeeper",
+  "Tomb Knight":                "tomb_knight",
+  "Bone Herald":                "bone_herald",
+  "Cursed Royal Guard":         "tomb_knight",
+  "Prince Valdris the Damned":  "boss_valdris",
+  "Ash Wraith":                 "veil_wraith",
+  "Shadow Stalker":             "shadow_stalker",
+  "Bone Treant":                "bone_treant",
+  "The Pale Huntress":          "boss_pale_huntress",
+  "Drowned Revenant":           "drowned_revenant",
+  "Soul Ferryman":              "soul_ferryman",
+  "Wailing Banshee":            "wailing_banshee",
+  "The Abyssal Hydra":          "boss_abyssal_hydra",
+  "Undead Siege Knight":        "tomb_knight",
+  "Ashen Golem":                "bone_golem",
+  "Phantom Crossbowman":        "phantom_crossbowman",
+  "General Morrath":            "boss_morrath",
+  "Shadow Acolyte":             "bone_herald",
+  "Void Cultist":               "void_cultist",
+  "Nightmare Gargoyle":         "nightmare_gargoyle",
+  "High Inquisitor Varek":      "boss_varek",
+  "Fear Manifestation":         "fear_manifestation",
+  "Nightmare Hound":            "dire_wolf",
+  "Dread Specter":              "specter",
+  "The Dreaming Horror":        "boss_dreaming_horror",
+  "Void Sentinel":              "void_sentinel",
+  "Shadow Executioner":         "shadow_executioner",
+  "Eternal Wraith":             "veil_wraith",
+  "Seraphel the Undying":       "boss_seraphel",
+  "Shade of Valdris":           "shade_valdris",
+  "The Void Heralds":           "void_herald",
+  "Shade of the Gatekeeper":    "shade_gatekeeper",
+  "Reltih, the Void Devourer":  "relith",
 };
 
 const MONSTER_COLORS: Record<string, string> = {
@@ -190,6 +228,7 @@ const MONSTER_COLORS: Record<string, string> = {
   bandit: "#997755",
   contract_killer: "#556677",
   boss_guard: "#8899bb",
+  ursh: "#6b1a0a",
   boss_chieftain: "#996644",
   ghost: "#8899cc",
   smoke_cloud: "#aaaaaa",
@@ -238,6 +277,18 @@ const MONSTER_COLORS: Record<string, string> = {
   elite_voodoo_warrior:"#583070", soul_devourer:"#402090", cursed_colossus:"#706090",
   ancient_loa:"#201880", spirit_crocolisk:"#50b870", spirit_gorilla:"#70b890",
   spirit_eagle:"#90b8d0", zamkoro:"#100840",
+  // ── Act 4 ──
+  veil_wraith:"#4a3880", specter:"#6050a8", lost_soul:"#8878c0",
+  boss_gatekeeper:"#201860", tomb_knight:"#5a5060", bone_herald:"#8870a8",
+  boss_valdris:"#3a1050", shadow_stalker:"#302840", bone_treant:"#605848",
+  boss_pale_huntress:"#d0c8e8", drowned_revenant:"#304860", soul_ferryman:"#203448",
+  wailing_banshee:"#7060a0", boss_abyssal_hydra:"#102040",
+  phantom_crossbowman:"#504868", boss_morrath:"#382830",
+  void_cultist:"#2a1840", nightmare_gargoyle:"#484058", boss_varek:"#1a0830",
+  fear_manifestation:"#603060", boss_dreaming_horror:"#5a1a70",
+  void_sentinel:"#1c1430", shadow_executioner:"#281820", boss_seraphel:"#0c0820",
+  shade_valdris:"#4830a0", void_herald:"#1c1050", shade_gatekeeper:"#302880",
+  relith:"#160820",
 };
 
 type AnimStyle = "float" | "sway" | "stomp" | "skitter" | "pulse" | "lurch";
@@ -252,7 +303,7 @@ const TYPE_ANIM: Record<string, AnimStyle> = {
   crypt_lurker: "skitter", bone_golem: "stomp", boss_niktag: "sway",
   goblin: "skitter", goblin_priest: "sway", boss_goblin: "stomp",
   scoundrel: "skitter", bandit: "sway", contract_killer: "skitter",
-  boss_guard: "stomp", boss_chieftain: "stomp",
+  boss_guard: "stomp", ursh: "stomp", boss_chieftain: "stomp",
   fallen: "skitter", fallen_elite: "skitter",
   bird: "float",
   shaman: "sway", hag: "sway",
@@ -292,6 +343,18 @@ const TYPE_ANIM: Record<string, AnimStyle> = {
   elite_voodoo_warrior:"sway", soul_devourer:"float", cursed_colossus:"stomp",
   ancient_loa:"float", spirit_crocolisk:"float", spirit_gorilla:"float",
   spirit_eagle:"float", zamkoro:"float",
+  // ── Act 4 ──
+  veil_wraith:"float", specter:"float", lost_soul:"float",
+  boss_gatekeeper:"stomp", tomb_knight:"stomp", bone_herald:"sway",
+  boss_valdris:"stomp", shadow_stalker:"skitter", bone_treant:"stomp",
+  boss_pale_huntress:"float", drowned_revenant:"lurch", soul_ferryman:"sway",
+  wailing_banshee:"float", boss_abyssal_hydra:"pulse",
+  phantom_crossbowman:"sway", boss_morrath:"stomp",
+  void_cultist:"sway", nightmare_gargoyle:"float", boss_varek:"float",
+  fear_manifestation:"float", boss_dreaming_horror:"pulse",
+  void_sentinel:"stomp", shadow_executioner:"sway", boss_seraphel:"float",
+  shade_valdris:"float", void_herald:"float", shade_gatekeeper:"float",
+  relith:"pulse",
 };
 
 function getAnimate(state: SpriteState, type: string) {
@@ -446,6 +509,53 @@ const SPRITES: Record<string, ReactNode> = {
       <path d="M5 54 C-5 44 -5 54 1 62" fill="none" strokeWidth="6" strokeLinecap="round" />
       {/* fur shading */}
       <path d="M20 52 C22 58 22 62 20 66 M34 50 C36 56 36 60 34 64" fill="none" strokeWidth="1.5" strokeOpacity="0.25" />
+    </>
+  ),
+
+  ursh: (
+    <>
+      {/* body - low aggressive quadruped, hunched forward */}
+      <ellipse cx="28" cy="62" rx="27" ry="15" />
+      {/* massive shoulder hump */}
+      <ellipse cx="46" cy="49" rx="15" ry="13" />
+      {/* rump lower */}
+      <ellipse cx="10" cy="58" rx="10" ry="9" />
+      {/* thick neck */}
+      <path d="M42 50 C36 55 36 60 42 64" fill="none" strokeWidth="10" strokeLinecap="round" />
+      {/* head - low and forward */}
+      <circle cx="57" cy="46" r="15" />
+      {/* round ears — torn and ragged */}
+      <circle cx="46" cy="31" r="7" />
+      <circle cx="63" cy="29" r="7" />
+      {/* ear notch scars */}
+      <path d="M42 28 L50 34 M60 26 L67 32" strokeWidth="2" stroke="#3d0000" fill="none" />
+      {/* snout — wide open maw */}
+      <ellipse cx="68" cy="52" rx="8" ry="6" />
+      {/* open mouth */}
+      <path d="M62 55 Q68 62 74 55" fill="#3d0000" stroke="none" />
+      {/* fangs */}
+      <path d="M63 55 L62 62 M67 56 L67 64 M72 55 L73 62" strokeWidth="2.5" strokeLinecap="round" stroke="#e8e0d0" fill="none" />
+      {/* blood drip from mouth */}
+      <path d="M67 64 Q67 70 65 74" strokeWidth="1.8" stroke="#cc0000" fill="none" strokeLinecap="round" />
+      {/* glowing red left eye */}
+      <ellipse cx="51" cy="41" rx="4.5" ry="4" fill="#cc0000" stroke="none" />
+      <ellipse cx="51" cy="41" rx="2" ry="2" fill="#ff4444" stroke="none" />
+      {/* scar across eye */}
+      <path d="M47 37 L55 45" strokeWidth="1.8" stroke="#220000" fill="none" />
+      {/* nose */}
+      <ellipse cx="72" cy="49" rx="3" ry="2.5" fill="#220000" stroke="none" />
+      {/* 4 thick legs */}
+      <rect x="8" y="74" width="13" height="22" rx="4" />
+      <rect x="24" y="76" width="12" height="20" rx="4" />
+      <rect x="38" y="76" width="12" height="20" rx="4" />
+      <rect x="52" y="74" width="13" height="22" rx="4" />
+      {/* heavy claws */}
+      <path d="M8 93 L5 100 M14 94 L12 101 M20 93 L23 100" strokeWidth="2.5" strokeLinecap="round" />
+      <path d="M52 93 L49 100 M58 94 L56 101 M64 93 L67 100" strokeWidth="2.5" strokeLinecap="round" />
+      {/* battle scars on body */}
+      <path d="M22 55 L28 62 M32 50 L36 58" strokeWidth="1.8" stroke="#3d0000" fill="none" strokeOpacity="0.7" />
+      {/* tail — stubby and raised aggressive */}
+      <path d="M3 57 C-6 46 -4 56 2 63" fill="none" strokeWidth="7" strokeLinecap="round" />
     </>
   ),
 
@@ -2039,6 +2149,568 @@ const SPRITES: Record<string, ReactNode> = {
       <circle cx="50" cy="58" r="5" fill="#44ff88" stroke="none" fillOpacity="0.3" />
       <circle cx="32" cy="62" r="5" fill="#44ff88" stroke="none" fillOpacity="0.4" />
       <circle cx="32" cy="32" r="32" fill="none" strokeWidth="1.5" strokeOpacity="0.12" strokeDasharray="8 6" />
+    </>
+  ),
+
+  // ── Act 4 sprites ──────────────────────────────────────────────────────────
+
+  veil_wraith: (
+    <>
+      <path d="M20 78 C14 66 12 52 16 38 C18 28 20 18 22 10 Q26 2 32 0 Q38 2 42 10 C44 18 46 28 48 38 C52 52 50 66 44 78 Q38 88 32 90 Q26 88 20 78 Z" />
+      <ellipse cx="24" cy="24" rx="6" ry="7" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="40" cy="24" rx="6" ry="7" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="24" cy="24" rx="3" ry="4" fill="#aa88ff" stroke="none" />
+      <ellipse cx="40" cy="24" rx="3" ry="4" fill="#aa88ff" stroke="none" />
+      <path d="M16 48 C8 44 2 34 0 22" fill="none" strokeWidth="5" strokeLinecap="round" />
+      <path d="M48 46 C56 42 62 32 64 20" fill="none" strokeWidth="5" strokeLinecap="round" />
+      <path d="M20 78 C16 84 10 90 6 86" fill="none" strokeWidth="3" strokeOpacity="0.5" />
+      <path d="M32 90 C30 94 30 98 32 96" fill="none" strokeWidth="3" strokeOpacity="0.5" />
+      <path d="M44 78 C48 84 54 90 58 86" fill="none" strokeWidth="3" strokeOpacity="0.5" />
+    </>
+  ),
+
+  specter: (
+    <>
+      <ellipse cx="32" cy="28" rx="14" ry="16" />
+      <ellipse cx="24" cy="26" rx="5" ry="6" fill="#000" fillOpacity="0.8" stroke="none" />
+      <ellipse cx="40" cy="26" rx="5" ry="6" fill="#000" fillOpacity="0.8" stroke="none" />
+      <ellipse cx="24" cy="26" rx="2.5" ry="3.5" fill="#cc99ff" stroke="none" />
+      <ellipse cx="40" cy="26" rx="2.5" ry="3.5" fill="#cc99ff" stroke="none" />
+      <path d="M20 42 C16 56 16 70 18 82 Q22 90 26 86 Q28 78 32 82 Q36 78 38 86 Q42 90 46 82 C48 70 48 56 44 42 Z" />
+      <path d="M14 44 C6 40 2 30 4 20" fill="none" strokeWidth="4" strokeLinecap="round" />
+      <path d="M50 42 C58 38 62 28 60 18" fill="none" strokeWidth="4" strokeLinecap="round" />
+    </>
+  ),
+
+  lost_soul: (
+    <>
+      <ellipse cx="32" cy="22" rx="18" ry="20" />
+      <path d="M16 36 C10 50 8 66 12 80 C16 90 24 94 32 92 C40 94 48 90 52 80 C56 66 54 50 48 36 Z" />
+      <ellipse cx="22" cy="20" rx="7" ry="8" fill="#000" fillOpacity="0.85" stroke="none" />
+      <ellipse cx="42" cy="20" rx="7" ry="8" fill="#000" fillOpacity="0.85" stroke="none" />
+      <ellipse cx="22" cy="20" rx="4" ry="5" fill="#ffffff" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="20" rx="4" ry="5" fill="#ffffff" fillOpacity="0.9" stroke="none" />
+      <path d="M24 36 C20 40 22 44 28 42 M40 36 C44 40 42 44 36 42" fill="none" strokeWidth="2" />
+      <path d="M14 38 C4 34 -2 24 2 16" fill="none" strokeWidth="4" strokeLinecap="round" />
+      <path d="M50 36 C60 32 66 22 62 14" fill="none" strokeWidth="4" strokeLinecap="round" />
+    </>
+  ),
+
+  boss_gatekeeper: (
+    <>
+      <ellipse cx="32" cy="20" rx="14" ry="16" />
+      <ellipse cx="22" cy="18" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="18" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="22" cy="18" rx="2.5" ry="3" fill="#8866ff" stroke="none" />
+      <ellipse cx="42" cy="18" rx="2.5" ry="3" fill="#8866ff" stroke="none" />
+      <path d="M18 36 L46 36 L50 88 L14 88 Z" />
+      <path d="M14 44 L-2 52 L-4 82 L14 72 Z" />
+      <path d="M50 44 L66 52 L68 82 L50 72 Z" />
+      <rect x="14" y="88" width="16" height="18" rx="3" />
+      <rect x="34" y="88" width="16" height="18" rx="3" />
+      <rect x="-8" y="52" width="8" height="60" rx="3" />
+      <rect x="64" y="52" width="8" height="60" rx="3" />
+      <path d="M18 36 L14 28 L22 32 L18 22 L26 28 L24 18 L32 26 L40 18 L38 28 L46 22 L42 32 L50 28 L46 36 Z" />
+      <circle cx="32" cy="60" r="10" fill="none" strokeWidth="2" strokeOpacity="0.3" strokeDasharray="4 4" />
+      <circle cx="32" cy="60" r="6" fill="#6644cc" stroke="none" fillOpacity="0.4" />
+    </>
+  ),
+
+  tomb_knight: (
+    <>
+      <ellipse cx="32" cy="18" rx="12" ry="14" />
+      <path d="M24 6 L28 -6 L32 2 L36 -6 L40 6" fill="none" strokeWidth="3" />
+      <ellipse cx="24" cy="16" rx="4" ry="5" fill="#000" fillOpacity="0.8" stroke="none" />
+      <ellipse cx="40" cy="16" rx="4" ry="5" fill="#000" fillOpacity="0.8" stroke="none" />
+      <ellipse cx="24" cy="16" rx="2" ry="3" fill="#dd4444" stroke="none" />
+      <ellipse cx="40" cy="16" rx="2" ry="3" fill="#dd4444" stroke="none" />
+      <path d="M18 32 L46 32 L44 80 L20 80 Z" />
+      <path d="M18 38 L4 46 L8 72 L20 64 Z" />
+      <path d="M46 38 L60 46 L56 72 L44 64 Z" />
+      <rect x="20" y="80" width="12" height="20" rx="3" />
+      <rect x="36" y="80" width="12" height="20" rx="3" />
+      <rect x="4" y="46" width="6" height="32" rx="2" />
+      <rect x="54" y="46" width="6" height="32" rx="2" />
+      <rect x="18" y="52" width="28" height="8" rx="2" />
+      <path d="M56 54 L74 40 L76 32 L72 44 L66 44 Z" />
+    </>
+  ),
+
+  bone_herald: (
+    <>
+      <ellipse cx="32" cy="20" rx="11" ry="13" />
+      <path d="M24 8 L26 -2 L32 6 L38 -2 L40 8" fill="none" strokeWidth="2.5" />
+      <ellipse cx="25" cy="18" rx="4" ry="5" fill="#000" fillOpacity="0.7" stroke="none" />
+      <ellipse cx="39" cy="18" rx="4" ry="5" fill="#000" fillOpacity="0.7" stroke="none" />
+      <ellipse cx="25" cy="18" rx="2" ry="2.5" fill="#bb88ff" stroke="none" />
+      <ellipse cx="39" cy="18" rx="2" ry="2.5" fill="#bb88ff" stroke="none" />
+      <path d="M20 34 L44 34 C46 50 46 70 44 86 L20 86 C18 70 18 50 20 34 Z" />
+      <path d="M18 40 L6 36 C2 50 4 68 10 74 L18 64 Z" />
+      <path d="M46 40 L58 36 C62 50 60 68 54 74 L46 64 Z" />
+      <path d="M10 28 L-8 18 L-10 26 L6 34 Z" />
+      <circle cx="-12" cy="14" r="8" fill="none" strokeWidth="2" />
+      <circle cx="-12" cy="14" r="4" fill="none" strokeWidth="1.5" strokeOpacity="0.6" />
+      <rect x="20" y="86" width="12" height="18" rx="3" />
+      <rect x="32" y="86" width="12" height="18" rx="3" />
+    </>
+  ),
+
+  boss_valdris: (
+    <>
+      <path d="M20 2 L22 -8 L28 -2 L32 -12 L36 -2 L42 -8 L44 2 Z" />
+      <ellipse cx="32" cy="16" rx="14" ry="16" />
+      <ellipse cx="22" cy="14" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="14" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="22" cy="14" rx="2.5" ry="3.5" fill="#cc44ff" stroke="none" />
+      <ellipse cx="42" cy="14" rx="2.5" ry="3.5" fill="#cc44ff" stroke="none" />
+      <path d="M16 32 L48 32 L52 88 L12 88 Z" />
+      <path d="M12 42 L-6 50 L-10 84 L12 74 Z" />
+      <path d="M52 42 L70 50 L74 84 L52 74 Z" />
+      <rect x="12" y="88" width="18" height="18" rx="3" />
+      <rect x="34" y="88" width="18" height="18" rx="3" />
+      <path d="M-4" y="50" width="8" height="42" rx="3" />
+      <rect x="-4" y="50" width="8" height="42" rx="3" />
+      <rect x="60" y="50" width="8" height="42" rx="3" />
+      <rect x="14" y="52" width="36" height="10" rx="2" />
+      <path d="M64 48 L80 28 L78 20 L72 36 L66 36 Z" />
+      <circle cx="40" cy="70" r="6" fill="#aa22cc" stroke="none" fillOpacity="0.5" />
+      <circle cx="20" cy="68" r="6" fill="#aa22cc" stroke="none" fillOpacity="0.5" />
+    </>
+  ),
+
+  shadow_stalker: (
+    <>
+      <ellipse cx="44" cy="40" rx="12" ry="13" />
+      <ellipse cx="38" cy="36" rx="4" ry="5" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="50" cy="36" rx="4" ry="5" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="38" cy="36" rx="2" ry="3" fill="#ff4466" stroke="none" />
+      <ellipse cx="50" cy="36" rx="2" ry="3" fill="#ff4466" stroke="none" />
+      <path d="M56 42 L66 40 L56 50 Z" />
+      <ellipse cx="32" cy="58" rx="20" ry="16" />
+      <ellipse cx="12" cy="50" rx="9" ry="8" />
+      <path d="M36 36 L32 28 L28 24" fill="none" strokeWidth="5" strokeLinecap="round" />
+      <rect x="8" y="70" width="10" height="24" rx="3" />
+      <rect x="22" y="72" width="10" height="22" rx="3" />
+      <rect x="38" y="72" width="10" height="22" rx="3" />
+      <rect x="50" y="70" width="10" height="24" rx="3" />
+      <path d="M6 68 C-4 54 -4 42 2 44 C4 54 4 62 8 68" fill="none" strokeWidth="5" strokeLinecap="round" />
+    </>
+  ),
+
+  bone_treant: (
+    <>
+      <path d="M26 72 L22 54 L14 42 L20 48 L18 34 L26 44 L24 28 L30 42 L28 22 L32 38 L36 22 L34 42 L40 28 L38 44 L46 34 L44 48 L50 42 L42 54 L38 72 Z" />
+      <ellipse cx="32" cy="18" rx="12" ry="14" />
+      <ellipse cx="24" cy="16" rx="4" ry="5" fill="#000" fillOpacity="0.8" stroke="none" />
+      <ellipse cx="40" cy="16" rx="4" ry="5" fill="#000" fillOpacity="0.8" stroke="none" />
+      <ellipse cx="24" cy="16" rx="2" ry="3" fill="#88cc44" stroke="none" />
+      <ellipse cx="40" cy="16" rx="2" ry="3" fill="#88cc44" stroke="none" />
+      <rect x="24" y="72" width="16" height="28" rx="4" />
+      <rect x="14" y="76" width="12" height="24" rx="4" />
+      <rect x="38" y="76" width="12" height="24" rx="4" />
+    </>
+  ),
+
+  boss_pale_huntress: (
+    <>
+      <ellipse cx="32" cy="18" rx="12" ry="14" />
+      <ellipse cx="24" cy="16" rx="4.5" ry="5" fill="#000" fillOpacity="0.7" stroke="none" />
+      <ellipse cx="40" cy="16" rx="4.5" ry="5" fill="#000" fillOpacity="0.7" stroke="none" />
+      <ellipse cx="24" cy="16" rx="2.5" ry="3" fill="#eeddff" stroke="none" />
+      <ellipse cx="40" cy="16" rx="2.5" ry="3" fill="#eeddff" stroke="none" />
+      <path d="M18 32 L46 32 L44 80 L20 80 Z" />
+      <path d="M18 38 L4 44 L6 72 L18 66 Z" />
+      <path d="M46 38 L60 44 L58 72 L46 66 Z" />
+      <rect x="20" y="80" width="12" height="20" rx="3" />
+      <rect x="32" y="80" width="12" height="20" rx="3" />
+      <path d="M60 42 L76 16 L74 8 L68 26 L62 26 Z" />
+      <path d="M72 12 C76 6 80 4 80 10 C76 12 74 12 72 12 Z" />
+      <path d="M6 44 C-4 36 -10 20 -6 10 L-2 18 L2 14 C4 24 2 36 6 44" fill="none" strokeWidth="3" strokeLinecap="round" />
+      <path d="M-6 10 L-14 2 M-6 10 L-4 0" strokeWidth="2" />
+    </>
+  ),
+
+  drowned_revenant: (
+    <>
+      <ellipse cx="32" cy="20" rx="13" ry="15" />
+      <ellipse cx="24" cy="18" rx="4.5" ry="5" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="40" cy="18" rx="4.5" ry="5" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="24" cy="18" rx="2.5" ry="3" fill="#44aacc" stroke="none" />
+      <ellipse cx="40" cy="18" rx="2.5" ry="3" fill="#44aacc" stroke="none" />
+      <path d="M18 35 L46 35 L48 82 L16 82 Z" />
+      <path d="M18 42 L4 52 L6 76 L18 68 Z" />
+      <path d="M46 42 L60 52 L58 76 L46 68 Z" />
+      <rect x="16" y="82" width="14" height="18" rx="3" />
+      <rect x="34" y="82" width="14" height="18" rx="3" />
+      <path d="M18 50 C12 48 10 56 14 60" fill="none" strokeWidth="2" strokeOpacity="0.5" />
+      <path d="M46 52 C52 50 54 58 50 62" fill="none" strokeWidth="2" strokeOpacity="0.5" />
+      <path d="M22 38 C18 34 16 28 20 26" fill="none" strokeWidth="2" strokeOpacity="0.4" />
+      <path d="M42 38 C46 34 48 28 44 26" fill="none" strokeWidth="2" strokeOpacity="0.4" />
+    </>
+  ),
+
+  soul_ferryman: (
+    <>
+      <ellipse cx="32" cy="20" rx="12" ry="14" />
+      <ellipse cx="24" cy="18" rx="4" ry="5" fill="#000" fillOpacity="0.8" stroke="none" />
+      <ellipse cx="40" cy="18" rx="4" ry="5" fill="#000" fillOpacity="0.8" stroke="none" />
+      <ellipse cx="24" cy="18" rx="2" ry="3" fill="#88aadd" stroke="none" />
+      <ellipse cx="40" cy="18" rx="2" ry="3" fill="#88aadd" stroke="none" />
+      <path d="M20 34 L44 34 C44 50 44 68 42 84 L22 84 C20 68 20 50 20 34 Z" />
+      <path d="M18 40 L6 38 C2 52 4 70 10 76 L18 64 Z" />
+      <path d="M46 40 L58 38 C62 52 60 70 54 76 L46 64 Z" />
+      <rect x="22" y="84" width="20" height="16" rx="3" />
+      <path d="M60 36 L80 10 L82 2 L76 14 L70 14 Z" />
+      <path d="M76 6 L82 0 L80 8 Z" />
+      <path d="M4 36 L-6 28" fill="none" strokeWidth="6" strokeLinecap="round" />
+      <path d="M-6 28 L-14 24 L-18 30 L-10 32 Z" />
+    </>
+  ),
+
+  wailing_banshee: (
+    <>
+      <path d="M20 80 C14 68 10 52 14 36 C16 24 22 12 32 6 C42 12 48 24 50 36 C54 52 50 68 44 80 Q38 92 32 94 Q26 92 20 80 Z" />
+      <ellipse cx="22" cy="28" rx="7" ry="8" fill="#000" fillOpacity="0.85" stroke="none" />
+      <ellipse cx="42" cy="28" rx="7" ry="8" fill="#000" fillOpacity="0.85" stroke="none" />
+      <ellipse cx="22" cy="28" rx="4" ry="5" fill="#ffffff" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="28" rx="4" ry="5" fill="#ffffff" fillOpacity="0.9" stroke="none" />
+      <path d="M24 48 C22 52 22 56 24 58 C26 60 30 60 32 60 C34 60 38 60 40 58 C42 56 42 52 40 48 C38 44 34 42 32 42 C30 42 26 44 24 48 Z" fill="#000" fillOpacity="0.3" stroke="none" />
+      <path d="M12 46 C2 38 -4 24 -2 12" fill="none" strokeWidth="5" strokeLinecap="round" />
+      <path d="M52 44 C62 36 68 22 66 10" fill="none" strokeWidth="5" strokeLinecap="round" />
+      <path d="M18 80 C12 86 6 90 2 86" fill="none" strokeWidth="3" strokeOpacity="0.5" />
+      <path d="M32 94 C30 98 30 102 32 100" fill="none" strokeWidth="3" strokeOpacity="0.5" />
+      <path d="M46 80 C52 86 58 90 62 86" fill="none" strokeWidth="3" strokeOpacity="0.5" />
+    </>
+  ),
+
+  boss_abyssal_hydra: (
+    <>
+      <ellipse cx="32" cy="68" rx="26" ry="18" />
+      <path d="M18 62 C12 46 8 28 14 14 L20 22 L18 8 L26 18 L24 6 L32 18 Z" />
+      <path d="M32 58 C26 44 24 28 28 12 L32 22 L34 10 L38 22 L40 10 L44 22 L46 10 L48 22 L46 12 Z" />
+      <path d="M46 62 C52 46 56 28 50 14 L44 22 L46 8 L38 18 L40 6 L32 18 Z" />
+      <ellipse cx="14" cy="10" rx="10" ry="9" />
+      <ellipse cx="32" cy="8" rx="10" ry="9" />
+      <ellipse cx="50" cy="10" rx="10" ry="9" />
+      <ellipse cx="8" cy="8" rx="3.5" ry="4" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="20" cy="8" rx="3.5" ry="4" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="26" cy="6" rx="3.5" ry="4" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="38" cy="6" rx="3.5" ry="4" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="44" cy="8" rx="3.5" ry="4" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="56" cy="8" rx="3.5" ry="4" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="8" cy="8" rx="1.5" ry="2" fill="#00ccff" stroke="none" />
+      <ellipse cx="20" cy="8" rx="1.5" ry="2" fill="#00ccff" stroke="none" />
+      <ellipse cx="26" cy="6" rx="1.5" ry="2" fill="#00ccff" stroke="none" />
+      <ellipse cx="38" cy="6" rx="1.5" ry="2" fill="#00ccff" stroke="none" />
+      <ellipse cx="44" cy="8" rx="1.5" ry="2" fill="#00ccff" stroke="none" />
+      <ellipse cx="56" cy="8" rx="1.5" ry="2" fill="#00ccff" stroke="none" />
+      <rect x="12" y="82" width="14" height="18" rx="4" />
+      <rect x="38" y="82" width="14" height="18" rx="4" />
+    </>
+  ),
+
+  phantom_crossbowman: (
+    <>
+      <ellipse cx="32" cy="18" rx="11" ry="13" />
+      <ellipse cx="25" cy="16" rx="4" ry="4.5" fill="#000" fillOpacity="0.7" stroke="none" />
+      <ellipse cx="39" cy="16" rx="4" ry="4.5" fill="#000" fillOpacity="0.7" stroke="none" />
+      <ellipse cx="25" cy="16" rx="2" ry="2.5" fill="#aabbdd" stroke="none" />
+      <ellipse cx="39" cy="16" rx="2" ry="2.5" fill="#aabbdd" stroke="none" />
+      <path d="M20 30 L44 30 L42 80 L22 80 Z" />
+      <path d="M20 36 L8 34 L6 64 L20 58 Z" />
+      <path d="M44 36 L56 34 L58 64 L44 58 Z" />
+      <rect x="22" y="80" width="20" height="18" rx="3" />
+      <path d="M54 36 L74 36 L74 40 L54 40 Z" />
+      <path d="M54 34 L54 42" strokeWidth="3" />
+      <path d="M74 36 L80 38 L74 40" strokeWidth="2.5" />
+      <path d="M60 38 L74 38" strokeWidth="1.5" strokeDasharray="2 2" />
+    </>
+  ),
+
+  boss_morrath: (
+    <>
+      <ellipse cx="32" cy="18" rx="14" ry="16" />
+      <ellipse cx="22" cy="16" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="16" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="22" cy="16" rx="2.5" ry="3.5" fill="#ff6633" stroke="none" />
+      <ellipse cx="42" cy="16" rx="2.5" ry="3.5" fill="#ff6633" stroke="none" />
+      <path d="M16 34 L48 34 L52 90 L12 90 Z" />
+      <path d="M12 44 L-8 54 L-12 86 L12 76 Z" />
+      <path d="M52 44 L72 54 L76 86 L52 76 Z" />
+      <rect x="12" y="90" width="18" height="18" rx="3" />
+      <rect x="34" y="90" width="18" height="18" rx="3" />
+      <rect x="-10" y="54" width="8" height="40" rx="2" />
+      <rect x="66" y="54" width="8" height="40" rx="2" />
+      <rect x="14" y="54" width="36" height="10" rx="3" />
+      <path d="M-4" y="50" width="6" height="52" rx="3" />
+      <path d="M-10 52 L-26 32 L-24 24 L-18 40 L-12 40 Z" />
+      <path d="M72 54 L88 34 L86 26 L80 42 L74 42 Z" />
+    </>
+  ),
+
+  void_cultist: (
+    <>
+      <path d="M28 8 C28 2 36 2 36 8 L40 14 L40 8 L44 14 L42 6 L48 12 Z" fill="none" strokeWidth="2" />
+      <ellipse cx="32" cy="22" rx="12" ry="14" />
+      <ellipse cx="24" cy="20" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="40" cy="20" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="24" cy="20" rx="2.5" ry="3" fill="#9933ff" stroke="none" />
+      <ellipse cx="40" cy="20" rx="2.5" ry="3" fill="#9933ff" stroke="none" />
+      <path d="M18 36 L46 36 C48 54 48 72 46 88 L18 88 C16 72 16 54 18 36 Z" />
+      <path d="M18 42 L4 38 C0 54 2 72 8 78 L18 66 Z" />
+      <path d="M46 42 L60 38 C64 54 62 72 56 78 L46 66 Z" />
+      <rect x="18" y="88" width="28" height="16" rx="3" />
+      <circle cx="32" cy="62" r="8" fill="none" strokeWidth="2" strokeDasharray="4 3" />
+      <path d="M32 54 L34 58 L38 58 L35 61 L36 65 L32 62 L28 65 L29 61 L26 58 L30 58 Z" fill="#6600ff" stroke="none" fillOpacity="0.6" />
+    </>
+  ),
+
+  nightmare_gargoyle: (
+    <>
+      <path d="M20 56 C6 44 2 24 10 10 L16 18 L18 8 L24 18 L26 6 L32 16 L38 6 L40 18 L46 8 L48 18 L54 10 C62 24 58 44 44 56 Z" />
+      <ellipse cx="32" cy="30" rx="14" ry="16" />
+      <ellipse cx="23" cy="28" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="41" cy="28" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="23" cy="28" rx="2.5" ry="3.5" fill="#ff3366" stroke="none" />
+      <ellipse cx="41" cy="28" rx="2.5" ry="3.5" fill="#ff3366" stroke="none" />
+      <path d="M20 56 L14 76 L20 76 Z M44 56 L50 76 L44 76 Z" />
+      <path d="M16 76 L14 92 M22 78 L20 94 M42 78 L44 94 M48 76 L50 92" strokeWidth="4" strokeLinecap="round" />
+      <path d="M28 44 L26 52 M36 44 L38 52" strokeWidth="2.5" strokeLinecap="round" />
+    </>
+  ),
+
+  boss_varek: (
+    <>
+      <path d="M22 14 L26 4 L32 12 L38 4 L42 14 Z" fill="none" strokeWidth="2.5" />
+      <ellipse cx="32" cy="26" rx="14" ry="16" />
+      <ellipse cx="22" cy="24" rx="6" ry="7" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="24" rx="6" ry="7" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="22" cy="24" rx="3.5" ry="4.5" fill="#cc00ff" stroke="none" />
+      <ellipse cx="42" cy="24" rx="3.5" ry="4.5" fill="#cc00ff" stroke="none" />
+      <path d="M16 42 L48 42 C50 58 50 76 48 92 L16 92 C14 76 14 58 16 42 Z" />
+      <path d="M16 50 L2 44 C-2 58 0 78 8 84 L16 70 Z" />
+      <path d="M48 50 L62 44 C66 58 64 78 56 84 L48 70 Z" />
+      <rect x="16" y="92" width="32" height="14" rx="3" />
+      <path d="M-2 44 L-16 28 L-14 18 L-8 36 L-2 36 Z" />
+      <path d="M64 44 L78 28 L76 18 L70 36 L64 36 Z" />
+      <circle cx="32" cy="68" r="12" fill="none" strokeWidth="2" strokeDasharray="5 4" strokeOpacity="0.6" />
+      <circle cx="32" cy="68" r="6" fill="#6600aa" stroke="none" fillOpacity="0.5" />
+      <circle cx="32" cy="68" r="2" fill="#ff00ff" stroke="none" fillOpacity="0.8" />
+    </>
+  ),
+
+  fear_manifestation: (
+    <>
+      <path d="M8 56 C4 40 6 22 14 10 C18 4 26 0 32 0 C38 0 46 4 50 10 C58 22 60 40 56 56 C52 72 44 84 32 88 C20 84 12 72 8 56 Z" />
+      <ellipse cx="20" cy="36" rx="8" ry="10" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="44" cy="36" rx="8" ry="10" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="20" cy="36" rx="5" ry="6" fill="#ff0066" stroke="none" />
+      <ellipse cx="44" cy="36" rx="5" ry="6" fill="#ff0066" stroke="none" />
+      <path d="M16 60 C14 66 14 72 18 74 C22 66 22 58 18 56 Z" fill="none" strokeWidth="3" />
+      <path d="M24 64 C22 70 22 76 26 78 C30 70 30 62 26 60 Z" fill="none" strokeWidth="3" />
+      <path d="M40 64 C38 70 38 76 42 78 C46 70 46 62 42 60 Z" fill="none" strokeWidth="3" />
+      <path d="M48 60 C46 66 46 72 50 74 C54 66 54 58 50 56 Z" fill="none" strokeWidth="3" />
+      <path d="M6 54 C-8 42 -14 24 -10 10" fill="none" strokeWidth="5" strokeLinecap="round" />
+      <path d="M58 52 C72 40 78 22 74 8" fill="none" strokeWidth="5" strokeLinecap="round" />
+    </>
+  ),
+
+  boss_dreaming_horror: (
+    <>
+      {/* cracked skull */}
+      <ellipse cx="32" cy="18" rx="16" ry="18" />
+      {/* crack lines on skull */}
+      <path d="M28 4 L30 14 L26 20" fill="none" strokeWidth="1.5" stroke="#000" strokeOpacity="0.5" />
+      <path d="M36 5 L34 16" fill="none" strokeWidth="1.2" stroke="#000" strokeOpacity="0.4" />
+      {/* hollow void eyes — deep black pits with glowing pink core */}
+      <ellipse cx="23" cy="16" rx="6" ry="7" fill="#000" stroke="none" />
+      <ellipse cx="41" cy="16" rx="6" ry="7" fill="#000" stroke="none" />
+      <ellipse cx="23" cy="16" rx="3" ry="3.5" fill="#cc0066" stroke="none" />
+      <ellipse cx="41" cy="16" rx="3" ry="3.5" fill="#cc0066" stroke="none" />
+      {/* stitched / stretched jawline */}
+      <path d="M18 28 Q32 36 46 28" fill="none" strokeWidth="2" strokeLinecap="round" />
+      <path d="M22 29 L22 34 M27 31 L27 37 M32 32 L32 38 M37 31 L37 37 M42 29 L42 34" strokeWidth="1.2" />
+      {/* gaunt tall torso */}
+      <path d="M20 36 L44 36 L40 80 L24 80 Z" />
+      {/* ribcage suggestion */}
+      <path d="M24 46 L40 46 M24 54 L40 54 M24 62 L40 62" fill="none" strokeWidth="1.2" strokeOpacity="0.35" />
+      {/* long left arm reaching forward / clawing */}
+      <path d="M20 38 C10 44 -4 48 -10 38" fill="none" strokeWidth="6" strokeLinecap="round" />
+      <path d="M-10 38 L-18 30 M-10 38 L-16 40 M-10 38 L-14 46" strokeWidth="2" strokeLinecap="round" />
+      {/* long right arm reaching forward */}
+      <path d="M44 38 C54 44 68 48 74 38" fill="none" strokeWidth="6" strokeLinecap="round" />
+      <path d="M74 38 L82 30 M74 38 L80 40 M74 38 L78 46" strokeWidth="2" strokeLinecap="round" />
+      {/* tattered robe hem dissolving into tatters */}
+      <path d="M24 80 L18 96 L24 90 L28 100 L32 88 L36 100 L40 90 L46 96 L40 80" />
+      {/* shadow wisps rising from the ground */}
+      <path d="M14 88 C10 78 8 68 12 60" fill="none" strokeWidth="3" strokeOpacity="0.3" strokeLinecap="round" />
+      <path d="M50 88 C54 78 56 68 52 60" fill="none" strokeWidth="3" strokeOpacity="0.3" strokeLinecap="round" />
+    </>
+  ),
+
+  void_sentinel: (
+    <>
+      <ellipse cx="32" cy="16" rx="13" ry="15" />
+      <path d="M22 2 L26 -10 L32 0 L38 -10 L42 2" fill="none" strokeWidth="3.5" />
+      <ellipse cx="23" cy="14" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="41" cy="14" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="23" cy="14" rx="2.5" ry="3.5" fill="#5500ff" stroke="none" />
+      <ellipse cx="41" cy="14" rx="2.5" ry="3.5" fill="#5500ff" stroke="none" />
+      <path d="M16 32 L48 32 L50 88 L14 88 Z" />
+      <path d="M14 42 L-4 52 L-6 84 L14 72 Z" />
+      <path d="M50 42 L68 52 L70 84 L50 72 Z" />
+      <rect x="14" y="88" width="36" height="18" rx="3" />
+      <rect x="-4" y="52" width="8" height="40" rx="3" />
+      <rect x="60" y="52" width="8" height="40" rx="3" />
+      <rect x="16" y="54" width="32" height="10" rx="3" />
+      <rect x="12" y="72" width="40" height="8" rx="2" />
+      <circle cx="32" cy="62" r="5" fill="#3300cc" stroke="none" fillOpacity="0.6" />
+    </>
+  ),
+
+  shadow_executioner: (
+    <>
+      <ellipse cx="32" cy="18" rx="13" ry="15" />
+      <ellipse cx="23" cy="16" rx="4.5" ry="5.5" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="41" cy="16" rx="4.5" ry="5.5" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="23" cy="16" rx="2" ry="3" fill="#aa0000" stroke="none" />
+      <ellipse cx="41" cy="16" rx="2" ry="3" fill="#aa0000" stroke="none" />
+      <path d="M18 34 L46 34 L50 86 L14 86 Z" />
+      <path d="M14 44 L-2 56 L-2 82 L14 70 Z" />
+      <path d="M50 44 L66 56 L66 82 L50 70 Z" />
+      <rect x="14" y="86" width="36" height="18" rx="3" />
+      <path d="M62 44 L80 4 L82 -6 L74 14 L66 14 Z" />
+      <path d="M76 0 L84 -10 L82 2 Z" />
+      <rect x="-4" y="56" width="8" height="34" rx="2" />
+      <rect x="60" y="56" width="8" height="34" rx="2" />
+    </>
+  ),
+
+  boss_seraphel: (
+    <>
+      <ellipse cx="32" cy="22" rx="14" ry="16" />
+      <ellipse cx="22" cy="20" rx="6" ry="7" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="20" rx="6" ry="7" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="22" cy="20" rx="3.5" ry="4.5" fill="#ffffff" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="20" rx="3.5" ry="4.5" fill="#ffffff" fillOpacity="0.9" stroke="none" />
+      <path d="M16 38 L48 38 C50 56 50 74 48 92 L16 92 C14 74 14 56 16 38 Z" />
+      <path d="M16 46 L0 38 C-4 54 -2 76 6 82 L16 68 Z" />
+      <path d="M48 46 L64 38 C68 54 66 76 58 82 L48 68 Z" />
+      <rect x="16" y="92" width="32" height="16" rx="3" />
+      <path d="M-2 38 L-18 10 L-16 0 L-10 20 L-4 20 Z" />
+      <path d="M66 38 L82 10 L80 0 L74 20 L68 20 Z" />
+      <path d="M0 40 L-16 32 C-20 40 -18 52 -12 54 L0 46 Z" />
+      <path d="M64 40 L80 32 C84 40 82 52 76 54 L64 46 Z" />
+      <circle cx="32" cy="66" r="14" fill="none" strokeWidth="2" strokeOpacity="0.3" strokeDasharray="5 4" />
+      <circle cx="32" cy="66" r="8" fill="#220044" stroke="none" fillOpacity="0.6" />
+      <circle cx="32" cy="66" r="3" fill="#ffffff" stroke="none" fillOpacity="0.8" />
+    </>
+  ),
+
+  shade_valdris: (
+    <>
+      <path d="M22 -8 L24 -18 L30 -10 L32 -20 L34 -10 L40 -18 L42 -8 Z" fillOpacity="0.5" />
+      <path d="M20 82 C14 68 12 52 16 36 C18 24 24 12 32 8 C40 12 46 24 48 36 C52 52 50 68 44 82 Q38 94 32 96 Q26 94 20 82 Z" fillOpacity="0.7" />
+      <ellipse cx="24" cy="28" rx="6" ry="7" fill="#000" fillOpacity="0.8" stroke="none" />
+      <ellipse cx="40" cy="28" rx="6" ry="7" fill="#000" fillOpacity="0.8" stroke="none" />
+      <ellipse cx="24" cy="28" rx="3" ry="4" fill="#cc88ff" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="40" cy="28" rx="3" ry="4" fill="#cc88ff" fillOpacity="0.9" stroke="none" />
+      <path d="M14 50 C6 44 2 32 4 20" fill="none" strokeWidth="5" strokeLinecap="round" strokeOpacity="0.6" />
+      <path d="M50 48 C58 42 62 30 60 18" fill="none" strokeWidth="5" strokeLinecap="round" strokeOpacity="0.6" />
+      <path d="M18 82 C14 88 8 92 4 88" fill="none" strokeWidth="3" strokeOpacity="0.4" />
+      <path d="M32 96 C30 100 30 104 32 102" fill="none" strokeWidth="3" strokeOpacity="0.4" />
+      <path d="M46 82 C50 88 56 92 60 88" fill="none" strokeWidth="3" strokeOpacity="0.4" />
+    </>
+  ),
+
+  void_herald: (
+    <>
+      <ellipse cx="32" cy="22" rx="14" ry="16" fillOpacity="0.8" />
+      <ellipse cx="22" cy="20" rx="6" ry="7" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="20" rx="6" ry="7" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="22" cy="20" rx="3.5" ry="4.5" fill="#6600ff" stroke="none" />
+      <ellipse cx="42" cy="20" rx="3.5" ry="4.5" fill="#6600ff" stroke="none" />
+      <path d="M18 38 L46 38 C48 56 48 74 46 90 L18 90 C16 74 16 56 18 38 Z" fillOpacity="0.8" />
+      <path d="M18 46 L4 40 C0 56 2 74 10 80 L18 66 Z" fillOpacity="0.8" />
+      <path d="M46 46 L60 40 C64 56 62 74 54 80 L46 66 Z" fillOpacity="0.8" />
+      <rect x="18" y="90" width="28" height="16" rx="3" fillOpacity="0.8" />
+      <circle cx="32" cy="64" r="10" fill="none" strokeWidth="2" strokeDasharray="4 3" strokeOpacity="0.7" />
+      <circle cx="32" cy="64" r="5" fill="#3300aa" stroke="none" fillOpacity="0.6" />
+      <path d="M2 42 L-12 24 L-10 14 L-4 34 L2 34 Z" fillOpacity="0.8" />
+      <path d="M62 42 L76 24 L74 14 L68 34 L62 34 Z" fillOpacity="0.8" />
+    </>
+  ),
+
+  shade_gatekeeper: (
+    <>
+      <ellipse cx="32" cy="18" rx="14" ry="16" fillOpacity="0.7" />
+      <ellipse cx="22" cy="16" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="16" rx="5" ry="6" fill="#000" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="22" cy="16" rx="2.5" ry="3" fill="#8866ff" fillOpacity="0.9" stroke="none" />
+      <ellipse cx="42" cy="16" rx="2.5" ry="3" fill="#8866ff" fillOpacity="0.9" stroke="none" />
+      <path d="M18 34 L46 34 L50 88 L14 88 Z" fillOpacity="0.7" />
+      <path d="M14 44 L-2 52 L-4 82 L14 72 Z" fillOpacity="0.7" />
+      <path d="M50 44 L66 52 L68 82 L50 72 Z" fillOpacity="0.7" />
+      <rect x="14" y="88" width="16" height="18" rx="3" fillOpacity="0.7" />
+      <rect x="34" y="88" width="16" height="18" rx="3" fillOpacity="0.7" />
+      <path d="M18 34 L14 26 L22 30 L18 20 L26 26 L24 16 L32 24 L40 16 L38 26 L46 20 L42 30 L50 26 L46 34 Z" fillOpacity="0.6" />
+      <path d="M-4" y="52" width="8" height="40" rx="3" fillOpacity="0.7" />
+      <rect x="-4" y="52" width="8" height="40" rx="3" fillOpacity="0.7" />
+      <rect x="60" y="52" width="8" height="40" rx="3" fillOpacity="0.7" />
+      <circle cx="32" cy="62" r="10" fill="none" strokeWidth="2" strokeOpacity="0.4" strokeDasharray="4 4" />
+    </>
+  ),
+
+  relith: (
+    <>
+      {/* staff shaft — left side, extends far above */}
+      <path d="M13 74 C12 40 12 0 13 -48" fill="none" strokeWidth="2.5" strokeLinecap="round" />
+      {/* staff crossguard */}
+      <path d="M6 -30 L20 -30" fill="none" strokeWidth="2" strokeLinecap="round" />
+      {/* staff top gem + flame */}
+      <path d="M10 -46 C6 -58 4 -70 8 -80 C11 -70 13 -58 13 -46 Z" fill="#aa44ff" stroke="none" />
+      <path d="M16 -46 C18 -56 20 -66 16 -74 C13 -64 12 -52 13 -46 Z" fill="#cc66ff" stroke="none" />
+      <circle cx="13" cy="-46" r="6" fill="#9922ee" stroke="none" />
+      <circle cx="13" cy="-46" r="3" fill="#cc66ff" stroke="none" />
+      {/* left curved horn (sweeps up-left) */}
+      <path d="M24 12 C20 2 10 -12 2 -28 C0 -38 6 -36 10 -24 C14 -12 20 0 26 10 Z" />
+      {/* right curved horn (sweeps up-right) */}
+      <path d="M40 12 C44 2 54 -12 62 -28 C64 -38 58 -36 54 -24 C50 -12 44 0 38 10 Z" />
+      {/* skull head */}
+      <path d="M18 10 C18 0 24 -4 32 -4 C40 -4 46 0 46 10 L45 30 Q32 38 19 30 Z" />
+      {/* brow ridge */}
+      <path d="M18 14 L46 14" fill="none" strokeWidth="3" strokeLinecap="butt" />
+      {/* eye sockets */}
+      <ellipse cx="24" cy="20" rx="6" ry="7" fill="#000" stroke="none" />
+      <ellipse cx="40" cy="20" rx="6" ry="7" fill="#000" stroke="none" />
+      {/* glowing purple eyes */}
+      <ellipse cx="24" cy="20" rx="3.5" ry="4.5" fill="#bb44ff" stroke="none" />
+      <ellipse cx="40" cy="20" rx="3.5" ry="4.5" fill="#bb44ff" stroke="none" />
+      {/* skull nose cavity */}
+      <path d="M30 26 L32 22 L34 26 L32 29 Z" fill="#000" fillOpacity="0.7" stroke="none" />
+      {/* skull teeth */}
+      <path d="M23 32 L25 38 L28 33 L32 40 L36 33 L39 38 L41 32" fill="none" strokeWidth="1.6" strokeLinejoin="miter" strokeLinecap="square" />
+      {/* left tattered wing/cloak */}
+      <path d="M18 36 C8 40 -4 50 -10 64 C-14 76 -6 82 2 78 C-4 90 -8 106 -4 114 C6 116 12 102 14 88 C12 100 16 116 24 116 C30 112 28 96 24 80 L26 70 C22 78 18 84 20 74 C22 64 26 50 28 40 Z" />
+      {/* left wing jagged tips */}
+      <path d="M-10 64 L-20 60 L-12 72 L-22 76 L-10 80 M-4 96 L-14 94 L-6 106 L-16 110 L-6 114" fill="none" strokeWidth="1.8" strokeLinecap="round" />
+      {/* right tattered wing/cloak */}
+      <path d="M46 36 C56 40 68 50 74 64 C78 76 70 82 62 78 C68 90 72 106 68 114 C58 116 52 102 50 88 C52 100 48 116 40 116 C34 112 36 96 40 80 L38 70 C42 78 46 84 44 74 C42 64 38 50 36 40 Z" />
+      {/* right wing jagged tips */}
+      <path d="M74 64 L84 60 L76 72 L86 76 L74 80 M68 96 L78 94 L70 106 L80 110 L70 114" fill="none" strokeWidth="1.8" strokeLinecap="round" />
+      {/* armored torso */}
+      <path d="M24 36 L40 36 L44 72 L36 92 L28 92 L20 72 Z" />
+      {/* void gem orbs on armor */}
+      <circle cx="32" cy="46" r="5" fill="#aa44ff" stroke="none" />
+      <circle cx="32" cy="46" r="2.5" fill="#dd88ff" stroke="none" />
+      <circle cx="22" cy="52" r="3.5" fill="#9933dd" stroke="none" />
+      <circle cx="42" cy="52" r="3.5" fill="#9933dd" stroke="none" />
+      <circle cx="32" cy="60" r="3.5" fill="#8822cc" stroke="none" />
+      <circle cx="30" cy="72" r="2.5" fill="#7711bb" stroke="none" />
+      {/* left hand gripping staff */}
+      <ellipse cx="13" cy="70" rx="5" ry="4" />
+      {/* clawed feet */}
+      <path d="M22 92 L18 102 L24 98 L26 106 L30 98 M42 92 L46 102 L40 98 L38 106 L34 98" strokeWidth="1.6" strokeLinejoin="miter" strokeLinecap="round" />
     </>
   ),
 

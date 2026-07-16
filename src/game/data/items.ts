@@ -5,6 +5,7 @@ import type {
   ItemAffix,
   ItemRarity,
 } from "../types";
+import { DUNGEONS } from "./dungeons";
 
 interface ItemBase {
   name: string;
@@ -108,6 +109,8 @@ const AFFIX_POOL: {
   min: number;
   max: number;
   noScale?: boolean;
+  cap?: number;
+  decimals?: number;
   itemLevelMin?: number;
   scaleFromLevel?: number;
   scaleRate?: number;
@@ -121,14 +124,35 @@ const AFFIX_POOL: {
   { label: "of Life", stat: "life", min: 5, max: 20 },
   { label: "of Mana", stat: "mana", min: 5, max: 20 },
   { label: "of Arcane Power", stat: "magicDamage", min: 2, max: 6 },
-  { label: "of Greed", stat: "goldFind", min: 15, max: 25 },
+  { label: "of Greed", stat: "goldFind", min: 15, max: 25, cap: 125, scaleRate: 0.057 },
   { label: "of Vampirism", stat: "lifeLeech", min: 3, max: 9, noScale: true },
-  { label: "of Clarity", stat: "manaRegen", min: 3, max: 7, noScale: true },
+  {
+    label: "of Devastation",
+    stat: "critDamageBonus",
+    min: 5,
+    max: 8,
+    cap: 20,
+    itemLevelMin: 10,
+    scaleFromLevel: 10,
+    scaleRate: 0.025,
+  },
+  {
+    label: "of Precision",
+    stat: "critChance",
+    min: 0.5,
+    max: 1.5,
+    cap: 6,
+    decimals: 1,
+    itemLevelMin: 10,
+    scaleFromLevel: 10,
+    scaleRate: 0.05,
+  },
   {
     label: "of Warding",
     stat: "magicDmgReduction",
     min: 3,
     max: 6,
+    cap: 12,
     itemLevelMin: 25,
     scaleFromLevel: 25,
     scaleRate: 0.04,
@@ -138,6 +162,7 @@ const AFFIX_POOL: {
     stat: "physDmgReduction",
     min: 3,
     max: 6,
+    cap: 12,
     itemLevelMin: 25,
     scaleFromLevel: 25,
     scaleRate: 0.04,
@@ -192,7 +217,8 @@ const MAGIC_DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = [
 ];
 const GOLD_FIND_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "belt"];
 const LIFE_LEECH_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "gloves"];
-const MANA_REGEN_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "belt"];
+const CRIT_CHANCE_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "amulet"];
+const CRIT_DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = ["gloves", "ring1", "ring2", "amulet"];
 const MAGIC_RESIST_AFFIX_SLOTS: EquipmentSlot[] = ["helm", "armor", "boots"];
 
 function rollAffixes(
@@ -207,7 +233,16 @@ function rollAffixes(
       return MAGIC_DAMAGE_AFFIX_SLOTS.includes(slot);
     if (a.stat === "goldFind") return GOLD_FIND_AFFIX_SLOTS.includes(slot);
     if (a.stat === "lifeLeech") return LIFE_LEECH_AFFIX_SLOTS.includes(slot);
-    if (a.stat === "manaRegen") return MANA_REGEN_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "critChance")
+      return (
+        CRIT_CHANCE_AFFIX_SLOTS.includes(slot) &&
+        itemLevel >= (a.itemLevelMin ?? 0)
+      );
+    if (a.stat === "critDamageBonus")
+      return (
+        CRIT_DAMAGE_AFFIX_SLOTS.includes(slot) &&
+        itemLevel >= (a.itemLevelMin ?? 0)
+      );
     if (a.stat === "magicDmgReduction")
       return (
         MAGIC_RESIST_AFFIX_SLOTS.includes(slot) &&
@@ -229,9 +264,10 @@ function rollAffixes(
         : itemLevel;
     const rate = chosen.scaleRate ?? 0.08;
     const scale = chosen.noScale ? 1 : 1 + effectiveLevel * rate;
-    const value = Math.round(
-      (chosen.min + Math.random() * (chosen.max - chosen.min)) * scale,
-    );
+    const rolled = (chosen.min + Math.random() * (chosen.max - chosen.min)) * scale;
+    const factor = chosen.decimals ? Math.pow(10, chosen.decimals) : 1;
+    const rawValue = Math.round(rolled * factor) / factor;
+    const value = chosen.cap != null ? Math.min(rawValue, chosen.cap) : rawValue;
     affixes.push({ label: chosen.label, stat: chosen.stat, value });
   }
   return affixes;
@@ -685,25 +721,6 @@ export function generateHarvester(): Item {
   };
 }
 
-export function generatePenitentsGrace(): Item {
-  itemCounter += 1;
-  return {
-    id: `item-${Date.now()}-${itemCounter}`,
-    name: "Penitent's Grace",
-    slot: "weapon",
-    rarity: "unique",
-    itemLevel: 10,
-    baseDamage: [5, 10],
-    twoHanded: false,
-    weaponType: "mace",
-    affixes: [
-      { label: "", stat: "energy", value: randInt(10, 15) },
-      { label: "", stat: "manaRegen", value: randInt(8, 12) },
-      { label: "", stat: "magicDamage", value: randInt(10, 15) },
-      { label: "", stat: "vitality", value: randInt(10, 15) },
-    ],
-  };
-}
 
 export function generateJusticar(): Item {
   itemCounter += 1;
@@ -1076,13 +1093,25 @@ export function generateShopStock(
   characterLevel: number,
   classId?: ClassId,
   count = 4,
+  clearedDungeons: string[] = [],
 ): Item[] {
   const maxRarity = shopMaxRarity(characterLevel);
+  const clearedSet = new Set(clearedDungeons);
+  let highestMonsterLevel = 0;
+  for (const dungeon of DUNGEONS) {
+    if (!clearedSet.has(dungeon.id)) continue;
+    const maxLevel = Math.max(
+      dungeon.boss.level,
+      ...dungeon.waves.map((m) => m.level),
+    );
+    if (maxLevel > highestMonsterLevel) highestMonsterLevel = maxLevel;
+  }
   const items: Item[] = [];
   for (let i = 0; i < count; i++) {
-    items.push(
-      generateRandomItem(Math.max(1, characterLevel), classId, maxRarity),
-    );
+    const itemLevel = highestMonsterLevel > 0
+      ? Math.max(1, highestMonsterLevel - randInt(3, 5))
+      : 1;
+    items.push(generateRandomItem(itemLevel, classId, maxRarity));
   }
   return items;
 }

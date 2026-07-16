@@ -16,7 +16,7 @@ export const ATTACK_EFFECT_CLASSES = new Set<ClassId>(["amazon"]);
 export function AbilityEffect({
   classId,
   onDone,
-  detonation = false,
+  detonation: _detonation = false,
   useAbility2 = false,
   useAttack = false,
   travelDist = 136,
@@ -47,11 +47,8 @@ export function AbilityEffect({
         {classId === "druid" && <BiteFx />}
         {classId === "monk" && !useAbility2 && <SpinningCraneKickFx />}
         {classId === "monk" && useAbility2 && <SerenityFx />}
-        {classId === "assassin" && !detonation && !useAbility2 && (
-          <TrapPlantFx />
-        )}
-        {classId === "assassin" && detonation && <TrapDetonateFx />}
-        {classId === "assassin" && useAbility2 && <BlindingPowderFx />}
+        {classId === "assassin" && !useAbility2 && <EviscerateFx />}
+        {classId === "assassin" && useAbility2 && <VanishFx />}
       </svg>
     </div>
   );
@@ -394,111 +391,31 @@ function BiteFx() {
   );
 }
 
-function TrapPlantFx() {
+function EviscerateFx() {
   return (
     <g>
-      {/* Device thrown from player to enemy */}
-      <g className="ae-trap-throw" style={{ transformOrigin: "150px 84px" }}>
-        <rect
-          x="143"
-          y="80"
-          width="14"
-          height="8"
-          rx="2"
-          fill="#33aacc"
-          opacity="0.9"
-        />
-        <rect
-          x="147"
-          y="76"
-          width="6"
-          height="4"
-          rx="1"
-          fill="#55ccee"
-          opacity="0.85"
-        />
+      {/* Fast diagonal slash crossing from player to monster */}
+      <line
+        x1="50" y1="90" x2="175" y2="35"
+        stroke="#ff3333" strokeWidth="3" strokeLinecap="round"
+        className="ae-eviscerate-slash ae-ev-s1"
+        opacity="0"
+      />
+      <line
+        x1="60" y1="95" x2="185" y2="40"
+        stroke="#ff6655" strokeWidth="1.5" strokeLinecap="round"
+        className="ae-eviscerate-slash ae-ev-s2"
+        opacity="0"
+      />
+      {/* Impact burst on monster */}
+      <g className="ae-eviscerate-burst" style={{ transformOrigin: "168px 60px" }} opacity="0">
+        <circle cx="168" cy="60" r="18" fill="#cc1111" opacity="0.6" />
+        <circle cx="168" cy="60" r="9" fill="#ff4444" opacity="0.85" />
+        <circle cx="168" cy="60" r="4" fill="#ffaaaa" opacity="0.9" />
       </g>
-      {/* Trap plants at enemy position after throw */}
-      <g className="ae-trap-plant" style={{ transformOrigin: "150px 88px" }}>
-        <rect
-          x="138"
-          y="84"
-          width="24"
-          height="8"
-          rx="3"
-          fill="#33aacc"
-          opacity="0.9"
-        />
-        <rect
-          x="146"
-          y="80"
-          width="8"
-          height="4"
-          rx="1"
-          fill="#55ccee"
-          opacity="0.85"
-        />
-        <line
-          x1="150"
-          y1="84"
-          x2="150"
-          y2="70"
-          stroke="#33aacc"
-          strokeWidth="2"
-          strokeLinecap="round"
-          className="ae-trap-spark ae-ts-1"
-        />
-        <line
-          x1="150"
-          y1="84"
-          x2="164"
-          y2="74"
-          stroke="#33aacc"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          className="ae-trap-spark ae-ts-2"
-        />
-        <line
-          x1="150"
-          y1="84"
-          x2="136"
-          y2="74"
-          stroke="#33aacc"
-          strokeWidth="1.8"
-          strokeLinecap="round"
-          className="ae-trap-spark ae-ts-3"
-        />
-        <line
-          x1="150"
-          y1="84"
-          x2="168"
-          y2="84"
-          stroke="#33aacc"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          className="ae-trap-spark ae-ts-4"
-        />
-        <line
-          x1="150"
-          y1="84"
-          x2="132"
-          y2="84"
-          stroke="#33aacc"
-          strokeWidth="1.5"
-          strokeLinecap="round"
-          className="ae-trap-spark ae-ts-5"
-        />
-        <circle
-          cx="150"
-          cy="85"
-          r="16"
-          fill="none"
-          stroke="#33aacc"
-          strokeWidth="1.5"
-          opacity="0.5"
-          className="ae-trap-ring"
-        />
-      </g>
+      {/* Poison drip after impact */}
+      <circle cx="168" cy="60" r="6" fill="#66cc44" opacity="0"
+        className="ae-eviscerate-poison" />
     </g>
   );
 }
@@ -664,92 +581,29 @@ function RegenNovaFx() {
   );
 }
 
-function BlindingPowderFx() {
+function VanishFx() {
   return (
     <g>
-      {/* Powder pouch traveling toward the monster */}
-      <g className="ae-powder-travel" style={{ transformOrigin: "80px 65px" }}>
-        <ellipse cx="80" cy="65" rx="9" ry="7" fill="#d4aa55" opacity="0.92" />
-        <ellipse cx="80" cy="61" rx="5" ry="3" fill="#e8cc88" opacity="0.8" />
-        {/* Trailing dust puffs */}
-        <circle
-          cx="62"
-          cy="60"
-          r="5"
-          fill="#c9a040"
-          opacity="0.55"
-          className="ae-powder-trail ae-pt-1"
-        />
-        <circle
-          cx="50"
-          cy="63"
-          r="4"
-          fill="#b89030"
-          opacity="0.4"
-          className="ae-powder-trail ae-pt-2"
-        />
-        <circle
-          cx="38"
-          cy="61"
-          r="3"
-          fill="#a07820"
-          opacity="0.28"
-          className="ae-powder-trail ae-pt-3"
-        />
+      {/* Metal powder burst at player position */}
+      <g className="ae-vanish-burst" style={{ transformOrigin: "32px 65px" }} opacity="0">
+        <circle cx="32" cy="65" r="20" fill="#888899" opacity="0.55" />
+        <circle cx="32" cy="65" r="12" fill="#aabbcc" opacity="0.7" />
+        <circle cx="32" cy="65" r="5" fill="#ddeeff" opacity="0.85" />
       </g>
-      {/* Impact dust cloud on monster side */}
-      <g className="ae-powder-burst" style={{ transformOrigin: "152px 65px" }}>
-        <circle cx="152" cy="65" r="22" fill="#d4aa55" opacity="0.75" />
-        <circle cx="152" cy="65" r="14" fill="#e8cc88" opacity="0.85" />
-        <circle cx="152" cy="65" r="7" fill="#fff8e0" opacity="0.9" />
-        <circle
-          cx="130"
-          cy="53"
-          r="8"
-          fill="#c9a040"
-          opacity="0.6"
-          className="ae-powder-puff ae-pp-1"
-        />
-        <circle
-          cx="174"
-          cy="50"
-          r="7"
-          fill="#d4b050"
-          opacity="0.55"
-          className="ae-powder-puff ae-pp-2"
-        />
-        <circle
-          cx="178"
-          cy="75"
-          r="9"
-          fill="#c09030"
-          opacity="0.58"
-          className="ae-powder-puff ae-pp-3"
-        />
-        <circle
-          cx="132"
-          cy="80"
-          r="8"
-          fill="#ccaa44"
-          opacity="0.55"
-          className="ae-powder-puff ae-pp-4"
-        />
-        <circle
-          cx="152"
-          cy="42"
-          r="6"
-          fill="#ddc060"
-          opacity="0.5"
-          className="ae-powder-puff ae-pp-5"
-        />
-        <circle
-          cx="152"
-          cy="88"
-          r="6"
-          fill="#bba030"
-          opacity="0.5"
-          className="ae-powder-puff ae-pp-6"
-        />
+      {/* Smoke tendrils */}
+      <ellipse cx="32" cy="40" rx="8" ry="14" fill="#667788" opacity="0"
+        className="ae-vanish-smoke ae-vs-1" />
+      <ellipse cx="20" cy="50" rx="6" ry="10" fill="#778899" opacity="0"
+        className="ae-vanish-smoke ae-vs-2" />
+      <ellipse cx="44" cy="50" rx="6" ry="10" fill="#667788" opacity="0"
+        className="ae-vanish-smoke ae-vs-3" />
+      {/* Metal shards on monster */}
+      <g className="ae-vanish-shards" style={{ transformOrigin: "168px 65px" }} opacity="0">
+        <line x1="160" y1="55" x2="148" y2="42" stroke="#aabbcc" strokeWidth="2" strokeLinecap="round" />
+        <line x1="172" y1="52" x2="180" y2="38" stroke="#99aabb" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="178" y1="65" x2="194" y2="65" stroke="#aabbcc" strokeWidth="2" strokeLinecap="round" />
+        <line x1="172" y1="78" x2="180" y2="92" stroke="#99aabb" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="160" y1="75" x2="148" y2="88" stroke="#aabbcc" strokeWidth="2" strokeLinecap="round" />
       </g>
     </g>
   );
@@ -1065,90 +919,3 @@ function SerenityFx() {
   );
 }
 
-function TrapDetonateFx() {
-  return (
-    <g>
-      {/* Central explosion on monster side */}
-      <g className="ae-trap-det-core" style={{ transformOrigin: "140px 65px" }}>
-        <circle cx="140" cy="65" r="20" fill="#ff5500" opacity="0.88" />
-        <circle cx="140" cy="65" r="12" fill="#ff9900" opacity="0.9" />
-        <circle cx="140" cy="65" r="5" fill="#ffee44" opacity="0.95" />
-      </g>
-      {/* Explosion rays */}
-      <g className="ae-trap-det-rays" style={{ transformOrigin: "140px 65px" }}>
-        <line
-          x1="140"
-          y1="45"
-          x2="140"
-          y2="22"
-          stroke="#ff6600"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="154"
-          y1="51"
-          x2="170"
-          y2="36"
-          stroke="#ff6600"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="160"
-          y1="65"
-          x2="184"
-          y2="65"
-          stroke="#ff6600"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="154"
-          y1="79"
-          x2="170"
-          y2="94"
-          stroke="#ff6600"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="140"
-          y1="85"
-          x2="140"
-          y2="108"
-          stroke="#ff6600"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="126"
-          y1="79"
-          x2="110"
-          y2="94"
-          stroke="#ff6600"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="120"
-          y1="65"
-          x2="96"
-          y2="65"
-          stroke="#ff6600"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <line
-          x1="126"
-          y1="51"
-          x2="110"
-          y2="36"
-          stroke="#ff6600"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-      </g>
-    </g>
-  );
-}

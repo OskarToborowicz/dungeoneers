@@ -58,6 +58,7 @@ interface DungeonRunState {
   currentMana: number;
   currentCooldown: number;
   currentCooldown2: number;
+  currentPreparation: number;
 }
 
 function App() {
@@ -74,7 +75,7 @@ function App() {
     useState<Record<ConsumableId, number>>(EMPTY_CONSUMABLES);
   const [shopStock, setShopStock] = useState<Item[]>([]);
   const [dungeonRun, setDungeonRun] = useState<DungeonRunState | null>(null);
-  const [selectedAct, setSelectedAct] = useState<1 | 2 | 3>(1);
+  const [selectedAct, setSelectedAct] = useState<1 | 2 | 3 | 4>(1);
   const [hubTab, setHubTab] = useState<
     "character" | "inventory" | "dungeons" | "shop" | "gambler"
   >("character");
@@ -84,8 +85,10 @@ function App() {
   const [showSewersIntro, setShowSewersIntro] = useState(false);
   const [showSewersEscape, setShowSewersEscape] = useState(false);
   const [hasShownSewersIntro, setHasShownSewersIntro] = useState(false);
+  const [showGheedonMessage, setShowGheedonMessage] = useState(false);
   const [showAct3Message, setShowAct3Message] = useState(false);
   const [showAct4Message, setShowAct4Message] = useState(false);
+  const [showEndingMessage, setShowEndingMessage] = useState(false);
   const [droppedItem, setDroppedItem] = useState<
     import("./game/types").Item | null
   >(null);
@@ -164,7 +167,7 @@ function App() {
           onBack={() => setCreating(false)}
           onCreate={(name: string, classId: ClassId) => {
             const newCharacter = createCharacter(name, classId);
-            const newShopStock = generateShopStock(1, classId);
+            const newShopStock = generateShopStock(1, classId, 4, []);
             const startingEquipment = generateStartingEquipment(classId);
             const save: SaveGame = {
               character: newCharacter,
@@ -220,7 +223,7 @@ function App() {
         setConsumables(save.consumables ?? EMPTY_CONSUMABLES);
         setShopStock(
           save.shopStock ??
-            generateShopStock(save.character.level, save.character.classId),
+            generateShopStock(save.character.level, save.character.classId, 4, save.clearedDungeons),
         );
         setSelectedAct(1);
         setDungeonRun({
@@ -231,6 +234,7 @@ function App() {
           currentMana: run.currentMana,
           currentCooldown: run.currentCooldown,
           currentCooldown2: run.currentCooldown2,
+          currentPreparation: run.currentPreparation ?? 0,
         });
         return;
       }
@@ -425,7 +429,7 @@ function App() {
     const fee = restockFee(character.level);
     if (character.gold < fee) return;
     setCharacter({ ...character, gold: character.gold - fee });
-    setShopStock(generateShopStock(character.level, character.classId));
+    setShopStock(generateShopStock(character.level, character.classId, 4, clearedDungeons));
   }
 
   function handleStartDungeon(dungeonId: string) {
@@ -450,6 +454,7 @@ function App() {
           currentMana: startingMana,
           currentCooldown: 0,
           currentCooldown2: 0,
+          currentPreparation: 0,
         },
       });
     }
@@ -461,6 +466,7 @@ function App() {
       currentMana: startingMana,
       currentCooldown: 0,
       currentCooldown2: 0,
+      currentPreparation: 0,
     });
   }
 
@@ -582,16 +588,20 @@ function App() {
       );
       if (wasNew && dungeonRun.dungeonId === "sewers")
         setShowSewersEscape(true);
+      if (wasNew && dungeonRun.dungeonId === "goblins-path")
+        setShowGheedonMessage(true);
       if (wasNew && dungeonRun.dungeonId === "bandits-town-hall")
         setShowPortalMessage(true);
       if (wasNew && dungeonRun.dungeonId === "the-white-maw")
         setShowAct3Message(true);
       if (wasNew && dungeonRun.dungeonId === "sacrificial-altar")
         setShowAct4Message(true);
+      if (wasNew && dungeonRun.dungeonId === "throne-of-endless-night")
+        setShowEndingMessage(true);
       const completedDungeon = DUNGEONS.find(
         (d) => d.id === dungeonRun.dungeonId,
       );
-      setSelectedAct((completedDungeon?.act ?? 1) as 1 | 2 | 3);
+      setSelectedAct((completedDungeon?.act ?? 1) as 1 | 2 | 3 | 4);
       setHubTab("dungeons");
       setDungeonRun(null);
       return;
@@ -604,6 +614,7 @@ function App() {
       currentMana: getStartingResource(character, derived, result.endingMana),
       currentCooldown: result.endingCooldown,
       currentCooldown2: result.endingCooldown2,
+      currentPreparation: result.endingPreparation ?? 0,
     };
     if (activeSlotId) {
       writeSave(activeSlotId, {
@@ -621,6 +632,7 @@ function App() {
           currentMana: nextRunState.currentMana,
           currentCooldown: nextRunState.currentCooldown,
           currentCooldown2: nextRunState.currentCooldown2,
+          currentPreparation: nextRunState.currentPreparation,
         },
       });
     }
@@ -641,6 +653,7 @@ function App() {
           startingMana={dungeonRun.currentMana}
           startingCooldown={dungeonRun.currentCooldown}
           startingCooldown2={dungeonRun.currentCooldown2}
+          startingPreparation={dungeonRun.currentPreparation}
           consumables={consumables}
           escapeTokens={character.escapeTokens ?? 0}
           xpCapped={
@@ -688,11 +701,16 @@ function App() {
         onDismissSewersIntro={() => setShowSewersIntro(false)}
         showSewersEscape={showSewersEscape}
         onDismissSewersEscape={() => setShowSewersEscape(false)}
+        showGheedonMessage={showGheedonMessage}
+        onDismissGheedonMessage={() => setShowGheedonMessage(false)}
         showAct3Message={showAct3Message}
         onDismissAct3Message={() => setShowAct3Message(false)}
         showAct4Message={showAct4Message}
         onDismissAct4Message={() => setShowAct4Message(false)}
+        showEndingMessage={showEndingMessage}
+        onDismissEndingMessage={() => setShowEndingMessage(false)}
         sewersCleared={clearedDungeons.includes("sewers")}
+        goblinsPathCleared={clearedDungeons.includes("goblins-path")}
         droppedItem={droppedItem}
         onDismissDroppedItem={() => setDroppedItem(null)}
         selectedAct={selectedAct}

@@ -40,10 +40,10 @@ export function getEquipmentStatBonus(
   magicDamageBonus: number;
   goldFindBonus: number;
   lifeLeechBonus: number;
-  manaRegenBonus: number;
   magicDmgReduction: number;
   physDmgReduction: number;
   critChanceBonus: number;
+  critDamageBonus: number;
   weaponDamage?: [number, number];
 } {
   const stats: BaseStats = {
@@ -59,10 +59,10 @@ export function getEquipmentStatBonus(
   let magicDamageBonus = 0;
   let goldFindBonus = 0;
   let lifeLeechBonus = 0;
-  let manaRegenBonus = 0;
   let magicDmgReduction = 0;
   let physDmgReduction = 0;
   let critChanceBonus = 0;
+  let critDamageBonus = 0;
   let weaponDamage: [number, number] | undefined;
 
   for (const item of Object.values(equipment)) {
@@ -84,12 +84,12 @@ export function getEquipmentStatBonus(
       else if (affix.stat === "magicDamage") magicDamageBonus += affix.value;
       else if (affix.stat === "goldFind") goldFindBonus += affix.value;
       else if (affix.stat === "lifeLeech") lifeLeechBonus += affix.value;
-      else if (affix.stat === "manaRegen") manaRegenBonus += affix.value;
       else if (affix.stat === "magicDmgReduction")
         magicDmgReduction += affix.value;
       else if (affix.stat === "physDmgReduction")
         physDmgReduction += affix.value;
       else if (affix.stat === "critChance") critChanceBonus += affix.value;
+      else if (affix.stat === "critDamageBonus") critDamageBonus += affix.value;
       else stats[affix.stat] += affix.value;
     }
   }
@@ -108,12 +108,12 @@ export function getEquipmentStatBonus(
       else if (affix.stat === "magicDamage") magicDamageBonus += affix.value;
       else if (affix.stat === "goldFind") goldFindBonus += affix.value;
       else if (affix.stat === "lifeLeech") lifeLeechBonus += affix.value;
-      else if (affix.stat === "manaRegen") manaRegenBonus += affix.value;
       else if (affix.stat === "magicDmgReduction")
         magicDmgReduction += affix.value;
       else if (affix.stat === "physDmgReduction")
         physDmgReduction += affix.value;
       else if (affix.stat === "critChance") critChanceBonus += affix.value;
+      else if (affix.stat === "critDamageBonus") critDamageBonus += affix.value;
       else stats[affix.stat] += affix.value;
     }
   }
@@ -127,10 +127,10 @@ export function getEquipmentStatBonus(
     magicDamageBonus,
     goldFindBonus,
     lifeLeechBonus,
-    manaRegenBonus,
     magicDmgReduction,
     physDmgReduction,
     critChanceBonus,
+    critDamageBonus,
     weaponDamage,
   };
 }
@@ -142,11 +142,11 @@ export interface DerivedStats {
   damage: [number, number];
   defense: number;
   critChance: number;
+  critDamageBonus: number;
   magicDamageBonus: number;
   magicDamageMult: number;
   goldFindBonus: number;
   lifeLeechBonus: number;
-  manaRegenBonus: number;
   magicDmgReduction: number;
   physDmgReduction: number;
   igniteChance: number;
@@ -244,11 +244,11 @@ export function getDerivedStats(
     damage,
     defense,
     critChance,
+    critDamageBonus: equip.critDamageBonus,
     magicDamageBonus,
     magicDamageMult,
     goldFindBonus: equip.goldFindBonus,
     lifeLeechBonus: equip.lifeLeechBonus,
-    manaRegenBonus: equip.manaRegenBonus,
     magicDmgReduction: equip.magicDmgReduction,
     physDmgReduction: equip.physDmgReduction,
     igniteChance,
@@ -276,6 +276,7 @@ export function getStartingResource(
 ): number {
   const def = CLASSES[character.classId];
   if (def.resourceType === "fury") return FURY_START;
+  if (def.resourceType === "preparation") return 0; // Preparation always starts at 0 per dungeon
   return previousEnding ?? derived.maxMana;
 }
 

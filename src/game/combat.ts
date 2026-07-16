@@ -39,6 +39,9 @@ export interface BattleState {
   golemRounds: number; // Necromancer Golem Defense: turns remaining, redirects 30% of incoming dmg
   stunnedRounds: number; // Necromancer Golem Defense cast: monster cannot act for 1 turn
   absorbShield: number; // Temporary absorb buffer — damage hits this before playerLife; resets each round
+  preparation: number; // Assassin: 0–3 charges, gained on basic attack, spent by abilities
+  vanishRounds: number; // Assassin Vanish: turns of full damage immunity remaining
+  shadowBondAutoBonus: boolean; // Assassin Shadow Bond (lv.35): next basic attack deals +50%
 }
 
 export type PlayerActionKind =
@@ -56,6 +59,7 @@ export interface CombatResult {
   goldReward: number;
   endingLife: number;
   endingMana: number;
+  endingPreparation: number;
   endingCooldown: number;
   endingCooldown2: number;
   damageDealt: number;
@@ -96,6 +100,15 @@ const PALADIN_DAMAGE_TAKEN_HEAL = 0.15; // Divine Retribution: 15% of damage tak
 // Necromancer
 const NECROMANCER_SOUL_SIPHON = 0.15; // 15% of all magic damage dealt → life
 const NECROMANCER_VIRULENCE_MULT = 1.25; // DoT ticks deal 25% more damage (lv.20)
+
+// Assassin
+const ASSASSIN_MAX_PREPARATION = 3;
+const ASSASSIN_SERPENTS_KISS = 0.1; // +10% of damage as instant poison on basic attack and Eviscerate
+const ASSASSIN_BLUR_CHANCE = 0.25;
+const ASSASSIN_BLUR_REDUCTION = 0.25;
+const ASSASSIN_SHADOW_BOND_ABILITY_HEAL = 0.12; // Heal 12% max life when ability uses 3 preparation
+const ASSASSIN_SHADOW_BOND_OVERFLOW_HEAL = 0.04; // Heal 4% max life per overflow preparation point
+const ASSASSIN_SHADOW_BOND_AUTO_BONUS = 0.5; // +50% next basic attack damage
 
 // Monk
 const MONK_SWEEPING_WIND_CHANCE = 0.3; // 30% bonus strike after basic attack
@@ -149,6 +162,7 @@ export function createBattleState(
   startingMana: number,
   startingCooldown: number,
   startingCooldown2 = 0,
+  startingPreparation = 0,
 ): BattleState {
   return {
     playerLife: startingLife,
@@ -177,6 +191,9 @@ export function createBattleState(
     golemRounds: 0,
     stunnedRounds: 0,
     absorbShield: 0,
+    preparation: startingPreparation,
+    vanishRounds: 0,
+    shadowBondAutoBonus: false,
   };
 }
 
@@ -219,8 +236,8 @@ export function getEffectiveCritChance(
   return Math.min(0.9, stats.critChance + amazonBonus);
 }
 
-export function getCritMultiplier(_character: Character): number {
-  return DEFAULT_CRIT_MULTIPLIER;
+export function getCritMultiplier(stats: DerivedStats): number {
+  return DEFAULT_CRIT_MULTIPLIER + stats.critDamageBonus / 100;
 }
 
 export function rollGoldReward(
@@ -242,7 +259,7 @@ export function getAttackPreview(
 ): DamagePreview {
   const [min, max] = stats.damage;
   const critChance = getEffectiveCritChance(character, stats);
-  const critMult = getCritMultiplier(character);
+  const critMult = getCritMultiplier(stats);
   const critHigh = Math.round(max * critMult);
   const critPct = Math.round(critChance * 100);
   return {
@@ -305,10 +322,9 @@ export function getAbility2Preview(
   const def = CLASSES[character.classId];
   if (!def.ability2) return { label: "—", type: "Physical" };
   const ability = def.ability2;
-  if (ability.kind === "obliterate") {
+  if (ability.kind === "whirlwind") {
     const avg = Math.round((stats.damage[0] + stats.damage[1]) / 2);
-    const est = avg + Math.round(stats.stats.strength * 0.5);
-    return { label: `~${est}`, type: "Physical" };
+    return { label: `~${avg}+`, type: "Physical" };
   }
   if (ability.kind === "freeze") {
     const avg = Math.round((stats.damage[0] + stats.damage[1]) / 2);
@@ -364,7 +380,7 @@ export function resolveRound(
   const log: CombatLogEntry[] = [];
 
   const critChance = getEffectiveCritChance(character, stats);
-  const critMultiplier = getCritMultiplier(character);
+  const critMultiplier = getCritMultiplier(stats);
 
   // Blood Barrier (Necromancer lv.35): Soul Siphon and lifesteal can overheal up to 125% max life.
   // Potions and other class heals always cap at 100%.
@@ -396,6 +412,9 @@ export function resolveRound(
     golemRounds,
     stunnedRounds,
   } = state;
+  let preparation = state.preparation;
+  let vanishRounds = state.vanishRounds;
+  let shadowBondAutoBonus = state.shadowBondAutoBonus;
   let absorbShield = 0; // Resets every round — overheal from last turn does not carry over
   let burnStacks = state.burnStacks.map((s) => ({ ...s }));
   let serenityBlindThisTurn = false;
@@ -464,21 +483,17 @@ export function resolveRound(
       playerMana > BARBARIAN_MADNESS_FURY_THRESHOLD
     )
       damageMult *= 1 + BARBARIAN_MADNESS_DAMAGE_BONUS;
-    if (character.classId === "assassin" && character.level >= 35)
-      damageMult *= 1.1; // Assassin's Advantage
+    // Shadow Bond (Assassin lv.35): next basic attack deals +50% damage
+    if (character.classId === "assassin" && shadowBondAutoBonus) {
+      damageMult *= 1 + ASSASSIN_SHADOW_BOND_AUTO_BONUS;
+      shadowBondAutoBonus = false;
+    }
     if (lowLifeMult > 1.0) damageMult *= lowLifeMult;
-    // Assassin's Advantage: +5% crit against poisoned enemies
-    const assassinAdvantageCrit =
-      character.classId === "assassin" &&
-      character.level >= 35 &&
-      poisonRounds > 0
-        ? 0.05
-        : 0;
     let basicHitDmg = 0;
     let basicHitCrit = false;
 
     if (Math.random() < hitChance) {
-      const isCrit = Math.random() < critChance + assassinAdvantageCrit;
+      const isCrit = Math.random() < critChance;
       basicHitCrit = isCrit;
       let dmg = Math.round(
         randomInRange(stats.damage) *
@@ -595,20 +610,23 @@ export function resolveRound(
       }
     }
 
-    // Venom (Assassin lv.20): basic attacks apply 2-turn poison at 30% of hit damage
-    if (
-      character.classId === "assassin" &&
-      character.level >= 20 &&
-      basicHitDmg > 0
-    ) {
-      poisonRounds = 2;
-      poisonDamage = Math.round(basicHitDmg * 0.3 * stats.poisonDamageMult);
-      log.push({
-        actor: "player",
-        message: `Venom seeps in — ${poisonDamage} poison per turn for 2 turns.`,
-        playerLife: Math.max(0, playerLife),
-        monsterLife: Math.max(0, monsterLife),
-      });
+    // Preparation gain (Assassin): +1 on hit, +2 on crit. Shadow Bond lv.35 heals on overflow.
+    if (character.classId === "assassin" && basicHitDmg > 0) {
+      const prepGain = basicHitCrit ? 2 : 1;
+      const overflow = Math.max(0, preparation + prepGain - ASSASSIN_MAX_PREPARATION);
+      if (overflow > 0 && character.level >= 35) {
+        const overflowHeal = Math.round(stats.maxLife * ASSASSIN_SHADOW_BOND_OVERFLOW_HEAL * overflow);
+        applyHeal(overflowHeal);
+        log[log.length - 1].message += ` Shadow Bond — overflow restores ${overflowHeal} life.`;
+      }
+      preparation = Math.min(ASSASSIN_MAX_PREPARATION, preparation + prepGain);
+      // Serpent's Kiss: +10% of hit damage as instant poison
+      const serpentDmg = Math.round(basicHitDmg * ASSASSIN_SERPENTS_KISS);
+      if (serpentDmg > 0 && monsterLife > 0) {
+        monsterLife -= serpentDmg;
+        damageDealt += serpentDmg;
+        log[log.length - 1].message += ` Serpent's Kiss deals ${serpentDmg} poison.`;
+      }
     }
 
     // Spellblade's Mask: converts physical damage into a bonus magic hit (scales with magicDamageBonus)
@@ -792,6 +810,13 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+        if (!def.ability.magic && stats.lifeLeechBonus > 0) {
+          const leeched = Math.round((dmg * stats.lifeLeechBonus) / 100);
+          if (leeched > 0) {
+            applyHeal(leeched);
+            log[log.length - 1].message += ` Life Leech restores ${leeched} life.`;
+          }
+        }
         tryIgnite(dmg);
         if (
           stats.burstEchoChance > 0 &&
@@ -976,18 +1001,58 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+        if (stats.lifeLeechBonus > 0) {
+          const leeched = Math.round((dmg * stats.lifeLeechBonus) / 100);
+          if (leeched > 0) {
+            applyHeal(leeched);
+            log[log.length - 1].message += ` Life Leech restores ${leeched} life.`;
+          }
+        }
         tryIgnite(dmg);
 
-        // ── Fire Trap (Assassin) ──────────────────────────────────────────────
-        // Sets trapRounds = 3; detonates after monster acts on the turn it hits 0.
-      } else if (def.ability.kind === "trap") {
-        trapRounds = 3;
-        log.push({
-          actor: "player",
-          message: "You plant a Fire Trap!",
-          playerLife: Math.max(0, playerLife),
-          monsterLife: Math.max(0, monsterLife),
-        });
+        // ── Eviscerate (Assassin) ─────────────────────────────────────────────
+        // 1.5× + 0.5× per Preparation spent (max 3×). Spends all Preparation.
+        // Serpent's Kiss (+10% poison) and lifesteal apply. Shadow Bond triggers at 3 prep.
+      } else if (def.ability.kind === "eviscerate") {
+        if (Math.random() > ALWAYS_MISS_CHANCE) {
+          const prepSpent = preparation;
+          preparation = 0;
+          const power = 1.5 + 0.5 * prepSpent;
+          const isCrit = Math.random() < critChance;
+          let dmg = Math.round(
+            randomInRange(stats.damage) * power * electrocuteMult * deathwhisperMult * lowLifeMult,
+          );
+          if (isCrit) dmg = Math.round(dmg * critMultiplier);
+          monsterLife -= dmg;
+          damageDealt += dmg;
+          let evisMsg = isCrit
+            ? `Critical hit! Eviscerate tears for ${dmg} damage (${prepSpent} Preparation spent)!`
+            : `Eviscerate strikes for ${dmg} damage (${prepSpent} Preparation spent).`;
+          // Serpent's Kiss
+          const serpentDmg = Math.round(dmg * ASSASSIN_SERPENTS_KISS);
+          if (serpentDmg > 0 && monsterLife > 0) {
+            monsterLife -= serpentDmg;
+            damageDealt += serpentDmg;
+            evisMsg += ` Serpent's Kiss deals ${serpentDmg} poison.`;
+          }
+          // Lifesteal
+          if (stats.lifeLeechBonus > 0) {
+            const leeched = Math.round((dmg * stats.lifeLeechBonus) / 100);
+            if (leeched > 0) { applyHeal(leeched); evisMsg += ` Life Leech restores ${leeched} life.`; }
+          }
+          // Shadow Bond (lv.35): 3 prep used → heal + empower next auto
+          if (prepSpent === ASSASSIN_MAX_PREPARATION && character.level >= 35) {
+            const bondHeal = Math.round(stats.maxLife * ASSASSIN_SHADOW_BOND_ABILITY_HEAL);
+            applyHeal(bondHeal);
+            shadowBondAutoBonus = true;
+            evisMsg += ` Shadow Bond — healed ${bondHeal} life and next attack empowered!`;
+          }
+          log.push({ actor: "player", message: evisMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+          tryIgnite(dmg);
+        } else {
+          preparation = 0;
+          log.push({ actor: "player", message: "Eviscerate misses!", playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+        }
       }
     } else if (
       action === "ability2" &&
@@ -1034,56 +1099,85 @@ export function resolveRound(
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
+          if (stats.lifeLeechBonus > 0) {
+            const leeched = Math.round((dmg * stats.lifeLeechBonus) / 100);
+            if (leeched > 0) {
+              applyHeal(leeched);
+              log[log.length - 1].message += ` Life Leech restores ${leeched} life.`;
+            }
+          }
           tryIgnite(dmg);
         }
 
-        // ── Obliterate (Barbarian) ────────────────────────────────────────────
-        // Physical hit: weapon + 0.5× Strength. Madness bonus applies if Fury was > 30.
-        // Killing blow restores 10% max life.
-      } else if (def.ability2.kind === "obliterate") {
+        // ── Whirlwind (Barbarian) ─────────────────────────────────────────────
+        // Spends ALL Fury for 1× + 0.03× per Fury spent weapon damage. Can crit, applies lifesteal.
+      } else if (def.ability2.kind === "whirlwind") {
+        const furySpent = furyBeforeCost; // furyBeforeCost === playerMana since manaCost=0
+        playerMana = 0; // spend all Fury
         const madnessMult =
           character.classId === "barbarian" &&
           character.level >= 35 &&
-          furyBeforeCost > BARBARIAN_MADNESS_FURY_THRESHOLD
+          furySpent > BARBARIAN_MADNESS_FURY_THRESHOLD
             ? 1 + BARBARIAN_MADNESS_DAMAGE_BONUS
             : 1.0;
-        const baseDmg = randomInRange(stats.damage);
-        const strBonus = Math.round(stats.stats.strength * 0.5);
-        const dmg = Math.round(
-          (baseDmg + strBonus) *
+        const power = 1.0 + 0.03 * furySpent;
+        const isCrit = Math.random() < critChance;
+        let dmg = Math.round(
+          randomInRange(stats.damage) *
+            power *
             madnessMult *
             lowLifeMult *
             electrocuteMult *
             deathwhisperMult,
         );
-        const killingBlow = monsterLife - dmg <= 0;
+        if (isCrit) dmg = Math.round(dmg * critMultiplier);
         monsterLife -= dmg;
         damageDealt += dmg;
-        const healAmt = killingBlow ? Math.round(stats.maxLife * 0.1) : 0;
-        if (healAmt > 0)
-          playerLife = Math.min(stats.maxLife, playerLife + healAmt);
         log.push({
           actor: "player",
-          message: killingBlow
-            ? `Obliterate! You deal ${dmg} damage (${baseDmg} + ${strBonus} str) — killing blow! You recover ${healAmt} life.`
-            : `Obliterate! You deal ${dmg} damage (${baseDmg} + ${strBonus} str).`,
+          message: isCrit
+            ? `Critical hit! Whirlwind spends ${furySpent} Fury and tears for ${dmg} damage!`
+            : `Whirlwind spends ${furySpent} Fury and strikes for ${dmg} damage.`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+        if (stats.lifeLeechBonus > 0) {
+          const leeched = Math.round((dmg * stats.lifeLeechBonus) / 100);
+          if (leeched > 0) {
+            applyHeal(leeched);
+            log[log.length - 1].message += ` Life Leech restores ${leeched} life.`;
+          }
+        }
         tryIgnite(dmg);
 
-        // ── Blinding Powder (Assassin) ────────────────────────────────────────
-        // Blinds for 2 turns (no action); when blind expires → 4 turns of disorient (25% reduced dmg).
-      } else if (def.ability2.kind === "blind_powder") {
-        blindRounds = 2;
-        disorientRounds = 0;
-        log.push({
-          actor: "player",
-          message:
-            "You hurl Blinding Powder! The enemy is blinded (2 turns) and disoriented (4 turns).",
-          playerLife: Math.max(0, playerLife),
-          monsterLife: Math.max(0, monsterLife),
-        });
+        // ── Vanish (Assassin) ─────────────────────────────────────────────────
+        // 0.75× weapon damage burst + immunity for 1+prepSpent turns. Clears player debuffs.
+      } else if (def.ability2.kind === "vanish") {
+        const prepSpent = preparation;
+        preparation = 0;
+        vanishRounds = 1 + prepSpent;
+        // Clear player debuffs
+        playerPoisonRounds = 0;
+        playerBurnRounds = 0;
+        // Powder burst: 0.75× weapon damage
+        const baseDmg = randomInRange(stats.damage);
+        let burstDmg = Math.round(baseDmg * def.ability2.power * electrocuteMult * deathwhisperMult);
+        const isCrit = Math.random() < critChance;
+        if (isCrit) burstDmg = Math.round(burstDmg * critMultiplier);
+        monsterLife -= burstDmg;
+        damageDealt += burstDmg;
+        let vanishMsg = isCrit
+          ? `Critical hit! Metal powder bursts for ${burstDmg} damage — Vanish! Immune for ${vanishRounds} turn${vanishRounds !== 1 ? "s" : ""}.`
+          : `Metal powder bursts for ${burstDmg} damage — Vanish! Immune for ${vanishRounds} turn${vanishRounds !== 1 ? "s" : ""}.`;
+        // Shadow Bond (lv.35): 3 prep used → heal + empower next auto
+        if (prepSpent === ASSASSIN_MAX_PREPARATION && character.level >= 35) {
+          const bondHeal = Math.round(stats.maxLife * ASSASSIN_SHADOW_BOND_ABILITY_HEAL);
+          applyHeal(bondHeal);
+          shadowBondAutoBonus = true;
+          vanishMsg += ` Shadow Bond — healed ${bondHeal} life and next attack empowered!`;
+        }
+        log.push({ actor: "player", message: vanishMsg, playerLife: Math.max(0, playerLife), monsterLife: Math.max(0, monsterLife) });
+        tryIgnite(burstDmg);
 
         // ── Frost Shield (Sorceress) ──────────────────────────────────────────
         // All incoming damage reduced by 60% for 3 turns. Cannot be recast while active.
@@ -1264,8 +1358,7 @@ export function resolveRound(
     playerMana = Math.min(
       stats.maxMana,
       playerMana +
-        stats.maxMana * regenRate * stats.manaRegenMult +
-        stats.manaRegenBonus,
+        stats.maxMana * regenRate * stats.manaRegenMult,
     );
   }
 
@@ -1308,6 +1401,9 @@ export function resolveRound(
       golemRounds,
       stunnedRounds,
       absorbShield: Math.round(absorbShield),
+      preparation,
+      vanishRounds,
+      shadowBondAutoBonus,
     };
   }
 
@@ -1478,9 +1574,10 @@ export function resolveRound(
           damageDealt += reflected;
           spellDmg = Math.max(1, spellDmg - reflected);
         }
-        const fadedSpell =
-          character.classId === "assassin" && Math.random() < 0.25;
-        if (fadedSpell) spellDmg = Math.max(1, Math.round(spellDmg * 0.55));
+        const blurSpell =
+          character.classId === "assassin" && character.level >= 20 && Math.random() < ASSASSIN_BLUR_CHANCE;
+        if (blurSpell) spellDmg = Math.max(1, Math.round(spellDmg * (1 - ASSASSIN_BLUR_REDUCTION)));
+        const spellVanished = vanishRounds > 0;
         const ironSkinSpell = getIronSkinReduction(
           character,
           playerLife,
@@ -1494,11 +1591,18 @@ export function resolveRound(
             Math.round(spellDmg * (1 - stats.magicDmgReduction / 100)),
           );
 
-        if (spell.kind === "burst") {
+        if (spellVanished) {
+          log.push({
+            actor: "monster",
+            message: `${monster.name} casts ${spell.name} — Vanish! You are immune.`,
+            playerLife: Math.max(0, playerLife),
+            monsterLife: Math.max(0, monsterLife),
+          });
+        } else if (spell.kind === "burst") {
           takeDamage(spellDmg);
           log.push({
             actor: "monster",
-            message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!${frostShieldRounds > 0 ? " Frost Shield absorbs 60%." : ""}${golemRounds > 0 ? " Stone Golem reflects 30% back!" : ""}`,
+            message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!${frostShieldRounds > 0 ? " Frost Shield absorbs 60%." : ""}${golemRounds > 0 ? " Stone Golem reflects 30% back!" : ""}${blurSpell ? " Blur reduces 25%." : ""}`,
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
@@ -1589,10 +1693,11 @@ export function resolveRound(
           dmg = Math.max(1, Math.round(dmg * (1 - reduction)));
         }
 
-        // Damage reduction order: Fade → Iron Skin → gear reduction → Frost Shield → Boneweave → Golem redirect
-        const fadedNormal =
-          character.classId === "assassin" && Math.random() < 0.25;
-        if (fadedNormal) dmg = Math.max(1, Math.round(dmg * 0.55));
+        // Damage reduction order: Blur → Iron Skin → gear reduction → Frost Shield → Boneweave → Golem redirect
+        const blurNormal =
+          character.classId === "assassin" && character.level >= 20 && Math.random() < ASSASSIN_BLUR_CHANCE;
+        if (blurNormal) dmg = Math.max(1, Math.round(dmg * (1 - ASSASSIN_BLUR_REDUCTION)));
+        const normalVanished = vanishRounds > 0;
         const ironSkin = getIronSkinReduction(
           character,
           playerLife,
@@ -1624,6 +1729,15 @@ export function resolveRound(
           dmg = Math.max(1, dmg - reflected);
         }
 
+        if (normalVanished) {
+          log.push({
+            actor: "monster",
+            message: `${monster.name} attacks — Vanish! You are immune.`,
+            playerLife: Math.max(0, playerLife),
+            monsterLife: Math.max(0, monsterLife),
+          });
+        } else {
+
         takeDamage(dmg);
 
         let message = isMonsterCrit
@@ -1636,7 +1750,7 @@ export function resolveRound(
           );
           message += ` Thick Hide absorbs ${reductionPct}%.`;
         }
-        if (fadedNormal) message += " Fade reduces the blow by 45%.";
+        if (blurNormal) message += " Blur reduces the blow by 25%.";
         if (ironSkin > 0)
           message += ` Iron Skin absorbs ${Math.round(ironSkin * 100)}%.`;
         if (frostShieldRounds > 0) message += " Frost Shield absorbs 60%.";
@@ -1665,6 +1779,7 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+        } // end !normalVanished
       } else {
         log.push({
           actor: "monster",
@@ -1705,13 +1820,24 @@ export function resolveRound(
     }
   }
 
-  // ── Step 11: Frost Shield duration tick ───────────────────────────────────────
+  // ── Step 11: Duration ticks ────────────────────────────────────────────────────
   if (frostShieldRounds > 0) {
     frostShieldRounds -= 1;
     if (frostShieldRounds === 0) {
       log.push({
         actor: "player",
         message: "Frost Shield fades.",
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    }
+  }
+  if (vanishRounds > 0) {
+    vanishRounds -= 1;
+    if (vanishRounds === 0) {
+      log.push({
+        actor: "player",
+        message: "Vanish fades — you reappear.",
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });
@@ -1754,6 +1880,13 @@ export function resolveRound(
       monsterLife: Math.max(0, monsterLife),
     });
     tryIgnite(finalTrapDmg);
+    if (stats.lifeLeechBonus > 0) {
+      const leeched = Math.round((finalTrapDmg * stats.lifeLeechBonus) / 100);
+      if (leeched > 0) {
+        applyHeal(leeched);
+        log[log.length - 1].message += ` Life Leech restores ${leeched} life.`;
+      }
+    }
     if (monsterLife <= 0) {
       return {
         state: makeState(),

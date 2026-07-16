@@ -1,4 +1,5 @@
 import type { ClassId, EquipmentSlot, Item } from "../types";
+import { DUNGEONS } from "./dungeons";
 import {
   generateItemForSlot,
   generateSpellbladesMask,
@@ -20,7 +21,6 @@ import {
   generateSharpFangs,
   generateHeavyStompers,
   generateHarvester,
-  generatePenitentsGrace,
   generateJusticar,
   generateSanctifier,
   generateBlooddrinker,
@@ -90,7 +90,6 @@ const UNIQUE_POOL: Partial<Record<EquipmentSlot, UniquePoolEntry[]>> = {
 
 const CLASS_WEAPON_POOL: Partial<Record<ClassId, UniquePoolEntry[]>> = {
   paladin: [
-    { generator: generatePenitentsGrace, minLevel: 10 },
     { generator: generateJusticar,       minLevel: 28 },
     { generator: generateSanctifier,     minLevel: 50 },
   ],
@@ -130,6 +129,15 @@ function isUnlocked(entry: UniquePoolEntry, level: number, clearedDungeons: stri
 }
 
 export function rollGambleItem(slot: EquipmentSlot, level: number, classId: ClassId, clearedDungeons: string[]): Item {
+  const clearedSet = new Set(clearedDungeons);
+  let highestMonsterLevel = 0;
+  for (const dungeon of DUNGEONS) {
+    if (!clearedSet.has(dungeon.id)) continue;
+    const maxLevel = Math.max(dungeon.boss.level, ...dungeon.waves.map((m) => m.level));
+    if (maxLevel > highestMonsterLevel) highestMonsterLevel = maxLevel;
+  }
+  const itemLevel = highestMonsterLevel > 0 ? Math.max(1, highestMonsterLevel - 2) : 1;
+
   const roll = Math.random();
 
   if (roll < 0.02) {
@@ -138,12 +146,12 @@ export function rollGambleItem(slot: EquipmentSlot, level: number, classId: Clas
     if (pool.length > 0) {
       return pool[Math.floor(Math.random() * pool.length)].generator();
     }
-    return generateItemForSlot(slot, level, classId, "rare", 4);
+    return generateItemForSlot(slot, itemLevel, classId, "rare", 4);
   }
 
   if (roll < 0.37) {
-    return generateItemForSlot(slot, level, classId, "rare", 4);
+    return generateItemForSlot(slot, itemLevel, classId, "rare", 4);
   }
 
-  return generateItemForSlot(slot, level, classId, "magic", 2);
+  return generateItemForSlot(slot, itemLevel, classId, "magic", 2);
 }

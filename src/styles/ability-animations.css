@@ -340,133 +340,66 @@
   animation: ae-slash-draw 0.78s ease-out 0.18s forwards;
 }
 
-/* Fire Trap plant – Assassin */
-@keyframes ae-trap-throw {
-  0% {
-    transform: translateX(calc(-1 * var(--travel-dist, 136px))) translateY(6px)
-      rotate(0deg) scale(0.75);
-    opacity: 0;
-  }
-  10% {
-    opacity: 1;
-  }
-  78% {
-    transform: translateX(0) translateY(0) rotate(310deg) scale(0.8);
-    opacity: 1;
-  }
-  100% {
-    transform: translateX(0) translateY(0) rotate(360deg) scale(0.7);
-    opacity: 0;
-  }
+/* Eviscerate – Assassin ability 1 */
+@keyframes ae-eviscerate-slash-draw {
+  0% { opacity: 0; stroke-dashoffset: 260; }
+  15% { opacity: 1; }
+  55% { opacity: 0.9; stroke-dashoffset: 0; }
+  100% { opacity: 0; stroke-dashoffset: 0; }
 }
-@keyframes ae-trap-place {
-  0% {
-    transform: scale(0.1);
-    opacity: 0;
-  }
-  30% {
-    transform: scale(1.1);
-    opacity: 1;
-  }
-  70% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 0;
-  }
+@keyframes ae-eviscerate-burst-pop {
+  0% { transform: scale(0.1); opacity: 0; }
+  30% { transform: scale(1.3); opacity: 1; }
+  70% { transform: scale(1); opacity: 0.85; }
+  100% { transform: scale(1.1); opacity: 0; }
 }
-@keyframes ae-trap-spark-out {
-  0% {
-    opacity: 0;
-    transform: scaleY(0);
-  }
-  40% {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scaleY(1);
-  }
+@keyframes ae-eviscerate-poison-drip {
+  0% { opacity: 0; r: 2; }
+  40% { opacity: 0.85; r: 8; }
+  100% { opacity: 0; r: 3; transform: translateY(12px); }
 }
-@keyframes ae-trap-ring-expand {
-  0% {
-    r: 4;
-    opacity: 0.7;
-  }
-  100% {
-    r: 28;
-    opacity: 0;
-  }
+.ae-eviscerate-slash {
+  stroke-dasharray: 260;
+  animation: ae-eviscerate-slash-draw 0.38s cubic-bezier(0.1, 0, 0.4, 1) forwards;
 }
-.ae-trap-throw {
-  animation: ae-trap-throw 0.26s cubic-bezier(0.15, 0, 0.6, 1) forwards;
+.ae-ev-s2 {
+  animation-delay: 0.04s;
 }
-.ae-trap-plant {
-  animation: ae-trap-place 0.5s ease-out 0.22s forwards;
-  opacity: 0;
+.ae-eviscerate-burst {
+  animation: ae-eviscerate-burst-pop 0.45s ease-out 0.28s forwards;
 }
-.ae-trap-spark {
-  animation: ae-trap-spark-out 0.4s ease-out forwards;
-}
-.ae-ts-1 {
-  animation-delay: 0.27s;
-}
-.ae-ts-2 {
-  animation-delay: 0.32s;
-}
-.ae-ts-3 {
-  animation-delay: 0.32s;
-}
-.ae-ts-4 {
-  animation-delay: 0.37s;
-}
-.ae-ts-5 {
-  animation-delay: 0.37s;
-}
-.ae-trap-ring {
-  animation: ae-trap-ring-expand 0.4s ease-out 0.3s forwards;
+.ae-eviscerate-poison {
+  animation: ae-eviscerate-poison-drip 0.5s ease-out 0.5s forwards;
 }
 
-/* Fire Trap detonation – Assassin */
-@keyframes ae-trap-det-burst {
-  0% {
-    transform: scale(0.1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.5);
-    opacity: 0;
-  }
+/* Vanish – Assassin ability 2 */
+@keyframes ae-vanish-burst-expand {
+  0% { transform: scale(0.1); opacity: 0; }
+  25% { transform: scale(1.2); opacity: 1; }
+  60% { transform: scale(1); opacity: 0.7; }
+  100% { transform: scale(1.4); opacity: 0; }
 }
-@keyframes ae-trap-det-rays-out {
-  0% {
-    opacity: 0;
-    transform: scale(0.2);
-  }
-  20% {
-    opacity: 1;
-  }
-  80% {
-    opacity: 1;
-    transform: scale(1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.1);
-  }
+@keyframes ae-vanish-smoke-rise {
+  0% { opacity: 0; transform: translateY(0) scale(0.5); }
+  30% { opacity: 0.6; transform: translateY(-8px) scale(1); }
+  100% { opacity: 0; transform: translateY(-22px) scale(1.3); }
 }
-.ae-trap-det-core {
-  animation: ae-trap-det-burst 0.75s ease-out forwards;
+@keyframes ae-vanish-shards-fly {
+  0% { opacity: 0; transform: scale(0.2); }
+  20% { opacity: 1; transform: scale(1.1); }
+  70% { opacity: 0.8; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.2); }
 }
-.ae-trap-det-rays {
-  animation: ae-trap-det-rays-out 0.75s ease-out 0.1s forwards;
+.ae-vanish-burst {
+  animation: ae-vanish-burst-expand 0.5s ease-out forwards;
+}
+.ae-vanish-smoke {
+  animation: ae-vanish-smoke-rise 0.6s ease-out 0.15s forwards;
+}
+.ae-vs-2 { animation-delay: 0.22s; }
+.ae-vs-3 { animation-delay: 0.19s; }
+.ae-vanish-shards {
+  animation: ae-vanish-shards-fly 0.55s ease-out 0.3s forwards;
 }
 
 /* Persistent trap on battlefield */

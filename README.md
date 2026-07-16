@@ -786,7 +786,7 @@ Potions are used as an action during combat. The restored amount scales with the
 
 ## Dungeons
 
-The game is split into two acts. Each act has five regular dungeons followed by an endgame dungeon, unlocked after all five regulars are cleared. Clearing the Act 1 endgame (Rogue Monastery) opens Act 2 via a red portal.
+The game is split into four acts. Each act has eight regular dungeons followed by an endgame dungeon, unlocked after all eight regulars are cleared. Clearing each act's endgame opens the next act.
 
 Dungeons are linear: wave fights followed by a boss. Life carries over between fights within the same run. Mana resets to full between fights; Fury always resets to 20.
 
@@ -837,6 +837,22 @@ Unlocked after clearing The White Maw.
 | Heart of the Jungle | 58–62 | The Green Warden | 10,688 |
 | The Black Ziggurat | 60–64 | Ancient Loa | 13,048 |
 | Sacrificial Altar *(endgame)* | 64–66 | Zam'Koro, The Loa of Endless Night | 20,378 |
+
+### Act 4
+
+Unlocked after clearing Sacrificial Altar.
+
+| Dungeon | Monster Levels | Boss | Boss Life |
+|---|---|---|---|
+| The Shattered Veil | 70–72 | The Gatekeeper | 11,500 |
+| Graveyard of Kings | 72–75 | Prince Valdris the Damned | 13,750 |
+| The Ashen Forest | 74–77 | The Pale Huntress | 16,250 |
+| River of Lost Souls | 75–78 | The Abyssal Hydra | 18,750 |
+| Citadel of Ash | 77–80 | General Morrath | 21,875 |
+| The Shadow Cathedral | 79–82 | High Inquisitor Varek | 25,000 |
+| Realm of Nightmares | 81–83 | The Dreaming Horror | 28,125 |
+| The Obsidian Spire | 82–85 | Seraphel the Undying | 31,875 |
+| Throne of Endless Night *(endgame)* | 84–90 | Relith, the Void Devourer | 50,000 |
 
 Each boss casts a unique spell — see the [Monster Spells](#monster-spells) section.
 

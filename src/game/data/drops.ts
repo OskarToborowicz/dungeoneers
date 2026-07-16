@@ -20,7 +20,6 @@ import {
   generateMaskOfTwilight,
   generateMirrorRing,
   generatePeasantHood,
-  generatePenitentsGrace,
   generatePentagram,
   generateRagpickersSash,
   generateReapersHood,
@@ -83,7 +82,6 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   { generator: generateHarvester,        chance: 0.06,   dungeons: ["the-white-maw"], classId: "necromancer" },
 
   // ── Class weapons ─────────────────────────────────────────────────────────────
-  { generator: generatePenitentsGrace,   chance: 0.0015, classId: "paladin",    minLevel: 10 },
   { generator: generateJusticar,         chance: 0.0015, classId: "paladin",    minLevel: 28 },
   { generator: generateSanctifier,       chance: 0.0015, classId: "paladin",    minLevel: 50 },
 
