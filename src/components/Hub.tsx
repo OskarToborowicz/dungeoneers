@@ -398,6 +398,7 @@ export function Hub({
                 classId={character.classId}
                 size={90}
                 state="idle"
+                animated={false}
                 isUniqueWeapon={
                   equipment.weapon?.rarity === "very rare" ||
                   equipment.weapon?.rarity === "unique"
