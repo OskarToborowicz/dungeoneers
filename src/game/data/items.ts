@@ -942,26 +942,6 @@ export function generateEternitysEdge(): Item {
   };
 }
 
-export function generateVipersKiss(): Item {
-  itemCounter += 1;
-  const ilvl = 8;
-  return {
-    id: `item-${Date.now()}-${itemCounter}`,
-    name: "Viper's Kiss",
-    slot: "weapon",
-    rarity: "unique",
-    itemLevel: ilvl,
-    baseDamage: [4, 8],
-    twoHanded: false,
-    weaponType: "claw",
-    affixes: [
-      { label: "", stat: "dexterity", value: randInt(12, 18) },
-      { label: "", stat: "damage", value: randInt(10, 15) },
-      { label: "", stat: "vitality", value: randInt(8, 12) },
-    ],
-    vipersKiss: true,
-  };
-}
 
 export function generateShadowfang(): Item {
   itemCounter += 1;

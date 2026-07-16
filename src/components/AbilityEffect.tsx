@@ -34,7 +34,8 @@ export function AbilityEffect({
         overflow="visible"
         style={{ "--travel-dist": `${travelDist}px` } as React.CSSProperties}
       >
-        {classId === "barbarian" && <WhirlwindFx />}
+        {classId === "barbarian" && !useAbility2 && <BloodFuryFx />}
+        {classId === "barbarian" && useAbility2 && <WhirlwindFx />}
         {classId === "necromancer" && !useAbility2 && <PoisonCloudFx />}
         {classId === "necromancer" && useAbility2 && <GolemRollInFx />}
         {classId === "sorceress" && !useAbility2 && <FrostBoltFx />}
@@ -51,6 +52,28 @@ export function AbilityEffect({
         {classId === "assassin" && useAbility2 && <VanishFx />}
       </svg>
     </div>
+  );
+}
+
+function BloodFuryFx() {
+  return (
+    <g>
+      {/* Rage burst — expanding red ring from player */}
+      <circle cx="32" cy="60" r="28" fill="none" stroke="#cc2200" strokeWidth="3"
+        opacity="0" className="ae-bloodfury-ring ae-bf-r1" />
+      <circle cx="32" cy="60" r="20" fill="none" stroke="#ff4422" strokeWidth="2"
+        opacity="0" className="ae-bloodfury-ring ae-bf-r2" />
+      {/* Shout sound-wave arcs radiating rightward */}
+      <path d="M 46 42 Q 60 60 46 78" fill="none" stroke="#ff5533" strokeWidth="2.5"
+        strokeLinecap="round" opacity="0" className="ae-bloodfury-wave ae-bf-w1" />
+      <path d="M 54 36 Q 74 60 54 84" fill="none" stroke="#ff4422" strokeWidth="2"
+        strokeLinecap="round" opacity="0" className="ae-bloodfury-wave ae-bf-w2" />
+      <path d="M 62 30 Q 88 60 62 90" fill="none" stroke="#cc2200" strokeWidth="1.5"
+        strokeLinecap="round" opacity="0" className="ae-bloodfury-wave ae-bf-w3" />
+      {/* Central rage flash */}
+      <circle cx="32" cy="60" r="14" fill="#ff2200" opacity="0"
+        className="ae-bloodfury-core" />
+    </g>
   );
 }
 

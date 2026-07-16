@@ -128,7 +128,7 @@ export interface Item {
   arcanist?: boolean;
   eternitysEdge?: boolean;
   apprenticesFocus?: boolean;
-  vipersKiss?: boolean;
+
   shadowfang?: boolean;
   deathwhisper?: boolean;
   aegisOfTheFortress?: boolean;

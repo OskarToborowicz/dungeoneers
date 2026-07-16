@@ -549,7 +549,7 @@ export function CombatScreen({
             </div>
           )}
           <div
-            className={`battle-side player-side${battle.regenRounds > 0 ? " regen-aura-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}`}
+            className={`battle-side player-side${battle.bloodFuryRounds > 0 ? " blood-fury-active" : ""}${battle.regenRounds > 0 ? " regen-aura-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}`}
           >
             <CharacterSprite
               classId={character.classId}

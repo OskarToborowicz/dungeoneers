@@ -296,6 +296,16 @@
   }
 }
 
+/* Player-side blood fury glow while buff is active */
+.blood-fury-active {
+  animation: blood-fury-pulse 0.9s ease-in-out infinite;
+  filter: drop-shadow(0 0 8px #cc2200);
+}
+@keyframes blood-fury-pulse {
+  0%, 100% { filter: drop-shadow(0 0 5px #aa110088); }
+  50%       { filter: drop-shadow(0 0 14px #ff3300cc); }
+}
+
 /* Player-side regen glow while aura is active */
 .regen-aura-active {
   animation: regen-aura-pulse 1.1s ease-in-out infinite;

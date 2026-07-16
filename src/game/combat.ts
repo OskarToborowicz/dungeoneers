@@ -1028,12 +1028,12 @@ export function resolveRound(
           let evisMsg = isCrit
             ? `Critical hit! Eviscerate tears for ${dmg} damage (${prepSpent} Preparation spent)!`
             : `Eviscerate strikes for ${dmg} damage (${prepSpent} Preparation spent).`;
-          // Serpent's Kiss
+          // Serpent's Kiss: +10% of Eviscerate damage as instant poison
           const serpentDmg = Math.round(dmg * ASSASSIN_SERPENTS_KISS);
-          if (serpentDmg > 0 && monsterLife > 0) {
+          if (serpentDmg > 0) {
             monsterLife -= serpentDmg;
             damageDealt += serpentDmg;
-            evisMsg += ` Serpent's Kiss deals ${serpentDmg} poison.`;
+            evisMsg += ` Serpent's Kiss deals ${serpentDmg} bonus poison damage.`;
           }
           // Lifesteal
           if (stats.lifeLeechBonus > 0) {

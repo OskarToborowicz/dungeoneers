@@ -32,7 +32,6 @@ import {
   generateApprenticesFocus,
   generateTheArcanist,
   generateEternitysEdge,
-  generateVipersKiss,
   generateShadowfang,
   generateDeathwhisper,
 } from "./items";
@@ -112,7 +111,6 @@ const CLASS_WEAPON_POOL: Partial<Record<ClassId, UniquePoolEntry[]>> = {
     { generator: generateEternitysEdge,    clearedAny: LATE_ACT2 },
   ],
   assassin: [
-    { generator: generateVipersKiss,   clearedAny: ACT1 },
     { generator: generateShadowfang,   clearedAny: MID_ACT2 },
     { generator: generateDeathwhisper, clearedAny: LATE_ACT2 },
   ],

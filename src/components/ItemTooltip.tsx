@@ -108,11 +108,6 @@ export function UniqueEffectLines({ item }: { item: Item }) {
           <em>Heartseeker fires at 70% of damage dealt instead of 50%</em>
         </div>
       )}
-      {item.vipersKiss && (
-        <div className="item-line mirror-flavor">
-          <em>Venom knows no honor</em>
-        </div>
-      )}
       {item.shadowfang && (
         <div className="item-line mirror-flavor">
           <em>

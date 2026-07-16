@@ -31,7 +31,6 @@ import {
   generateTheArcanist,
   generateThornback,
   generateVenomweaveWrap,
-  generateVipersKiss,
   generateWhisper,
   generateWorldbreaker,
 } from "./items";
@@ -97,7 +96,6 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   { generator: generateTheArcanist,      chance: 0.001,  classId: "sorceress",  dungeons: ["bandits-town-hall", ...ACT2_DUNGEONS.slice(0, 4)] },
   { generator: generateEternitysEdge,    chance: 0.001,  classId: "sorceress",  dungeons: ACT2_DUNGEONS.slice(3) },
 
-  { generator: generateVipersKiss,       chance: 0.002,  classId: "assassin",   dungeons: ACT1_DUNGEONS },
   { generator: generateShadowfang,       chance: 0.002,  classId: "assassin",   dungeons: ["bandits-town-hall", ...ACT2_DUNGEONS.slice(0, 4)] },
   { generator: generateDeathwhisper,     chance: 0.002,  classId: "assassin",   dungeons: ACT2_DUNGEONS.slice(3) },
 ];
