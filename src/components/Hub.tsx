@@ -8,6 +8,7 @@ import { InventoryTab } from "./InventoryTab";
 import { DungeonsTab } from "./DungeonsTab";
 import { ShopTab } from "./ShopTab";
 import { GamblerTab } from "./GamblerTab";
+import { JournalTab } from "./JournalTab";
 import { ItemIcon } from "./ItemIcon";
 import { CLASSES } from "../game/data/classes";
 import { RARITY_COLORS } from "../game/data/items";
@@ -22,7 +23,7 @@ import type {
 } from "../game/types";
 import type { GambleOffer } from "../game/data/gambler";
 
-type TabId = "character" | "inventory" | "dungeons" | "shop" | "gambler";
+type TabId = "character" | "inventory" | "dungeons" | "shop" | "gambler" | "journal";
 
 interface Props {
   character: Character;
@@ -654,6 +655,38 @@ export function Hub({
                 />
               </svg>
             </button>
+            <button
+              className={tab === "journal" ? "active" : ""}
+              onClick={() => setTab("journal")}
+            >
+              Journal{" "}
+              {/* open book */}
+              <svg
+                width="15"
+                height="16"
+                viewBox="0 0 20 22"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                {/* left page */}
+                <path d="M10 4 Q7 3 3 4 L3 19 Q7 18 10 19" />
+                {/* right page */}
+                <path d="M10 4 Q13 3 17 4 L17 19 Q13 18 10 19" />
+                {/* spine */}
+                <line x1="10" y1="4" x2="10" y2="19" />
+                {/* left lines */}
+                <line x1="5" y1="8" x2="9" y2="8" />
+                <line x1="5" y1="11" x2="9" y2="11" />
+                <line x1="5" y1="14" x2="9" y2="14" />
+                {/* right lines */}
+                <line x1="11" y1="8" x2="15" y2="8" />
+                <line x1="11" y1="11" x2="15" y2="11" />
+                <line x1="11" y1="14" x2="15" y2="14" />
+              </svg>
+            </button>
           </nav>
 
           <button className="reset-button" onClick={onQuitToMenu}>
@@ -716,6 +749,9 @@ export function Hub({
               onToggleFavorite={onToggleFavorite}
               onSort={onSortInventory}
             />
+          )}
+          {tab === "journal" && (
+            <JournalTab clearedDungeons={clearedDungeons} />
           )}
         </div>
       </div>

@@ -19,8 +19,8 @@ A browser-based Diablo-style dungeon crawler built with React + TypeScript.
 11. [Item Rarity](#item-rarity)
 12. [Consumables](#consumables)
 13. [Dungeons](#dungeons)
-14. [Save System](#save-system)
-15. [Patch Notes](PATCH_NOTES.md)
+14. [Journal](#journal)
+15. [Save System](#save-system)
 
 ---
 
@@ -36,7 +36,7 @@ Eight classes are available, each with a unique resource type, active ability, a
 | Huntress | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities, 3 passives |
 | Paladin | Mana | Mace | Tank/sustain with healing aura — 2 active abilities, 3 passives |
 | Druid | Mana | Totem | Dex-scaling melee with lifesteal and damage reduction |
-| Assassin | Mana | Claw | Dex-scaling trap setter — 2 active abilities, 3 passives |
+| Assassin | Preparation | Claw | Shadow warrior who builds Preparation through combat and unleashes devastating strikes — 2 active abilities, 3 passives |
 | Monk | Chi | Katar | Fast multi-hit melee with self-sustain and counter-attack — 2 active abilities, 3 passives |
 
 All classes start with **10 in every base stat** (Strength, Dexterity, Vitality, Energy) and **10 free stat points** to allocate.
@@ -66,11 +66,10 @@ Increases physical damage and critical strike chance, and powers the Druid's and
 flatDexDamage = dexterity / 5
 critChance    = min(0.60, 0.05 + dexterity × 0.001)
 ```
-Every 5 Dexterity adds +1 to both minimum and maximum weapon damage. Base crit chance is 5% and scales to a soft cap of 60%. The Barbarian's passive adds 10% on top (recapped at 90%).
+Every 5 Dexterity adds +1 to both minimum and maximum weapon damage. Base crit chance is 5% and scales to a soft cap of 60%.
 
 - Druid passive (Thick Hide): `reduction = min(0.25, dexterity × 0.002)` — caps at 25% damage reduction at 125 Dexterity.
 - Druid ability (Werewolf Bite): deals `dexterity × 1.5` flat bonus damage on top of weapon damage.
-- Assassin ability (Fire Trap): deals `dexterity × 2.5` damage when the trap detonates.
 
 ### Vitality
 Increases maximum life and defense.
@@ -85,7 +84,7 @@ Increases maximum mana and adds flat bonus damage to all magic-typed abilities (
 maxMana          += floor(energy / 5)
 magicDamageBonus  = floor(energy / 2)
 ```
-Every 5 Energy grants +1 max mana. Every 2 Energy grants +1 flat damage added to each magic ability hit. Non-magic abilities (Barbarian, Huntress, Druid, Assassin) receive no damage benefit from Energy, but mana classes still gain mana from it.
+Every 5 Energy grants +1 max mana. Every 2 Energy grants +1 flat damage added to each magic ability hit. Non-magic abilities receive no damage benefit from Energy, but mana classes still gain mana from it.
 
 ---
 
@@ -98,9 +97,10 @@ These are recomputed each frame from current stats + equipped gear.
 maxLife = 30 + (vitality × 3) + (level × 5) + gear life bonuses
 ```
 
-### Max Mana / Fury
+### Max Mana / Fury / Preparation
 - **Mana classes**: base 100 + `floor(energy / 5)` + gear mana bonuses.
 - **Barbarian (Fury)**: fixed at 100. Starts every combat at 20. Gains +10 Fury per basic attack. Never regenerates passively.
+- **Assassin (Preparation)**: 3 globes maximum. Starts every combat and dungeon run at 0. Gains 1 Preparation per basic attack, capped at 3. Carries over between fights within the same dungeon run.
 
 ### Damage Range
 ```
@@ -181,41 +181,15 @@ xpCapLevel = max(highestClearedDungeonBossLevel, currentDungeonBossLevel) + 5
 
 The current dungeon's boss level is included so that entering a new dungeon immediately raises the cap — preventing the situation where a player clears one act's endgame and then earns 0 XP in the next act's first dungeon.
 
-If no dungeons have been cleared yet, the cap uses the first dungeon's boss level (Blood Moor, boss level 3):
-```
-xpCapLevel = 3 + 5 = 8
-```
-
 When `character.level >= xpCapLevel`, battles award **0 XP**. Gold drops and item drops are unaffected.
 
 ### Reclear XP reduction
 
-Replaying **Rogue Monastery or any Act 2 dungeon** after it has already been cleared awards only **25% of the normal XP**. Act 1 regular dungeons (Blood Moor through Ruins of Tristram) are not affected and give full XP on every run.
+Replaying a dungeon after it has already been cleared awards only **25% of the normal XP**. This applies to all acts and endgame dungeons.
 
-### Cap progression table — Act 1
+### Cap progression
 
-| Highest dungeon cleared | Boss level | XP cap (max level) |
-|---|---|---|
-| None | — | 8 |
-| Blood Moor | 3 | 8 |
-| Cold Plains | 5 | 10 |
-| Stony Field | 8 | 13 |
-| Dark Wood | 12 | 17 |
-| Ruins of Tristram | 18 | 23 |
-| Rogue Monastery (Andariel) | 30 | 35 |
-
-### Cap progression table — Act 2
-
-| Highest dungeon cleared | Boss level | XP cap (max level) |
-|---|---|---|
-| Imp Field | 33 | 38 |
-| Lava River | 38 | 43 |
-| Ashen Caves | 43 | 48 |
-| Higher Hell | 50 | 55 |
-| Lower Hell (The Reaper) | 57 | 62 |
-| Hellcore (Core of Hell) | 70 | 75 |
-
-Clearing each dungeon raises the cap, forcing the player to progress rather than over-level an earlier zone.
+Each boss's level determines the cap for that zone. Clearing each dungeon raises the cap, forcing the player to progress rather than over-level an earlier zone. The endgame boss of each act sets the cap ceiling before transitioning to the next act.
 
 ---
 
@@ -230,8 +204,8 @@ Combat is turn-based. The player chooses one action per round; the monster then 
 | Action | Hotkey | Effect |
 |---|---|---|
 | Attack | `1` | Basic weapon hit, 98% hit rate, crit possible |
-| Ability | `2` | Class active skill (costs mana/fury, has cooldown) |
-| Ability 2 | `3` | Second active skill — available on Barbarian, Sorceress, Huntress, Paladin, and Assassin |
+| Ability | `2` | Class active skill (costs mana/fury/preparation, has cooldown) |
+| Ability 2 | `3` | Second active skill — available on Barbarian, Necromancer, Sorceress, Huntress, Paladin, Assassin, and Monk |
 | Health Potion | — | Restores 35% of max life; 3-turn cooldown |
 | Mana Potion | — | Restores 35% of max mana/fury; 3-turn cooldown |
 | Flee | — | Spends an Escape Token to end the dungeon run safely |
@@ -247,7 +221,7 @@ Press `Space` to continue after a victory or defeat screen.
 hitChance = attackRating / (defense × 1.5)
 hitChance = clamp(hitChance, 0.15, 0.98)
 ```
-Monsters always have at least a 15% chance to hit regardless of the player's defense. All monster HP and attack rating values are buffed by **25%** compared to their base design values.
+Monsters always have at least a 15% chance to hit regardless of the player's defense. All monster HP and attack rating values are buffed by **50%** compared to their base design values.
 
 ### Critical Strikes
 
@@ -256,13 +230,15 @@ Monsters always have at least a 15% chance to hit regardless of the player's def
 | Player (base) | 5% + dex×0.001 (cap 60%) | ×1.50 |
 | Monster | 10% | ×1.75 |
 
-Basic attacks always roll for crits. The following abilities also crit on their direct-damage roll: **Frost Bolt** (Sorceress), **Holy Bolt** damage (Paladin), **Poison Cloud initial hit** (Necromancer), and **Golem Defense detonation** (Necromancer). DoT ticks, burn stacks, and the Paladin's heal component never crit independently — if Holy Bolt's damage crits, the `round(dmg × 0.35)` heal is derived from the already-critted value and scales up naturally.
+Basic attacks always roll for crits. The following abilities also crit on their direct-damage roll: **Frost Bolt** (Sorceress), **Holy Bolt** damage (Paladin), **Poison Cloud initial hit** (Necromancer), **Golem Defense detonation** (Necromancer), **Eviscerate** (Assassin), and **Vanish** initial hit (Assassin). DoT ticks and burn stacks never crit independently.
 
 ### Mana Regeneration
 
-Every round, mana classes regenerate **5% of max mana** regardless of the action taken (including rounds when an ability is used). The Sorceress has a higher passive regen rate: **10% of max mana every turn** regardless of action, courtesy of the **Arcane Flow** passive.
+Every round, mana classes regenerate **5% of max mana** regardless of the action taken. The Sorceress has a higher passive regen rate: **10% of max mana every turn** via the **Arcane Flow** passive.
 
 Fury never regenerates. It starts at 20 per fight and builds by +10 per basic attack (+15 at level 35 with the Madness passive).
+
+Preparation starts at 0 and carries over between fights within the same dungeon run. It gains 1 per basic attack (cap 3) and is spent by Eviscerate and Vanish.
 
 ### Ability Cooldown
 
@@ -281,13 +257,13 @@ poisonDamage = round(randomInRange(damage) × ability.power × 0.4) + magicDamag
 ```
 The Necromancer's Soul Siphon passive heals **15% of every magic damage instance** — both the initial hit and each tick. The heal can overheal up to 25% of max life once Blood Barrier (lv.35) is active.
 
-### Fire Trap (Assassin)
+### Eviscerate (Assassin)
 
-Using Fire Trap places a trap on the battlefield that detonates **after the monster's attack** on the next round. While active, the trap is shown as a glowing device with a countdown in the battle arena. Detonation deals:
-```
-trapDamage = round(dexterity × 2.5)
-```
-Crits are possible. After detonation a 4-round cooldown applies before another trap can be placed. If the monster dies to the trap's explosion it counts as a player victory.
+Eviscerate deals `1.5× + 0.5× per Preparation` weapon damage (max 3× at 3 Preparation), then spends all Preparation. It always applies Serpent's Kiss (instant poison equal to 10% of the hit's damage) and triggers any equipped life steal. Can critically strike.
+
+### Vanish (Assassin)
+
+Vanish hurls a metal powder burst for `0.75×` weapon damage, then grants immunity to all incoming damage for `1 + (Preparation spent)` turns. Clears all negative effects on the player and spends all Preparation. Can critically strike on the initial hit.
 
 ### Status Effects
 
@@ -297,82 +273,61 @@ Active status effects are shown as colored pills below each combatant's HP bar a
 
 | Effect | Trigger | Display |
 |---|---|---|
-| ☠ Poison N | Necromancer Poison Dagger | Green pill, remaining tick count |
+| ☠ Poison N | Necromancer Poison Cloud | Green pill, remaining tick count |
 | 💫 Stunned N | Necromancer Golem Defense | Yellow pill, remaining stunned turns; monster cannot act |
 | ❄ Frozen N | Huntress Freezing Shot | Blue pill, remaining frozen turns |
 | ⚡ Electrocute N | Huntress — Stormstring bow on hit | Yellow pill, remaining turns; enemy takes 20% increased damage from all sources |
-| 🔥 Burn N | Demon's Tail belt — every hit/ability | Orange pill per active stack; hovering shows source and damage per turn |
+| 🔥 Burn N | Demon's Tail belt — every hit/ability | Orange pill per active stack; shows source and damage per turn |
 
-**Burn stacks independently** — each hit with Demon's Tail equipped pushes a new `{ rounds, damage, source }` entry. Multiple stacks can be active simultaneously, each with its own timer and damage value (30% of the triggering hit). A separate 🔥 Burn badge appears for each active stack.
+**Burn stacks independently** — each hit with Demon's Tail equipped pushes a new `{ rounds, damage, source }` entry. Multiple stacks can be active simultaneously, each with its own timer and damage value (30% of the triggering hit).
 
-**Stunned** prevents the monster from acting for the duration. Applied by Golem Defense on cast. The monster still appears on its turn in the combat log with a "stunned" message but deals no damage and casts no spells.
+**Stunned** prevents the monster from acting for the duration. Applied by Golem Defense on cast.
 
-**Frozen** prevents the monster from acting entirely for the duration. The monster still appears on its turn in the combat log with a "frozen solid" message, but deals no damage and casts no spells.
+**Frozen** prevents the monster from acting entirely for the duration.
 
-**Electrocute** increases all damage the monster receives by 20% for 2 turns. Applied on every successful basic attack with Stormstring equipped; does not stack — refreshes the duration instead.
+**Electrocute** increases all damage the monster receives by 20% for 2 turns. Does not stack — refreshes the duration instead.
 
 **On the player:**
 
 | Effect | Trigger | Display |
 |---|---|---|
-| Blood Fury N | Barbarian Blood Fury | Red pill, remaining turns |
+| Blood Fury N | Barbarian Blood Fury | Red pill, remaining turns; red pulsing glow on sprite |
 | ✦ Regen Nova N | Paladin Regenerating Nova | Green pill, pulsing green glow |
 | ❄ Frost Shield N | Sorceress Frost Shield | Cyan pill, pulsing icy blue glow |
-| ☠ Poison N | Andariel — Poison Nova | Green pill, green glow |
-| 🔥 Burn N | Bishibosh — Fire Wall | Orange pill, orange glow |
+| ◌ Vanish N | Assassin Vanish | Purple pill, remaining immune turns |
+| ☠ Poison N | Monster Poison DoT spell | Green pill, green glow |
+| 🔥 Burn N | Monster Burn DoT spell | Orange pill, orange glow |
 
-Poison and Burn applied to the player tick at the start of the monster's turn (after the player acts, before the monster attacks). Damage per tick:
+Poison and Burn applied to the player tick at the start of the monster's turn. Damage per tick:
 ```
 round(spellDmg × 0.4)  ×  3 rounds
 ```
 
 ### Ability Animations
 
-Each class ability triggers a short SVG overlay animation (≈800 ms) over the battle arena when used:
+Each class ability triggers a short SVG overlay animation over the battle arena when used:
 
 | Class | Ability | Animation |
 |---|---|---|
-| Barbarian | Blood Fury | Red spinning vortex |
-| Barbarian | Obliterate | Red spinning vortex |
+| Barbarian | Blood Fury | Red rage rings + shout wave arcs + core flash at player |
+| Barbarian | Whirlwind | Red spinning vortex that expands across the arena |
 | Necromancer | Poison Cloud | Green toxic cloud flies toward the enemy and billows on impact |
-| Necromancer | Golem Defense | Stone boulder rolls in with dust trails, impacts the enemy with stun stars, then the golem stands guard next to the Necromancer |
+| Necromancer | Golem Defense | Stone boulder rolls in with dust trails; golem stands guard next to the Necromancer |
 | Sorceress | Frost Bolt | Icy bolt that shatters into shards on impact |
 | Huntress | Multishot | Two green arrows flying toward the enemy |
 | Huntress | Freezing Shot | Icy blue arrow flying toward the enemy + frost explosion on impact |
 | Paladin | Holy Bolt | Golden holy cross with radiant pulse |
 | Paladin | Regenerating Nova | Green healing rings expand from the player with rising sparkles |
 | Druid | Werewolf Bite | Three green claw slashes |
-| Assassin | Fire Trap | Blue trap placed on field; cyan explosion on detonation |
-| Assassin | Blinding Powder | Golden powder pouch flies toward the enemy and bursts into an expanding dust cloud |
-| Sorceress | Frost Shield | Expanding frost rings with ice crystal shards and sparkles radiating from the player |
-| Monk | Spinning Crane Kick | Green wind rings spinning like a beyblade around the player |
+| Assassin | Eviscerate | Red diagonal slash + impact burst + poison drip at the enemy |
+| Assassin | Vanish | Smoke burst at the player + metal shards scatter at the enemy |
+| Sorceress | Frost Shield | Expanding frost rings with ice crystal shards radiating from the player |
+| Monk | Spinning Crane Kick | Green wind rings spinning around the player |
 | Monk | Serenity | Expanding green healing rings with rising sparkles around the player |
 
 ### Monster Spells
 
-Each dungeon boss has a unique spell that replaces its normal attack when it fires. Spells have a **3-round cooldown** after casting and a **35–45% cast chance** per eligible round. A spell animation overlay plays when the boss casts.
-
-**Act 1 bosses:**
-
-| Boss | Spell | Kind | Power | Effect |
-|---|---|---|---|---|
-| Corpsefire | Corpse Explosion | Burst | ×1.8 | Instant damage |
-| Bishibosh | Fire Wall | Burn | ×1.6 | Initial hit + 3 burn ticks |
-| Rakanishu | Chain Lightning | Burst | ×2.0 | Instant damage |
-| Treehead Woodfist | Ground Slam | Burst | ×2.2 | Instant damage |
-| The Countess | Blood Drain | Drain | ×1.5 | Deals damage, heals monster |
-| Andariel | Poison Nova | Dot | ×0.7 | Initial hit + 3 poison ticks |
-
-**Act 2 bosses:**
-
-| Boss | Spell | Kind | Power | Effect |
-|---|---|---|---|---|
-| Queen of Imps | Imp Swarm | Burst | ×2.0 | Instant damage |
-| Emberfire | Lava Burst | Burn | ×2.2 | Initial hit + 3 burn ticks |
-| It | Suffocating Cloud | Dot | ×2.0 | Initial hit + 3 poison ticks |
-| Reltih | Hellfire | Burn | ×2.5 | Initial hit + 3 burn ticks |
-| The Reaper | Death Chill | Dot | ×2.3 | Initial hit + 3 poison ticks |
-| Core of Hell | Hellstorm | Burn | ×3.0 | Initial hit + 3 burn ticks (45% cast chance) |
+Each dungeon boss has a unique spell that replaces its normal attack when it fires. Spells have a **4-round cooldown** after casting and a **35–45% cast chance** per eligible round. Regular wave monsters with spells follow the same timing rules.
 
 **Spell damage** = `round(randomInRange(monster.damage) × power)`.
 
@@ -393,16 +348,16 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Fury Cost**: 40
 - **Cooldown**: 6 turns — starts immediately on cast
 - **Duration**: 3 turns
-- **Effect**: While active, grants +20% Life Steal on all hits, +25% Double Swing chance (stacks with the base 25%), and +20% bonus damage on all attacks
+- **Effect**: While active, grants +20% Life Steal on all hits, +25% Double Swing chance (stacks with the base 25%), and +20% bonus damage on all attacks. A red pulsing glow appears on the character.
 - **Special**: Does **not** end the turn — the player also attacks on the activation turn
 
-### Barbarian — Obliterate
+### Barbarian — Whirlwind *(Ability 2)*
 - **Kind**: physical (no magic bonus)
-- **Fury Cost**: 30
+- **Fury Cost**: All current Fury
 - **Cooldown**: 3 turns
-- **Damage**: `round((randomInRange(damage) + strength × 0.5) × madnessMult)`
-- **Killing Blow**: if the strike kills the enemy, restores **10% of max life**
-- **Madness interaction**: if Fury was above 30 before paying the cost, the Madness 15% damage bonus applies
+- **Damage**: `round(randomInRange(damage) × (1.0 + 0.03 × furySpent) × madnessMult)`
+- **Effect**: Spends every point of Fury for a spinning strike. More Fury = more damage. Can critically strike and triggers life steal.
+- **Madness interaction**: if Fury exceeded 30 before spending, the Madness 15% bonus applies
 
 ### Necromancer — Poison Cloud
 - **Kind**: dot (magic — gains `magicDamageBonus` per tick)
@@ -419,14 +374,13 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **On cast**: The Stone Golem rolls in and **stuns the enemy for 1 turn** (💫 Stunned pill, monster cannot act)
 - **Guard duration**: 3 turns — the golem stands next to the Necromancer on the battlefield
 - **Redirect**: Each turn the golem is active, **30% of all incoming damage** (physical and spell) is redirected back at the enemy; the player receives only the remaining 70%
-- **Display**: Golem appears on the left/player side of the arena as an SVG with a round countdown badge; cannot be re-summoned while active
+- **Display**: Golem appears on the player side of the arena as an SVG with a round countdown badge; cannot be re-summoned while active
 
 ### Sorceress — Frost Bolt
 - **Kind**: burst (magic — gains `magicDamageBonus` and `magicDamageMult`)
 - **Mana Cost**: 30
 - **Cooldown**: 0 (can cast every turn)
 - **Damage**: `round((randomInRange(damage) × 1.0 + magicDamageBonus × 2) × magicDamageMult)` — **can crit**
-- Scales equally with weapon damage and doubly with Magic Damage bonus, making Energy investment highly rewarding
 
 ### Sorceress — Frost Shield *(Ability 2)*
 - **Kind**: buff (no damage)
@@ -434,7 +388,6 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Cooldown**: 8 turns — starts immediately on cast
 - **Duration**: 3 turns
 - **Effect**: Reduces all incoming damage (physical and spell) by **60%** for the duration
-- **Special**: While active, the Frost Shield button shows "Active: X turns" and cannot be recast; a cyan status pill and icy blue glow appear on the player sprite
 - **Damage formula while shielded**: `dmg = max(1, round(dmg × 0.40))`
 
 ### Huntress — Multishot
@@ -447,19 +400,15 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Kind**: freeze (physical — no magic bonus)
 - **Mana Cost**: 40
 - **Cooldown**: 5 turns
-- **Damage**: `randomInRange(weaponDamage) + round(dexterity × 0.5)` — weapon roll plus half Dexterity as flat bonus
-- **Crit**: standard crit roll applies; crits scale the full combined damage
-- **Freeze**: on hit, sets `frozenRounds = 2` — the monster skips its action entirely for the next 2 turns
-- **Miss**: subject to the standard 2% always-miss chance; on miss no freeze is applied
-- **Status display**: ❄ Frozen N pill appears below the monster's HP bar while frozen
+- **Damage**: `randomInRange(weaponDamage) + round(dexterity × 0.5)`
+- **Freeze**: on hit, sets `frozenRounds = 2` — the monster skips its action entirely for 2 turns
 
 ### Paladin — Holy Bolt
 - **Kind**: heal (magic — gains `magicDamageBonus` and `magicDamageMult`)
 - **Mana Cost**: 20
 - **Cooldown**: 3 turns
 - **Damage**: `round((round(randomInRange(damage) × 1.2) + magicDamageBonus × 1.5) × magicDamageMult)` — **can crit**
-- **Heal**: `round(damage × 0.35)` life restored — always derived from the final damage value, so a crit naturally increases the heal; the heal itself does not roll crit independently
-- Scales with both weapon damage (1.2×) and Magic Damage bonus (1.5×, affected by Ancient Wisdom if cross-classing is ever added)
+- **Heal**: `round(damage × 0.35)` life restored — derived from the final damage value, so a crit naturally increases the heal
 
 ### Paladin — Regenerating Nova *(Ability 2)*
 - **Kind**: regen (no damage roll)
@@ -468,7 +417,6 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Duration**: 3 turns
 - **Heal per turn**: `round(maxLife × 0.10)` — 10% of maximum life
 - **Special**: Does **not** end the turn — the player also attacks on the activation turn
-- **Status display**: ✦ Regen Nova N pill on the player, with a pulsing green glow on the sprite for each remaining turn
 
 ### Druid — Werewolf Bite
 - **Kind**: bite (physical — no magic bonus)
@@ -477,20 +425,22 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Damage**: `randomInRange(weaponDamage) + round(dexterity × 1.5)` — bypasses the power multiplier entirely
 - **Lifesteal**: heals the player for **15% of damage dealt**
 
-### Assassin — Fire Trap
-- **Kind**: trap (physical — no magic bonus)
-- **Mana Cost**: 20
-- **Cooldown**: 4 turns (starts after detonation)
-- **Damage**: `round(dexterity × 2.5)` — scales entirely with Dexterity
-- **Timing**: trap is placed this turn; detonates after the monster attacks next turn
+### Assassin — Eviscerate
+- **Kind**: eviscerate (physical — no magic bonus)
+- **Preparation Cost**: all current Preparation (0–3)
+- **Cooldown**: 2 turns
+- **Damage**: `round(randomInRange(damage) × (1.5 + 0.5 × preparationSpent))` — **can crit**; max multiplier 3.0× at full Preparation
+- **Serpent's Kiss**: always deals an additional 10% of the hit's damage as instant poison (logged separately)
+- **Lifesteal**: triggers any equipped life steal affix
 
-### Assassin — Blinding Powder
-- **Kind**: debuff (no damage)
-- **Mana Cost**: 60
+### Assassin — Vanish *(Ability 2)*
+- **Kind**: vanish (physical — no damage bonus)
+- **Preparation Cost**: all current Preparation (0–3)
 - **Cooldown**: 8 turns
-- **Blind**: monster **cannot act** for **2 turns**
-- **Disorient**: when blind expires, monster deals **25% reduced damage** for **4 turns**
-- Total debuff window: 6 turns (2 blind → 4 disorient)
+- **Initial hit**: `round(randomInRange(damage) × 0.75)` — **can crit**
+- **Immunity**: player takes 0 damage for `1 + preparationSpent` turns after the hit
+- **Cleanse**: removes all active negative effects (poison, burn) before granting immunity
+- **Status display**: ◌ Vanish N pill on the player for each remaining immune turn
 
 ### Monk — Spinning Crane Kick
 - **Kind**: multi (physical — no magic bonus, 3 hits)
@@ -506,8 +456,7 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Heal**: `round(maxLife × 0.30)` — 30% of maximum life
 - **Chi restore**: `round(maxChi × 0.50)` — 50% of maximum chi
 - **Cleanse**: removes all player negative effects (poison ticks, burn ticks)
-- **Blind**: enemy **cannot act** this turn (single-turn only, no disorient follow-up)
-- **Special**: Does **not** skip the turn — cooldown and chi regeneration tick normally
+- **Blind**: enemy **cannot act** this turn (single-turn only, no follow-up)
 
 ### General Ability Damage Formula
 
@@ -516,7 +465,6 @@ For `burst`, `dot`, `multi`, and `heal` kinds:
 base   = round(randomInRange(damage) × power)
 result = magic ? round((base + magicDamageBonus × magicPower) × magicDamageMult) : base
 ```
-`randomInRange` picks a uniformly random integer between damage min and max. `magicPower` defaults to 1 for all abilities; Frost Bolt sets it to 2. `magicDamageMult` is 1.0 for all classes except the Sorceress at level ≥ 20 (1.20 via Ancient Wisdom).
 
 ---
 
@@ -526,20 +474,17 @@ Passives are always active — no activation required.
 
 ### Barbarian — Double Swing *(always active)*
 - After every basic attack, **25% chance to strike a second time** (50% with Blood Fury active).
-- The follow-up rolls hit, miss, and crit **independently** — it is a full separate attack.
+- The follow-up rolls hit, miss, and crit **independently**.
 
 ### Barbarian — Iron Skin *(unlocks at level 20)*
 - Reduces all incoming damage (physical and spell) based on how much life is missing:
 ```
 reduction = floor(missingLifePct / 5) × 2%
 ```
-- Example: at 40% life missing → 8 × 2% = 16% damage reduction.
-- At 0% life missing the passive provides 0 reduction; it scales up as the Barbarian takes damage.
 
 ### Barbarian — Madness *(unlocks at level 35)*
-- While **Fury exceeds 30**, all damage is increased by **15%** (applies to basic attacks, Blood Fury hits, and Obliterate).
+- While **Fury exceeds 30**, all damage is increased by **15%**.
 - Basic attacks generate **+5 Fury** (15 total per attack instead of 10).
-- The Fury check for the damage bonus is evaluated at the moment the attack or ability fires (before cost is deducted for Obliterate, which captures the pre-spend value).
 
 ### Necromancer — Soul Siphon *(always active)*
 - All magic damage heals the Necromancer for **15% of the damage dealt** — applies to Poison Cloud's initial hit and every poison tick.
@@ -548,30 +493,29 @@ reduction = floor(missingLifePct / 5) × 2%
 - All damage-over-time effects deal **25% increased damage** (multiplicative multiplier applied at cast time).
 
 ### Necromancer — Blood Barrier *(unlocks at level 35)*
-- Soul Siphon heals and **life steal** (Life Leech affixes, unique item lifesteal) can overheal up to **25% of maximum life**, creating a temporary buffer.
-- Health potions are excluded — they never contribute to the overheal buffer.
-- Overheal is shown as a **blue glow** on the HP bar (scales with how full the buffer is) and a **+X** badge next to the HP display.
+- Soul Siphon heals and life steal can overheal up to **25% of maximum life**.
+- Overheal is shown as a **blue glow** on the HP bar and a **+X** badge next to the HP display.
 
 ### Sorceress — Arcane Flow *(always active)*
-- Passively regenerates **10% of max mana every turn**, regardless of the action taken. Replaces the standard 5% mana regen.
+- Passively regenerates **10% of max mana every turn**, regardless of the action taken.
 
 ### Sorceress — Ancient Wisdom *(unlocks at level 20)*
-- Increases all **Magic Damage by 20%** via a multiplicative multiplier applied after the flat `magicDamageBonus` is added. Affects Frost Bolt and any future magic abilities.
+- Increases all **Magic Damage by 20%** via a multiplicative multiplier.
 
 ### Sorceress — Mind over Matter *(unlocks at level 35)*
-- Channels arcane reserves into vitality: **maximum life is increased by 15% of maximum mana**.
+- **Maximum life is increased by 15% of maximum mana**:
 ```
 maxLife += round(maxMana × 0.15)
 ```
 
 ### Huntress — Dodge *(always active)*
-- **15% chance** to completely avoid any incoming attack or spell. Applies to both normal monster attacks and boss spell casts.
+- **15% chance** to completely avoid any incoming attack or spell.
 
 ### Huntress — Find Weakness *(unlocks at level 20)*
-- Increases Critical Strike Chance by **+15%** (stacks with the Dexterity-based base crit, recapped at 90%).
+- Increases Critical Strike Chance by **+15%** (recapped at 90%).
 
 ### Huntress — Heartseeker *(unlocks at level 35)*
-- After any Critical Strike, fires a **bonus follow-up arrow** dealing **50% of the crit's damage** (70% with the Doomcrier unique bow equipped). The follow-up arrow cannot itself critically strike.
+- After any Critical Strike, fires a **bonus follow-up arrow** dealing **50% of the crit's damage** (70% with Doomcrier equipped). The follow-up arrow cannot itself critically strike.
 - Triggers on basic attacks and on each individual Multishot arrow that crits.
 
 ### Paladin — Divine Retribution *(always active)*
@@ -579,41 +523,36 @@ maxLife += round(maxMana × 0.15)
 
 ### Paladin — Defensive Aura *(unlocks at level 20)*
 - Increases effective Defense by **10%** when calculating monster physical hit chance.
-- Health Potions restore an additional **10% of maximum life** on top of the standard 35%.
+- Health Potions restore an additional **10% of maximum life**.
 
 ### Paladin — Judgement *(unlocks at level 35)*
 - Each basic attack deals bonus holy damage equal to **25% of total Magic Damage** plus **25% of Strength**.
-- Both bonuses are combined into a single hit logged as `Judgement strikes for X holy damage!`
 
-### Druid — Thick Hide
-- On every monster hit, reduces incoming damage by a percentage based on Dexterity:
+### Druid — Thick Hide *(always active)*
+- Reduces incoming damage based on Dexterity:
 ```
 reduction = min(0.25, dexterity × 0.002)
 ```
-At 50 Dex: 10% reduction. At 100 Dex: 20%. The 25% cap is reached at 125 Dex.
 
-### Assassin — Fade *(always active)*
-- **25% chance** to reduce incoming physical or spell damage by **45%**.
+### Assassin — Serpent's Kiss *(always active)*
+- Basic attacks and Eviscerate deal an additional **10% of damage dealt as instant poison damage**. The poison damage is applied immediately and logged as a separate hit.
 
-### Assassin — Venom *(unlocks at level 20)*
-- Basic attacks **poison the enemy for 2 turns**, dealing **30% of the hit's damage** per tick. Replaces any existing poison on the target.
+### Assassin — Blur *(unlocks at level 20)*
+- **25% chance** to reduce incoming damage by **25%** when hit.
 
-### Assassin — Assassin's Advantage *(unlocks at level 35)*
-- Basic attacks deal **+10% increased damage**.
-- When the enemy is **poisoned** (Venom active), basic attacks gain an additional **+5% Critical Hit chance**.
+### Assassin — Shadow Bond *(unlocks at level 35)*
+- Using an ability (Eviscerate or Vanish) at **full Preparation (3)** heals **12% of max life** and empowers the next basic attack by **+50% damage**.
+- If a basic attack would grant Preparation beyond the cap (3), instead heals **4% of max life per excess point**.
 
-### Monk — Combat Reflexes *(always active)*
-- After every basic attack, **30% chance** to deliver a follow-up strike at **70% damage**. The follow-up rolls hit and crit independently.
+### Monk — Sweeping Wind *(always active)*
+- After every basic attack, **30% chance** to deliver a follow-up strike at **70% damage**.
 - Each individual hit of **Spinning Crane Kick** also has a **30% chance** to deal **25% bonus damage** of that hit (separate roll per kick).
-- **Expected bonus DPS**: ~21% on basic attacks, ~22.5% on Spinning Crane Kick (3 independent rolls).
-- **Probability of 0 procs**: 34% on a full 3-kick Crane Kick, vs 75% for Barbarian Double Swing on a basic attack — Monk is significantly more consistent.
 
 ### Monk — Transcendence *(unlocks at level 20)*
-- Passively restores **7% of maximum life** each turn through inner meditation.
+- Passively restores **7% of maximum life** each turn.
 
 ### Monk — Counter Attack *(unlocks at level 35)*
 - **12% chance** to instantly strike back with a full weapon-damage attack immediately after the enemy attacks.
-- Fires after the monster's action phase; can kill a monster via the counter-attack.
 
 ---
 
@@ -639,7 +578,7 @@ War Staff (Necromancer/Sorceress), Bow (Huntress), and Totem (Druid) are two-han
 
 ### Barbarian Dual-Wield
 
-The Barbarian can equip an Axe in both the weapon and shield slots. The off-hand weapon does not replace the main-hand damage range — it contributes **50% of its average damage as flat bonus damage**:
+The Barbarian can equip an Axe in both the weapon and shield slots. The off-hand contributes **50% of its average damage as flat bonus damage**:
 ```
 offHandBonus = round(((baseDamage.min + baseDamage.max) / 2) × 0.5)
 ```
@@ -659,6 +598,7 @@ The Assassin can equip a Claw in the off-hand slot under the same rules as the B
 | Mace | Paladin | 3 | 4 | No |
 | Totem | Druid | 2 | 6 | Yes |
 | Claw | Assassin | 2 | 5 | No |
+| Katar | Monk | 2 | 5 | No |
 
 Item level scaling adds `+0.25 to min` and `+0.35 to max` per level, applied after the rarity multiplier.
 
@@ -668,7 +608,7 @@ Item level scaling adds `+0.25 to min` and `+0.35 to max` per level, applied aft
 
 Affixes are random bonuses rolled when an item generates. Items can have 0–4 affixes depending on rarity. **Normal (white) items never have affixes** — they show only their base stat.
 
-**Jewelry (amulets, rings)** always drops at minimum **Magic** rarity, so it always has at least 1 affix. White jewelry does not exist in drops or shops.
+**Jewelry (amulets, rings)** always drops at minimum **Magic** rarity. White jewelry does not exist.
 
 | Affix Label | Stat Affected | Base Range | Slot Restriction | Notes |
 |---|---|---|---|---|
@@ -684,28 +624,18 @@ Affixes are random bonuses rolled when an item generates. Items can have 0–4 a
 | of Greed | Gold Find % | +15–25% | Rings, belt | Fixed range |
 | of Vampirism | Life Leech % | +3–9% | Rings, gloves | Fixed range |
 | of Clarity | Mana Regen / Turn | +3–7 | Rings, belt | Fixed range |
-| of Warding | Magic Damage Reduced % | +3–6% | Helms, armors, boots | Item level 25+ only; scales to 12% max at item level 50 |
-| of Fortitude | Physical Damage Reduced % | +3–6% | Helms, armors, boots | Item level 25+ only; scales to 12% max at item level 50 |
+| of Warding | Magic Damage Reduced % | +3–6% | Helms, armors, boots | Item level 25+ only |
+| of Fortitude | Physical Damage Reduced % | +3–6% | Helms, armors, boots | Item level 25+ only |
 
-**Gold Find** is a percentage bonus applied to every monster gold drop:
-```
-finalGold = round(baseGold × (1 + totalGoldFind% / 100))
-```
-Multiple "of Greed" affixes across equipped rings and belts stack additively before the multiplier is applied.
-
-**Life Leech** heals the player for a percentage of physical damage dealt on basic attacks (including Barbarian Double Swing).
-
-**Mana Regen** adds flat mana per turn on top of the class percentage regeneration.
-
-**Warding / Fortitude** use custom item-level scaling starting from item level 25:
-```
-scale = 1 + (itemLevel − 25) × 0.04     [only for itemLevel ≥ 25]
-finalValue = round(baseRoll × scale)
-```
-
-Most affix values scale with item level using the standard formula:
+Most affix values scale with item level:
 ```
 finalAffixValue = round(baseRoll × (1 + itemLevel × 0.08))
+```
+
+Warding / Fortitude use item-level scaling starting from item level 25:
+```
+scale = 1 + (itemLevel − 25) × 0.04
+finalValue = round(baseRoll × scale)
 ```
 
 ---
@@ -719,15 +649,13 @@ finalAffixValue = round(baseRoll × (1 + itemLevel × 0.08))
 | Rare | 12% | 3 | ×1.30 |
 | Unique | 3% | 4 | ×1.50 |
 
-**Shop rarity is level-gated.** The merchant only stocks items up to a maximum rarity based on character level:
+**Shop rarity is level-gated:**
 
 | Character Level | Max Shop Rarity |
 |---|---|
 | 1–4 | Magic |
 | 5–9 | Rare |
 | 10+ | Unique |
-
-**Unique items** display a golden glow on the character sprite's weapon.
 
 ### Sell / Buy Values
 
@@ -738,175 +666,67 @@ buyValue  = sellValue × 6
 
 Gold rarity multipliers: Normal ×1, Magic ×2, Rare ×4, Unique ×8.
 
-Items can be sold individually from the Shop tab or all at once. Two bulk-sell options are available:
+### Sell options
 
-- **Sell Junk** — instantly sells all Normal and Magic items with no confirmation prompt. Shows the count of items to be sold on the button. Skips favorited items.
-- **Sell All** — sells every inventory item; shows the total value and requires a confirmation step before executing. Skips favorited items.
+- **Sell Junk** — instantly sells all Normal and Magic items. Skips favorited items.
+- **Sell All** — sells every inventory item; requires a confirmation step. Skips favorited items.
 
 ### Favorite Items
 
-Any item in the inventory can be marked as a favorite by clicking the **★** icon in its top-left corner. The star turns gold when active.
+Mark any item with the **★** icon in its top-left corner. Active star turns gold.
 
-- Favorited items **cannot be sold** — individually, via Sell Junk, or via Sell All.
-- The ★ toggle is available both in the **Inventory tab** (paperdoll screen) and in the **Shop tab** sell panel.
+- Favorited items **cannot be sold** individually, via Sell Junk, or via Sell All.
 - A favorited item shows a **★ favorite** label in the shop panel instead of the sell button.
 
 ### Shop Restock
 
-The merchant's inventory can be refreshed for a gold fee that scales with character level:
 ```
 restockFee = round(10 + (level − 1) × 8)
 ```
 
-| Level | Restock Cost |
-|---|---|
-| 1 | 10 gold |
-| 5 | 42 gold |
-| 10 | 82 gold |
-| 20 | 162 gold |
-
----
-
-## Consumables
-
-Bought from the Shop tab.
-
-| Item | Act 1 Cost | Act 2 Cost | Act 1 Effect | Act 2 Effect | Cooldown |
-|---|---|---|---|---|---|
-| Health Potion | 12 gold | 250 gold | Restores 35% of max life | Restores 50% of max life | 3 turns |
-| Mana Potion | 12 gold | 250 gold | Restores 35% of max mana | Restores 50% of max mana | 3 turns |
-
-Prices and restore rates upgrade automatically when Act 2 is unlocked (after clearing Rogue Monastery). The shop description updates to reflect the current tier.
-
-Potions are used as an action during combat. The restored amount scales with the character's current max life/mana (including all gear bonuses), making them more powerful as the character grows stronger. Each potion type has its own independent cooldown timer shown on the button.
-
-**Stack cap**: each potion type is limited to **5 per character**. The shop buy button shows "Full (5/5)" and is disabled at the cap.
-
----
-
-## Dungeons
-
-The game is split into four acts. Each act has eight regular dungeons followed by an endgame dungeon, unlocked after all eight regulars are cleared. Clearing each act's endgame opens the next act.
-
-Dungeons are linear: wave fights followed by a boss. Life carries over between fights within the same run. Mana resets to full between fights; Fury always resets to 20.
-
-Completing a dungeon marks it as cleared (shown with a badge) but it can be replayed for loot and XP.
-
-### Act 1
-
-| Dungeon | Monster Levels | Boss | Boss Life |
-|---|---|---|---|
-| Sewers | 1–3 | The Rat King | 59 |
-| Dark Forest | 2–4 | Forest Hag | 94 |
-| Cave | 4–6 | Alpha Wolf | 154 |
-| Foggy Fields | 7–9 | Living Shadow | 239 |
-| Graveyard | 9–11 | Mass of Bones | 345 |
-| Crypt | 11–13 | Niktag | 463 |
-| Goblins' Path | 13–15 | Goblin King | 590 |
-| Bandit Town | 15–17 | Exiled City Guard | 781 |
-| Bandit's Town Hall *(endgame)* | 20–22 | Bandit Chieftain | 1,435 |
-
-### Act 2
-
-Unlocked after clearing Bandit's Town Hall.
-
-| Dungeon | Monster Levels | Boss | Boss Life |
-|---|---|---|---|
-| Frostfang Pass | 22–24 | Ice Golem | 1,313 |
-| Icy Cave | 24–26 | Crystal Colossus | 1,640 |
-| Tundra | 27–29 | The Pale Stag | 2,034 |
-| Moonglass Lake | 29–31 | Moon Reflection | 2,494 |
-| Whispering Glacier | 31–33 | White Chimera | 3,019 |
-| The Crystal Labyrinth | 33–35 | Frozen Taur | 3,674 |
-| The Frostforge | 36–38 | Core of the Frozen Forge | 4,594 |
-| Summit Peak | 39–41 | Ghost of the Mountain | 5,380 |
-| The White Maw *(endgame)* | 40–43 | Sikktharkk | 7,570 |
-
-### Act 3
-
-Unlocked after clearing The White Maw.
-
-| Dungeon | Monster Levels | Boss | Boss Life |
-|---|---|---|---|
-| Overgrown Entrance | 43–45 | Ancient Treant | 4,039 |
-| Serpent Marsh | 45–49 | Mother of the Swamp | 5,111 |
-| Whispering River | 48–51 | The Great Emerald Crocolisk | 6,184 |
-| Village of Lost Souls | 51–54 | The Soul Collector | 7,470 |
-| Bloodvine Jungle | 54–58 | The Devourer Bloom | 8,973 |
-| Temple of Forgotten Gods | 54–58 | Golden Idol | 8,973 |
-| Heart of the Jungle | 58–62 | The Green Warden | 10,688 |
-| The Black Ziggurat | 60–64 | Ancient Loa | 13,048 |
-| Sacrificial Altar *(endgame)* | 64–66 | Zam'Koro, The Loa of Endless Night | 20,378 |
-
-### Act 4
-
-Unlocked after clearing Sacrificial Altar.
-
-| Dungeon | Monster Levels | Boss | Boss Life |
-|---|---|---|---|
-| The Shattered Veil | 70–72 | The Gatekeeper | 11,500 |
-| Graveyard of Kings | 72–75 | Prince Valdris the Damned | 13,750 |
-| The Ashen Forest | 74–77 | The Pale Huntress | 16,250 |
-| River of Lost Souls | 75–78 | The Abyssal Hydra | 18,750 |
-| Citadel of Ash | 77–80 | General Morrath | 21,875 |
-| The Shadow Cathedral | 79–82 | High Inquisitor Varek | 25,000 |
-| Realm of Nightmares | 81–83 | The Dreaming Horror | 28,125 |
-| The Obsidian Spire | 82–85 | Seraphel the Undying | 31,875 |
-| Throne of Endless Night *(endgame)* | 84–90 | Relith, the Void Devourer | 50,000 |
-
-Each boss casts a unique spell — see the [Monster Spells](#monster-spells) section.
-
-### Item Drops
-
-- Regular wave kill: **35% chance** to drop one item.
-- Boss kill: **100% chance** to drop one item.
-- Dropped item level equals the monster's level.
-- Items are always appropriate for the active character's class (class-locked weapon filtering applies).
-
 ### Unique Items
 
-Unique items have fixed stats and are not generated through the normal rarity roll. Each has a dedicated `generate*` function in `src/game/data/items.ts`. Drop logic lives in `src/game/data/drops.ts` (`UNIQUE_DROP_TABLE`) — each entry rolls independently on every boss kill.
+Unique items have fixed stats and are not generated through the normal rarity roll. Drop logic lives in `src/game/data/drops.ts` (`UNIQUE_DROP_TABLE`) — each entry rolls independently on every boss kill.
 
 | Name | Slot | Drop Source | Chance | Stats / Effect |
 |---|---|---|---|---|
-| Spellblade's Mask | Helm | Tristram, Andariel, any Act 2 boss | 0.25% | +15 Damage, +15 Magic Damage; **each basic attack fires a bonus magic hit equal to 10% of physical damage dealt + 10% of magic damage bonus** |
-| Peasant Hood | Helm | Blood Moor, Cold Plains boss | 5% | +10 Damage, +10 Vitality, +25% Gold Find |
+| Spellblade's Mask | Helm | Goblins' Path, Bandit's Town Hall, any Act II boss | 0.25% | +15 Damage, +15 Magic Damage; each basic attack fires a bonus magic hit equal to 10% of physical damage dealt + 10% of magic damage bonus |
+| Peasant Hood | Helm | Any boss (early Act I) | 5% | +10 Damage, +10 Vitality, +25% Gold Find |
 | Ragpicker's Sash | Belt | Any boss | 0.25% | +5 Vitality, +20% Gold Find |
 | Cracked Lens | Helm | Any boss (lv 5+) | 0.25% | +15 Magic Damage, +10 Energy, −10 Defense |
 | Thornback | Armor | Any boss (lv 12+) | 0.25% | +30 Defense; reflects 10% of all physical damage taken back to the attacker |
 | Sharp Fangs | Gloves | Any boss (lv 15+) | 0.2% | +30 Strength, +30 Dexterity, +30 Damage, +30 Magic Damage |
-| Venomweave Wrap | Belt | Stony Field, Dark Wood, Tristram boss (lv 15+) | 0.25% | +20 Dexterity; +25% Poison Damage |
-| Mirror Ring | Ring | Andariel (Rogue Monastery) | 1% | Mirrors all affixes of the other ring slot |
+| Venomweave Wrap | Belt | Act I mid-to-late bosses (lv 15+) | 0.25% | +20 Dexterity; +25% Poison Damage |
+| Mirror Ring | Ring | Bandit's Town Hall endgame | 1% | Mirrors all affixes of the other ring slot |
 | Eye of the Storm | Ring | Any boss (lv 18+) | 0.25% | +25 Energy, −15 Strength; +15% Mana Regeneration |
 | Boneweave Gloves | Gloves | Any boss (lv 20+) | 0.25% | +20 Vitality, +15 Defense; 5% chance to reduce an incoming hit to 1 damage |
 | Mask of Midnight | Helm | Any boss (lv 25+) | 0.25% | +25–35 Vitality, +25–35 Damage, +5% Crit Chance |
 | Mask of Twilight | Helm | Any boss (lv 25+) | 0.25% | +25–35 Energy, +25–35 Magic Damage, +5% Crit Chance |
 | Stone Husk | Armor | Any boss (lv 25+) | 0.5% | +20–30 Vitality, +40–60 Life, 5–10% Phys Dmg Reduced, 5–10% Magic Dmg Reduced |
 | Heavy Stompers | Boots | Any boss | 0.5% | +200 Life, +100 Defense, −20 Strength, −20 Dexterity, −20 Energy |
-| The Pentagram | Amulet | Any Act 2 boss | 0.5% | +100 Damage, −100 Life |
-| Demon's Tail | Belt | Any Act 2 boss | 0.25% | Every direct hit pushes an independent burn stack: 30% of that hit's damage per turn for 2 turns. Multiple hits → multiple stacks active simultaneously |
-| Reaper's Hood | Helm | The Reaper (Lower Hell) | 0.5% | +4–7% Life Leech, +35–50 Vitality, +35–50 Damage; 20% chance to disorient on attack for 2 turns |
+| The Pentagram | Amulet | Any Act II boss | 0.5% | +100 Damage, −100 Life |
+| Demon's Tail | Belt | Any Act II boss | 0.25% | Every direct hit pushes an independent burn stack: 30% of that hit's damage per turn for 2 turns |
+| Reaper's Hood | Helm | Act II late bosses | 0.5% | +4–7% Life Leech, +35–50 Vitality, +35–50 Damage; 20% chance to disorient on attack for 2 turns |
 | Crown of the Fallen | Helm | Any boss (lv 45+) | 0.25% | Low-life damage bonus +25% (below 35% HP) |
-| Harvester | Weapon (Necromancer) | The Reaper (Lower Hell), Necromancer only | 6% | Base 18–28 dmg (two-handed), +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
+| Harvester | Weapon (Necromancer) | Act II late bosses, Necromancer only | 6% | Base 18–28 dmg; +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
 | Blooddrinker | Weapon (Barbarian) | Any boss (lv 10+), Barbarian only | 0.15% | Base 6–14 dmg; 8–12% Life Leech, +15–20 Strength, −8 Defense |
 | Ironjaw | Weapon (Barbarian) | Any boss (lv 28+), Barbarian only | 0.15% | Base 16–26 dmg; +35–50 Damage, +25–35 Vitality, +5% Crit Chance |
 | Worldbreaker | Weapon (Barbarian) | Any boss (lv 50+), Barbarian only | 0.15% | Base 28–44 dmg; +55–75 Damage, +40–55 Strength, +30–45 Vitality, −25 Dexterity |
 | Penitent's Grace | Weapon (Paladin) | Any boss (lv 10+), Paladin only | 0.15% | Base 5–10 dmg; +10–15 Energy, +8–12 Mana Regen/Turn, +10–15 Magic Damage, +10–15 Vitality |
 | Justicar | Weapon (Paladin) | Any boss (lv 28+), Paladin only | 0.15% | Base 14–22 dmg; +30–45 Damage, +20–30 Energy, +15–25 Magic Damage, −15 Strength |
 | Sanctifier | Weapon (Paladin) | Any boss (lv 50+), Paladin only | 0.15% | Base 24–38 dmg; +50–70 Magic Damage, +35–45 Damage, +40–55 Vitality, +6% Crit Chance |
-| Whisper | Weapon (Huntress) | Any boss (lv 8+), Huntress only | 0.15% | Base 5–12 dmg (two-handed); +10–15 Dexterity, +10–15 Vitality, +10–15 Damage |
-| Stormstring | Weapon (Huntress) | Any boss (lv 28+), Huntress only | 0.15% | Base 16–28 dmg (two-handed); +30–45 Dexterity, +25–35 Damage, −15 Strength; **Electrocute on hit** — enemy takes 20% more damage for 2 turns |
-| Doomcrier | Weapon (Huntress) | Any boss (lv 50+), Huntress only | 0.15% | Base 28–46 dmg (two-handed); +55–75 Damage, +40–55 Dexterity, +8% Crit Chance; **Heartseeker fires at 70%** instead of 50% |
-| Apprentice's Focus | Weapon (Sorceress) | Act 1 bosses, Sorceress only | 0.2% | Base 4–11 dmg (two-handed); +12–18 Energy, +12–18 Magic Damage, +8–12 Mana |
-| The Arcanist | Weapon (Sorceress) | Andariel + Act 2 early bosses, Sorceress only | 0.1% | Base 9–18 dmg (two-handed); +30–45 Magic Damage, +20–30 Energy, −15 Vitality; **Frost Bolt deals +40% damage while Frost Shield is active** |
-| Eternity's Edge | Weapon (Sorceress) | Act 2 late bosses, Sorceress only | 0.1% | Base 15–26 dmg (two-handed); +55–75 Magic Damage, +40–55 Energy, +6% Crit Chance; **30% chance for Frost Bolt to echo at 50% power** |
-| Viper's Kiss | Weapon (Assassin) | Act 1 bosses, Assassin only | 0.2% | Base 4–8 dmg; +12–18 Dexterity, +10–15 Damage, +8–12 Vitality |
-| Shadowfang | Weapon (Assassin) | Andariel + Act 2 early bosses, Assassin only | 0.2% | Base 9–15 dmg; +30–45 Dexterity, +20–30 Damage, −15 Vitality; **20% chance after each hit to call a phantom strike at 50% damage** |
-| Deathwhisper | Weapon (Assassin) | Act 2 late bosses, Assassin only | 0.2% | Base 15–23 dmg; +55–75 Dexterity, +35–50 Damage, +6% Crit Chance; **all damage +30% while the enemy is blinded or disoriented** |
+| Whisper | Weapon (Huntress) | Any boss (lv 8+), Huntress only | 0.15% | Base 5–12 dmg; +10–15 Dexterity, +10–15 Vitality, +10–15 Damage |
+| Stormstring | Weapon (Huntress) | Any boss (lv 28+), Huntress only | 0.15% | Base 16–28 dmg; +30–45 Dexterity, +25–35 Damage, −15 Strength; Electrocute on hit — enemy takes 20% more damage for 2 turns |
+| Doomcrier | Weapon (Huntress) | Any boss (lv 50+), Huntress only | 0.15% | Base 28–46 dmg; +55–75 Damage, +40–55 Dexterity, +8% Crit Chance; Heartseeker fires at 70% instead of 50% |
+| Apprentice's Focus | Weapon (Sorceress) | Act I bosses, Sorceress only | 0.2% | Base 4–11 dmg; +12–18 Energy, +12–18 Magic Damage, +8–12 Mana |
+| The Arcanist | Weapon (Sorceress) | Bandit's Town Hall + Act II early bosses, Sorceress only | 0.1% | Base 9–18 dmg; +30–45 Magic Damage, +20–30 Energy, −15 Vitality; Frost Bolt deals +40% damage while Frost Shield is active |
+| Eternity's Edge | Weapon (Sorceress) | Act II late bosses, Sorceress only | 0.1% | Base 15–26 dmg; +55–75 Magic Damage, +40–55 Energy, +6% Crit Chance; 30% chance for Frost Bolt to echo at 50% power |
+| Shadowfang | Weapon (Assassin) | Bandit's Town Hall + Act II early bosses, Assassin only | 0.2% | Base 9–15 dmg; +30–45 Dexterity, +20–30 Damage, −15 Vitality; 20% chance after each hit to call a phantom strike at 50% damage |
+| Deathwhisper | Weapon (Assassin) | Act II late bosses, Assassin only | 0.2% | Base 15–23 dmg; +55–75 Dexterity, +35–50 Damage, +6% Crit Chance; all damage +30% while the enemy is under any negative status effect |
 
 ### Gheedon the Gambler
 
-The **Gambler** tab in the Hub lets players purchase mystery items from Gheedon for a flat **2500 gold** each. All eight equipment slots are available (nine for the Paladin, who also sees a Shield offer).
+The **Gambler** tab in the Hub lets players purchase mystery items from Gheedon for a flat **2500 gold** each. All eight equipment slots are available (nine for the Paladin).
 
 **Rarity distribution per purchase:**
 
@@ -916,17 +736,119 @@ The **Gambler** tab in the Hub lets players purchase mystery items from Gheedon 
 | Rare | 35% |
 | Magic | 63% |
 
-Unique items from gambling follow the same progression gates as dungeon drops — higher-tier uniques only become available after clearing the relevant dungeons and/or reaching the required character level. Class-restricted weapon uniques (e.g., Blooddrinker for Barbarian) can only roll for the matching class; Druid and Monk have no weapon uniques in the pool and always receive a Rare weapon instead.
-
-The result appears in inventory immediately and is announced via the existing drop banner. Favorited items cannot be sold.
+Unique items from gambling follow the same progression gates as dungeon drops. Class-restricted weapon uniques can only roll for the matching class; Druid and Monk have no weapon uniques in the pool and always receive a Rare weapon instead.
 
 ### Inventory Sort
 
-The **Sort** button (next to the "Inventory" label) sorts all items in place by: **rarity** (Unique first) → **item level** (descending) → **slot**. The sort is a one-time action — subsequent drops and gamble results continue to appear at the top of the list regardless.
+The **Sort** button (next to the "Inventory" label) sorts all items in place by: **rarity** (Unique first) → **item level** (descending) → **slot**. Subsequent drops continue to appear at the top of the list regardless.
 
 ### Permadeath
 
-If the player dies during a dungeon run, the character is **permanently deleted**. A death summary screen shows final stats before returning to character selection. Use the Flee action to escape a fight before dying (consumes the one-time Escape Token).
+If the player dies during a dungeon run, the character is **permanently deleted**. A death summary screen shows final stats before returning to character selection.
+
+---
+
+## Consumables
+
+Bought from the Shop tab.
+
+| Item | Act I Cost | Act II+ Cost | Act I Effect | Act II+ Effect | Cooldown |
+|---|---|---|---|---|---|
+| Health Potion | 12 gold | 250 gold | Restores 35% of max life | Restores 50% of max life | 3 turns |
+| Mana Potion | 12 gold | 250 gold | Restores 35% of max mana | Restores 50% of max mana | 3 turns |
+
+**Stack cap**: each potion type is limited to **5 per character**.
+
+---
+
+## Dungeons
+
+The game is split into four acts. Each act has eight regular dungeons followed by an endgame dungeon, unlocked after all eight regulars are cleared. Clearing each act's endgame opens the next act.
+
+Dungeons are linear: wave fights followed by a boss. Life carries over between fights within the same run. Mana resets to full between fights; Fury resets to 20; Preparation carries over.
+
+### Act I — The Road Out
+
+| Dungeon | Monster Levels | Boss |
+|---|---|---|
+| Sewers | 1–3 | The Rat King |
+| Dark Forest | 2–4 | Forest Hag |
+| Cave | 4–6 | Alpha Wolf |
+| Foggy Fields | 7–9 | Living Shadow |
+| Graveyard | 9–11 | Mass of Bones |
+| Crypt | 11–13 | Niktag |
+| Goblins' Path | 13–15 | Goblin King |
+| Bandit Town | 15–17 | Exiled City Guard |
+| Bandit's Town Hall *(endgame)* | 20–23 | Bandit Chieftain |
+
+### Act II — The Frozen Peaks
+
+Unlocked after clearing Bandit's Town Hall.
+
+| Dungeon | Monster Levels | Boss |
+|---|---|---|
+| Frostfang Pass | 22–24 | Ice Golem |
+| Icy Cave | 24–26 | Crystal Colossus |
+| Tundra | 27–29 | The Pale Stag |
+| Moonglass Lake | 29–31 | Moon Reflection |
+| Whispering Glacier | 31–33 | White Chimera |
+| The Crystal Labyrinth | 33–35 | Frozen Taur |
+| The Frostforge | 36–38 | Core of the Frozen Forge |
+| Summit Peak | 39–41 | Ghost of the Mountain |
+| The White Maw *(endgame)* | 40–43 | Sikktharkk |
+
+### Act III — The Jungle Depths
+
+Unlocked after clearing The White Maw.
+
+| Dungeon | Monster Levels | Boss |
+|---|---|---|
+| Overgrown Entrance | 43–45 | Ancient Treant |
+| Serpent Marsh | 45–49 | Mother of the Swamp |
+| Whispering River | 48–51 | The Great Emerald Crocolisk |
+| Village of Lost Souls | 51–54 | The Soul Collector |
+| Bloodvine Jungle | 54–58 | The Devourer Bloom |
+| Temple of Forgotten Gods | 54–58 | Golden Idol |
+| Heart of the Jungle | 58–62 | The Green Warden |
+| The Black Ziggurat | 60–64 | Ancient Loa |
+| Sacrificial Altar *(endgame)* | 64–66 | Zam'Koro, The Loa of Endless Night |
+
+### Act IV — Realm of Endless Night
+
+Unlocked after clearing Sacrificial Altar.
+
+| Dungeon | Monster Levels | Boss |
+|---|---|---|
+| The Shattered Veil | 70–72 | The Gatekeeper |
+| Graveyard of Kings | 72–75 | Prince Valdris the Damned |
+| The Ashen Forest | 74–77 | The Pale Huntress |
+| River of Lost Souls | 75–78 | The Abyssal Hydra |
+| Citadel of Ash | 77–80 | General Morrath |
+| The Shadow Cathedral | 79–82 | High Inquisitor Varek |
+| Realm of Nightmares | 81–83 | The Dreaming Horror |
+| The Obsidian Spire | 82–85 | Seraphel the Undying |
+| Throne of Endless Night *(endgame)* | 84–90 | Reltih, the Void Devourer |
+
+### Item Drops
+
+- Regular wave kill: **35% chance** to drop one item.
+- Boss kill: **100% chance** to drop one item + independent rolls from `UNIQUE_DROP_TABLE`.
+- Dropped item level equals the monster's level.
+
+---
+
+## Journal
+
+The **Journal** tab in the Hub records every story popup message the player has seen, organized by act.
+
+Each entry appears as a compact bar showing the message's icon and title. **Hover** (or tap on mobile) to expand the bar and read the full text. Entries from acts not yet reached appear locked and greyed out, giving a preview of story content to come.
+
+| Act | Entries |
+|---|---|
+| Act I — The Road Out | Thrown Into the Sewers · You Escaped the Sewers · A Man in a Cage · The Gate Opens |
+| Act II — The Frozen Peaks | The Mountain Falls |
+| Act III — The Jungle Depths | The Veil Has Torn |
+| Act IV — Realm of Endless Night | The Void Collapses |
 
 ---
 
@@ -940,7 +862,6 @@ Each save slot stores:
 - Cleared dungeon list
 - Consumable stack counts
 - Current shop stock
+- Active dungeon run state (current life, mana/fury/preparation, cooldowns) — allows resuming an interrupted run on reload
 
-The game **auto-saves after every action**. Returning to the main menu via "Return to Menu" preserves the current save. Death permanently deletes the slot.
-
-Legacy saves from older single-slot versions (stored as `"diabolo-save"`) are automatically migrated to a new slot on first load.
+The game **auto-saves after every action**. Death permanently deletes the slot.

@@ -77,7 +77,7 @@ function App() {
   const [dungeonRun, setDungeonRun] = useState<DungeonRunState | null>(null);
   const [selectedAct, setSelectedAct] = useState<1 | 2 | 3 | 4>(1);
   const [hubTab, setHubTab] = useState<
-    "character" | "inventory" | "dungeons" | "shop" | "gambler"
+    "character" | "inventory" | "dungeons" | "shop" | "gambler" | "journal"
   >("character");
   const [deathSummary, setDeathSummary] = useState<DeathSummary | null>(null);
   const [loaded, setLoaded] = useState(false);

@@ -83,20 +83,20 @@ export function DungeonsTab({
               className={`act-tab${act === 1 ? " active" : ""}`}
               onClick={() => onSelectAct(1)}
             >
-              Act 1
+              Act I
             </button>
             <button
               className={`act-tab${act === 2 ? " active" : ""}`}
               onClick={() => onSelectAct(2)}
             >
-              Act 2
+              Act II
             </button>
             {act3Unlocked && (
               <button
                 className={`act-tab${act === 3 ? " active" : ""}`}
                 onClick={() => onSelectAct(3)}
               >
-                Act 3
+                Act III
               </button>
             )}
             {act4Unlocked && (
@@ -104,7 +104,7 @@ export function DungeonsTab({
                 className={`act-tab${act === 4 ? " active" : ""}`}
                 onClick={() => onSelectAct(4)}
               >
-                Act 4
+                Act IV
               </button>
             )}
           </div>
@@ -187,27 +187,27 @@ export function DungeonsTab({
 
         {act === 1 && !act2Unlocked && allAct1RegularCleared && (
           <div className="dungeon-card locked endgame-locked-hint">
-            <div className="dungeon-name">??? — Act 2</div>
+            <div className="dungeon-name">??? — Act II</div>
             <p className="dungeon-desc">
-              Defeat the Bandit Chieftain to escape into the mountains and unlock Act 2.
+              Defeat the Bandit Chieftain to escape into the mountains and unlock Act II.
             </p>
           </div>
         )}
 
         {act === 2 && !act3Unlocked && allAct2RegularCleared && (
           <div className="dungeon-card locked endgame-locked-hint">
-            <div className="dungeon-name">??? — Act 3</div>
+            <div className="dungeon-name">??? — Act III</div>
             <p className="dungeon-desc">
-              Defeat Sikktharkk to descend into the jungle and unlock Act 3.
+              Defeat Sikktharkk to descend into the jungle and unlock Act III.
             </p>
           </div>
         )}
 
         {act === 3 && !act4Unlocked && allAct3RegularCleared && (
           <div className="dungeon-card locked endgame-locked-hint">
-            <div className="dungeon-name">??? — Act 4</div>
+            <div className="dungeon-name">??? — Act IV</div>
             <p className="dungeon-desc">
-              Defeat Zam'Koro to tear the veil and unlock Act 4: Realm of the Endless Night.
+              Defeat Zam'Koro to tear the veil and unlock Act IV: Realm of the Endless Night.
             </p>
           </div>
         )}

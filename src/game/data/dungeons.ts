@@ -11,7 +11,7 @@ function monster(
   goldReward: [number, number],
   spell?: MonsterSpell
 ): MonsterDefinition {
-  return { name, level, life: Math.round(life * 1.25), damage, defense, attackRating: Math.round(attackRating * 1.25), xpReward, goldReward, spell };
+  return { name, level, life: Math.round(life * 1.25), damage, defense, attackRating: Math.round(attackRating * 1.25 * 1.2), xpReward, goldReward, spell: spell ? { ...spell, cooldown: spell.cooldown + 1 } : undefined };
 }
 
 function waveMonster(
@@ -169,7 +169,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Chieftain's Right Hand", 22, 366, [27, 41], 34, 75, 104, [62, 102]),
       waveMonster("Ursh, Bandit's Companion", 23, 480, [32, 50], 38, 80, 130, [70, 120]),
     ],
-    boss: monster("Bandit Chieftain", 24, 1148, [36, 53], 44, 92, 2340, [480, 880],
+    boss: monster("Bandit Chieftain", 24, 1148, [36, 53], 44, 92, 1500, [480, 880],
       { name: "Axe Slam", kind: "burst", power: 2.3, chance: 0.40, cooldown: 3 }),
   },
 
@@ -184,7 +184,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Frost Harpy",  23, 303, [24, 36], 27, 77,  93, [55, 92]),
       waveMonster("Glacial Bear", 24, 347, [26, 40], 31, 82,  105, [60, 100]),
     ],
-    boss: monster("Ice Golem", 25, 1050, [31, 47], 34, 72, 3600, [350, 550],
+    boss: monster("Ice Golem", 25, 1050, [31, 47], 34, 72, 1600, [350, 550],
       { name: "Glacial Slam", kind: "burst", power: 1.6, chance: 0.35, cooldown: 3 }),
   },
   {
@@ -197,7 +197,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Icy Bat",            25, 282, [26, 38], 24, 80,  102, [60, 100]),
       waveMonster("Frozen Revenant",    26, 369, [28, 43], 32, 85,  114, [65, 108]),
     ],
-    boss: monster("Crystal Colossus", 27, 1312, [36, 53], 40, 79, 4800, [425, 700],
+    boss: monster("Crystal Colossus", 27, 1312, [36, 53], 40, 79, 2000, [425, 700],
       { name: "Crystal Shatter", kind: "burst", power: 1.68, chance: 0.35, cooldown: 3 }),
   },
   {
@@ -210,7 +210,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Frost Lynx",      28, 361, [32, 48], 31, 94, 132, [75, 124]),
       waveMonster("Young Ice Troll", 29, 462, [34, 51], 38, 97, 144, [80, 134]),
     ],
-    boss: monster("The Pale Stag", 30, 1627, [40, 60], 47, 86, 6300, [525, 850],
+    boss: monster("The Pale Stag", 30, 1627, [40, 60], 47, 86, 3000, [525, 850],
       { name: "Antler Gore", kind: "burst", power: 1.76, chance: 0.35, cooldown: 3 }),
   },
   {
@@ -224,7 +224,7 @@ export const DUNGEONS: DungeonDefinition[] = [
         { name: "Soul Drain", kind: "drain", power: 1.5, chance: 0.30, cooldown: 3 }),
       waveMonster("Crystal Elemental", 31, 462, [35, 53], 37, 102, 150, [84, 140]),
     ],
-    boss: monster("Moon Reflection", 33, 1995, [44, 65], 52, 91, 8100, [625, 1000],
+    boss: monster("Moon Reflection", 33, 1995, [44, 65], 52, 91, 3500, [625, 1000],
       { name: "Shattered Reflection", kind: "drain", power: 1.44, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -238,7 +238,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Ice Wyvern",   32, 491, [37, 55], 38, 105, 156, [87, 144]),
       waveMonster("Ice Troll",    33, 549, [39, 59], 43, 111, 168, [93, 154]),
     ],
-    boss: monster("White Chimera", 35, 2415, [51, 75], 60, 101, 10200, [775, 1250],
+    boss: monster("White Chimera", 35, 2415, [51, 75], 60, 101, 4250, [775, 1250],
       { name: "Frost Breath", kind: "dot", power: 1.76, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -251,7 +251,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Frost Ogre",     34, 600, [41, 61], 46, 114, 174, [96, 158]),
       waveMonster("Glacier Worm",   35, 571, [43, 63], 43, 117, 180, [100, 165]),
     ],
-    boss: monster("Frozen Taur", 37, 2939, [57, 85], 70, 109, 12600, [950, 1500],
+    boss: monster("Frozen Taur", 37, 2939, [57, 85], 70, 109, 5000, [950, 1500],
       { name: "Glacial Hammer", kind: "burst", power: 1.92, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -264,7 +264,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Animated Frost Knight",     37, 687, [47, 70], 53, 124, 207, [113, 188]),
       waveMonster("Frostforge Dwarven Warrior",38, 723, [49, 74], 56, 128, 219, [120, 198]),
     ],
-    boss: monster("Core of the Frozen Forge", 40, 3675, [65, 96], 81, 120, 16200, [1200, 1900],
+    boss: monster("Core of the Frozen Forge", 40, 3675, [65, 96], 81, 120, 6250, [1200, 1900],
       { name: "Forge Eruption", kind: "burst", power: 2.0, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -278,7 +278,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Frost Ogre",      41, 817, [54, 82], 60, 139, 246, [130, 218]),
       waveMonster("Ice Shard Golem", 41, 852, [56, 83], 63, 141, 252, [134, 224]),
     ],
-    boss: monster("Ghost of the Mountain", 42, 4304, [70, 104], 90, 129, 19800, [1500, 2400],
+    boss: monster("Ghost of the Mountain", 42, 4304, [70, 104], 90, 129, 7000, [1500, 2400],
       { name: "Spectral Chill", kind: "dot", power: 1.84, chance: 0.40, cooldown: 3 }),
   },
 
@@ -296,7 +296,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Avalanche Elemental", 43, 1734, [79, 117], 96, 165, 1140, [400, 640],
         { name: "Avalanche", kind: "burst", power: 2.0, chance: 0.35, cooldown: 3 }),
     ],
-    boss: monster("Sikktharkk", 45, 6056, [88, 130], 109, 146, 42000, [6000, 10000],
+    boss: monster("Sikktharkk", 45, 6056, [88, 130], 109, 146, 8600, [3000, 4500],
       { name: "Frozen Tempest", kind: "dot", power: 2.4, chance: 0.45, cooldown: 3 }),
   },
 
@@ -312,7 +312,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Venom Viper",     45, 480, [56, 86], 56, 166, 1290, [430, 700],
         { name: "Venom Spit", kind: "dot", power: 1.4, chance: 0.35, cooldown: 3 }),
     ],
-    boss: monster("Ancient Treant", 46, 2585, [62, 94], 66, 152, 5400, [425, 700],
+    boss: monster("Ancient Treant", 46, 2585, [62, 94], 66, 152, 6000, [2500, 3500],
       { name: "Root Crush", kind: "burst", power: 1.6, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -326,7 +326,7 @@ export const DUNGEONS: DungeonDefinition[] = [
         { name: "Constrict", kind: "dot", power: 1.4, chance: 0.30, cooldown: 3 }),
       waveMonster("Poison Toad",   49, 672, [67, 102], 70, 179, 1500, [520, 840]),
     ],
-    boss: monster("Mother of the Swamp", 50, 3271, [74, 112], 80, 168, 7200, [550, 900],
+    boss: monster("Mother of the Swamp", 50, 3271, [74, 112], 80, 168, 7200, [2800, 3800],
       { name: "Toxic Spores", kind: "dot", power: 1.7, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -339,7 +339,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("School of Gigantic Piranhas", 49, 600, [67, 102], 62, 180, 1500, [520, 840]),
       waveMonster("Thorn Dryad",                51, 720, [72, 109], 74, 187, 1620, [560, 910]),
     ],
-    boss: monster("The Great Emerald Crocolisk", 52, 3958, [84, 128], 88, 178, 9300, [700, 1100],
+    boss: monster("The Great Emerald Crocolisk", 52, 3958, [84, 128], 88, 178, 9300, [3500, 4500],
       { name: "Death Roll", kind: "burst", power: 1.8, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -354,7 +354,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Voodoo Shaman",    54, 816, [79, 120], 82, 202, 1830, [630, 1020],
         { name: "Hex Curse", kind: "dot", power: 1.5, chance: 0.30, cooldown: 3 }),
     ],
-    boss: monster("The Soul Collector", 55, 4781, [94, 142], 100, 192, 12000, [900, 1450],
+    boss: monster("The Soul Collector", 55, 4781, [94, 142], 100, 192, 10000, [4000, 5000],
       { name: "Soul Hex", kind: "drain", power: 1.9, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -367,7 +367,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Carnivorous Plant", 56, 912, [86, 131], 89, 214, 2010, [690, 1120]),
       waveMonster("Giant Tarantula",   58, 984, [91, 138], 94, 223, 2160, [740, 1200]),
     ],
-    boss: monster("The Devourer Bloom", 59, 5742, [106, 160], 112, 208, 15000, [1100, 1800],
+    boss: monster("The Devourer Bloom", 59, 5742, [106, 160], 112, 208, 11000, [4200, 5200],
       { name: "Engulf", kind: "burst", power: 2.0, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -381,7 +381,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Venom Priest",    58, 888, [89, 134], 86, 220, 2100, [720, 1170],
         { name: "Poison Ritual", kind: "dot", power: 1.5, chance: 0.30, cooldown: 3 }),
     ],
-    boss: monster("Golden Idol", 59, 5742, [108, 162], 115, 210, 15000, [1100, 1800],
+    boss: monster("Golden Idol", 59, 5742, [108, 162], 115, 210, 12000, [4500, 5500],
       { name: "Idol's Wrath", kind: "burst", power: 2.1, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -395,7 +395,7 @@ export const DUNGEONS: DungeonDefinition[] = [
         { name: "Petrifying Gaze", kind: "drain", power: 1.5, chance: 0.30, cooldown: 3 }),
       waveMonster("Jungle Guardian",  62, 1200, [107, 162], 110, 245, 2640, [900, 1470]),
     ],
-    boss: monster("The Green Warden", 63, 6840, [118, 178], 126, 222, 19200, [1450, 2350],
+    boss: monster("The Green Warden", 63, 6840, [118, 178], 126, 222, 13200, [4900, 5800],
       { name: "Ancient Fury", kind: "burst", power: 2.2, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -409,7 +409,7 @@ export const DUNGEONS: DungeonDefinition[] = [
         { name: "Soul Rend", kind: "drain", power: 1.6, chance: 0.30, cooldown: 3 }),
       waveMonster("Cursed Colossus",      64, 1416, [118, 178], 122, 257, 2970, [1010, 1650]),
     ],
-    boss: monster("Ancient Loa", 65, 8350, [134, 202], 142, 235, 24600, [1900, 3100],
+    boss: monster("Ancient Loa", 65, 8350, [134, 202], 142, 235, 14350, [5000, 6000],
       { name: "Voodoo Curse", kind: "dot", power: 2.2, chance: 0.40, cooldown: 3 }),
   },
 
@@ -425,7 +425,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Spirit of the Gorilla",   66, 4200, [142, 214], 150, 269, 1740, [740, 1210]),
       waveMonster("Spirit of the Eagle",     66, 3840, [137, 206], 144, 266, 1680, [710, 1160]),
     ],
-    boss: monster("Zam'Koro, The Loa of Endless Night", 70, 13042, [148, 222], 165, 258, 60000, [9000, 15000],
+    boss: monster("Zam'Koro, The Loa of Endless Night", 70, 13042, [148, 222], 165, 258, 21500, [6000, 7000],
       { name: "Endless Night", kind: "dot", power: 2.8, chance: 0.45, cooldown: 3 }),
   },
 
@@ -442,7 +442,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Lost Soul",      72, 1500, [132, 199], 135, 279, 3510, [1190, 1950],
         { name: "Soul Scream", kind: "burst", power: 1.6, chance: 0.30, cooldown: 3 }),
     ],
-    boss: monster("The Gatekeeper", 73, 7360, [144, 217], 153, 265, 45000, [4200, 7000],
+    boss: monster("The Gatekeeper", 73, 7360, [144, 217], 153, 265, 21500, [4200, 7000],
       { name: "Soul Chain", kind: "drain", power: 2.0, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -456,7 +456,7 @@ export const DUNGEONS: DungeonDefinition[] = [
         { name: "Death Knell", kind: "burst", power: 1.6, chance: 0.30, cooldown: 3 }),
       waveMonster("Cursed Royal Guard", 75, 1680, [142, 214], 148, 293, 3900, [1320, 2150]),
     ],
-    boss: monster("Prince Valdris the Damned", 75, 8800, [155, 233], 163, 278, 54000, [5200, 8500],
+    boss: monster("Prince Valdris the Damned", 75, 8800, [155, 233], 163, 278, 23500, [5200, 8500],
       { name: "Royal Decree", kind: "burst", power: 2.1, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -469,7 +469,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Shadow Stalker",75, 1680, [142, 214], 147, 293, 3900, [1320, 2150]),
       waveMonster("Bone Treant",   77, 1800, [150, 226], 155, 303, 4140, [1400, 2290]),
     ],
-    boss: monster("The Pale Huntress", 77, 10400, [164, 246], 172, 289, 63000, [6000, 9800],
+    boss: monster("The Pale Huntress", 77, 10400, [164, 246], 172, 289, 26000, [6000, 9800],
       { name: "Soul Arrow", kind: "burst", power: 2.0, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -483,7 +483,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Wailing Banshee",  78, 1740, [148, 222], 152, 308, 4050, [1370, 2250],
         { name: "Death Wail", kind: "burst", power: 1.7, chance: 0.30, cooldown: 3 }),
     ],
-    boss: monster("The Abyssal Hydra", 78, 12000, [170, 255], 178, 296, 72000, [6800, 11000],
+    boss: monster("The Abyssal Hydra", 78, 12000, [170, 255], 178, 296, 29000, [6800, 11000],
       { name: "Triple Bite", kind: "burst", power: 2.2, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -496,7 +496,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Ashen Golem",          79, 1920, [158, 238], 163, 313, 4380, [1480, 2430]),
       waveMonster("Phantom Crossbowman",  80, 1860, [156, 234], 160, 318, 4260, [1440, 2370]),
     ],
-    boss: monster("General Morrath", 80, 14000, [178, 267], 185, 305, 84000, [7600, 12200],
+    boss: monster("General Morrath", 80, 14000, [178, 267], 185, 305, 31500, [7600, 12200],
       { name: "Siege Strike", kind: "burst", power: 2.2, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -510,7 +510,7 @@ export const DUNGEONS: DungeonDefinition[] = [
         { name: "Void Ritual", kind: "dot", power: 1.6, chance: 0.30, cooldown: 3 }),
       waveMonster("Nightmare Gargoyle",82, 2100, [168, 252], 173, 328, 4740, [1600, 2620]),
     ],
-    boss: monster("High Inquisitor Varek", 82, 16000, [187, 281], 195, 315, 96000, [8500, 13600],
+    boss: monster("High Inquisitor Varek", 82, 16000, [187, 281], 195, 315, 33800, [8500, 13600],
       { name: "Void Consume", kind: "drain", power: 2.3, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -524,7 +524,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Dread Specter",      83, 2040, [166, 250], 171, 332, 4680, [1580, 2590],
         { name: "Paralyzing Fear", kind: "drain", power: 1.7, chance: 0.30, cooldown: 3 }),
     ],
-    boss: monster("The Dreaming Horror", 83, 18000, [194, 291], 202, 322, 109200, [9200, 14800],
+    boss: monster("The Dreaming Horror", 83, 18000, [194, 291], 202, 322, 36500, [9200, 14800],
       { name: "Living Nightmare", kind: "dot", power: 2.4, chance: 0.40, cooldown: 3 }),
   },
   {
@@ -538,7 +538,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("Eternal Wraith",     85, 2160, [174, 261], 178, 344, 4920, [1660, 2720],
         { name: "Soul Rend", kind: "drain", power: 1.7, chance: 0.30, cooldown: 3 }),
     ],
-    boss: monster("Seraphel the Undying", 85, 20400, [202, 303], 212, 332, 126000, [10400, 16700],
+    boss: monster("Seraphel the Undying", 85, 20400, [202, 303], 212, 332, 40000, [10400, 16700],
       { name: "Void Nova", kind: "burst", power: 2.5, chance: 0.40, cooldown: 3 }),
   },
 
@@ -554,7 +554,7 @@ export const DUNGEONS: DungeonDefinition[] = [
       waveMonster("The Void Heralds",        86, 7500, [194, 291], 199, 353, 2940, [970, 1590]),
       waveMonster("Shade of the Gatekeeper", 88, 8500, [202, 303], 207, 362, 3240, [1060, 1740]),
     ],
-    boss: monster("Reltih, the Void Devourer", 90, 32000, [226, 339], 232, 278, 180000, [18000, 30000],
+    boss: monster("Reltih, the Void Devourer", 90, 32000, [226, 339], 232, 278, 50000, [14000, 20000],
       { name: "Void Devour", kind: "drain", power: 3.0, chance: 0.45, cooldown: 3 }),
   },
 ];
