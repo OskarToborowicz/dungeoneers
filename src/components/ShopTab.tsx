@@ -174,13 +174,22 @@ export function ShopTab({
               Sort
             </button>
 
-            {inventory.length > 0 && (
-              <div className="sell-all-row">
-                {confirmSellAll ? (
-                  <>
-                    <span className="sell-all-warning">
-                      Sell all {inventory.length} items for {totalSellValue}g?
-                    </span>
+            <div className="sell-all-row">
+              <button
+                className="sell-all-button"
+                onClick={() => setConfirmSellAll((v) => !v)}
+                disabled={confirmSellAll}
+              >
+                Sell All
+              </button>
+
+              {confirmSellAll && (
+                <div className="sell-confirm-popup">
+                  <span className="sell-all-warning">
+                    Sell all {inventory.length} items for {totalSellValue}g?
+                  </span>
+
+                  <div className="sell-confirm-actions">
                     <button
                       className="sell-all-confirm"
                       onClick={() => {
@@ -190,30 +199,25 @@ export function ShopTab({
                     >
                       Confirm
                     </button>
+
                     <button
                       className="sell-all-cancel"
                       onClick={() => setConfirmSellAll(false)}
                     >
                       Cancel
                     </button>
-                  </>
-                ) : (
-                  <>
-                    {junkCount > 0 && (
-                      <button className="sell-junk-button" onClick={onSellJunk}>
-                        Sell Junk ({junkCount})
-                      </button>
-                    )}
-                    <button
-                      className="sell-all-button"
-                      onClick={() => setConfirmSellAll(true)}
-                    >
-                      Sell All
-                    </button>
-                  </>
-                )}
-              </div>
-            )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              className="sell-junk-button"
+              onClick={onSellJunk}
+              disabled={junkCount === 0 || confirmSellAll}
+            >
+              Sell Junk ({junkCount})
+            </button>
           </div>
         </div>
         <div className="shop-inventory-scroll">
