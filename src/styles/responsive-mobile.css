@@ -16,9 +16,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
+    overflow: hidden;
     padding: 0;
   }
 
@@ -337,6 +335,16 @@
     gap: 8px;
     flex-shrink: 0;
   }
+  .paperdoll {
+    grid-template-columns: repeat(3, 48px);
+    grid-template-rows: repeat(5, 48px);
+    gap: 4px;
+    margin: 0 auto 8px;
+  }
+  .doll-slot-label {
+    font-size: 8px;
+    letter-spacing: 0;
+  }
   .inventory-right {
     flex: 1;
     min-height: 0;
@@ -416,11 +424,14 @@
 
 @media (max-width: 400px) {
   .paperdoll {
-    grid-template-columns: repeat(3, 48px);
-    grid-template-rows: repeat(5, 48px);
-    gap: 4px;
-    padding: 10px;
-    margin: 0 auto 12px;
+    grid-template-columns: repeat(3, 40px);
+    grid-template-rows: repeat(5, 40px);
+    gap: 3px;
+    padding: 6px;
+    margin: 0 auto 8px;
+  }
+  .doll-slot-label {
+    font-size: 7px;
   }
   .inv-stats {
     flex-direction: row;

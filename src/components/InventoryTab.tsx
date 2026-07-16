@@ -2,7 +2,7 @@ import { useState } from "react";
 import {
   DndContext,
   DragOverlay,
-  PointerSensor,
+  MouseSensor,
   TouchSensor,
   useSensor,
   useSensors,
@@ -160,7 +160,7 @@ function InvCellDnd({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          touchAction: "none",
+          touchAction: "pan-y",
         }}
       >
         <ItemIcon item={item} />
@@ -225,7 +225,7 @@ function SlotItemDnd({
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          touchAction: "none",
+          touchAction: "pan-y",
         }}
       >
         <ItemIcon item={item} />
@@ -348,7 +348,7 @@ export function InventoryTab({
   } = useItemHover();
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 8 } }),
     useSensor(TouchSensor, {
       activationConstraint: { delay: 250, tolerance: 5 },
     }),

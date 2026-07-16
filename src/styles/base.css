@@ -1,13 +1,9 @@
 /* ── 1. Base / Screen shell ──────────────────────────────────────────────── */
 
 .screen {
+  padding: 5px 20px 20px;
   flex: 1;
-  min-height: 0; /* bardzo ważne we flexboxie */
-
   display: flex;
   flex-direction: column;
-
-  padding: 5px 20px 20px;
-
-  overflow: hidden;
 }
+
