@@ -141,7 +141,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
   },
   amazon: {
     id: "amazon",
-    name: "Amazon",
+    name: "Huntress",
     description: "A skilled ranger who strikes swiftly from range with bow and spear.",
     baseStats: { strength: 10, dexterity: 10, vitality: 10, energy: 10 },
     resourceName: "Mana",

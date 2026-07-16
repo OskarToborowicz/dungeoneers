@@ -181,6 +181,7 @@ export function CombatScreen({
       if (wasAbility) setAbilityEffect((n) => n + 1);
       if (wasAbility2) setAbility2Effect((n) => n + 1);
       if (
+        action === "attack" &&
         !wasAbility &&
         !wasAbility2 &&
         ATTACK_EFFECT_CLASSES.has(character.classId)
@@ -203,6 +204,7 @@ export function CombatScreen({
       if (wasAbility) setAbilityEffect((n) => n + 1);
       if (wasAbility2) setAbility2Effect((n) => n + 1);
       if (
+        action === "attack" &&
         !wasAbility &&
         !wasAbility2 &&
         ATTACK_EFFECT_CLASSES.has(character.classId)
@@ -240,6 +242,7 @@ export function CombatScreen({
       if (wasAbility) setAbilityEffect((n) => n + 1);
       if (wasAbility2) setAbility2Effect((n) => n + 1);
       if (
+        action === "attack" &&
         !wasAbility &&
         !wasAbility2 &&
         ATTACK_EFFECT_CLASSES.has(character.classId)

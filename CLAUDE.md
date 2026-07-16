@@ -153,7 +153,7 @@ All abilities have a 2% `ALWAYS_MISS_CHANCE`. Set `canMiss: false` on an ability
 
 **Blood Barrier** (lv.35): Soul Siphon heals can exceed max life by up to 25% (heal cap: `stats.maxLife * 1.25`). Does NOT apply to health potions. Overheal is shown as a blue glow on the HP bar (scales with overheal fraction 0–25%) and a `+X` badge next to the HP number (class `overheal-badge`).
 
-### Amazon passives (3-passive system)
+### Huntress passives (3-passive system)
 
 | Passive | Level | Effect |
 |---|---|---|
@@ -192,7 +192,7 @@ Heartseeker fires after crits from both basic attack and each Multishot arrow.
 - `passive2?: { levelRequirement: number }` — unlocks at given level
 - `passive3?: { levelRequirement: number }` — unlocks at given level
 
-Amazon, Necromancer, and Monk all use passive3. All classes can be extended to use it.
+Huntress, Necromancer, and Monk all use passive3. All classes can be extended to use it.
 
 ---
 

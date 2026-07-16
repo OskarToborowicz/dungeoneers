@@ -10,7 +10,7 @@ const CLASS_NAMES: Record<ClassId, string> = {
   barbarian: "Barbarian",
   necromancer: "Necromancer",
   sorceress: "Sorceress",
-  amazon: "Amazon",
+  amazon: "Huntress",
   paladin: "Paladin",
   druid: "Druid",
   assassin: "Assassin",

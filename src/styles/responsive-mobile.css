@@ -270,9 +270,9 @@
   }
 
   .class-sprite-preview {
-    overflow: hidden;
+    overflow: visible;
     padding: 4px 0 0;
-    height: 72px;
+    height: auto;
   }
 
   /* Combat screen */

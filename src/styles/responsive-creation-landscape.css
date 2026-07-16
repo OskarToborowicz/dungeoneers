@@ -42,8 +42,9 @@
     padding-top: 8px;
   }
 
-  .class-sprite-preview {
-    display: none;
+  .class-sprite-preview svg {
+    width: 40px !important;
+    height: 60px !important;
   }
 
   .class-detail-title {

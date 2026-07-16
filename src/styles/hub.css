@@ -96,7 +96,7 @@
 .hub-content {
   flex: 1;
   min-width: 0;
-  max-height: 97vh;
+  max-height: 97svh;
 }
 
 /* The gambler tab's inventory section (.gambler-inventory) uses flex: 1
@@ -255,7 +255,7 @@
   border: 1px solid var(--border-gold);
   border-radius: 6px;
   padding: 20px;
-  max-height: 97vh;
+  max-height: 97svh;
   overflow-y: scroll;
   scrollbar-width: thin;
   scrollbar-color: var(--class-color) #1a1208;

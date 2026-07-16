@@ -29,7 +29,7 @@ export interface BattleState {
   trapRounds: number; // Assassin Fire Trap: turns until detonation (0 = detonates this turn)
   bloodFuryRounds: number; // Barbarian Blood Fury active turns remaining
   ability2Cooldown: number;
-  frozenRounds: number; // Amazon Freezing Shot: monster cannot act
+  frozenRounds: number; // Huntress Freezing Shot: monster cannot act
   regenRounds: number; // Paladin Regenerating Nova: heals player each turn
   disorientRounds: number; // After Blind fades: monster deals 25% reduced damage
   blindRounds: number; // Assassin Blinding Powder: monster cannot act
@@ -552,7 +552,7 @@ export function resolveRound(
       );
     }
 
-    // Heartseeker (Amazon lv.35): fires a follow-up arrow after any crit; cannot itself crit
+    // Heartseeker (Huntress lv.35): fires a follow-up arrow after any crit; cannot itself crit
     if (
       character.classId === "amazon" &&
       character.level >= 35 &&
@@ -850,7 +850,7 @@ export function resolveRound(
         });
         tryIgnite(dmg);
 
-        // ── Multishot (Amazon) ────────────────────────────────────────────────
+        // ── Multishot (Huntress) ────────────────────────────────────────────────
         // Multiple independent hits; each can crit and trigger Heartseeker.
       } else if (def.ability.kind === "multi") {
         const hitCount = def.ability.hits ?? 3;
@@ -999,7 +999,7 @@ export function resolveRound(
       playerMana -= def.ability2.manaCost;
       ability2Cooldown = def.ability2.cooldown;
 
-      // ── Freezing Shot (Amazon) ────────────────────────────────────────────
+      // ── Freezing Shot (Huntress) ────────────────────────────────────────────
       // Physical hit (weapon + 0.5× Dex). On hit, freezes monster for 2 turns.
       if (def.ability2.kind === "freeze") {
         if (

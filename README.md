@@ -33,7 +33,7 @@ Eight classes are available, each with a unique resource type, active ability, a
 | Barbarian | Fury | Axe | Melee berserker, rage-fueled combatant — 2 active abilities, 3 passives |
 | Necromancer | Mana | Scythe | Poison DoT with magic lifesteal and golem tank — 2 active abilities, 3 passives |
 | Sorceress | Mana | War Staff | Magic burst damage — 2 active abilities, 3 passives |
-| Amazon | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities, 3 passives |
+| Huntress | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities, 3 passives |
 | Paladin | Mana | Mace | Tank/sustain with healing aura — 2 active abilities, 3 passives |
 | Druid | Mana | Totem | Dex-scaling melee with lifesteal and damage reduction |
 | Assassin | Mana | Claw | Dex-scaling trap setter — 2 active abilities, 3 passives |
@@ -85,7 +85,7 @@ Increases maximum mana and adds flat bonus damage to all magic-typed abilities (
 maxMana          += floor(energy / 5)
 magicDamageBonus  = floor(energy / 2)
 ```
-Every 5 Energy grants +1 max mana. Every 2 Energy grants +1 flat damage added to each magic ability hit. Non-magic abilities (Barbarian, Amazon, Druid, Assassin) receive no damage benefit from Energy, but mana classes still gain mana from it.
+Every 5 Energy grants +1 max mana. Every 2 Energy grants +1 flat damage added to each magic ability hit. Non-magic abilities (Barbarian, Huntress, Druid, Assassin) receive no damage benefit from Energy, but mana classes still gain mana from it.
 
 ---
 
@@ -231,7 +231,7 @@ Combat is turn-based. The player chooses one action per round; the monster then 
 |---|---|---|
 | Attack | `1` | Basic weapon hit, 98% hit rate, crit possible |
 | Ability | `2` | Class active skill (costs mana/fury, has cooldown) |
-| Ability 2 | `3` | Second active skill — available on Barbarian, Sorceress, Amazon, Paladin, and Assassin |
+| Ability 2 | `3` | Second active skill — available on Barbarian, Sorceress, Huntress, Paladin, and Assassin |
 | Health Potion | — | Restores 35% of max life; 3-turn cooldown |
 | Mana Potion | — | Restores 35% of max mana/fury; 3-turn cooldown |
 | Flee | — | Spends an Escape Token to end the dungeon run safely |
@@ -299,8 +299,8 @@ Active status effects are shown as colored pills below each combatant's HP bar a
 |---|---|---|
 | ☠ Poison N | Necromancer Poison Dagger | Green pill, remaining tick count |
 | 💫 Stunned N | Necromancer Golem Defense | Yellow pill, remaining stunned turns; monster cannot act |
-| ❄ Frozen N | Amazon Freezing Shot | Blue pill, remaining frozen turns |
-| ⚡ Electrocute N | Amazon — Stormstring bow on hit | Yellow pill, remaining turns; enemy takes 20% increased damage from all sources |
+| ❄ Frozen N | Huntress Freezing Shot | Blue pill, remaining frozen turns |
+| ⚡ Electrocute N | Huntress — Stormstring bow on hit | Yellow pill, remaining turns; enemy takes 20% increased damage from all sources |
 | 🔥 Burn N | Demon's Tail belt — every hit/ability | Orange pill per active stack; hovering shows source and damage per turn |
 
 **Burn stacks independently** — each hit with Demon's Tail equipped pushes a new `{ rounds, damage, source }` entry. Multiple stacks can be active simultaneously, each with its own timer and damage value (30% of the triggering hit). A separate 🔥 Burn badge appears for each active stack.
@@ -337,8 +337,8 @@ Each class ability triggers a short SVG overlay animation (≈800 ms) over the b
 | Necromancer | Poison Cloud | Green toxic cloud flies toward the enemy and billows on impact |
 | Necromancer | Golem Defense | Stone boulder rolls in with dust trails, impacts the enemy with stun stars, then the golem stands guard next to the Necromancer |
 | Sorceress | Frost Bolt | Icy bolt that shatters into shards on impact |
-| Amazon | Multishot | Two green arrows flying toward the enemy |
-| Amazon | Freezing Shot | Icy blue arrow flying toward the enemy + frost explosion on impact |
+| Huntress | Multishot | Two green arrows flying toward the enemy |
+| Huntress | Freezing Shot | Icy blue arrow flying toward the enemy + frost explosion on impact |
 | Paladin | Holy Bolt | Golden holy cross with radiant pulse |
 | Paladin | Regenerating Nova | Green healing rings expand from the player with rising sparkles |
 | Druid | Werewolf Bite | Three green claw slashes |
@@ -437,13 +437,13 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Special**: While active, the Frost Shield button shows "Active: X turns" and cannot be recast; a cyan status pill and icy blue glow appear on the player sprite
 - **Damage formula while shielded**: `dmg = max(1, round(dmg × 0.40))`
 
-### Amazon — Multishot
+### Huntress — Multishot
 - **Kind**: multi (physical — no magic bonus, 2 hits)
 - **Mana Cost**: 18
 - **Cooldown**: 2 turns
 - **Damage per hit**: `round(randomInRange(damage) × 0.55)` — each hit rolls crit independently
 
-### Amazon — Freezing Shot *(Ability 2)*
+### Huntress — Freezing Shot *(Ability 2)*
 - **Kind**: freeze (physical — no magic bonus)
 - **Mana Cost**: 40
 - **Cooldown**: 5 turns
@@ -564,13 +564,13 @@ reduction = floor(missingLifePct / 5) × 2%
 maxLife += round(maxMana × 0.15)
 ```
 
-### Amazon — Dodge *(always active)*
+### Huntress — Dodge *(always active)*
 - **15% chance** to completely avoid any incoming attack or spell. Applies to both normal monster attacks and boss spell casts.
 
-### Amazon — Find Weakness *(unlocks at level 20)*
+### Huntress — Find Weakness *(unlocks at level 20)*
 - Increases Critical Strike Chance by **+15%** (stacks with the Dexterity-based base crit, recapped at 90%).
 
-### Amazon — Heartseeker *(unlocks at level 35)*
+### Huntress — Heartseeker *(unlocks at level 35)*
 - After any Critical Strike, fires a **bonus follow-up arrow** dealing **50% of the crit's damage** (70% with the Doomcrier unique bow equipped). The follow-up arrow cannot itself critically strike.
 - Triggers on basic attacks and on each individual Multishot arrow that crits.
 
@@ -635,7 +635,7 @@ At 50 Dex: 10% reduction. At 100 Dex: 20%. The 25% cap is reached at 125 Dex.
 
 ### Two-Handed Weapons
 
-War Staff (Necromancer/Sorceress), Bow (Amazon), and Totem (Druid) are two-handed. Equipping one unequips the shield slot.
+War Staff (Necromancer/Sorceress), Bow (Huntress), and Totem (Druid) are two-handed. Equipping one unequips the shield slot.
 
 ### Barbarian Dual-Wield
 
@@ -655,7 +655,7 @@ The Assassin can equip a Claw in the off-hand slot under the same rules as the B
 | Axe | Barbarian | 2 | 6 | No |
 | Scythe | Necromancer | 3 | 8 | Yes |
 | War Staff | Sorceress | 2 | 8 | Yes |
-| Bow | Amazon | 3 | 7 | Yes |
+| Bow | Huntress | 3 | 7 | Yes |
 | Mace | Paladin | 3 | 4 | No |
 | Totem | Druid | 2 | 6 | Yes |
 | Claw | Assassin | 2 | 5 | No |
@@ -878,9 +878,9 @@ Unique items have fixed stats and are not generated through the normal rarity ro
 | Penitent's Grace | Weapon (Paladin) | Any boss (lv 10+), Paladin only | 0.15% | Base 5–10 dmg; +10–15 Energy, +8–12 Mana Regen/Turn, +10–15 Magic Damage, +10–15 Vitality |
 | Justicar | Weapon (Paladin) | Any boss (lv 28+), Paladin only | 0.15% | Base 14–22 dmg; +30–45 Damage, +20–30 Energy, +15–25 Magic Damage, −15 Strength |
 | Sanctifier | Weapon (Paladin) | Any boss (lv 50+), Paladin only | 0.15% | Base 24–38 dmg; +50–70 Magic Damage, +35–45 Damage, +40–55 Vitality, +6% Crit Chance |
-| Whisper | Weapon (Amazon) | Any boss (lv 8+), Amazon only | 0.15% | Base 5–12 dmg (two-handed); +10–15 Dexterity, +10–15 Vitality, +10–15 Damage |
-| Stormstring | Weapon (Amazon) | Any boss (lv 28+), Amazon only | 0.15% | Base 16–28 dmg (two-handed); +30–45 Dexterity, +25–35 Damage, −15 Strength; **Electrocute on hit** — enemy takes 20% more damage for 2 turns |
-| Doomcrier | Weapon (Amazon) | Any boss (lv 50+), Amazon only | 0.15% | Base 28–46 dmg (two-handed); +55–75 Damage, +40–55 Dexterity, +8% Crit Chance; **Heartseeker fires at 70%** instead of 50% |
+| Whisper | Weapon (Huntress) | Any boss (lv 8+), Huntress only | 0.15% | Base 5–12 dmg (two-handed); +10–15 Dexterity, +10–15 Vitality, +10–15 Damage |
+| Stormstring | Weapon (Huntress) | Any boss (lv 28+), Huntress only | 0.15% | Base 16–28 dmg (two-handed); +30–45 Dexterity, +25–35 Damage, −15 Strength; **Electrocute on hit** — enemy takes 20% more damage for 2 turns |
+| Doomcrier | Weapon (Huntress) | Any boss (lv 50+), Huntress only | 0.15% | Base 28–46 dmg (two-handed); +55–75 Damage, +40–55 Dexterity, +8% Crit Chance; **Heartseeker fires at 70%** instead of 50% |
 | Apprentice's Focus | Weapon (Sorceress) | Act 1 bosses, Sorceress only | 0.2% | Base 4–11 dmg (two-handed); +12–18 Energy, +12–18 Magic Damage, +8–12 Mana |
 | The Arcanist | Weapon (Sorceress) | Andariel + Act 2 early bosses, Sorceress only | 0.1% | Base 9–18 dmg (two-handed); +30–45 Magic Damage, +20–30 Energy, −15 Vitality; **Frost Bolt deals +40% damage while Frost Shield is active** |
 | Eternity's Edge | Weapon (Sorceress) | Act 2 late bosses, Sorceress only | 0.1% | Base 15–26 dmg (two-handed); +55–75 Magic Damage, +40–55 Energy, +6% Crit Chance; **30% chance for Frost Bolt to echo at 50% power** |
