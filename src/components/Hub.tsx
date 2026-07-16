@@ -52,10 +52,19 @@ interface Props {
   onGamble: (offer: GambleOffer) => void;
   showPortalMessage?: boolean;
   onDismissPortal?: () => void;
+  showSewersIntro?: boolean;
+  onDismissSewersIntro?: () => void;
+  showSewersEscape?: boolean;
+  onDismissSewersEscape?: () => void;
+  showAct3Message?: boolean;
+  onDismissAct3Message?: () => void;
+  showAct4Message?: boolean;
+  onDismissAct4Message?: () => void;
+  sewersCleared?: boolean;
   droppedItem?: Item | null;
   onDismissDroppedItem?: () => void;
-  selectedAct: 1 | 2;
-  onSelectAct: (act: 1 | 2) => void;
+  selectedAct: 1 | 2 | 3;
+  onSelectAct: (act: 1 | 2 | 3) => void;
   selectedTab: TabId;
   onSelectTab: (tab: TabId) => void;
   hasUnseenDrops?: boolean;
@@ -85,6 +94,15 @@ export function Hub({
   onGamble,
   showPortalMessage,
   onDismissPortal,
+  showSewersIntro,
+  onDismissSewersIntro,
+  showSewersEscape,
+  onDismissSewersEscape,
+  showAct3Message,
+  onDismissAct3Message,
+  showAct4Message,
+  onDismissAct4Message,
+  sewersCleared = false,
   droppedItem,
   onDismissDroppedItem,
   selectedAct,
@@ -100,7 +118,7 @@ export function Hub({
   dismissRef.current = onDismissDroppedItem;
 
   useEffect(() => {
-    if (!droppedItem || showPortalMessage) return;
+    if (!droppedItem || showPortalMessage || showSewersEscape || showAct4Message) return;
     if (droppedItem.rarity === "unique" && !isSoundMuted()) {
       const sfx = new Audio(import.meta.env.BASE_URL + "divine_drop.mp3");
       sfx.volume = 0.05;
@@ -117,7 +135,7 @@ export function Hub({
         { "--class-color": CLASS_COLORS[character.classId] } as CSSProperties
       }
     >
-      {droppedItem && !showPortalMessage && (
+      {droppedItem && !showPortalMessage && !showSewersEscape && !showAct4Message && (
         <div
           className={`drop-banner${droppedItem.rarity === "unique" ? " drop-banner--unique" : ""}`}
           onClick={onDismissDroppedItem}
@@ -143,17 +161,91 @@ export function Hub({
           </button>
         </div>
       )}
+      {showSewersIntro && (
+        <div className="portal-overlay">
+          <div className="portal-modal">
+            <div className="portal-icon">⛓️</div>
+            <h2>Thrown Into the Sewers</h2>
+            <p>
+              By order of King Victor the Second, you have been cast into the
+              royal sewers for treason. No trial. No mercy. Survive, or rot
+              in the dark.
+            </p>
+            <button className="primary-button" onClick={onDismissSewersIntro}>
+              Fight Your Way Out
+            </button>
+          </div>
+        </div>
+      )}
+      {showSewersEscape && (
+        <div className="portal-overlay">
+          <div className="portal-modal">
+            <div className="portal-icon">🌅</div>
+            <h2>You Escaped the Sewers</h2>
+            <p>
+              Against all odds, you clawed your way out. The world lies ahead
+              — dungeons to plunder, enemies to conquer, and a king who will
+              answer for what he did.
+            </p>
+            <button className="primary-button" onClick={onDismissSewersEscape}>
+              Embark on Your Journey
+            </button>
+          </div>
+        </div>
+      )}
+      {showAct3Message && (
+        <div className="portal-overlay">
+          <div className="portal-modal">
+            <div className="portal-icon">🌿</div>
+            <h2>The Mountain Falls</h2>
+            <p>
+              Sikktharkk's dying screech shook the peaks. An avalanche
+              tore the mountainside open and swept you down the far slope.
+              You survived — battered, half-frozen — and at the bottom you
+              saw it: a vast, deep jungle where the frozen wastelands end.
+              Act 3 awaits.
+            </p>
+            <button className="primary-button" onClick={onDismissAct3Message}>
+              Descend Into the Jungle
+            </button>
+          </div>
+        </div>
+      )}
+      {showAct4Message && (
+        <div className="portal-overlay">
+          <div className="portal-modal">
+            <div className="portal-icon">🌑</div>
+            <h2>The Veil Has Torn</h2>
+            <p>
+              Zam'Koro's final cry fades. The emerald flames die. The cursed masks shatter, releasing souls imprisoned for centuries.
+            </p>
+            <p>
+              Then the shadows move.
+            </p>
+            <p>
+              Darkness spills like liquid across the ground, swallowing the light. A jagged tear opens in the air itself — revealing ruined towers, twisted forests, and wandering spirits beyond. An icy wind carries whispers in a language long forgotten.
+            </p>
+            <p style={{ fontStyle: "italic", opacity: 0.85 }}>
+              "The Loa's curse has fallen... but its prison has broken with it. The veil between the living and the dead has been torn open. Beyond this rift lies the Shadowlands, where lost souls wander and forgotten kings still reign. The darkness is no longer waiting — it is coming."
+            </p>
+            <button className="primary-button" onClick={onDismissAct4Message}>
+              Act 4 Unlocked: Realm of the Endless Night
+            </button>
+          </div>
+        </div>
+      )}
       {showPortalMessage && (
         <div className="portal-overlay">
           <div className="portal-modal">
-            <div className="portal-icon">🔴</div>
-            <h2>A Red Portal Has Appeared</h2>
+            <div className="portal-icon">⛰️</div>
+            <h2>The Gate Opens</h2>
             <p>
-              Andariel has fallen. A crimson gate tears open in the distance —
-              beyond lies Act 2, the realm of fire and damnation.
+              The Bandit Chieftain is dead. On the far side of town, the
+              heavy iron gate groans open — beyond it, a winding road
+              climbs into the mountains. Act 2 awaits.
             </p>
             <button className="primary-button" onClick={onDismissPortal}>
-              Enter the Portal
+              Enter the Mountains
             </button>
           </div>
         </div>
@@ -198,7 +290,6 @@ export function Hub({
                 classId={character.classId}
                 size={90}
                 state="idle"
-                animated={false}
                 isUnique={
                   equipment.weapon?.rarity === "very rare" ||
                   equipment.weapon?.rarity === "unique"
@@ -310,7 +401,8 @@ export function Hub({
               )}
             </button>
             <button
-              className={tab === "shop" ? "active" : ""}
+              className={`${tab === "shop" ? "active" : ""}${!sewersCleared ? " tab-locked" : ""}`}
+              disabled={!sewersCleared}
               onClick={() => setTab("shop")}
             >
               Shop{" "}
@@ -328,7 +420,8 @@ export function Hub({
               </svg>
             </button>
             <button
-              className={tab === "gambler" ? "active" : ""}
+              className={`${tab === "gambler" ? "active" : ""}${!sewersCleared ? " tab-locked" : ""}`}
+              disabled={!sewersCleared}
               onClick={() => setTab("gambler")}
             >
               Gamble{" "}

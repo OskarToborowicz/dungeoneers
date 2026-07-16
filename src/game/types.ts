@@ -176,7 +176,7 @@ export interface DungeonDefinition {
   description: string;
   waves: MonsterDefinition[];
   boss: MonsterDefinition;
-  act: 1 | 2;
+  act: 1 | 2 | 3;
   endgame?: boolean;
 }
 

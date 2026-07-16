@@ -45,12 +45,13 @@ export interface UniqueDropEntry {
   classId?: ClassId;
 }
 
-const ACT1_DUNGEONS = ["blood-moor", "cold-plains", "stony-field", "dark-wood", "tristram", "diablo"];
-const ACT2_DUNGEONS = ["imp-field", "lava-river", "ashen-caves", "higher-hell", "lower-hell", "hellcore"];
+const ACT1_DUNGEONS = ["sewers", "dark-forest", "cave", "foggy-fields", "graveyard", "crypt", "goblins-path", "bandit-town", "bandits-town-hall"];
+const ACT2_DUNGEONS = ["frostfang-pass", "icy-cave", "tundra", "moonglass-lake", "whispering-glacier", "crystal-labyrinth", "frostforge", "summit-peak", "the-white-maw"];
+const ACT3_DUNGEONS = ["overgrown-entrance", "serpent-marsh", "whispering-river", "village-lost-souls", "bloodvine-jungle", "temple-forgotten-gods", "heart-of-the-jungle", "black-ziggurat", "sacrificial-altar"];
 
 export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   // ── Test drop ─────────────────────────────────────────────────────────────────
-  { generator: generateSpellbladesMask, chance: 0.0025, dungeons: ["tristram", "diablo", ...ACT2_DUNGEONS] },
+  { generator: generateSpellbladesMask, chance: 0.0025, dungeons: ["bandit-town", "bandits-town-hall", ...ACT2_DUNGEONS] },
 
   // ── Any-boss globals ──────────────────────────────────────────────────────────
   { generator: generateRagpickersSash,   chance: 0.0025 },
@@ -66,15 +67,18 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   { generator: generateCrownOfTheFallen, chance: 0.0025, minLevel: 45 },
 
   // ── Act 1 ─────────────────────────────────────────────────────────────────────
-  { generator: generatePeasantHood,      chance: 0.05,   dungeons: ["blood-moor", "cold-plains"] },
-  { generator: generateVenomweaveWrap,   chance: 0.0025, dungeons: ["stony-field", "dark-wood", "tristram"], minLevel: 15 },
-  { generator: generateMirrorRing,       chance: 0.01,   dungeons: ["diablo"] },
+  { generator: generatePeasantHood,      chance: 0.05,   dungeons: ["sewers", "dark-forest"] },
+  { generator: generateVenomweaveWrap,   chance: 0.0025, dungeons: ["cave", "foggy-fields", "graveyard"], minLevel: 15 },
+  { generator: generateMirrorRing,       chance: 0.01,   dungeons: ["bandits-town-hall"] },
 
   // ── Act 2 ─────────────────────────────────────────────────────────────────────
   { generator: generateDemonsTail,       chance: 0.0025, dungeons: ACT2_DUNGEONS },
+  // ── Act 3 ─────────────────────────────────────────────────────────────────────
+  // (placeholder — future uniques can reference ACT3_DUNGEONS)
+  { generator: generateReapersHood,      chance: 0.002,  dungeons: ACT3_DUNGEONS, minLevel: 60 },
   { generator: generatePentagram,        chance: 0.005,  dungeons: ACT2_DUNGEONS },
-  { generator: generateReapersHood,      chance: 0.005,  dungeons: ["lower-hell"] },
-  { generator: generateHarvester,        chance: 0.06,   dungeons: ["lower-hell"], classId: "necromancer" },
+  { generator: generateReapersHood,      chance: 0.005,  dungeons: ["the-white-maw"] },
+  { generator: generateHarvester,        chance: 0.06,   dungeons: ["the-white-maw"], classId: "necromancer" },
 
   // ── Class weapons ─────────────────────────────────────────────────────────────
   { generator: generatePenitentsGrace,   chance: 0.0015, classId: "paladin",    minLevel: 10 },
@@ -90,10 +94,10 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   { generator: generateDoomcrier,        chance: 0.0015, classId: "amazon",     minLevel: 50 },
 
   { generator: generateApprenticesFocus, chance: 0.002,  classId: "sorceress",  dungeons: ACT1_DUNGEONS },
-  { generator: generateTheArcanist,      chance: 0.001,  classId: "sorceress",  dungeons: ["diablo", ...ACT2_DUNGEONS.slice(0, 4)] },
+  { generator: generateTheArcanist,      chance: 0.001,  classId: "sorceress",  dungeons: ["bandits-town-hall", ...ACT2_DUNGEONS.slice(0, 4)] },
   { generator: generateEternitysEdge,    chance: 0.001,  classId: "sorceress",  dungeons: ACT2_DUNGEONS.slice(3) },
 
   { generator: generateVipersKiss,       chance: 0.002,  classId: "assassin",   dungeons: ACT1_DUNGEONS },
-  { generator: generateShadowfang,       chance: 0.002,  classId: "assassin",   dungeons: ["diablo", ...ACT2_DUNGEONS.slice(0, 4)] },
+  { generator: generateShadowfang,       chance: 0.002,  classId: "assassin",   dungeons: ["bandits-town-hall", ...ACT2_DUNGEONS.slice(0, 4)] },
   { generator: generateDeathwhisper,     chance: 0.002,  classId: "assassin",   dungeons: ACT2_DUNGEONS.slice(3) },
 ];

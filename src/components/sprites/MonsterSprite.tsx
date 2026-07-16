@@ -34,33 +34,115 @@ const MONSTER_TYPES: Record<string, string> = {
   "Succubus": "succubus",
   "Vile Guardian": "brute",
   "Andariel": "boss_andariel",
-  // Act 2
-  "Imp Farmer": "imp",
-  "Imp Guard": "imp",
-  "Imp Soldier": "imp",
-  "Queen of Imps": "boss_imp",
-  "Magma Snail": "magma_snail",
-  "Lava Golem": "lava_golem",
-  "Fire Elemental": "fire_elemental",
-  "Volcanic Boar": "volcanic_boar",
-  "Emberfire": "boss_emberfire",
-  "Fire Bat": "fire_bat",
-  "Cloud of Dense Smoke": "smoke_cloud",
-  "Rock Hound": "rock_hound",
-  "It": "boss_it",
-  "Lesser Devil": "lesser_devil",
-  "Obsidian Skeleton": "obsidian_skeleton",
-  "Hell Wyrm": "hell_wyrm",
-  "Chaos Warlock": "chaos_warlock",
-  "Reltih": "boss_reltih",
-  "Hell Spawn": "hell_spawn",
-  "Ghost": "ghost",
-  "Demon": "demon",
-  "The Reaper": "boss_reaper",
-  "The Third Prophet": "prophet",
-  "The Second Prophet": "prophet",
-  "The First Prophet": "prophet",
-  "Core of Hell": "boss_core",
+  // Act 1 — new
+  "Hungry Rat": "rat",
+  "Giant Leech": "leech",
+  "Drowned Corpse": "zombie",
+  "The Rat King": "boss_rat",
+  "Wounded Elk": "elk",
+  "Wild Boar": "boar",
+  "Bear": "bear",
+  "Forest Hag": "hag",
+  "Bat": "bat",
+  "Wolf": "beast",
+  "Dire Wolf": "dire_wolf",
+  "Alpha Wolf": "boss_wolf",
+  "Flock of Ravens": "bird",
+  "Scarecrow": "scarecrow",
+  "Dense Fog": "smoke_cloud",
+  "Living Shadow": "boss_shadow",
+  "Animated Corpse": "zombie",
+  "Skeleton": "skeleton",
+  "Undead Hound": "undead_hound",
+  "Mass of Bones": "boss_bones",
+  "Crypt Lurker": "crypt_lurker",
+  "Bone Golem": "bone_golem",
+  "Niktag": "boss_niktag",
+  "Goblin Worker": "goblin",
+  "Goblin Fighter": "goblin",
+  "Goblin Priest": "goblin_priest",
+  "Goblin King": "boss_goblin",
+  "Scoundrel": "scoundrel",
+  "Bandit": "bandit",
+  "Contract Killer": "contract_killer",
+  "Exiled City Guard": "boss_guard",
+  "Veteran Bandit": "bandit",
+  "Chieftain's Right Hand": "brute",
+  "Bandit Chieftain": "boss_chieftain",
+  // Act 2 — ice
+  "Snow Wolf": "snow_wolf",
+  "Frost Harpy": "frost_harpy",
+  "Glacial Bear": "glacial_bear",
+  "Ice Golem": "ice_golem",
+  "Frostbitten Corpse": "zombie",
+  "Icy Bat": "bat",
+  "Frozen Revenant": "frozen_revenant",
+  "Crystal Colossus": "crystal_colossus",
+  "Icehorn Mammoth": "icehorn_mammoth",
+  "Frost Lynx": "frost_lynx",
+  "Young Ice Troll": "ice_troll",
+  "The Pale Stag": "pale_stag",
+  "Spirit Owl": "spirit_owl",
+  "Lunar Ghost": "ghost",
+  "Crystal Elemental": "crystal_elemental",
+  "Moon Reflection": "moon_reflection",
+  "Frost Wraith": "frost_wraith",
+  "Ice Wyvern": "ice_wyvern",
+  "Ice Troll": "ice_troll",
+  "White Chimera": "white_chimera",
+  "Crystal Spider": "crystal_spider",
+  "Frost Ogre": "frost_ogre",
+  "Glacier Worm": "glacier_worm",
+  "Frozen Taur": "frozen_taur",
+  "Frost Dwarf": "frost_dwarf",
+  "Animated Frost Knight": "frost_knight",
+  "Frostforge Dwarven Warrior": "dwarven_warrior",
+  "Core of the Frozen Forge": "frozen_forge_core",
+  "Glacial Eagle": "glacial_eagle",
+  "Elder Harpy": "elder_harpy",
+  "Ice Shard Golem": "bone_golem",
+  "Ghost of the Mountain": "ghost_of_mountain",
+  "Frozen Bones": "frozen_bones",
+  "Young Azure Dragon": "azure_dragon",
+  "Avalanche Elemental": "avalanche_elemental",
+  "Sikktharkk": "sikktharkk",
+  // ── Act 3 ──────────────────────────────────────────────────────────────────
+  "Jungle Stalker": "jungle_stalker",
+  "Thorn Hunter": "thorn_hunter",
+  "Venom Viper": "venom_viper",
+  "Ancient Treant": "ancient_treant",
+  "Bog Zombie": "zombie",
+  "Swamp Serpent": "swamp_serpent",
+  "Poison Toad": "poison_toad",
+  "Mother of the Swamp": "mother_of_swamp",
+  "Jungle Harpy": "jungle_harpy",
+  "School of Gigantic Piranhas": "piranha_school",
+  "Thorn Dryad": "thorn_dryad",
+  "The Great Emerald Crocolisk": "emerald_crocolisk",
+  "Cursed Tribesman": "cursed_tribesman",
+  "Haunted Mask": "haunted_mask",
+  "Voodoo Shaman": "voodoo_shaman",
+  "The Soul Collector": "soul_collector",
+  "Blood Vine": "blood_vine",
+  "Carnivorous Plant": "carnivorous_plant",
+  "Giant Tarantula": "giant_tarantula",
+  "The Devourer Bloom": "devourer_bloom",
+  "Stone Jaguar": "stone_jaguar",
+  "Temple Guardian": "temple_guardian",
+  "Venom Priest": "venom_priest",
+  "Golden Idol": "golden_idol",
+  "Ancient Gorilla": "ancient_gorilla",
+  "Emerald Basilisk": "emerald_basilisk",
+  "Jungle Guardian": "jungle_guardian",
+  "The Green Warden": "green_warden",
+  "Elite Voodoo Warrior": "elite_voodoo_warrior",
+  "Soul Devourer": "soul_devourer",
+  "Cursed Colossus": "cursed_colossus",
+  "Ancient Loa": "ancient_loa",
+  "Spirit of the Crocolisk": "spirit_crocolisk",
+  "Spirit of the Gorilla": "spirit_gorilla",
+  "Spirit of the Eagle": "spirit_eagle",
+  "Zam'Koro, The Loa of Endless Night": "zamkoro",
 };
 
 const MONSTER_COLORS: Record<string, string> = {
@@ -83,34 +165,94 @@ const MONSTER_COLORS: Record<string, string> = {
   boss_countess: "#dd2266",
   succubus: "#cc4488",
   boss_andariel: "#88cc22",
-  // Act 2
-  imp: "#ff6600",
-  boss_imp: "#ff8800",
-  magma_snail: "#ff5500",
-  lava_golem: "#ff7722",
-  fire_elemental: "#ffaa00",
-  volcanic_boar: "#cc4400",
-  boss_emberfire: "#ff8800",
-  fire_bat: "#ff4400",
-  smoke_cloud: "#aaaaaa",
-  rock_hound: "#998866",
-  boss_it: "#667744",
-  lesser_devil: "#cc2200",
-  obsidian_skeleton: "#8899bb",
-  hell_wyrm: "#aa3300",
-  chaos_warlock: "#9933cc",
-  boss_reltih: "#ff3300",
-  hell_spawn: "#dd2200",
+  // Act 1 — new
+  rat: "#997755",
+  leech: "#445533",
+  boss_rat: "#775533",
+  elk: "#886644",
+  boar: "#665544",
+  bear: "#664422",
+  bat: "#667788",
+  dire_wolf: "#556677",
+  boss_wolf: "#c8c0b0",
+  scarecrow: "#997733",
+  boss_shadow: "#3344aa",
+  skeleton: "#aabbaa",
+  undead_hound: "#99aaaa",
+  boss_bones: "#bbccbb",
+  crypt_lurker: "#667744",
+  bone_golem: "#99aaaa",
+  boss_niktag: "#8844cc",
+  goblin: "#557733",
+  goblin_priest: "#448833",
+  boss_goblin: "#449922",
+  scoundrel: "#8877aa",
+  bandit: "#997755",
+  contract_killer: "#556677",
+  boss_guard: "#8899bb",
+  boss_chieftain: "#996644",
   ghost: "#8899cc",
-  demon: "#bb2200",
-  boss_reaper: "#aaccff",
-  prophet: "#cc88ff",
-  boss_core: "#ff2200",
+  smoke_cloud: "#aaaaaa",
+  // Act 2 — ice
+  snow_wolf: "#c0d8f0",
+  frost_harpy: "#8ab8e8",
+  glacial_bear: "#a0c4d8",
+  ice_golem: "#7fb8d4",
+  frozen_revenant: "#6090b8",
+  crystal_colossus: "#90d8f8",
+  icehorn_mammoth: "#b0c4d0",
+  frost_lynx: "#a8c8e0",
+  ice_troll: "#788a98",
+  pale_stag: "#e8f4ff",
+  spirit_owl: "#c8d8f0",
+  crystal_elemental: "#60d0f8",
+  moon_reflection: "#d0d8f8",
+  frost_wraith: "#5070a8",
+  ice_wyvern: "#4890c8",
+  white_chimera: "#d8e8f8",
+  crystal_spider: "#88c8e8",
+  frost_ogre: "#889898",
+  glacier_worm: "#607888",
+  frozen_taur: "#7090b0",
+  frost_dwarf: "#9090a8",
+  frost_knight: "#8090c0",
+  dwarven_warrior: "#a09878",
+  frozen_forge_core: "#60a8d8",
+  glacial_eagle: "#b8d0e8",
+  elder_harpy: "#7098c0",
+  ghost_of_mountain: "#d0e0f8",
+  frozen_bones: "#c8d8e0",
+  azure_dragon: "#3880d0",
+  avalanche_elemental: "#b0c4d8",
+  sikktharkk: "#1850b8",
+  // ── Act 3 ──
+  jungle_stalker:"#3a6a28", thorn_hunter:"#7a5a2a", venom_viper:"#6aaa28",
+  ancient_treant:"#4a7820", swamp_serpent:"#4a7230", poison_toad:"#80a838",
+  mother_of_swamp:"#5a8038", jungle_harpy:"#4a8a40", piranha_school:"#c05030",
+  thorn_dryad:"#4a7a3a", emerald_crocolisk:"#2a7a3a", cursed_tribesman:"#7a6040",
+  haunted_mask:"#b080b8", voodoo_shaman:"#704880", soul_collector:"#5030a0",
+  blood_vine:"#b83030", carnivorous_plant:"#588028", giant_tarantula:"#4a3020",
+  devourer_bloom:"#b04878", stone_jaguar:"#706850", temple_guardian:"#808060",
+  venom_priest:"#507040", golden_idol:"#c89810", ancient_gorilla:"#4a3820",
+  emerald_basilisk:"#2a8040", jungle_guardian:"#4a6030", green_warden:"#3a7020",
+  elite_voodoo_warrior:"#583070", soul_devourer:"#402090", cursed_colossus:"#706090",
+  ancient_loa:"#201880", spirit_crocolisk:"#50b870", spirit_gorilla:"#70b890",
+  spirit_eagle:"#90b8d0", zamkoro:"#100840",
 };
 
 type AnimStyle = "float" | "sway" | "stomp" | "skitter" | "pulse" | "lurch";
 
 const TYPE_ANIM: Record<string, AnimStyle> = {
+  // Act 1 — new
+  rat: "skitter", leech: "lurch", boss_rat: "stomp",
+  elk: "stomp", boar: "stomp", bear: "stomp",
+  bat: "float", dire_wolf: "stomp", boss_wolf: "stomp",
+  scarecrow: "sway", boss_shadow: "float",
+  skeleton: "sway", undead_hound: "skitter", boss_bones: "lurch",
+  crypt_lurker: "skitter", bone_golem: "stomp", boss_niktag: "sway",
+  goblin: "skitter", goblin_priest: "sway", boss_goblin: "stomp",
+  scoundrel: "skitter", bandit: "sway", contract_killer: "skitter",
+  boss_guard: "stomp", boss_chieftain: "stomp",
   fallen: "skitter", fallen_elite: "skitter",
   bird: "float",
   shaman: "sway", hag: "sway",
@@ -124,18 +266,32 @@ const TYPE_ANIM: Record<string, AnimStyle> = {
   boss_fallen: "stomp", boss_tree: "stomp",
   boss_countess: "sway", boss_andariel: "pulse",
   succubus: "float",
-  imp: "skitter", boss_imp: "pulse",
-  magma_snail: "lurch", lava_golem: "stomp",
-  fire_elemental: "float", volcanic_boar: "stomp",
-  boss_emberfire: "pulse",
-  fire_bat: "float", smoke_cloud: "float", rock_hound: "stomp",
-  boss_it: "stomp",
-  lesser_devil: "skitter", obsidian_skeleton: "sway",
-  hell_wyrm: "sway", chaos_warlock: "sway",
-  boss_reltih: "stomp",
-  hell_spawn: "skitter", ghost: "float", demon: "stomp",
-  boss_reaper: "sway",
-  prophet: "sway", boss_core: "pulse",
+  ghost: "float", smoke_cloud: "float",
+  // Act 2 — ice
+  snow_wolf: "sway", frost_harpy: "float", glacial_bear: "stomp",
+  ice_golem: "stomp", frozen_revenant: "sway", crystal_colossus: "stomp",
+  icehorn_mammoth: "stomp", frost_lynx: "skitter", ice_troll: "stomp",
+  pale_stag: "sway", spirit_owl: "float", crystal_elemental: "float",
+  moon_reflection: "sway", frost_wraith: "float", ice_wyvern: "float",
+  white_chimera: "stomp", crystal_spider: "skitter", frost_ogre: "stomp",
+  glacier_worm: "lurch", frozen_taur: "stomp", frost_dwarf: "stomp",
+  frost_knight: "sway", dwarven_warrior: "stomp", frozen_forge_core: "pulse",
+  glacial_eagle: "float", elder_harpy: "float", ghost_of_mountain: "float",
+  frozen_bones: "sway", azure_dragon: "float", avalanche_elemental: "stomp",
+  sikktharkk: "float",
+  // ── Act 3 ──
+  jungle_stalker:"skitter", thorn_hunter:"sway", venom_viper:"sway",
+  ancient_treant:"stomp", swamp_serpent:"sway", poison_toad:"skitter",
+  mother_of_swamp:"lurch", jungle_harpy:"float", piranha_school:"skitter",
+  thorn_dryad:"sway", emerald_crocolisk:"stomp", cursed_tribesman:"sway",
+  haunted_mask:"float", voodoo_shaman:"sway", soul_collector:"float",
+  blood_vine:"sway", carnivorous_plant:"pulse", giant_tarantula:"skitter",
+  devourer_bloom:"pulse", stone_jaguar:"skitter", temple_guardian:"stomp",
+  venom_priest:"sway", golden_idol:"stomp", ancient_gorilla:"stomp",
+  emerald_basilisk:"sway", jungle_guardian:"stomp", green_warden:"stomp",
+  elite_voodoo_warrior:"sway", soul_devourer:"float", cursed_colossus:"stomp",
+  ancient_loa:"float", spirit_crocolisk:"float", spirit_gorilla:"float",
+  spirit_eagle:"float", zamkoro:"float",
 };
 
 function getAnimate(state: SpriteState, type: string) {
@@ -171,6 +327,1722 @@ function getTransition(state: SpriteState, type: string) {
 }
 
 const SPRITES: Record<string, ReactNode> = {
+  // ── Act 1 new sprites ──────────────────────────────────────────────────────
+  rat: (
+    <>
+      <ellipse cx="32" cy="62" rx="22" ry="14" />
+      <ellipse cx="50" cy="50" rx="12" ry="10" />
+      <path d="M60 48 L68 50 L60 54 Z" />
+      <ellipse cx="42" cy="42" rx="5" ry="6" />
+      <circle cx="56" cy="47" r="2.5" fill="#ff2200" stroke="none" />
+      <path d="M64 50 L76 46 M64 50 L76 50 M64 52 L76 54" strokeWidth="1.2" />
+      <path d="M18 72 L12 80 M26 74 L22 82 M40 74 L44 82 M48 72 L54 80" strokeWidth="3.5" />
+      <path d="M12 64 C-2 62 -6 72 -2 78" fill="none" strokeWidth="2.5" />
+    </>
+  ),
+
+  leech: (
+    <>
+      <ellipse cx="32" cy="68" rx="20" ry="12" />
+      <ellipse cx="32" cy="54" rx="17" ry="10" />
+      <ellipse cx="32" cy="40" rx="14" ry="9" />
+      <ellipse cx="32" cy="28" rx="11" ry="8" />
+      <ellipse cx="32" cy="16" rx="10" ry="10" />
+      <circle cx="32" cy="12" r="6" fill="none" strokeWidth="2" />
+      <circle cx="32" cy="12" r="3" fill="none" strokeWidth="1.5" />
+      <circle cx="24" cy="18" r="2.5" fill="#ff4400" stroke="none" />
+      <circle cx="40" cy="18" r="2.5" fill="#ff4400" stroke="none" />
+      <path d="M14 60 Q32 56 50 60 M16 46 Q32 42 48 46 M18 34 Q32 30 46 34" fill="none" strokeWidth="1" strokeOpacity="0.4" />
+    </>
+  ),
+
+  boss_rat: (
+    <>
+      <path d="M20 12 L18 2 L24 10 L28 0 L32 10 L36 0 L40 10 L46 2 L44 12 Z" />
+      <ellipse cx="32" cy="24" rx="14" ry="13" />
+      <ellipse cx="24" cy="22" rx="4" ry="4" fill="#ff2200" stroke="none" />
+      <ellipse cx="40" cy="22" rx="4" ry="4" fill="#ff2200" stroke="none" />
+      <ellipse cx="32" cy="32" rx="6" ry="4" />
+      <path d="M28 34 L26 40 M36 34 L38 40" strokeWidth="2.5" />
+      <path d="M12 40 L52 40 L54 78 L10 78 Z" />
+      <ellipse cx="18" cy="16" rx="7" ry="8" />
+      <ellipse cx="46" cy="16" rx="7" ry="8" />
+      <path d="M12 44 L-2 62 L8 66 L18 52 Z" />
+      <path d="M-2 62 L-6 56 M0 62 L-4 56 M2 64 L-2 58" strokeWidth="1.5" />
+      <path d="M52 44 L66 62 L56 66 L46 52 Z" />
+      <path d="M66 62 L70 56 M64 62 L68 56 M62 64 L66 58" strokeWidth="1.5" />
+      <rect x="10" y="78" width="18" height="14" rx="4" />
+      <rect x="36" y="78" width="18" height="14" rx="4" />
+      <path d="M12 70 C0 72 -4 82 0 88" fill="none" strokeWidth="4" />
+    </>
+  ),
+
+  elk: (
+    <>
+      <path d="M24 8 L20 -4 L26 4 M20 -4 L16 -10 M20 -4 L24 -10" fill="none" strokeWidth="2.5" />
+      <path d="M40 8 L44 -4 L38 4 M44 -4 L48 -10 M44 -4 L40 -10" fill="none" strokeWidth="2.5" />
+      <ellipse cx="32" cy="16" rx="9" ry="11" />
+      <path d="M38 20 L52 18 L38 26 Z" />
+      <circle cx="28" cy="14" r="3" fill="#552200" stroke="none" />
+      <path d="M26 26 L38 26 L36 40 L28 40 Z" />
+      <ellipse cx="32" cy="58" rx="20" ry="18" />
+      <rect x="14" y="72" width="9" height="22" rx="3" />
+      <rect x="24" y="74" width="9" height="20" rx="3" />
+      <rect x="35" y="74" width="9" height="20" rx="3" />
+      <rect x="45" y="72" width="9" height="22" rx="3" />
+      <ellipse cx="12" cy="52" rx="5" ry="4" />
+    </>
+  ),
+
+  boar: (
+    <>
+      <path d="M14 36 L12 24 M22 32 L20 18 M32 30 L32 16 M42 32 L44 18 M50 36 L52 24" strokeWidth="2.5" />
+      <ellipse cx="32" cy="22" rx="13" ry="12" />
+      <ellipse cx="32" cy="30" rx="8" ry="6" />
+      <circle cx="28" cy="31" r="2" fill="#000" stroke="none" />
+      <circle cx="36" cy="31" r="2" fill="#000" stroke="none" />
+      <ellipse cx="23" cy="19" rx="3" ry="3" fill="#220000" stroke="none" />
+      <ellipse cx="41" cy="19" rx="3" ry="3" fill="#220000" stroke="none" />
+      <path d="M22 32 L12 42 L16 40" strokeWidth="4" strokeLinecap="round" />
+      <path d="M42 32 L52 42 L48 40" strokeWidth="4" strokeLinecap="round" />
+      <path d="M8 40 L56 40 L54 72 L10 72 Z" />
+      <rect x="10" y="72" width="14" height="18" rx="3" />
+      <rect x="26" y="72" width="12" height="18" rx="3" />
+      <rect x="40" y="72" width="12" height="18" rx="3" />
+      <path d="M54 52 C60 50 62 56 58 58 C56 52 60 50 54 52" fill="none" strokeWidth="2" />
+    </>
+  ),
+
+  bear: (
+    <>
+      {/* body - horizontal quadruped */}
+      <ellipse cx="30" cy="60" rx="26" ry="16" />
+      {/* shoulder hump */}
+      <ellipse cx="46" cy="50" rx="12" ry="10" />
+      {/* rump */}
+      <ellipse cx="12" cy="54" rx="10" ry="9" />
+      {/* head */}
+      <circle cx="54" cy="44" r="14" />
+      {/* round ears */}
+      <circle cx="44" cy="31" r="8" />
+      <circle cx="60" cy="30" r="8" />
+      {/* snout */}
+      <ellipse cx="65" cy="49" rx="7" ry="5" />
+      {/* nose */}
+      <ellipse cx="69" cy="47" rx="3.5" ry="2.5" fill="#220000" stroke="none" />
+      {/* eye */}
+      <ellipse cx="49" cy="39" rx="3.5" ry="3.5" fill="#220000" stroke="none" />
+      {/* neck */}
+      <path d="M44 50 C40 54 40 58 44 62" fill="none" strokeWidth="8" strokeLinecap="round" />
+      {/* 4 legs */}
+      <rect x="10" y="73" width="11" height="20" rx="4" />
+      <rect x="24" y="75" width="11" height="18" rx="4" />
+      <rect x="39" y="75" width="11" height="18" rx="4" />
+      <rect x="52" y="73" width="11" height="20" rx="4" />
+      {/* claws */}
+      <path d="M10 91 L8 97 M15 92 L13 98 M20 91 L22 97" strokeWidth="2" />
+      <path d="M52 91 L50 97 M57 92 L55 98 M62 91 L64 97" strokeWidth="2" />
+      {/* tail */}
+      <path d="M5 54 C-5 44 -5 54 1 62" fill="none" strokeWidth="6" strokeLinecap="round" />
+      {/* fur shading */}
+      <path d="M20 52 C22 58 22 62 20 66 M34 50 C36 56 36 60 34 64" fill="none" strokeWidth="1.5" strokeOpacity="0.25" />
+    </>
+  ),
+
+  bat: (
+    <>
+      <path d="M32 46 C22 38 10 26 4 12 C10 14 14 22 18 30 C12 18 14 6 22 8 C22 20 24 34 30 44 Z" />
+      <path d="M32 46 C42 38 54 26 60 12 C54 14 50 22 46 30 C52 18 50 6 42 8 C42 20 40 34 34 44 Z" />
+      <path d="M18 30 L14 24 M22 20 L18 14" strokeWidth="1.8" />
+      <path d="M46 30 L50 24 M42 20 L46 14" strokeWidth="1.8" />
+      <ellipse cx="32" cy="54" rx="10" ry="12" />
+      <circle cx="32" cy="34" r="8" />
+      <polygon points="27,30 23,16 30,28" />
+      <polygon points="37,30 41,16 34,28" />
+      <circle cx="28" cy="33" r="2.5" fill="#cc3300" stroke="none" />
+      <circle cx="36" cy="33" r="2.5" fill="#cc3300" stroke="none" />
+      <path d="M29 39 L28 44 M35 39 L36 44" strokeWidth="1.8" />
+      <path d="M26 64 L22 74 M32 66 L30 76 M38 64 L42 74" strokeWidth="3" />
+    </>
+  ),
+
+  dire_wolf: (
+    <>
+      {/* body - horizontal quadruped */}
+      <ellipse cx="28" cy="58" rx="24" ry="14" />
+      {/* shoulder hump */}
+      <ellipse cx="44" cy="50" rx="11" ry="9" />
+      {/* rump */}
+      <ellipse cx="10" cy="54" rx="9" ry="8" />
+      {/* head */}
+      <ellipse cx="54" cy="44" rx="13" ry="12" />
+      {/* pointed ears */}
+      <polygon points="44,33 38,16 52,31" />
+      <polygon points="58,33 52,16 66,31" />
+      {/* elongated snout */}
+      <path d="M64 41 L78 45 L64 51 Z" />
+      {/* eye */}
+      <ellipse cx="48" cy="40" rx="3.5" ry="3.5" fill="#ffaa00" stroke="none" />
+      {/* neck fur */}
+      <path d="M44 52 C40 56 40 60 44 64" fill="none" strokeWidth="7" strokeLinecap="round" />
+      {/* 4 legs */}
+      <rect x="8" y="68" width="9" height="24" rx="3" />
+      <rect x="20" y="70" width="9" height="22" rx="3" />
+      <rect x="37" y="70" width="9" height="22" rx="3" />
+      <rect x="50" y="68" width="9" height="24" rx="3" />
+      {/* claws */}
+      <path d="M8 90 L6 96 M13 91 L11 97 M17 90 L19 96" strokeWidth="2" />
+      {/* tail curving up */}
+      <path d="M5 52 C-6 38 -4 26 4 30 C6 40 4 48 8 54" fill="none" strokeWidth="5" strokeLinecap="round" />
+    </>
+  ),
+
+  boss_wolf: (
+    <>
+      {/* large jagged wolf ears */}
+      <polygon points="14,6 6,-14 24,4" />
+      <polygon points="50,6 58,-14 40,4" />
+      <path d="M10,-4 L14,6" strokeWidth="2" strokeOpacity="0.5" />
+      <path d="M54,-4 L50,6" strokeWidth="2" strokeOpacity="0.5" />
+      {/* large wolf head */}
+      <ellipse cx="32" cy="22" rx="20" ry="18" />
+      {/* thick fur ruff around neck */}
+      <path d="M12 36 C8 28 8 24 12 22" fill="none" strokeWidth="6" strokeLinecap="round" />
+      <path d="M52 36 C56 28 56 24 52 22" fill="none" strokeWidth="6" strokeLinecap="round" />
+      {/* glowing eyes */}
+      <ellipse cx="22" cy="20" rx="6" ry="6" fill="#aaccff" stroke="none" />
+      <ellipse cx="42" cy="20" rx="6" ry="6" fill="#aaccff" stroke="none" />
+      <ellipse cx="22" cy="20" rx="2.5" ry="3" fill="#000" stroke="none" />
+      <ellipse cx="42" cy="20" rx="2.5" ry="3" fill="#000" stroke="none" />
+      {/* eye glow rings */}
+      <ellipse cx="22" cy="20" rx="8" ry="8" fill="none" strokeWidth="1.5" stroke="#aaccff" strokeOpacity="0.4" />
+      <ellipse cx="42" cy="20" rx="8" ry="8" fill="none" strokeWidth="1.5" stroke="#aaccff" strokeOpacity="0.4" />
+      {/* elongated snout */}
+      <path d="M48 28 L70 23 L48 36 Z" />
+      {/* fangs hanging from jaw */}
+      <path d="M36 36 L32 48 M40 36 L38 50 M44 34 L44 46" strokeWidth="3.5" />
+      {/* battle scar on face */}
+      <path d="M26 14 L30 22 M28 13 L32 21" strokeWidth="1.5" strokeOpacity="0.4" />
+      {/* hunched powerful torso */}
+      <path d="M6 44 C2 52 2 60 6 68 L58 68 C62 60 62 52 58 44 Z" />
+      {/* fur texture on body */}
+      <path d="M10 50 C12 56 12 62 10 68 M22 48 C24 54 24 60 22 66 M42 48 C44 54 44 60 42 66" fill="none" strokeWidth="1.2" strokeOpacity="0.2" />
+      {/* massive clawed arms */}
+      <path d="M8 46 C-4 56 -10 72 -6 84 L6 82 C4 70 8 58 16 50 Z" />
+      <path d="M56 44 C68 54 74 70 70 82 L58 80 C60 68 56 56 48 48 Z" />
+      {/* clawed fists */}
+      <ellipse cx="-3" cy="83" rx="10" ry="7" />
+      <path d="M-10 79 L-16 71 M-8 83 L-14 77 M-4 85 L-8 81 M2 85 L0 79" strokeWidth="2.5" />
+      <ellipse cx="67" cy="81" rx="10" ry="7" />
+      <path d="M74 77 L80 69 M72 81 L78 75 M68 83 L72 79 M62 83 L64 77" strokeWidth="2.5" />
+      {/* thick wolf legs */}
+      <rect x="6" y="68" width="22" height="18" rx="4" />
+      <rect x="36" y="68" width="22" height="18" rx="4" />
+      {/* paw feet */}
+      <rect x="4" y="86" width="24" height="10" rx="4" />
+      <rect x="36" y="86" width="24" height="10" rx="4" />
+      {/* toe claws */}
+      <path d="M4 94 L2 100 M9 95 L7 101 M14 95 L12 101 M20 95 L18 101 M27 94 L29 100" strokeWidth="2" />
+      <path d="M36 94 L34 100 M41 95 L39 101 M46 95 L44 101 M52 95 L50 101 M59 94 L61 100" strokeWidth="2" />
+    </>
+  ),
+
+  scarecrow: (
+    <>
+      <rect x="18" y="4" width="28" height="6" rx="1" />
+      <rect x="22" y="-6" width="20" height="12" rx="2" />
+      <ellipse cx="32" cy="18" rx="11" ry="12" />
+      <path d="M24 14 L28 18 M28 14 L24 18" strokeWidth="2" />
+      <path d="M36 14 L40 18 M40 14 L36 18" strokeWidth="2" />
+      <path d="M24 24 L28 22 L32 24 L36 22 L40 24" fill="none" strokeWidth="1.5" />
+      <rect x="30" y="28" width="4" height="52" rx="1" />
+      <rect x="4" y="38" width="56" height="4" rx="1" />
+      <path d="M20 36 L44 36 L42 70 L22 70 Z" />
+      <path d="M20 36 L14 28 M18 42 L8 38 M20 50 L10 50" strokeWidth="2" strokeOpacity="0.7" />
+      <path d="M44 36 L50 28 M46 42 L56 38 M44 50 L54 50" strokeWidth="2" strokeOpacity="0.7" />
+      <rect x="22" y="70" width="12" height="20" rx="3" />
+      <rect x="30" y="70" width="12" height="20" rx="3" />
+    </>
+  ),
+
+  boss_shadow: (
+    <>
+      <path d="M18 10 C14 2 18 -4 24 0 C22 -6 30 -10 32 -2 C34 -10 42 -6 40 0 C46 -4 50 2 46 10" fill="none" strokeWidth="2.5" strokeOpacity="0.6" />
+      <ellipse cx="32" cy="18" rx="14" ry="14" />
+      <ellipse cx="24" cy="16" rx="5" ry="6" fill="#000" stroke="none" />
+      <ellipse cx="40" cy="16" rx="5" ry="6" fill="#000" stroke="none" />
+      <ellipse cx="24" cy="16" rx="3.5" ry="4" fill="#ffffff" stroke="none" fillOpacity="0.9" />
+      <ellipse cx="40" cy="16" rx="3.5" ry="4" fill="#ffffff" stroke="none" fillOpacity="0.9" />
+      <path d="M16 30 L48 30 L52 70 L12 70 Z" />
+      <path d="M16 34 C6 30 2 40 6 48" fill="none" strokeWidth="3.5" strokeOpacity="0.7" />
+      <path d="M48 34 C58 30 62 40 58 48" fill="none" strokeWidth="3.5" strokeOpacity="0.7" />
+      <path d="M16 40 L0 60 L8 64 L20 48 Z" />
+      <path d="M48 40 L64 60 L56 64 L44 48 Z" />
+      <path d="M18 68 C12 78 14 90 10 96 M28 72 C24 84 26 92 22 96 M36 72 C40 84 38 92 42 96 M46 68 C52 78 50 90 54 96" fill="none" strokeWidth="3.5" strokeOpacity="0.5" />
+    </>
+  ),
+
+  skeleton: (
+    <>
+      <ellipse cx="32" cy="14" rx="12" ry="13" />
+      <ellipse cx="26" cy="12" rx="4" ry="4.5" fill="#000" stroke="none" />
+      <ellipse cx="38" cy="12" rx="4" ry="4.5" fill="#000" stroke="none" />
+      <path d="M30 18 L32 16 L34 18 L32 22 Z" fill="#000" stroke="none" />
+      <path d="M26 24 L26 28 M30 24 L30 28 M34 24 L34 28 M38 24 L38 28" strokeWidth="2" />
+      <rect x="26" y="26" width="12" height="36" rx="2" />
+      <path d="M24 30 L40 30 M22 36 L42 36 M22 42 L42 42 M24 48 L40 48 M26 54 L38 54" strokeWidth="1.5" strokeOpacity="0.45" />
+      <path d="M20 60 L44 60 L42 68 L22 68 Z" />
+      <rect x="20" y="68" width="9" height="26" rx="3" />
+      <rect x="35" y="68" width="9" height="26" rx="3" />
+      <path d="M26 30 L10 52 L16 56 L30 38 Z" />
+      <rect x="2" y="20" width="4" height="38" rx="1" />
+      <rect x="-4" y="36" width="16" height="3" rx="1" />
+      <path d="M38 30 L54 50 L48 54 L34 36 Z" />
+    </>
+  ),
+
+  undead_hound: (
+    <>
+      <ellipse cx="48" cy="22" rx="14" ry="12" />
+      <path d="M58 26 L70 28 L58 34 Z" />
+      <ellipse cx="44" cy="20" rx="4.5" ry="4.5" fill="#000" stroke="none" />
+      <ellipse cx="44" cy="20" rx="2.5" ry="2.5" fill="#8899aa" stroke="none" />
+      <ellipse cx="32" cy="50" rx="20" ry="16" />
+      <path d="M14 44 L50 44 M12 50 L50 50 M14 56 L50 56" strokeWidth="1.5" strokeOpacity="0.4" />
+      <path d="M36 30 C38 36 38 40 34 44" fill="none" strokeWidth="4" />
+      <path d="M14 50 C4 46 -2 54 2 60" fill="none" strokeWidth="3" />
+      <rect x="16" y="62" width="8" height="24" rx="2" />
+      <rect x="26" y="62" width="8" height="24" rx="2" />
+      <rect x="38" y="62" width="8" height="24" rx="2" />
+      <rect x="48" y="60" width="8" height="24" rx="2" />
+      <path d="M14 84 L10 90 M20 86 L18 92 M38 86 L34 92 M48 84 L44 90" strokeWidth="2.5" />
+    </>
+  ),
+
+  boss_bones: (
+    <>
+      <ellipse cx="20" cy="32" rx="10" ry="10" />
+      <ellipse cx="44" cy="28" rx="9" ry="9" />
+      <ellipse cx="32" cy="20" rx="8" ry="8" />
+      <ellipse cx="16" cy="30" rx="3" ry="3.5" fill="#000" stroke="none" />
+      <ellipse cx="24" cy="30" rx="3" ry="3.5" fill="#000" stroke="none" />
+      <ellipse cx="40" cy="26" rx="2.5" ry="3" fill="#000" stroke="none" />
+      <ellipse cx="48" cy="26" rx="2.5" ry="3" fill="#000" stroke="none" />
+      <ellipse cx="28" cy="18" rx="2.5" ry="3" fill="#000" stroke="none" />
+      <ellipse cx="36" cy="18" rx="2.5" ry="3" fill="#000" stroke="none" />
+      <path d="M6 44 C4 34 10 26 20 24 C18 16 24 8 32 12 C40 8 46 16 44 24 C54 26 60 34 58 44 L60 80 C56 88 44 92 32 92 C20 92 8 88 4 80 Z" />
+      <path d="M10 50 L18 46 L14 54 M18 60 L26 56 L22 64 M10 68 L18 64 L14 72" fill="none" strokeWidth="2" strokeOpacity="0.45" />
+      <path d="M54 50 L46 46 L50 54 M46 60 L38 56 L42 64 M54 68 L46 64 L50 72" fill="none" strokeWidth="2" strokeOpacity="0.45" />
+      <path d="M8 48 L-6 66 L4 72 L16 58 Z" />
+      <path d="M56 48 L70 66 L60 72 L48 58 Z" />
+      <path d="M22 44 L20 50 M28 46 L26 52 M36 46 L37 52 M42 44 L44 50" strokeWidth="2.5" />
+    </>
+  ),
+
+  crypt_lurker: (
+    <>
+      <path d="M32 28 C36 18 42 12 46 6 C48 2 50 4 48 8 C46 12 42 16 40 20" fill="none" strokeWidth="4" strokeLinecap="round" />
+      <polygon points="50,4 46,0 44,8" />
+      <ellipse cx="32" cy="52" rx="24" ry="20" />
+      <path d="M14 44 Q32 38 50 44 M12 54 Q32 48 52 54" fill="none" strokeWidth="1.2" strokeOpacity="0.4" />
+      <ellipse cx="32" cy="28" rx="12" ry="10" />
+      <path d="M22 32 L10 44 L18 40 M22 32 L12 38" strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M42 32 L54 44 L46 40 M42 32 L52 38" strokeWidth="3.5" strokeLinecap="round" />
+      <circle cx="26" cy="26" r="2.5" fill="#cc4400" stroke="none" />
+      <circle cx="32" cy="24" r="2.5" fill="#cc4400" stroke="none" />
+      <circle cx="38" cy="26" r="2.5" fill="#cc4400" stroke="none" />
+      <path d="M12 48 L0 38 M10 54 L-2 52 M12 60 L0 66 M14 66 L4 74" strokeWidth="2.5" />
+      <path d="M52 48 L64 38 M54 54 L66 52 M52 60 L64 66 M50 66 L60 74" strokeWidth="2.5" />
+    </>
+  ),
+
+  bone_golem: (
+    <>
+      <ellipse cx="32" cy="16" rx="15" ry="14" />
+      <ellipse cx="24" cy="14" rx="5" ry="5.5" fill="#000" stroke="none" />
+      <ellipse cx="40" cy="14" rx="5" ry="5.5" fill="#000" stroke="none" />
+      <ellipse cx="24" cy="14" rx="3" ry="3.5" fill="#9eb8a0" stroke="none" />
+      <ellipse cx="40" cy="14" rx="3" ry="3.5" fill="#9eb8a0" stroke="none" />
+      <path d="M22 26 L20 34 M28 26 L28 34 M36 26 L36 34 M42 26 L44 34" strokeWidth="2.5" />
+      <path d="M8 30 C2 24 0 14 8 12 C6 22 8 26 12 30 Z" />
+      <path d="M56 30 C62 24 64 14 56 12 C58 22 56 26 52 30 Z" />
+      <path d="M12 30 L52 30 L50 70 L14 70 Z" />
+      <path d="M14 38 L50 38 M12 46 L52 46 M12 54 L52 54 M14 62 L50 62" strokeWidth="2" strokeOpacity="0.4" />
+      <rect x="-2" y="32" width="14" height="42" rx="5" />
+      <rect x="52" y="30" width="14" height="38" rx="5" />
+      <path d="M50 30 L52 16 L64 16 L66 32 L56 36 Z" />
+      <path d="M14 70 C10 78 12 86 18 88 M50 70 C54 78 52 86 46 88" strokeWidth="5" />
+      <rect x="18" y="70" width="12" height="26" rx="4" />
+      <rect x="34" y="70" width="12" height="26" rx="4" />
+    </>
+  ),
+
+  boss_niktag: (
+    <>
+      <path d="M20 8 C18 -2 24 -8 32 -4 C40 -8 46 -2 44 8 Z" />
+      <path d="M22 8 L20 0 L26 6 M32 6 L30 -2 L34 -2 L32 6 M42 8 L44 0 L38 6" strokeWidth="2" />
+      <ellipse cx="32" cy="20" rx="11" ry="12" />
+      <ellipse cx="26" cy="18" rx="4" ry="4.5" fill="#000" stroke="none" />
+      <ellipse cx="38" cy="18" rx="4" ry="4.5" fill="#000" stroke="none" />
+      <ellipse cx="26" cy="18" rx="2.5" ry="3" fill="#9933cc" stroke="none" />
+      <ellipse cx="38" cy="18" rx="2.5" ry="3" fill="#9933cc" stroke="none" />
+      <path d="M26 30 L22 44 L26 42 L24 52 L30 48 L28 56" fill="none" strokeWidth="1.8" strokeOpacity="0.5" />
+      <path d="M16 30 L48 30 C50 48 50 66 46 80 L18 80 C14 66 14 48 16 30 Z" />
+      <path d="M18 80 L14 94 L50 94 L46 80" />
+      <path d="M16 36 L2 58 L10 62 L22 44 Z" />
+      <path d="M48 34 L58 22 L54 28 L48 42 Z" />
+      <rect x="56" y="-4" width="4" height="62" rx="2" />
+      <ellipse cx="58" cy="-8" rx="8" ry="7" />
+      <ellipse cx="54" cy="-10" rx="2.5" ry="3" fill="#000" stroke="none" />
+      <ellipse cx="62" cy="-10" rx="2.5" ry="3" fill="#000" stroke="none" />
+      <ellipse cx="54" cy="-10" rx="1.5" ry="2" fill="#9933cc" stroke="none" />
+      <ellipse cx="62" cy="-10" rx="1.5" ry="2" fill="#9933cc" stroke="none" />
+    </>
+  ),
+
+  goblin: (
+    <>
+      <ellipse cx="18" cy="18" rx="7" ry="5" transform="rotate(-20 18 18)" />
+      <ellipse cx="46" cy="18" rx="7" ry="5" transform="rotate(20 46 18)" />
+      <ellipse cx="32" cy="22" rx="12" ry="12" />
+      <path d="M38 26 L48 28 L38 32 Z" />
+      <circle cx="27" cy="19" r="3" fill="#ff6600" stroke="none" />
+      <circle cx="37" cy="19" r="3" fill="#ff6600" stroke="none" />
+      <circle cx="27" cy="19" r="1.2" fill="#000" stroke="none" />
+      <circle cx="37" cy="19" r="1.2" fill="#000" stroke="none" />
+      <path d="M24 28 Q32 34 40 28" fill="none" strokeWidth="1.8" />
+      <rect x="28" y="28" width="4" height="5" rx="1" />
+      <rect x="33" y="28" width="4" height="5" rx="1" />
+      <path d="M20 34 L44 34 L42 64 L22 64 Z" />
+      <path d="M20 38 L6 56 L12 60 L24 46 Z" />
+      <path d="M44 36 L56 52 L50 56 L40 44 Z" />
+      <rect x="54" y="40" width="6" height="22" rx="3" />
+      <ellipse cx="57" cy="38" rx="7" ry="5" />
+      <rect x="20" y="64" width="12" height="18" rx="3" />
+      <rect x="32" y="64" width="12" height="18" rx="3" />
+    </>
+  ),
+
+  goblin_priest: (
+    <>
+      <ellipse cx="18" cy="16" rx="6" ry="4" transform="rotate(-20 18 16)" />
+      <ellipse cx="46" cy="16" rx="6" ry="4" transform="rotate(20 46 16)" />
+      <ellipse cx="32" cy="20" rx="11" ry="11" />
+      <path d="M38 24 L48 26 L38 30 Z" />
+      <circle cx="27" cy="17" r="3" fill="#44ff44" stroke="none" />
+      <circle cx="37" cy="17" r="3" fill="#44ff44" stroke="none" />
+      <path d="M24 26 Q32 32 40 26" fill="none" strokeWidth="1.8" />
+      <path d="M22 32 C22 28 32 26 42 28 C42 32 32 30 22 32" fill="none" strokeWidth="1.5" strokeOpacity="0.5" />
+      <path d="M16 32 L48 32 C50 50 50 68 46 82 L18 82 C14 68 14 50 16 32 Z" />
+      <path d="M16 38 L4 58 L10 62 L22 46 Z" />
+      <path d="M48 36 L58 52 L54 56 L42 44 Z" />
+      <rect x="56" y="4" width="4" height="52" rx="2" />
+      <circle cx="58" cy="6" r="7" />
+      <ellipse cx="54" cy="4" rx="2.5" ry="3" fill="#000" stroke="none" />
+      <ellipse cx="62" cy="4" rx="2.5" ry="3" fill="#000" stroke="none" />
+    </>
+  ),
+
+  boss_goblin: (
+    <>
+      <path d="M18 12 L18 2 L22 10 L26 2 L30 10 L34 2 L38 10 L42 2 L46 10 L46 12 Z" />
+      <circle cx="22" cy="6" r="3" />
+      <circle cx="32" cy="4" r="3" />
+      <circle cx="42" cy="6" r="3" />
+      <ellipse cx="32" cy="22" rx="16" ry="15" />
+      <path d="M42 28 L56 30 L42 36 Z" />
+      <ellipse cx="22" cy="20" rx="5" ry="5" fill="#ffcc00" stroke="none" />
+      <ellipse cx="40" cy="20" rx="5" ry="5" fill="#ffcc00" stroke="none" />
+      <ellipse cx="22" cy="20" rx="2" ry="2.5" fill="#000" stroke="none" />
+      <ellipse cx="40" cy="20" rx="2" ry="2.5" fill="#000" stroke="none" />
+      <ellipse cx="14" cy="20" rx="8" ry="6" />
+      <ellipse cx="50" cy="20" rx="8" ry="6" />
+      <path d="M20 30 Q32 40 44 30" fill="none" strokeWidth="2" />
+      <path d="M24 30 L22 38 M30 32 L28 40 M34 32 L36 40 M40 30 L42 38" strokeWidth="2.5" />
+      <path d="M6 40 L58 40 L62 84 L2 84 Z" />
+      <path d="M6 60 C4 72 6 80 18 82 M58 60 C60 72 58 80 46 82" strokeWidth="1.5" strokeOpacity="0.3" />
+      <rect x="4" y="84" width="24" height="10" rx="3" />
+      <rect x="36" y="84" width="24" height="10" rx="3" />
+      <path d="M6 46 L-6 70 L6 76 L18 58 Z" />
+      <path d="M58 46 L70 70 L58 76 L46 58 Z" />
+      <circle cx="-4" cy="72" r="9" />
+      <path d="M-8 70 L0 70 M-6 74 L2 74" strokeWidth="1.5" strokeOpacity="0.4" />
+    </>
+  ),
+
+  scoundrel: (
+    <>
+      <path d="M18 6 C14 -2 18 -8 32 -6 C46 -8 50 -2 46 6 L42 16 L22 16 Z" />
+      <ellipse cx="32" cy="20" rx="10" ry="10" />
+      <ellipse cx="27" cy="18" rx="3" ry="3" fill="#000" stroke="none" />
+      <ellipse cx="37" cy="18" rx="3" ry="3" fill="#000" stroke="none" />
+      <ellipse cx="27" cy="18" rx="1.5" ry="1.5" fill="#cc8800" stroke="none" />
+      <ellipse cx="37" cy="18" rx="1.5" ry="1.5" fill="#cc8800" stroke="none" />
+      <path d="M20 28 L44 28 L46 58 L18 58 Z" />
+      <path d="M20 28 C12 32 6 44 8 58 L18 58 Z" />
+      <path d="M44 28 C52 32 58 44 56 58 L46 58 Z" />
+      <path d="M20 34 L6 52 L12 56 L24 42 Z" />
+      <path d="M44 34 L58 50 L52 56 L40 42 Z" />
+      <rect x="0" y="36" width="4" height="22" rx="1" />
+      <rect x="-4" y="50" width="12" height="3" rx="1" />
+      <rect x="60" y="34" width="4" height="22" rx="1" />
+      <rect x="56" y="48" width="12" height="3" rx="1" />
+      <path d="M20 56 L14 72 L24 76 L28 62 Z" />
+      <path d="M44 56 L50 72 L40 76 L36 62 Z" />
+    </>
+  ),
+
+  bandit: (
+    <>
+      <path d="M20 6 Q32 0 44 6 L44 14 L20 14 Z" />
+      <ellipse cx="32" cy="20" rx="10" ry="11" />
+      <ellipse cx="27" cy="19" rx="2.5" ry="2.5" fill="#220000" stroke="none" />
+      <ellipse cx="37" cy="19" rx="2.5" ry="2.5" fill="#220000" stroke="none" />
+      <path d="M36 22 L38 28" strokeWidth="1.5" strokeOpacity="0.4" />
+      <path d="M18 30 L46 30 L44 68 L20 68 Z" />
+      <path d="M18 40 L46 40 M20 52 L44 52" strokeWidth="1.2" strokeOpacity="0.3" />
+      <rect x="18" y="56" width="28" height="5" rx="1" />
+      <rect x="18" y="68" width="14" height="24" rx="3" />
+      <rect x="32" y="68" width="14" height="24" rx="3" />
+      <path d="M18 34 L4 54 L10 58 L22 42 Z" />
+      <path d="M46 32 L60 50 L54 56 L40 40 Z" />
+      <rect x="58" y="12" width="4" height="46" rx="1" />
+      <rect x="52" y="34" width="16" height="4" rx="1" />
+    </>
+  ),
+
+  contract_killer: (
+    <>
+      <path d="M16 4 C12 -6 18 -12 32 -8 C46 -12 52 -6 48 4 L46 18 L18 18 Z" />
+      <ellipse cx="32" cy="20" rx="12" ry="10" fill="#000" stroke="none" fillOpacity="0.7" />
+      <ellipse cx="32" cy="20" rx="11" ry="9" />
+      <circle cx="27" cy="19" r="2" fill="#ffffff" stroke="none" fillOpacity="0.7" />
+      <circle cx="37" cy="19" r="2" fill="#ffffff" stroke="none" fillOpacity="0.7" />
+      <path d="M18 28 L46 28 L44 70 L20 70 Z" />
+      <path d="M18 28 C8 34 4 52 6 68 L18 68 Z" />
+      <path d="M46 28 C56 34 60 52 58 68 L46 68 Z" />
+      <path d="M18 30 L46 56 M46 30 L18 56" strokeWidth="1.5" strokeOpacity="0.3" />
+      <path d="M18 34 L2 18 L8 26 L18 42 Z" />
+      <path d="M46 34 L62 18 L56 26 L46 42 Z" />
+      <rect x="-2" y="2" width="3" height="22" rx="1" />
+      <rect x="63" y="2" width="3" height="22" rx="1" />
+      <path d="M20 70 L16 80 L22 84 Z" />
+      <path d="M44 70 L48 80 L42 84 Z" />
+    </>
+  ),
+
+  boss_guard: (
+    <>
+      <path d="M18 12 C18 -2 46 -2 46 12 L46 24 L42 28 L22 28 L18 24 Z" />
+      <rect x="20" y="16" width="8" height="3" rx="1" fill="#000" stroke="none" />
+      <rect x="36" y="16" width="8" height="3" rx="1" fill="#000" stroke="none" />
+      <path d="M28 12 Q32 2 36 12" fill="none" strokeWidth="3" />
+      <rect x="22" y="26" width="20" height="6" rx="2" />
+      <path d="M10 32 L54 32 L54 72 L10 72 Z" />
+      <line x1="32" y1="34" x2="32" y2="70" strokeWidth="2" strokeOpacity="0.3" />
+      <line x1="10" y1="50" x2="54" y2="50" strokeWidth="1.5" strokeOpacity="0.25" />
+      <path d="M10 32 C2 28 -2 36 4 42 L10 42 Z" />
+      <path d="M54 32 C62 28 66 36 60 42 L54 42 Z" />
+      <rect x="10" y="72" width="20" height="22" rx="3" />
+      <rect x="34" y="72" width="20" height="22" rx="3" />
+      <path d="M10 36 L-4 56 L6 62 L18 48 Z" />
+      <path d="M-8 38 C-14 44 -14 62 -8 68 L4 68 L4 38 Z" />
+      <path d="M54 36 L68 54 L58 60 L46 44 Z" />
+      <rect x="66" y="12" width="5" height="50" rx="2" />
+      <rect x="60" y="36" width="18" height="5" rx="2" />
+    </>
+  ),
+
+  boss_chieftain: (
+    <>
+      <path d="M18 10 C18 -2 46 -2 46 10 L46 22 L18 22 Z" />
+      <path d="M18 6 L8 -8 L16 4" fill="none" strokeWidth="4" strokeLinecap="round" />
+      <path d="M46 6 L56 -8 L48 4" fill="none" strokeWidth="4" strokeLinecap="round" />
+      <ellipse cx="32" cy="22" rx="12" ry="11" />
+      <ellipse cx="26" cy="20" rx="3.5" ry="3.5" fill="#cc3300" stroke="none" />
+      <ellipse cx="38" cy="20" rx="3.5" ry="3.5" fill="#cc3300" stroke="none" />
+      <path d="M28 22 L36 26" strokeWidth="2" strokeOpacity="0.4" />
+      <path d="M22 28 C20 36 22 44 28 48 L36 48 C42 44 44 36 42 28 Z" />
+      <path d="M4 42 L60 42 L62 80 L2 80 Z" />
+      <path d="M4 54 L60 54 M6 66 L58 66" strokeWidth="1.5" strokeOpacity="0.3" />
+      <rect x="4" y="80" width="24" height="14" rx="3" />
+      <rect x="36" y="80" width="24" height="14" rx="3" />
+      <path d="M4 46 L-8 70 L4 76 L16 58 Z" />
+      <path d="M60 44 L72 26 L66 34 L56 52 Z" />
+      <rect x="70" y="-2" width="5" height="80" rx="2" />
+      <path d="M70 -2 C58 -8 50 2 54 14 C56 8 62 4 72 4 Z" />
+      <path d="M74 -2 C86 -8 94 2 90 14 C88 8 82 4 72 4 Z" />
+      <path d="M52 12 C54 6 62 2 70 2" fill="none" stroke="currentColor" strokeWidth="1.5" strokeOpacity="0.7" />
+    </>
+  ),
+
+  // ── Act 2 ice sprites ─────────────────────────────────────────────────────
+  snow_wolf: (
+    <>
+      {/* body - horizontal quadruped */}
+      <ellipse cx="28" cy="58" rx="24" ry="14" />
+      {/* fluffy shoulder ruff */}
+      <ellipse cx="44" cy="50" rx="12" ry="9" />
+      {/* rump */}
+      <ellipse cx="10" cy="54" rx="9" ry="8" />
+      {/* ice spike fur on back */}
+      <polygon points="22,46 19,32 26,46" />
+      <polygon points="34,45 31,30 38,45" />
+      {/* head */}
+      <ellipse cx="54" cy="42" rx="14" ry="13" />
+      {/* pointed ears */}
+      <polygon points="44,31 38,13 52,29" />
+      <polygon points="58,31 52,13 66,29" />
+      {/* elongated snout */}
+      <path d="M65 39 L79 43 L65 50 Z" />
+      {/* eye */}
+      <circle cx="48" cy="38" r="4" fill="#aaddff" stroke="none" />
+      {/* neck */}
+      <path d="M44 52 C40 56 40 60 44 64" fill="none" strokeWidth="7" strokeLinecap="round" />
+      {/* 4 legs */}
+      <rect x="8" y="68" width="9" height="24" rx="3" />
+      <rect x="20" y="70" width="9" height="22" rx="3" />
+      <rect x="37" y="70" width="9" height="22" rx="3" />
+      <rect x="50" y="68" width="9" height="24" rx="3" />
+      {/* claws */}
+      <path d="M8 90 L6 96 M13 91 L11 97 M17 90 L19 96" strokeWidth="2" />
+      {/* tail curling up */}
+      <path d="M4 50 C-7 34 -3 22 5 26 C7 38 4 46 8 52" fill="none" strokeWidth="5" strokeLinecap="round" />
+    </>
+  ),
+
+  frost_harpy: (
+    <>
+      <path d="M32 38 C20 28 4 20 0 8 C8 10 14 20 18 28 C8 14 10 2 18 4 C18 16 22 28 30 36 Z" />
+      <path d="M32 38 C44 28 60 20 64 8 C56 10 50 20 46 28 C56 14 54 2 46 4 C46 16 42 28 34 36 Z" />
+      <path d="M18 28 L14 20 M14 20 L10 14 M22 20 L18 14" strokeWidth="1.5" />
+      <path d="M46 28 L50 20 M50 20 L54 14 M42 20 L46 14" strokeWidth="1.5" />
+      <ellipse cx="32" cy="52" rx="10" ry="12" />
+      <ellipse cx="32" cy="36" rx="9" ry="10" />
+      <polygon points="28,30 24,18 32,28" /><polygon points="36,30 40,18 32,28" />
+      <circle cx="28" cy="35" r="2.5" fill="#220000" stroke="none" /><circle cx="36" cy="35" r="2.5" fill="#220000" stroke="none" />
+      <path d="M26 62 L22 72 M32 64 L30 74 M38 62 L42 72" strokeWidth="3.5" />
+    </>
+  ),
+
+  glacial_bear: (
+    <>
+      {/* body - horizontal quadruped */}
+      <ellipse cx="30" cy="60" rx="26" ry="16" />
+      {/* shoulder hump */}
+      <ellipse cx="46" cy="50" rx="12" ry="10" />
+      {/* rump */}
+      <ellipse cx="12" cy="54" rx="10" ry="9" />
+      {/* ice spikes along back */}
+      <polygon points="14,46 11,30 18,46" />
+      <polygon points="28,43 25,26 32,43" />
+      <polygon points="42,43 39,26 46,43" />
+      {/* head */}
+      <circle cx="54" cy="44" r="14" />
+      {/* round ears */}
+      <circle cx="44" cy="31" r="8" />
+      <circle cx="60" cy="30" r="8" />
+      {/* snout */}
+      <ellipse cx="65" cy="49" rx="7" ry="5" />
+      {/* nose */}
+      <ellipse cx="69" cy="47" rx="3.5" ry="2.5" fill="#220000" stroke="none" />
+      {/* eye */}
+      <ellipse cx="49" cy="39" rx="3.5" ry="3.5" fill="#220000" stroke="none" />
+      {/* neck */}
+      <path d="M44 50 C40 54 40 58 44 62" fill="none" strokeWidth="8" strokeLinecap="round" />
+      {/* 4 legs */}
+      <rect x="10" y="73" width="11" height="20" rx="4" />
+      <rect x="24" y="75" width="11" height="18" rx="4" />
+      <rect x="39" y="75" width="11" height="18" rx="4" />
+      <rect x="52" y="73" width="11" height="20" rx="4" />
+      {/* claws */}
+      <path d="M10 91 L8 97 M15 92 L13 98 M20 91 L22 97" strokeWidth="2" />
+      <path d="M52 91 L50 97 M57 92 L55 98 M62 91 L64 97" strokeWidth="2" />
+      {/* tail */}
+      <path d="M5 54 C-5 44 -5 54 1 62" fill="none" strokeWidth="6" strokeLinecap="round" />
+    </>
+  ),
+
+  ice_golem: (
+    <>
+      <polygon points="20,6 32,-4 44,6 46,22 18,22" />
+      <polygon points="26,4 32,-8 38,4" />
+      <rect x="18" y="22" width="28" height="8" rx="1" />
+      <rect x="14" y="30" width="36" height="44" rx="2" />
+      <polygon points="10,32 -4,54 8,58 18,40" /><polygon points="54,32 68,54 56,58 46,40" />
+      <polygon points="-4,54 -10,44 2,50" /><polygon points="68,54 74,44 62,50" />
+      <rect x="14" y="74" width="14" height="18" rx="3" /><rect x="36" y="74" width="14" height="18" rx="3" />
+      <polygon points="16,32 12,22 20,32" /><polygon points="28,30 24,18 32,30" />
+      <polygon points="36,30 40,18 44,30" /><polygon points="48,32 52,22 56,32" />
+      <ellipse cx="24" cy="36" rx="4" ry="4" fill="#aaddff" stroke="none" /><ellipse cx="40" cy="36" rx="4" ry="4" fill="#aaddff" stroke="none" />
+    </>
+  ),
+
+  frozen_revenant: (
+    <>
+      <path d="M20 8 C18 -2 46 -2 44 8 L44 22 L20 22 Z" />
+      <ellipse cx="32" cy="22" rx="12" ry="10" />
+      <ellipse cx="26" cy="20" rx="3.5" ry="4" fill="#220000" stroke="none" /><ellipse cx="38" cy="20" rx="3.5" ry="4" fill="#220000" stroke="none" />
+      <ellipse cx="26" cy="20" rx="2" ry="2.5" fill="#88ccff" stroke="none" /><ellipse cx="38" cy="20" rx="2" ry="2.5" fill="#88ccff" stroke="none" />
+      <path d="M18 30 C14 26 10 30 12 38 L18 38 Z" /><path d="M46 30 C50 26 54 30 52 38 L46 38 Z" />
+      <path d="M16 30 L48 30 L46 72 L18 72 Z" />
+      <polygon points="18,32 14,22 22,32" /><polygon points="28,30 24,18 32,30" />
+      <polygon points="36,30 40,18 44,30" /><polygon points="46,32 50,22 54,32" />
+      <rect x="18" y="72" width="14" height="22" rx="3" /><rect x="32" y="72" width="14" height="22" rx="3" />
+      <path d="M18 34 L2 54 L12 60 L24 44 Z" />
+      <rect x="-2" y="18" width="4" height="46" rx="2" /><rect x="-8" y="36" width="16" height="4" rx="2" />
+    </>
+  ),
+
+  crystal_colossus: (
+    <>
+      <polygon points="32,-8 44,6 44,22 20,22 20,6" />
+      <polygon points="32,-8 38,-16 44,6" /><polygon points="32,-8 26,-16 20,6" />
+      <rect x="16" y="22" width="32" height="52" rx="2" />
+      <polygon points="14,24 -2,48 8,54 18,34" /><polygon points="50,24 66,48 56,54 46,34" />
+      <polygon points="-2,48 -8,38 4,44" /><polygon points="66,48 72,38 60,44" />
+      <polygon points="22,24 18,14 26,24" /><polygon points="32,22 28,10 36,22" /><polygon points="42,24 46,14 38,24" />
+      <rect x="16" y="74" width="13" height="18" rx="3" /><rect x="35" y="74" width="13" height="18" rx="3" />
+      <ellipse cx="26" cy="34" rx="5" ry="6" fill="#aaeeff" stroke="none" /><ellipse cx="38" cy="34" rx="5" ry="6" fill="#aaeeff" stroke="none" />
+    </>
+  ),
+
+  icehorn_mammoth: (
+    <>
+      <path d="M18 8 L8 -8 C4 -16 12 -18 16 -12 C14 -4 18 0 22 6" fill="none" strokeWidth="5" strokeLinecap="round" />
+      <path d="M46 8 L56 -8 C60 -16 52 -18 48 -12 C50 -4 46 0 42 6" fill="none" strokeWidth="5" strokeLinecap="round" />
+      <ellipse cx="32" cy="22" rx="16" ry="14" />
+      <ellipse cx="32" cy="30" rx="8" ry="6" />
+      <circle cx="28" cy="30" r="2" fill="#000" stroke="none" /><circle cx="36" cy="30" r="2" fill="#000" stroke="none" />
+      <ellipse cx="24" cy="18" rx="4" ry="4" fill="#220000" stroke="none" /><ellipse cx="40" cy="18" rx="4" ry="4" fill="#220000" stroke="none" />
+      <path d="M6 36 L58 36 L56 80 L8 80 Z" />
+      <path d="M8 42 C4 36 2 28 8 24 C6 32 8 36 12 40" fill="none" strokeWidth="3" /><path d="M56 42 C60 36 62 28 56 24 C58 32 56 36 52 40" fill="none" strokeWidth="3" />
+      <rect x="8" y="80" width="18" height="14" rx="3" /><rect x="22" y="80" width="18" height="14" rx="3" />
+      <rect x="38" y="80" width="18" height="14" rx="3" />
+    </>
+  ),
+
+  frost_lynx: (
+    <>
+      <polygon points="22,10 16,-2 28,8" /><polygon points="42,10 48,-2 36,8" />
+      <ellipse cx="32" cy="20" rx="14" ry="13" />
+      <path d="M40 24 L56 22 L40 30 Z" />
+      <ellipse cx="25" cy="18" rx="4" ry="4" fill="#220000" stroke="none" /><ellipse cx="39" cy="18" rx="4" ry="4" fill="#220000" stroke="none" />
+      <ellipse cx="25" cy="18" rx="2" ry="2" fill="#88ccff" stroke="none" /><ellipse cx="39" cy="18" rx="2" ry="2" fill="#88ccff" stroke="none" />
+      <path d="M24 30 L36 30 L34 44 L26 44 Z" />
+      <path d="M10 40 L54 40 L52 72 L12 72 Z" />
+      <polygon points="12,42 8,30 16,42" /><polygon points="22,40 18,26 26,40" />
+      <polygon points="38,40 42,26 46,40" /><polygon points="52,42 56,30 60,42" />
+      <rect x="12" y="72" width="16" height="20" rx="3" /><rect x="36" y="72" width="16" height="20" rx="3" />
+      <path d="M12 46 L-2 66 L8 72 L20 54 Z" /><path d="M52 46 L66 66 L56 72 L44 54 Z" />
+      <path d="M10 70 C4 80 6 92 2 96" fill="none" strokeWidth="3" />
+    </>
+  ),
+
+  ice_troll: (
+    <>
+      {/* huge lumpy head - disproportionately large, asymmetric */}
+      <ellipse cx="32" cy="22" rx="20" ry="21" />
+      {/* massive protruding jaw/chin */}
+      <path d="M16 36 C14 50 22 58 32 60 C42 58 50 50 48 36 Z" />
+      {/* jutting lower tusks */}
+      <path d="M24 56 L20 68 M32 60 L30 72 M40 56 L44 68" strokeWidth="4" strokeLinecap="round" />
+      {/* small beady eyes deep under brow */}
+      <ellipse cx="22" cy="16" rx="5" ry="5.5" fill="#000" stroke="none" />
+      <ellipse cx="42" cy="16" rx="5" ry="5.5" fill="#000" stroke="none" />
+      <ellipse cx="22" cy="16" rx="2.5" ry="3" fill="#88bbdd" stroke="none" />
+      <ellipse cx="42" cy="16" rx="2.5" ry="3" fill="#88bbdd" stroke="none" />
+      {/* heavy overhanging brow ridges */}
+      <path d="M16 10 C20 4 28 6 32 8 C36 6 44 4 48 10" fill="none" strokeWidth="5" strokeLinecap="round" />
+      {/* big warty bulbous nose */}
+      <ellipse cx="32" cy="32" rx="8" ry="7" />
+      <circle cx="28" cy="34" r="2.5" />
+      <circle cx="36" cy="34" r="2.5" />
+      {/* lumpy ears - big and floppy */}
+      <ellipse cx="54" cy="18" rx="9" ry="12" />
+      <ellipse cx="10" cy="20" rx="8" ry="10" />
+      {/* icicle protrusions on head */}
+      <polygon points="18,2 16,-12 22,2" />
+      <polygon points="32,1 30,-14 36,1" />
+      <polygon points="46,2 44,-12 50,2" />
+      {/* hunched stocky body */}
+      <path d="M10 58 L54 58 C58 74 58 82 56 92 L8 92 C6 82 6 74 10 58 Z" />
+      {/* long dragging ape-arms */}
+      <path d="M12 60 C2 72 -4 84 -2 96 L8 94 C6 84 10 74 18 64 Z" />
+      <path d="M52 60 C62 72 68 84 66 96 L56 94 C58 84 54 74 46 64 Z" />
+      {/* knuckle-dragging fists */}
+      <ellipse cx="2" cy="96" rx="10" ry="7" />
+      <path d="M-6 92 L-2 92 M-6 96 L-2 96 M-4 100 L0 100" strokeWidth="1.8" strokeOpacity="0.4" />
+      <ellipse cx="62" cy="96" rx="10" ry="7" />
+      <path d="M58 92 L64 92 M58 96 L64 96 M60 100 L66 100" strokeWidth="1.8" strokeOpacity="0.4" />
+      {/* thick squat legs */}
+      <rect x="12" y="92" width="17" height="10" rx="3" />
+      <rect x="35" y="92" width="17" height="10" rx="3" />
+    </>
+  ),
+
+  pale_stag: (
+    <>
+      <path d="M22 8 L18 -4 L24 4 M18 -4 L14 -10 M18 -4 L22 -10 M18 -4 L12 -6" fill="none" strokeWidth="2.5" />
+      <path d="M42 8 L46 -4 L40 4 M46 -4 L50 -10 M46 -4 L42 -10 M46 -4 L52 -6" fill="none" strokeWidth="2.5" />
+      <ellipse cx="32" cy="16" rx="10" ry="12" />
+      <path d="M38 20 L52 18 L38 26 Z" />
+      <circle cx="27" cy="14" r="3.5" fill="#aaddff" stroke="none" /><circle cx="37" cy="14" r="3.5" fill="#aaddff" stroke="none" />
+      <circle cx="27" cy="14" r="1.5" fill="#000" stroke="none" /><circle cx="37" cy="14" r="1.5" fill="#000" stroke="none" />
+      <path d="M26 26 L38 26 L36 42 L28 42 Z" />
+      <ellipse cx="32" cy="60" rx="22" ry="18" />
+      <rect x="12" y="74" width="10" height="20" rx="3" /><rect x="24" y="76" width="10" height="18" rx="3" />
+      <rect x="34" y="76" width="10" height="18" rx="3" /><rect x="46" y="74" width="10" height="20" rx="3" />
+      <path d="M18 52 C10 48 6 54 12 58" fill="none" strokeWidth="3" />
+      <circle cx="32" cy="44" r="6" fill="#ddeeff" stroke="none" fillOpacity="0.5" />
+    </>
+  ),
+
+  spirit_owl: (
+    <>
+      <path d="M16 44 C8 30 10 14 20 10 C18 22 20 34 22 42 Z" />
+      <path d="M48 44 C56 30 54 14 44 10 C46 22 44 34 42 42 Z" />
+      <path d="M18 14 L14 8 M18 10 L12 4 M22 8 L18 2" strokeWidth="1.5" strokeOpacity="0.6" />
+      <path d="M46 14 L50 8 M46 10 L52 4 M42 8 L46 2" strokeWidth="1.5" strokeOpacity="0.6" />
+      <ellipse cx="32" cy="52" rx="14" ry="16" />
+      <ellipse cx="32" cy="34" rx="12" ry="12" />
+      <ellipse cx="26" cy="30" rx="6" ry="7" fill="#220000" stroke="none" /><ellipse cx="38" cy="30" rx="6" ry="7" fill="#220000" stroke="none" />
+      <ellipse cx="26" cy="30" rx="4" ry="5" fill="#aaddff" stroke="none" /><ellipse cx="38" cy="30" rx="4" ry="5" fill="#aaddff" stroke="none" />
+      <path d="M29 38 L32 42 L35 38" strokeWidth="2" />
+      <path d="M22 60 L18 72 M32 62 L30 74 M42 60 L46 72" strokeWidth="3.5" />
+    </>
+  ),
+
+  crystal_elemental: (
+    <>
+      <polygon points="32,2 40,18 32,24 24,18" />
+      <polygon points="32,2 44,10 40,18" fillOpacity="0.7" /><polygon points="32,2 20,10 24,18" fillOpacity="0.5" />
+      <polygon points="32,24 24,18 18,32 32,38" />
+      <polygon points="32,24 40,18 46,32 32,38" fillOpacity="0.8" />
+      <polygon points="32,38 18,32 20,50 32,56" fillOpacity="0.6" />
+      <polygon points="32,38 46,32 44,50 32,56" fillOpacity="0.9" />
+      <polygon points="32,56 20,50 24,68 32,72" /><polygon points="32,56 44,50 40,68 32,72" fillOpacity="0.7" />
+      <circle cx="32" cy="30" r="6" fill="#ccf0ff" stroke="none" fillOpacity="0.6" />
+      <path d="M14 20 L6 30 M50 20 L58 30 M14 60 L8 70 M50 60 L56 70" strokeWidth="2" strokeOpacity="0.5" />
+    </>
+  ),
+
+  moon_reflection: (
+    <>
+      <path d="M20 8 C18 -4 46 -4 44 8 L42 20 L22 20 Z" fillOpacity="0.7" />
+      <ellipse cx="32" cy="22" rx="12" ry="12" fillOpacity="0.8" />
+      <ellipse cx="26" cy="20" rx="4" ry="4.5" fill="#ddeeff" stroke="none" fillOpacity="0.9" />
+      <ellipse cx="38" cy="20" rx="4" ry="4.5" fill="#ddeeff" stroke="none" fillOpacity="0.9" />
+      <path d="M16 32 L48 32 L46 72 L18 72 Z" fillOpacity="0.6" />
+      <path d="M18 32 C10 36 6 48 8 60 L18 60 Z" fillOpacity="0.5" />
+      <path d="M46 32 C54 36 58 48 56 60 L46 60 Z" fillOpacity="0.5" />
+      <path d="M16 38 L2 60 L10 64 L22 46 Z" fillOpacity="0.7" />
+      <path d="M48 36 L60 56 L52 62 L40 44 Z" fillOpacity="0.7" />
+      <path d="M20 70 C14 80 18 92 14 96 M28 72 C24 84 28 92 24 96 M36 72 C40 84 36 92 40 96 M44 70 C50 80 46 92 50 96" fill="none" strokeWidth="3" strokeOpacity="0.5" />
+      <circle cx="32" cy="50" r="20" fill="none" strokeWidth="1" strokeOpacity="0.3" strokeDasharray="4 4" />
+    </>
+  ),
+
+  frost_wraith: (
+    <>
+      <path d="M18 10 C14 2 18 -6 24 -2 C22 -8 30 -12 32 -4 C34 -12 42 -8 40 -2 C46 -6 50 2 46 10" fill="none" strokeWidth="2.5" strokeOpacity="0.7" />
+      <ellipse cx="32" cy="20" rx="14" ry="14" fillOpacity="0.85" />
+      <ellipse cx="24" cy="18" rx="5" ry="6" fill="#000" stroke="none" /><ellipse cx="40" cy="18" rx="5" ry="6" fill="#000" stroke="none" />
+      <ellipse cx="24" cy="18" rx="3.5" ry="4" fill="#aaddff" stroke="none" /><ellipse cx="40" cy="18" rx="3.5" ry="4" fill="#aaddff" stroke="none" />
+      <path d="M16 32 L48 32 L52 72 L12 72 Z" fillOpacity="0.7" />
+      <path d="M16 36 C6 32 2 44 6 52" fill="none" strokeWidth="3.5" strokeOpacity="0.6" />
+      <path d="M48 36 C58 32 62 44 58 52" fill="none" strokeWidth="3.5" strokeOpacity="0.6" />
+      <path d="M16 42 L0 62 L8 66 L20 50 Z" fillOpacity="0.6" /><path d="M48 42 L64 62 L56 66 L44 50 Z" fillOpacity="0.6" />
+      <path d="M18 70 C12 82 14 94 10 96 M28 74 C24 88 26 94 22 96 M36 74 C40 88 38 94 42 96 M46 70 C52 82 50 94 54 96" fill="none" strokeWidth="4" strokeOpacity="0.5" />
+    </>
+  ),
+
+  ice_wyvern: (
+    <>
+      <path d="M32 52 C22 42 8 34 2 18 C8 20 14 32 18 40 C10 26 12 14 20 16 C20 28 24 42 30 50 Z" />
+      <path d="M32 52 C42 42 56 34 62 18 C56 20 50 32 46 40 C54 26 52 14 44 16 C44 28 40 42 34 50 Z" />
+      <path d="M18 40 L14 32 M14 32 L10 24 M22 32 L18 24" strokeWidth="2" />
+      <path d="M46 40 L50 32 M50 32 L54 24 M42 32 L46 24" strokeWidth="2" />
+      <ellipse cx="32" cy="62" rx="12" ry="14" />
+      <ellipse cx="32" cy="44" rx="10" ry="10" />
+      <polygon points="28,38 24,24 32,36" /><polygon points="36,38 40,24 32,36" />
+      <circle cx="28" cy="42" r="3" fill="#aaddff" stroke="none" /><circle cx="36" cy="42" r="3" fill="#aaddff" stroke="none" />
+      <path d="M26 72 L20 82 M32 74 L30 84 M38 72 L44 82" strokeWidth="4" />
+      <path d="M8 66 C-2 62 -6 74 0 80" fill="none" strokeWidth="3" />
+    </>
+  ),
+
+  white_chimera: (
+    <>
+      <ellipse cx="18" cy="18" rx="12" ry="12" />
+      <polygon points="14,8 10,-4 20,6" /><polygon points="22,8 26,-4 16,6" />
+      <ellipse cx="16" cy="17" rx="4" ry="4" fill="#220000" stroke="none" /><ellipse cx="20" cy="17" rx="4" ry="4" fill="#220000" stroke="none" />
+      <path d="M26 22 L36 20 L26 26 Z" />
+      <ellipse cx="46" cy="14" rx="10" ry="10" />
+      <polygon points="42,6 38,-4 46,4" /><polygon points="50,6 54,-4 46,4" />
+      <ellipse cx="46" cy="13" rx="3.5" ry="3.5" fill="#220000" stroke="none" />
+      <ellipse cx="32" cy="50" rx="22" ry="22" />
+      <path d="M10 42 C2 36 -2 46 4 52" fill="none" strokeWidth="3" />
+      <path d="M54 42 C62 36 66 46 60 52" fill="none" strokeWidth="3" />
+      <path d="M8 52 C-6 64 -6 82 8 88 L8 74 Z" />
+      <path d="M64 66 C66 74 64 84 58 88 C66 86 72 76 68 66 Z" />
+      <rect x="10" y="72" width="14" height="20" rx="3" /><rect x="26" y="74" width="12" height="18" rx="3" />
+      <rect x="38" y="74" width="12" height="18" rx="3" /><rect x="50" y="72" width="14" height="20" rx="3" />
+    </>
+  ),
+
+  crystal_spider: (
+    <>
+      <ellipse cx="32" cy="40" rx="20" ry="16" />
+      <ellipse cx="32" cy="32" rx="12" ry="10" />
+      <circle cx="26" cy="30" r="3" fill="#aaddff" stroke="none" /><circle cx="32" cy="28" r="3" fill="#aaddff" stroke="none" />
+      <circle cx="38" cy="30" r="3" fill="#aaddff" stroke="none" />
+      <path d="M14 36 L-2 22 M12 42 L-4 36 M12 48 L-2 58 M14 54 L0 68" strokeWidth="3" />
+      <path d="M50 36 L66 22 M52 42 L68 36 M52 48 L66 58 M50 54 L64 68" strokeWidth="3" />
+      <polygon points="14,36 8,26 16,34" fill="none" strokeWidth="1.5" />
+      <polygon points="50,36 56,26 48,34" fill="none" strokeWidth="1.5" />
+      <path d="M26 50 L24 62 M32 52 L32 64 M38 50 L40 62" strokeWidth="3.5" />
+    </>
+  ),
+
+  frost_ogre: (
+    <>
+      {/* small stupid-looking round head - small relative to body */}
+      <circle cx="32" cy="16" r="14" />
+      {/* big floppy ears */}
+      <ellipse cx="16" cy="16" rx="8" ry="11" />
+      <ellipse cx="48" cy="16" rx="8" ry="11" />
+      {/* tiny close-set eyes */}
+      <ellipse cx="26" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" />
+      <ellipse cx="38" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" />
+      <ellipse cx="26" cy="12" rx="1.5" ry="2" fill="#88aacc" stroke="none" />
+      <ellipse cx="38" cy="12" rx="1.5" ry="2" fill="#88aacc" stroke="none" />
+      {/* wide dim-witted grin */}
+      <path d="M20 22 Q32 32 44 22" fill="none" strokeWidth="3" strokeLinecap="round" />
+      {/* protruding upper tusks */}
+      <path d="M24 24 L20 36" strokeWidth="5" strokeLinecap="round" />
+      <path d="M40 24 L44 36" strokeWidth="5" strokeLinecap="round" />
+      {/* squat thick neck */}
+      <rect x="24" y="28" width="16" height="10" rx="2" />
+      {/* massive barrel chest and gut */}
+      <path d="M2 34 C-2 54 0 74 8 84 L56 84 C64 74 66 54 62 34 Z" />
+      {/* gut crease */}
+      <path d="M10 58 C8 68 10 76 16 80 M54 58 C56 68 54 76 48 80" fill="none" strokeWidth="1.5" strokeOpacity="0.25" />
+      {/* ice shard shoulder armour */}
+      <polygon points="6,36 2,22 12,36" />
+      <polygon points="18,34 14,18 22,34" />
+      <polygon points="46,34 50,18 54,34" />
+      <polygon points="58,36 62,22 52,36" />
+      {/* thick gorilla-arms */}
+      <path d="M4 38 C-8 50 -12 68 -10 82 L2 80 C0 68 4 52 12 42 Z" />
+      <path d="M60 38 C72 50 76 68 74 82 L62 80 C64 68 60 52 52 42 Z" />
+      {/* big meaty fists */}
+      <ellipse cx="-6" cy="82" rx="12" ry="9" />
+      <path d="M-14 78 L-2 78 M-14 82 L-2 82 M-12 86 L0 86" strokeWidth="1.8" strokeOpacity="0.4" />
+      <ellipse cx="70" cy="82" rx="12" ry="9" />
+      <path d="M62 78 L74 78 M62 82 L74 82 M64 86 L76 86" strokeWidth="1.8" strokeOpacity="0.4" />
+      {/* stumpy fat legs */}
+      <rect x="8" y="84" width="22" height="14" rx="4" />
+      <rect x="34" y="84" width="22" height="14" rx="4" />
+    </>
+  ),
+
+  glacier_worm: (
+    <>
+      <ellipse cx="32" cy="12" rx="14" ry="12" />
+      <circle cx="26" cy="10" r="4" fill="#000" stroke="none" /><circle cx="38" cy="10" r="4" fill="#000" stroke="none" />
+      <circle cx="26" cy="10" r="2" fill="#88ccff" stroke="none" /><circle cx="38" cy="10" r="2" fill="#88ccff" stroke="none" />
+      <path d="M18 22 L14 16 M32 24 L32 18 M46 22 L50 16" strokeWidth="2.5" />
+      <ellipse cx="32" cy="36" rx="18" ry="12" />
+      <ellipse cx="32" cy="54" rx="16" ry="10" />
+      <ellipse cx="32" cy="70" rx="14" ry="9" />
+      <ellipse cx="32" cy="84" rx="10" ry="8" />
+      <path d="M14 28 Q32 24 50 28 M16 44 Q32 40 48 44 M18 60 Q32 56 46 60 M20 74 Q32 70 44 74" fill="none" strokeWidth="1.2" strokeOpacity="0.4" />
+      <polygon points="14,36 8,26 18,34" /><polygon points="50,36 56,26 46,34" />
+    </>
+  ),
+
+  frozen_taur: (
+    <>
+      <polygon points="20,10 14,-4 26,8" /><polygon points="44,10 50,-4 38,8" />
+      <ellipse cx="32" cy="22" rx="16" ry="15" />
+      <ellipse cx="24" cy="20" rx="4.5" ry="5" fill="#220000" stroke="none" /><ellipse cx="40" cy="20" rx="4.5" ry="5" fill="#220000" stroke="none" />
+      <ellipse cx="24" cy="20" rx="2.5" ry="3" fill="#88ccff" stroke="none" /><ellipse cx="40" cy="20" rx="2.5" ry="3" fill="#88ccff" stroke="none" />
+      <path d="M30 34 L28 44 M36 34 L38 44" strokeWidth="3" />
+      <path d="M6 42 L58 42 L60 86 L4 86 Z" />
+      <polygon points="8,44 4,32 14,44" /><polygon points="20,42 16,28 24,42" />
+      <polygon points="40,42 44,28 48,42" /><polygon points="56,44 60,32 64,44" />
+      <path d="M6 48 L-8 70 L6 76 L18 60 Z" /><path d="M58 46 L72 26 L66 36 L56 54 Z" />
+      <rect x="4" y="86" width="24" height="10" rx="3" /><rect x="36" y="86" width="24" height="10" rx="3" />
+      <rect x="70" y="-4" width="6" height="76" rx="3" />
+      <path d="M70 -4 C60 -12 54 2 58 14 C60 6 66 2 72 2 Z" />
+      <polygon points="70,4 64,20 76,20" />
+    </>
+  ),
+
+  frost_dwarf: (
+    <>
+      <ellipse cx="20" cy="16" rx="6" ry="5" /><ellipse cx="44" cy="16" rx="6" ry="5" />
+      <ellipse cx="32" cy="22" rx="13" ry="12" />
+      <ellipse cx="26" cy="20" rx="3" ry="3.5" fill="#220000" stroke="none" /><ellipse cx="38" cy="20" rx="3" ry="3.5" fill="#220000" stroke="none" />
+      <path d="M20 26 Q32 38 44 26 Q40 46 32 44 Q24 46 20 26 Z" />
+      <path d="M22 28 C18 32 14 50 16 58 L22 58 Z" /><path d="M42 28 C46 32 50 50 48 58 L42 58 Z" />
+      <path d="M18 32 L48 32 L46 68 L18 68 Z" />
+      <rect x="18" y="68" width="14" height="24" rx="3" /><rect x="32" y="68" width="14" height="24" rx="3" />
+      <path d="M18 36 L2 56 L8 62 L22 46 Z" />
+      <path d="M-4" y="18" width="4" height="44" rx="2" />
+      <rect x="-4" y="18" width="4" height="44" rx="2" />
+      <path d="M-4 18 C-12 14 -14 6 -8 4 C-6 10 -2 14 2 18 Z" />
+      <rect x="-10" y="38" width="14" height="4" rx="2" />
+    </>
+  ),
+
+  frost_knight: (
+    <>
+      <path d="M18 8 C18 -4 46 -4 46 8 L46 22 L18 22 Z" />
+      <rect x="20" y="16" width="8" height="3" rx="1" fill="#000" stroke="none" />
+      <rect x="36" y="16" width="8" height="3" rx="1" fill="#000" stroke="none" />
+      <path d="M28 8 Q32 -2 36 8" fill="none" strokeWidth="3" />
+      <rect x="22" y="20" width="20" height="6" rx="2" />
+      <path d="M10 28 L54 28 L54 70 L10 70 Z" />
+      <line x1="32" y1="30" x2="32" y2="68" strokeWidth="1.5" strokeOpacity="0.3" />
+      <line x1="10" y1="48" x2="54" y2="48" strokeWidth="1.2" strokeOpacity="0.25" />
+      <polygon points="10,30 4,20 16,28" /><polygon points="54,30 60,20 48,28" />
+      <rect x="10" y="70" width="20" height="22" rx="3" /><rect x="34" y="70" width="20" height="22" rx="3" />
+      <path d="M10 32 L-4 54 L6 60 L18 44 Z" />
+      <path d="M-8" y="14" width="5" height="52" rx="2" />
+      <rect x="-8" y="14" width="5" height="52" rx="2" />
+      <rect x="-14" y="36" width="18" height="5" rx="2" />
+      <path d="M54 32 L68 52 L58 58 L46 42 Z" />
+      <polygon points="10,30 4,18 16,28" />
+    </>
+  ),
+
+  dwarven_warrior: (
+    <>
+      <ellipse cx="20" cy="14" rx="7" ry="6" /><ellipse cx="44" cy="14" rx="7" ry="6" />
+      <ellipse cx="32" cy="22" rx="14" ry="13" />
+      <ellipse cx="26" cy="20" rx="3.5" ry="4" fill="#220000" stroke="none" /><ellipse cx="38" cy="20" rx="3.5" ry="4" fill="#220000" stroke="none" />
+      <path d="M20 28 Q32 42 44 28 Q40 48 32 46 Q24 48 20 28 Z" />
+      <path d="M10 34 L54 34 L52 74 L12 74 Z" />
+      <rect x="12" y="74" width="18" height="20" rx="3" /><rect x="34" y="74" width="18" height="20" rx="3" />
+      <path d="M12 38 L-2 58 L8 64 L20 48 Z" /><path d="M52 36 L66 54 L56 60 L44 44 Z" />
+      <rect x="64" y="-2" width="5" height="56" rx="2" />
+      <path d="M64 -2 C52 -10 46 4 50 16 C52 8 58 4 66 4 Z" />
+      <path d="M68 -2 C80 -10 86 4 82 16 C80 8 74 4 66 4 Z" />
+      <rect x="60" y="28" width="18" height="5" rx="2" />
+    </>
+  ),
+
+  frozen_forge_core: (
+    <>
+      <circle cx="32" cy="46" r="22" />
+      <circle cx="32" cy="46" r="16" fill="#aaddff" stroke="none" fillOpacity="0.4" />
+      <circle cx="32" cy="46" r="10" fill="#ddeeff" stroke="none" fillOpacity="0.6" />
+      <circle cx="32" cy="46" r="4" fill="#ffffff" stroke="none" />
+      <polygon points="32,6 36,14 32,18 28,14" /><polygon points="32,86 36,78 32,74 28,78" />
+      <polygon points="4,46 12,50 16,46 12,42" /><polygon points="60,46 52,50 48,46 52,42" />
+      <polygon points="10,16 16,22 14,28 8,22" /><polygon points="54,16 48,22 50,28 56,22" />
+      <polygon points="10,76 16,70 14,64 8,70" /><polygon points="54,76 48,70 50,64 56,70" />
+      <circle cx="32" cy="46" r="26" fill="none" strokeWidth="1.5" strokeOpacity="0.4" strokeDasharray="6 4" />
+    </>
+  ),
+
+  glacial_eagle: (
+    <>
+      <path d="M32 50 C22 38 6 30 0 14 C8 16 16 28 20 38 C12 22 14 8 22 10 C22 24 26 38 30 48 Z" />
+      <path d="M32 50 C42 38 58 30 64 14 C56 16 48 28 44 38 C52 22 50 8 42 10 C42 24 38 38 34 48 Z" />
+      <path d="M20 38 L16 28 M22 28 L18 18 M26 20 L22 10" strokeWidth="2" />
+      <path d="M44 38 L48 28 M42 28 L46 18 M38 20 L42 10" strokeWidth="2" />
+      <ellipse cx="32" cy="60" rx="10" ry="12" />
+      <ellipse cx="32" cy="42" rx="9" ry="9" />
+      <polygon points="28,36 24,22 32,34" /><polygon points="36,36 40,22 32,34" />
+      <circle cx="27" cy="40" r="3" fill="#aaddff" stroke="none" /><circle cx="37" cy="40" r="3" fill="#aaddff" stroke="none" />
+      <path d="M26 70 L22 80 M32 72 L30 82 M38 70 L42 80" strokeWidth="4" />
+    </>
+  ),
+
+  elder_harpy: (
+    <>
+      <path d="M32 42 C20 30 4 18 -2 2 C6 4 12 16 16 26 C8 12 10 -2 18 0 C18 14 22 28 30 40 Z" />
+      <path d="M32 42 C44 30 60 18 66 2 C58 4 52 16 48 26 C56 12 54 -2 46 0 C46 14 42 28 34 40 Z" />
+      <path d="M16 26 L10 16 M12 16 L6 8 M18 16 L14 8" strokeWidth="2" />
+      <path d="M48 26 L54 16 M52 16 L58 8 M46 16 L50 8" strokeWidth="2" />
+      <ellipse cx="32" cy="56" rx="12" ry="14" />
+      <ellipse cx="32" cy="38" rx="11" ry="12" />
+      <polygon points="28,32 22,16 32,28" /><polygon points="36,32 42,16 32,28" />
+      <circle cx="26" cy="36" r="3.5" fill="#220000" stroke="none" /><circle cx="38" cy="36" r="3.5" fill="#220000" stroke="none" />
+      <circle cx="26" cy="36" r="2" fill="#88aacc" stroke="none" /><circle cx="38" cy="36" r="2" fill="#88aacc" stroke="none" />
+      <path d="M24 66 L20 76 M32 68 L30 78 M40 66 L44 76" strokeWidth="4" />
+      <path d="M10 58 C4 52 -2 62 4 68" fill="none" strokeWidth="3" />
+    </>
+  ),
+
+  ghost_of_mountain: (
+    <>
+      <ellipse cx="20" cy="14" rx="6" ry="5" /><ellipse cx="44" cy="14" rx="6" ry="5" />
+      <ellipse cx="32" cy="20" rx="13" ry="12" fillOpacity="0.9" />
+      <ellipse cx="26" cy="18" rx="3.5" ry="4" fill="#000" stroke="none" /><ellipse cx="38" cy="18" rx="3.5" ry="4" fill="#000" stroke="none" />
+      <ellipse cx="26" cy="18" rx="2" ry="2.5" fill="#cceeff" stroke="none" /><ellipse cx="38" cy="18" rx="2" ry="2.5" fill="#cceeff" stroke="none" />
+      <path d="M22 28 Q32 42 42 28 Q38 48 32 46 Q26 48 22 28 Z" fillOpacity="0.7" />
+      <path d="M16 30 C8 26 4 36 8 44 L14 44 Z" fillOpacity="0.6" />
+      <path d="M48 30 C56 26 60 36 56 44 L50 44 Z" fillOpacity="0.6" />
+      <path d="M14 32 L50 32 L52 72 L12 72 Z" fillOpacity="0.75" />
+      <path d="M14 38 L-2 60 L8 66 L20 48 Z" fillOpacity="0.7" />
+      <path d="M50 36 L62 56 L54 62 L42 46 Z" fillOpacity="0.7" />
+      <path d="M16 70 C10 84 12 94 8 96 M26 74 C22 88 24 94 20 96 M38 74 C42 88 40 94 44 96 M48 70 C54 84 52 94 56 96" fill="none" strokeWidth="4" strokeOpacity="0.5" />
+      <circle cx="32" cy="50" r="24" fill="none" strokeWidth="1" strokeOpacity="0.2" strokeDasharray="3 5" />
+    </>
+  ),
+
+  frozen_bones: (
+    <>
+      <ellipse cx="32" cy="14" rx="14" ry="14" />
+      <ellipse cx="24" cy="12" rx="5" ry="5.5" fill="#000" stroke="none" /><ellipse cx="40" cy="12" rx="5" ry="5.5" fill="#000" stroke="none" />
+      <ellipse cx="24" cy="12" rx="3" ry="3.5" fill="#88ccff" stroke="none" /><ellipse cx="40" cy="12" rx="3" ry="3.5" fill="#88ccff" stroke="none" />
+      <path d="M22 26 L20 34 M28 26 L28 34 M36 26 L36 34 M42 26 L44 34" strokeWidth="2.5" />
+      <rect x="16" y="30" width="32" height="44" rx="2" />
+      <path d="M18 38 L46 38 M16 48 L48 48 M16 58 L48 58 M18 66 L46 66" strokeWidth="2" strokeOpacity="0.4" />
+      <polygon points="14,34 8,22 18,32" /><polygon points="50,34 56,22 46,32" />
+      <path d="M6 36 L-8 56 L4 62 L16 46 Z" /><path d="M58 34 L72 52 L62 58 L50 44 Z" />
+      <rect x="16" y="74" width="13" height="20" rx="3" /><rect x="35" y="74" width="13" height="20" rx="3" />
+      <path d="M8 58 L-4 52 M4 64 L-6 62 M8 70 L0 74" strokeWidth="2.5" />
+      <rect x="72" y="-4" width="5" height="68" rx="2" />
+      <path d="M72 -4 C62 -12 56 2 60 16 C62 8 68 4 74 4 Z" />
+      <polygon points="72,6 66,24 78,24" />
+    </>
+  ),
+
+  azure_dragon: (
+    <>
+      <path d="M20 44 C16 34 10 22 4 10 C10 12 14 24 18 34 C10 20 12 8 18 10 C18 22 20 36 22 44 Z" />
+      <path d="M44 44 C48 34 54 22 60 10 C54 12 50 24 46 34 C54 20 52 8 46 10 C46 22 44 36 42 44 Z" />
+      <path d="M18 34 L14 24 M22 24 L18 16" strokeWidth="2.5" />
+      <path d="M46 34 L50 24 M42 24 L46 16" strokeWidth="2.5" />
+      <ellipse cx="32" cy="56" rx="14" ry="16" />
+      <ellipse cx="32" cy="38" rx="14" ry="14" />
+      <polygon points="26,30 22,16 30,28" /><polygon points="38,30 42,16 34,28" />
+      <circle cx="26" cy="36" r="4" fill="#88bbff" stroke="none" /><circle cx="38" cy="36" r="4" fill="#88bbff" stroke="none" />
+      <circle cx="26" cy="36" r="2" fill="#000" stroke="none" /><circle cx="38" cy="36" r="2" fill="#000" stroke="none" />
+      <path d="M24 68 L20 78 M32 70 L30 80 M40 68 L44 78" strokeWidth="4" />
+      <path d="M6 60 C-4 56 -8 68 -2 74" fill="none" strokeWidth="3.5" />
+    </>
+  ),
+
+  avalanche_elemental: (
+    <>
+      <polygon points="32,4 46,20 50,36 42,50 32,56 22,50 14,36 18,20" />
+      <polygon points="32,4 38,10 46,20" fillOpacity="0.6" /><polygon points="32,4 26,10 18,20" fillOpacity="0.4" />
+      <polygon points="14,36 6,44 18,50" fillOpacity="0.5" /><polygon points="50,36 58,44 46,50" fillOpacity="0.7" />
+      <polygon points="32,56 22,64 34,68" fillOpacity="0.6" /><polygon points="32,56 42,64 30,68" fillOpacity="0.5" />
+      <ellipse cx="26" cy="26" rx="5" ry="6" fill="#000" stroke="none" /><ellipse cx="38" cy="26" rx="5" ry="6" fill="#000" stroke="none" />
+      <ellipse cx="26" cy="26" rx="3" ry="4" fill="#aaddff" stroke="none" /><ellipse cx="38" cy="26" rx="3" ry="4" fill="#aaddff" stroke="none" />
+      <path d="M18 58 L10 68 M26 62 L22 72 M38 62 L42 72 M46 58 L54 68" strokeWidth="4" />
+      <polygon points="6,20 -2,30 8,26" /><polygon points="58,20 66,30 56,26" />
+      <polygon points="8,48 -2,56 6,60" /><polygon points="56,48 66,56 58,60" />
+    </>
+  ),
+
+  sikktharkk: (
+    <>
+      <path d="M16 38 C8 24 2 8 -2 -4 C4 -2 8 12 12 24 C4 8 6 -8 14 -6 C14 8 14 24 16 36 Z" />
+      <path d="M48 38 C56 24 62 8 66 -4 C60 -2 56 12 52 24 C60 8 58 -8 50 -6 C50 8 50 24 52 36 Z" />
+      <path d="M12 24 L8 12 M8 12 L4 2 M14 14 L10 4 M18 8 L14 -2" strokeWidth="2.5" />
+      <path d="M52 24 L56 12 M56 12 L60 2 M50 14 L54 4 M46 8 L50 -2" strokeWidth="2.5" />
+      <ellipse cx="32" cy="50" rx="18" ry="20" />
+      <ellipse cx="32" cy="28" rx="18" ry="18" />
+      <polygon points="24,18 18,2 30,16" /><polygon points="40,18 46,2 34,16" />
+      <polygon points="28,12 26,-2 32,10" /><polygon points="36,12 38,-2 32,10" />
+      <circle cx="24" cy="26" r="6" fill="#88bbff" stroke="none" /><circle cx="40" cy="26" r="6" fill="#88bbff" stroke="none" />
+      <circle cx="24" cy="26" r="3" fill="#000" stroke="none" /><circle cx="40" cy="26" r="3" fill="#000" stroke="none" />
+      <path d="M36 38 L33 50 M40 40 L38 52" strokeWidth="2.5" />
+      <path d="M28 46 Q32 56 36 46" fill="none" strokeWidth="3" />
+      <path d="M14 58 L28 66 M50 58 L36 66" strokeWidth="1.5" strokeOpacity="0.4" />
+      <path d="M14 62 L-4 82 L6 88 L20 74 Z" /><path d="M50 62 L68 82 L58 88 L44 74 Z" />
+      <path d="M-4 82 L-10 72 M-2 82 L-8 72 M0 84 L-6 74" strokeWidth="2.5" />
+      <path d="M68 82 L74 72 M66 82 L72 72 M64 84 L70 74" strokeWidth="2.5" />
+      <path d="M16 68 L8 80 M24 72 L18 84 M40 72 L46 84 M48 68 L56 80" strokeWidth="5" strokeLinecap="round" />
+      <path d="M-2 62 C-14 58 -18 72 -10 78" fill="none" strokeWidth="4.5" />
+      <path d="M6 58 C-4 54 -8 64 -4 70" fill="none" strokeWidth="3.5" strokeOpacity="0.6" />
+      <path d="M64 58 C72 54 76 64 72 70" fill="none" strokeWidth="3.5" strokeOpacity="0.6" />
+      <circle cx="32" cy="28" r="28" fill="none" strokeWidth="1.5" strokeOpacity="0.15" strokeDasharray="8 4" />
+    </>
+  ),
+
+  // ── Act 3 sprites ─────────────────────────────────────────────────────────
+  jungle_stalker: (
+    <>
+      <ellipse cx="22" cy="14" rx="8" ry="7" /><ellipse cx="42" cy="14" rx="8" ry="7" />
+      <polygon points="18,8 14,-2 22,6" /><polygon points="46,8 50,-2 38,6" />
+      <ellipse cx="32" cy="22" rx="16" ry="14" />
+      <path d="M40 26 L58 24 L40 32 Z" />
+      <ellipse cx="24" cy="20" rx="4" ry="4.5" fill="#220000" stroke="none" /><ellipse cx="40" cy="20" rx="4" ry="4.5" fill="#220000" stroke="none" />
+      <ellipse cx="24" cy="20" rx="2" ry="2.5" fill="#88ff44" stroke="none" /><ellipse cx="40" cy="20" rx="2" ry="2.5" fill="#88ff44" stroke="none" />
+      <path d="M8 38 L56 38 L54 76 L10 76 Z" />
+      <polygon points="10,40 6,28 16,40" /><polygon points="20,38 16,26 24,38" />
+      <polygon points="40,38 44,26 48,38" /><polygon points="54,40 58,28 62,40" />
+      <rect x="10" y="76" width="18" height="16" rx="3" /><rect x="36" y="76" width="18" height="16" rx="3" />
+      <path d="M8 42 L-4 64 L6 70 L18 52 Z" /><path d="M56 42 L68 64 L58 70 L46 52 Z" />
+      <path d="M10 72 C4 84 6 94 2 98" fill="none" strokeWidth="3" />
+    </>
+  ),
+
+  thorn_hunter: (
+    <>
+      <ellipse cx="32" cy="14" rx="12" ry="13" />
+      <ellipse cx="26" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" /><ellipse cx="38" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" />
+      <path d="M26 20 Q32 30 38 20 Q36 38 32 36 Q28 38 26 20 Z" />
+      <path d="M18 24 C10 28 8 40 10 50 L16 50 Z" /><path d="M46 24 C54 28 56 40 54 50 L48 50 Z" />
+      <path d="M14 26 L50 26 L48 66 L16 66 Z" />
+      <rect x="16" y="66" width="14" height="26" rx="3" /><rect x="34" y="66" width="14" height="26" rx="3" />
+      <path d="M14 30 L-2 54 L8 60 L20 42 Z" />
+      <rect x="62" y="-8" width="5" height="80" rx="2" />
+      <polygon points="62,-8 56,-18 68,-8 62,-18" />
+      <polygon points="62,0 56,8 62,4" /><polygon points="62,16 68,24 62,20" />
+    </>
+  ),
+
+  venom_viper: (
+    <>
+      <ellipse cx="32" cy="12" rx="14" ry="12" />
+      <path d="M44 16 L62 12 L44 20 Z" />
+      <ellipse cx="26" cy="10" rx="4" ry="4.5" fill="#220000" stroke="none" /><ellipse cx="38" cy="10" rx="4" ry="4.5" fill="#220000" stroke="none" />
+      <ellipse cx="26" cy="10" rx="2" ry="2.5" fill="#88ff00" stroke="none" /><ellipse cx="38" cy="10" rx="2" ry="2.5" fill="#88ff00" stroke="none" />
+      <path d="M30 22 L26 28 M34 22 L38 28" strokeWidth="2.5" />
+      <ellipse cx="32" cy="38" rx="20" ry="14" />
+      <ellipse cx="32" cy="56" rx="18" ry="12" />
+      <ellipse cx="32" cy="72" rx="14" ry="10" />
+      <path d="M12 30 Q32 26 52 30 M14 46 Q32 42 50 46 M16 60 Q32 56 48 60" fill="none" strokeWidth="1.5" strokeOpacity="0.4" />
+      <polygon points="12,36 4,26 18,34" /><polygon points="52,36 60,26 46,34" />
+      <path d="M20 82 C16 90 18 96 14 98 M32 84 C30 92 32 96 28 98 M44 82 C48 90 46 96 50 98" fill="none" strokeWidth="3.5" />
+    </>
+  ),
+
+  ancient_treant: (
+    <>
+      <path d="M24 22 L18 8 L14 -2 L20 4 L16 -6 L24 2 L22 -8 L28 6 L26 -4 L32 4 Z" strokeWidth="2" />
+      <path d="M40 22 L46 8 L50 -2 L44 4 L48 -6 L40 2 L42 -8 L36 6 L38 -4 L32 4 Z" strokeWidth="2" />
+      <ellipse cx="32" cy="28" rx="18" ry="16" />
+      <ellipse cx="24" cy="24" rx="4.5" ry="5" fill="#220000" stroke="none" /><ellipse cx="40" cy="24" rx="4.5" ry="5" fill="#220000" stroke="none" />
+      <path d="M26 36 L22 48 M30 38 L28 50 M34 38 L36 50 M38 36 L42 48" strokeWidth="2.5" />
+      <path d="M6 48 L58 48 L60 90 L4 90 Z" />
+      <path d="M6 52 L-6 72 L6 78 L16 60 Z" /><path d="M58 50 L70 70 L60 76 L50 62 Z" />
+      <rect x="4" y="90" width="24" height="8" rx="3" /><rect x="36" y="90" width="24" height="8" rx="3" />
+      <path d="M16 56 C8 52 4 62 8 70" fill="none" strokeWidth="3" />
+      <path d="M48 60 C56 56 60 66 56 74" fill="none" strokeWidth="3" />
+      <polygon points="8,52 2,42 14,50" /><polygon points="56,52 62,42 50,50" />
+    </>
+  ),
+
+  swamp_serpent: (
+    <>
+      <ellipse cx="32" cy="10" rx="16" ry="13" />
+      <path d="M46 14 L66 10 L46 20 Z" />
+      <ellipse cx="24" cy="8" rx="5" ry="5.5" fill="#220000" stroke="none" /><ellipse cx="40" cy="8" rx="5" ry="5.5" fill="#220000" stroke="none" />
+      <ellipse cx="24" cy="8" rx="3" ry="3.5" fill="#88cc00" stroke="none" /><ellipse cx="40" cy="8" rx="3" ry="3.5" fill="#88cc00" stroke="none" />
+      <path d="M28 22 L24 30 M36 22 L40 30" strokeWidth="3" />
+      <ellipse cx="32" cy="42" rx="22" ry="16" />
+      <ellipse cx="32" cy="62" rx="20" ry="14" />
+      <ellipse cx="32" cy="80" rx="16" ry="11" />
+      <path d="M10 34 Q32 30 54 34 M12 50 Q32 46 52 50 M14 66 Q32 62 50 66" fill="none" strokeWidth="1.5" strokeOpacity="0.4" />
+      <polygon points="10,40 2,30 18,38" /><polygon points="54,40 62,30 46,38" />
+      <path d="M18 90 C12 98 14 104 10 106 M32 92 C30 100 32 104 28 106 M46 90 C52 98 50 104 54 106" fill="none" strokeWidth="4.5" />
+    </>
+  ),
+
+  poison_toad: (
+    <>
+      <ellipse cx="22" cy="18" rx="9" ry="8" /><ellipse cx="42" cy="18" rx="9" ry="8" />
+      <ellipse cx="32" cy="28" rx="20" ry="18" />
+      <circle cx="22" cy="18" r="5" fill="#80b030" stroke="none" fillOpacity="0.6" /><circle cx="42" cy="18" r="5" fill="#80b030" stroke="none" fillOpacity="0.6" />
+      <ellipse cx="24" cy="26" rx="5" ry="5.5" fill="#220000" stroke="none" /><ellipse cx="40" cy="26" rx="5" ry="5.5" fill="#220000" stroke="none" />
+      <ellipse cx="24" cy="26" rx="3" ry="3.5" fill="#88ff00" stroke="none" /><ellipse cx="40" cy="26" rx="3" ry="3.5" fill="#88ff00" stroke="none" />
+      <path d="M22 38 Q32 50 42 38 Q40 60 32 58 Q24 60 22 38 Z" />
+      <path d="M6 38 L-6 24 L8 32 Z" /><path d="M6 46 L-8 38 L6 52 Z" />
+      <path d="M58 38 L70 24 L56 32 Z" /><path d="M58 46 L72 38 L58 52 Z" />
+      <path d="M12 54 L6 66 M16 62 L10 72 M48 54 L54 66 M52 62 L58 72" strokeWidth="4" strokeLinecap="round" />
+    </>
+  ),
+
+  mother_of_swamp: (
+    <>
+      <ellipse cx="22" cy="16" rx="7" ry="6" /><ellipse cx="42" cy="16" rx="7" ry="6" />
+      <ellipse cx="32" cy="24" rx="14" ry="14" />
+      <ellipse cx="26" cy="22" rx="4" ry="4.5" fill="#220000" stroke="none" /><ellipse cx="38" cy="22" rx="4" ry="4.5" fill="#220000" stroke="none" />
+      <path d="M22 30 Q32 44 42 30 Q38 50 32 48 Q26 50 22 30 Z" />
+      <path d="M14 32 C6 36 4 50 8 58 L14 58 Z" /><path d="M50 32 C58 36 60 50 56 58 L50 58 Z" />
+      <path d="M12 34 L52 34 L50 74 L14 74 Z" />
+      <circle cx="20" cy="44" r="5" fill="#88cc44" stroke="none" fillOpacity="0.7" />
+      <circle cx="36" cy="38" r="4" fill="#66aa22" stroke="none" fillOpacity="0.7" />
+      <circle cx="46" cy="50" r="6" fill="#99dd55" stroke="none" fillOpacity="0.7" />
+      <circle cx="24" cy="60" r="4" fill="#77bb33" stroke="none" fillOpacity="0.7" />
+      <path d="M14 36 L-2 58 L8 64 L20 48 Z" /><path d="M52 34 L66 54 L56 60 L44 44 Z" />
+      <rect x="14" y="74" width="14" height="20" rx="3" /><rect x="36" y="74" width="14" height="20" rx="3" />
+      <rect x="-4" y="12" width="5" height="62" rx="2" />
+      <path d="M-4 12 C-14 8 -16 -2 -10 0 C-8 6 -4 10 -2 14 Z" />
+    </>
+  ),
+
+  jungle_harpy: (
+    <>
+      <path d="M32 44 C20 32 4 22 -2 6 C6 8 12 20 16 30 C8 16 10 2 18 4 C18 18 22 32 30 42 Z" />
+      <path d="M32 44 C44 32 60 22 66 6 C58 8 52 20 48 30 C56 16 54 2 46 4 C46 18 42 32 34 42 Z" />
+      <path d="M16 30 L12 20 M12 20 L8 12 M18 20 L14 12" strokeWidth="2" />
+      <path d="M48 30 L52 20 M52 20 L56 12 M46 20 L50 12" strokeWidth="2" />
+      <ellipse cx="32" cy="56" rx="12" ry="14" />
+      <ellipse cx="32" cy="38" rx="11" ry="12" />
+      <polygon points="28,32 22,18 32,30" /><polygon points="36,32 42,18 32,30" />
+      <circle cx="26" cy="36" r="3.5" fill="#220000" stroke="none" /><circle cx="38" cy="36" r="3.5" fill="#220000" stroke="none" />
+      <circle cx="26" cy="36" r="2" fill="#88ff44" stroke="none" /><circle cx="38" cy="36" r="2" fill="#88ff44" stroke="none" />
+      <path d="M24 66 L20 76 M32 68 L30 78 M40 66 L44 76" strokeWidth="4" />
+    </>
+  ),
+
+  piranha_school: (
+    <>
+      <ellipse cx="20" cy="24" rx="14" ry="8" />
+      <path d="M34 24 L44 18 L34 28 Z" /><path d="M6 24 L-4 20 L6 28 Z" />
+      <circle cx="16" cy="22" r="3" fill="#cc4422" stroke="none" />
+      <path d="M14 28 L10 36 L20 28 Z" />
+      <ellipse cx="44" cy="44" rx="14" ry="8" />
+      <path d="M58 44 L68 40 L58 48 Z" /><path d="M30 44 L20 40 L30 48 Z" />
+      <circle cx="40" cy="42" r="3" fill="#cc4422" stroke="none" />
+      <path d="M38 48 L34 56 L44 48 Z" />
+      <ellipse cx="20" cy="64" rx="12" ry="7" />
+      <path d="M32 64 L40 60 L32 68 Z" /><path d="M8 64 L0 61 L8 67 Z" />
+      <circle cx="16" cy="62" r="2.5" fill="#cc4422" stroke="none" />
+      <ellipse cx="46" cy="74" rx="10" ry="6" />
+      <path d="M56 74 L64 71 L56 77 Z" />
+      <circle cx="42" cy="72" r="2" fill="#cc4422" stroke="none" />
+    </>
+  ),
+
+  thorn_dryad: (
+    <>
+      <path d="M22 12 L18 0 L16 -8 L22 -2 L18 -10 L24 -4 L20 -12 L26 -2 L24 -10 L30 -2 Z" strokeWidth="2" />
+      <path d="M42 12 L46 0 L48 -8 L42 -2 L46 -10 L40 -4 L44 -12 L38 -2 L40 -10 L34 -2 Z" strokeWidth="2" />
+      <ellipse cx="32" cy="22" rx="13" ry="14" />
+      <ellipse cx="26" cy="20" rx="3.5" ry="4" fill="#220000" stroke="none" /><ellipse cx="38" cy="20" rx="3.5" ry="4" fill="#220000" stroke="none" />
+      <path d="M16 30 L48 30 L46 72 L18 72 Z" />
+      <path d="M18 34 C10 38 8 52 12 60 L18 60 Z" /><path d="M46 34 C54 38 56 52 52 60 L46 60 Z" />
+      <path d="M16 36 L0 58 L10 64 L22 48 Z" /><path d="M48 36 L64 58 L54 64 L42 48 Z" />
+      <rect x="18" y="72" width="14" height="22" rx="3" /><rect x="32" y="72" width="14" height="22" rx="3" />
+      <path d="M18 40 L10 32 L14 28 Z" /><path d="M46 44 L54 36 L58 32 Z" />
+    </>
+  ),
+
+  emerald_crocolisk: (
+    <>
+      <path d="M44 18 L66 10 L66 16 L58 18 L66 20 L66 26 L44 24 Z" />
+      <ellipse cx="30" cy="22" rx="18" ry="16" />
+      <ellipse cx="22" cy="20" rx="5" ry="5.5" fill="#220000" stroke="none" /><ellipse cx="38" cy="20" rx="5" ry="5.5" fill="#220000" stroke="none" />
+      <ellipse cx="22" cy="20" rx="2.5" ry="3" fill="#88ff44" stroke="none" /><ellipse cx="38" cy="20" rx="2.5" ry="3" fill="#88ff44" stroke="none" />
+      <path d="M8 38 L56 38 L58 78 L6 78 Z" />
+      <path d="M14 40 L12 30 L18 40" /><path d="M22 38 L20 26 L26 38" />
+      <path d="M38 38 L36 26 L42 38" /><path d="M46 40 L44 30 L50 40" />
+      <rect x="6" y="78" width="18" height="14" rx="3" /><rect x="20" y="78" width="18" height="14" rx="3" />
+      <rect x="36" y="78" width="18" height="14" rx="3" />
+      <path d="M8 46 C-4 42 -8 56 -2 62" fill="none" strokeWidth="3.5" />
+      <path d="M56 52 C62 62 58 78 50 80 C60 78 68 64 62 52 Z" />
+    </>
+  ),
+
+  cursed_tribesman: (
+    <>
+      <ellipse cx="32" cy="14" rx="12" ry="13" />
+      <ellipse cx="26" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" /><ellipse cx="38" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" />
+      <path d="M24 4 L20 -4 L24 0 M28 2 L26 -6 L30 -2 M36 2 L38 -6 L34 -2 M40 4 L44 -4 L40 0" strokeWidth="2" />
+      <path d="M22 24 L20 32 M28 24 L28 32 M36 24 L36 32 M42 24 L44 32" strokeWidth="2.5" />
+      <path d="M14 28 L50 28 L48 68 L16 68 Z" />
+      <path d="M14 34 C4 32 0 44 4 52 L10 52 Z" /><path d="M50 32 C60 30 64 42 60 50 L54 50 Z" />
+      <path d="M12 34 L-4 56 L6 62 L18 46 Z" /><path d="M52 32 L66 52 L56 58 L44 42 Z" />
+      <rect x="16" y="68" width="14" height="24" rx="3" /><rect x="34" y="68" width="14" height="24" rx="3" />
+      <rect x="62" y="4" width="5" height="58" rx="2" />
+      <ellipse cx="64.5" cy="2" rx="6" ry="6" />
+      <rect x="58" y="24" width="16" height="4" rx="2" />
+    </>
+  ),
+
+  haunted_mask: (
+    <>
+      <ellipse cx="32" cy="28" rx="18" ry="20" />
+      <ellipse cx="23" cy="24" rx="6" ry="8" fill="#000" stroke="none" /><ellipse cx="41" cy="24" rx="6" ry="8" fill="#000" stroke="none" />
+      <ellipse cx="23" cy="24" rx="4" ry="6" fill="#b080ff" stroke="none" /><ellipse cx="41" cy="24" rx="4" ry="6" fill="#b080ff" stroke="none" />
+      <path d="M22 38 Q32 50 42 38" fill="none" strokeWidth="3" />
+      <path d="M24 44 L22 54 M32 46 L32 56 M40 44 L42 54" strokeWidth="2.5" strokeOpacity="0.6" />
+      <path d="M20 14 L16 6 M24 10 L22 2 M28 8 L28 0 M36 8 L36 0 M40 10 L42 2 M44 14 L48 6" strokeWidth="2" strokeOpacity="0.5" />
+      <path d="M14 56 C8 68 12 82 8 86 M22 60 C18 74 22 82 18 86 M42 60 C46 74 42 82 46 86 M50 56 C56 68 52 82 56 86" fill="none" strokeWidth="4" strokeOpacity="0.5" />
+    </>
+  ),
+
+  voodoo_shaman: (
+    <>
+      <ellipse cx="32" cy="14" rx="12" ry="13" />
+      <ellipse cx="26" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" /><ellipse cx="38" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" />
+      <ellipse cx="26" cy="12" rx="2" ry="2.5" fill="#cc88ff" stroke="none" /><ellipse cx="38" cy="12" rx="2" ry="2.5" fill="#cc88ff" stroke="none" />
+      <path d="M28 4 L24 -4 L28 0 L26 -8 L30 -4 M34 -4 L38 -8 L36 -2 L40 -6 L36 4" strokeWidth="1.5" />
+      <path d="M14 26 L50 26 L48 68 L16 68 Z" />
+      <path d="M14 30 C4 28 0 40 4 48 L10 48 Z" /><path d="M50 28 C60 26 64 38 60 46 L54 46 Z" />
+      <rect x="16" y="68" width="14" height="24" rx="3" /><rect x="34" y="68" width="14" height="24" rx="3" />
+      <path d="M14 32 L-2 54 L8 60 L20 44 Z" />
+      <rect x="-4" y="8" width="5" height="66" rx="2" />
+      <circle cx="-6" cy="4" r="6" fill="none" strokeWidth="2" />
+      <circle cx="-6" cy="4" r="3" strokeOpacity="0.5" />
+      <path d="M-10" y="2" width="8" height="2" rx="1" />
+      <rect x="-10" y="2" width="8" height="2" rx="1" />
+      <path d="M-9 32 C-16 28 -18 38 -14 44 L-8 40 Z" />
+    </>
+  ),
+
+  soul_collector: (
+    <>
+      <ellipse cx="32" cy="16" rx="14" ry="15" />
+      <ellipse cx="24" cy="14" rx="5" ry="6" fill="#220000" stroke="none" /><ellipse cx="40" cy="14" rx="5" ry="6" fill="#220000" stroke="none" />
+      <ellipse cx="24" cy="14" rx="3" ry="4" fill="#cc88ff" stroke="none" /><ellipse cx="40" cy="14" rx="3" ry="4" fill="#cc88ff" stroke="none" />
+      <path d="M26 4 L22 -4 L26 0 L22 -8 L28 -4 M34 -6 L38 -10 L36 -4 L42 -8 L38 0" strokeWidth="2" />
+      <rect x="28" y="8" width="8" height="2" rx="1" fill="#cc88ff" stroke="none" />
+      <path d="M16 30 L48 30 L46 72 L18 72 Z" />
+      <path d="M18 34 C8 32 4 46 8 54 L14 54 Z" /><path d="M46 32 C56 30 60 44 56 52 L50 52 Z" />
+      <path d="M16 36 L0 60 L10 66 L22 50 Z" /><path d="M48 34 L64 56 L54 62 L42 46 Z" />
+      <rect x="18" y="72" width="14" height="20" rx="3" /><rect x="32" y="72" width="14" height="20" rx="3" />
+      <rect x="-4" y="2" width="5" height="74" rx="2" />
+      <circle cx="-6" cy="-2" r="8" fill="none" strokeWidth="2" />
+      <circle cx="-12" cy="-6" r="4" fill="none" strokeWidth="1.5" /><circle cx="0" cy="-6" r="4" fill="none" strokeWidth="1.5" />
+      <circle cx="-6" cy="-10" r="4" fill="none" strokeWidth="1.5" />
+      <path d="M22 50 L20 60 M28 52 L26 62 M36 52 L38 62 M42 50 L44 60" strokeWidth="1.5" strokeOpacity="0.5" />
+    </>
+  ),
+
+  blood_vine: (
+    <>
+      <path d="M32 8 C22 14 14 28 18 42 C22 56 28 66 32 72 C36 66 42 56 46 42 C50 28 42 14 32 8 Z" />
+      <path d="M32 8 L28 -4 M32 8 L36 -4" strokeWidth="3" />
+      <path d="M18 26 C10 22 4 28 8 36" fill="none" strokeWidth="3" />
+      <path d="M46 26 C54 22 60 28 56 36" fill="none" strokeWidth="3" />
+      <path d="M16 44 C6 42 2 52 8 58" fill="none" strokeWidth="3" />
+      <path d="M48 44 C58 42 62 52 56 58" fill="none" strokeWidth="3" />
+      <ellipse cx="26" cy="32" rx="4" ry="5" fill="#880000" stroke="none" /><ellipse cx="38" cy="32" rx="4" ry="5" fill="#880000" stroke="none" />
+      <ellipse cx="26" cy="32" rx="2" ry="3" fill="#ff2200" stroke="none" /><ellipse cx="38" cy="32" rx="2" ry="3" fill="#ff2200" stroke="none" />
+      <path d="M26 72 C22 82 24 90 20 94 M32 74 C30 84 32 90 28 94 M38 72 C42 82 40 90 44 94" fill="none" strokeWidth="4" />
+    </>
+  ),
+
+  carnivorous_plant: (
+    <>
+      <path d="M32 32 C24 22 18 10 22 2 C26 10 28 20 30 28 C22 14 24 2 30 4 C30 14 30 24 30 32 Z" />
+      <path d="M32 32 C40 22 46 10 42 2 C38 10 36 20 34 28 C42 14 40 2 34 4 C34 14 34 24 34 32 Z" />
+      <path d="M16 28 L14 18 L10 14 L14 24 L8 20 L12 28 L6 26 L14 32 Z" />
+      <path d="M48 28 L50 18 L54 14 L50 24 L56 20 L52 28 L58 26 L50 32 Z" />
+      <ellipse cx="32" cy="42" rx="18" ry="16" />
+      <path d="M14 38 L48 38 L50 56 Q32 70 14 56 Z" />
+      <ellipse cx="24" cy="36" rx="5" ry="6" fill="#220000" stroke="none" /><ellipse cx="40" cy="36" rx="5" ry="6" fill="#220000" stroke="none" />
+      <path d="M20 56 L16 68 M24 60 L20 72 M32 62 L30 74 M40 60 L44 72 M44 56 L48 68" strokeWidth="3.5" />
+      <path d="M32 56 C18 70 8 80 4 90" fill="none" strokeWidth="4" />
+      <path d="M32 56 C46 70 56 80 60 90" fill="none" strokeWidth="4" />
+    </>
+  ),
+
+  giant_tarantula: (
+    <>
+      <ellipse cx="32" cy="42" rx="22" ry="18" />
+      <ellipse cx="32" cy="30" rx="14" ry="12" />
+      <circle cx="24" cy="26" r="4" fill="#220000" stroke="none" /><circle cx="30" cy="24" r="3.5" fill="#220000" stroke="none" />
+      <circle cx="34" cy="24" r="3.5" fill="#220000" stroke="none" /><circle cx="40" cy="26" r="4" fill="#220000" stroke="none" />
+      <circle cx="24" cy="26" r="2" fill="#ff4400" stroke="none" /><circle cx="40" cy="26" r="2" fill="#ff4400" stroke="none" />
+      <path d="M10 34 L-6 18 M8 40 L-8 32 M8 46 L-6 54 M10 52 L-4 68" strokeWidth="3.5" />
+      <path d="M54 34 L70 18 M56 40 L72 32 M56 46 L70 54 M54 52 L68 68" strokeWidth="3.5" />
+      <path d="M28 54 L26 66 M32 56 L32 68 M36 54 L38 66" strokeWidth="4" />
+      <path d="M10 34 L4 24 L10 30" fill="none" strokeWidth="1.5" />
+      <path d="M54 34 L60 24 L54 30" fill="none" strokeWidth="1.5" />
+      <path d="M28 34 L26 24 M36 34 L38 24" strokeWidth="2" />
+    </>
+  ),
+
+  devourer_bloom: (
+    <>
+      <path d="M32 40 C18 30 10 14 16 4 C20 14 24 26 28 36 C16 20 20 4 26 8 C26 20 28 32 30 40 Z" />
+      <path d="M32 40 C46 30 54 14 48 4 C44 14 40 26 36 36 C48 20 44 4 38 8 C38 20 36 32 34 40 Z" />
+      <path d="M8 44 L4 30 L0 22 L6 30 L2 20 L8 28 L4 16 L12 28 Z" />
+      <path d="M56 44 L60 30 L64 22 L58 30 L62 20 L56 28 L60 16 L52 28 Z" />
+      <ellipse cx="32" cy="54" rx="22" ry="18" />
+      <path d="M10 50 L54 50 L58 68 Q32 86 6 68 Z" />
+      <ellipse cx="22" cy="46" rx="6" ry="7" fill="#220000" stroke="none" /><ellipse cx="42" cy="46" rx="6" ry="7" fill="#220000" stroke="none" />
+      <ellipse cx="22" cy="46" rx="4" ry="5" fill="#ff6688" stroke="none" /><ellipse cx="42" cy="46" rx="4" ry="5" fill="#ff6688" stroke="none" />
+      <path d="M18 70 C10 78 12 92 8 96 M26 74 C22 86 24 94 20 96 M38 74 C42 86 40 94 44 96 M46 70 C54 78 52 92 56 96" fill="none" strokeWidth="5" />
+      <circle cx="32" cy="56" r="28" fill="none" strokeWidth="1.5" strokeOpacity="0.2" strokeDasharray="6 4" />
+    </>
+  ),
+
+  stone_jaguar: (
+    <>
+      <polygon points="20,10 14,-2 26,8" /><polygon points="44,10 50,-2 38,8" />
+      <ellipse cx="32" cy="20" rx="16" ry="14" />
+      <path d="M40 26 L60 22 L40 32 Z" />
+      <ellipse cx="24" cy="18" rx="4.5" ry="5" fill="#220000" stroke="none" /><ellipse cx="40" cy="18" rx="4.5" ry="5" fill="#220000" stroke="none" />
+      <ellipse cx="24" cy="18" rx="2.5" ry="3" fill="#ffee88" stroke="none" /><ellipse cx="40" cy="18" rx="2.5" ry="3" fill="#ffee88" stroke="none" />
+      <path d="M8 36 L56 36 L54 76 L10 76 Z" />
+      <path d="M12 38 L16 28 L22 38" /><path d="M24 36 L28 24 L32 36" /><path d="M32 36 L36 24 L40 36" /><path d="M42 38 L46 28 L52 38" />
+      <polygon points="10,38 6,26 16,36" /><polygon points="54,38 58,26 48,36" />
+      <rect x="10" y="76" width="18" height="16" rx="3" /><rect x="36" y="76" width="18" height="16" rx="3" />
+      <path d="M8 42 L-4 62 L6 68 L18 52 Z" /><path d="M56 42 L68 62 L58 68 L46 52 Z" />
+      <path d="M10 72 C4 84 6 94 2 98" fill="none" strokeWidth="3" />
+    </>
+  ),
+
+  temple_guardian: (
+    <>
+      <path d="M18 8 C18 -4 46 -4 46 8 L46 22 L18 22 Z" />
+      <rect x="20" y="16" width="24" height="4" rx="1" />
+      <path d="M28 8 Q32 -2 36 8" fill="none" strokeWidth="3" />
+      <rect x="22" y="20" width="20" height="6" rx="2" />
+      <path d="M10 28 L54 28 L56 72 L8 72 Z" />
+      <line x1="32" y1="30" x2="32" y2="70" strokeWidth="2" strokeOpacity="0.3" />
+      <line x1="10" y1="48" x2="54" y2="48" strokeWidth="1.5" strokeOpacity="0.2" />
+      <path d="M20 36 L16 26 L22 28 Z" /><path d="M44 36 L48 26 L42 28 Z" />
+      <polygon points="10,30 4,18 16,26" /><polygon points="54,30 60,18 48,26" />
+      <rect x="8" y="72" width="20" height="22" rx="3" /><rect x="36" y="72" width="20" height="22" rx="3" />
+      <path d="M10 34 L-6 56 L4 62 L18 46 Z" /><path d="M54 32 L68 54 L58 60 L44 42 Z" />
+      <rect x="68" y="-4" width="6" height="62" rx="3" />
+      <polygon points="68,-4 62,-14 74,-14 80,-4" />
+    </>
+  ),
+
+  venom_priest: (
+    <>
+      <ellipse cx="32" cy="14" rx="12" ry="13" />
+      <ellipse cx="26" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" /><ellipse cx="38" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" />
+      <ellipse cx="26" cy="12" rx="2" ry="2.5" fill="#88ff00" stroke="none" /><ellipse cx="38" cy="12" rx="2" ry="2.5" fill="#88ff00" stroke="none" />
+      <path d="M26 26 L24 36 M30 28 L28 38 M34 28 L36 38 M38 26 L40 36" strokeWidth="2" strokeOpacity="0.5" />
+      <path d="M14 26 L50 26 L48 68 L16 68 Z" />
+      <path d="M14 30 C4 28 0 40 4 48 L10 48 Z" /><path d="M50 28 C60 26 64 38 60 46 L54 46 Z" />
+      <path d="M12 32 L-4 54 L6 60 L18 44 Z" /><path d="M52 30 L66 50 L56 56 L44 42 Z" />
+      <rect x="16" y="68" width="14" height="24" rx="3" /><rect x="34" y="68" width="14" height="24" rx="3" />
+      <rect x="-4" y="6" width="5" height="68" rx="2" />
+      <ellipse cx="-6" cy="2" rx="8" ry="8" fill="none" strokeWidth="2" />
+      <path d="M-14 -2 C-12 -10 0 -10 2 -2" fill="none" strokeWidth="2.5" />
+    </>
+  ),
+
+  golden_idol: (
+    <>
+      <path d="M22 8 C22 -4 42 -4 42 8 L44 24 L20 24 Z" />
+      <polygon points="32,0 26,-10 38,-10" />
+      <ellipse cx="32" cy="26" rx="14" ry="12" />
+      <ellipse cx="25" cy="24" rx="4" ry="4.5" fill="#885500" stroke="none" /><ellipse cx="39" cy="24" rx="4" ry="4.5" fill="#885500" stroke="none" />
+      <ellipse cx="25" cy="24" rx="2.5" ry="3" fill="#ffee00" stroke="none" /><ellipse cx="39" cy="24" rx="2.5" ry="3" fill="#ffee00" stroke="none" />
+      <rect x="18" y="36" width="28" height="42" rx="2" />
+      <polygon points="16,38 10,28 22,36" /><polygon points="48,38 54,28 42,36" />
+      <path d="M14 40 L-2 62 L8 68 L20 52 Z" /><path d="M50 40 L66 62 L56 68 L44 52 Z" />
+      <rect x="18" y="78" width="12" height="16" rx="3" /><rect x="34" y="78" width="12" height="16" rx="3" />
+      <path d="M24 46 L20 36 L28 46" /><path d="M36 46 L40 36 L44 46" />
+      <circle cx="32" cy="56" r="8" fill="#ffee00" stroke="none" fillOpacity="0.4" />
+      <circle cx="32" cy="56" r="4" fill="#ffee00" stroke="none" fillOpacity="0.7" />
+    </>
+  ),
+
+  ancient_gorilla: (
+    <>
+      <ellipse cx="20" cy="16" rx="10" ry="9" /><ellipse cx="44" cy="16" rx="10" ry="9" />
+      <ellipse cx="32" cy="26" rx="18" ry="18" />
+      <ellipse cx="32" cy="36" rx="12" ry="9" />
+      <ellipse cx="23" cy="24" rx="5" ry="6" fill="#220000" stroke="none" /><ellipse cx="41" cy="24" rx="5" ry="6" fill="#220000" stroke="none" />
+      <path d="M24 38 L20 48 M28 40 L26 50 M36 40 L38 50 M40 38 L44 48" strokeWidth="3" />
+      <path d="M6 44 L58 44 L60 86 L4 86 Z" />
+      <rect x="4" y="86" width="24" height="10" rx="3" /><rect x="36" y="86" width="24" height="10" rx="3" />
+      <path d="M6 50 C-8 46 -12 62 -6 70 L4 66 Z" /><path d="M58 50 C72 46 76 62 70 70 L60 66 Z" />
+      <path d="M-8 70 L-12 56 L-4 64 Z" /><path d="M72 70 L76 56 L68 64 Z" />
+      <path d="M4 54 L-10 74 L4 80 L16 66 Z" /><path d="M60 52 L74 72 L60 78 L48 64 Z" />
+      <polygon points="8,46 4,34 14,46" /><polygon points="20,44 16,30 24,44" />
+      <polygon points="40,44 44,30 48,44" /><polygon points="56,46 60,34 64,46" />
+    </>
+  ),
+
+  emerald_basilisk: (
+    <>
+      <ellipse cx="32" cy="14" rx="16" ry="13" />
+      <path d="M24 8 L20 -2 M32 6 L32 -4 M40 8 L44 -2" strokeWidth="3" strokeLinecap="round" />
+      <ellipse cx="24" cy="12" rx="5" ry="6" fill="#220000" stroke="none" /><ellipse cx="40" cy="12" rx="5" ry="6" fill="#220000" stroke="none" />
+      <ellipse cx="24" cy="12" rx="3" ry="4" fill="#44ff88" stroke="none" /><ellipse cx="40" cy="12" rx="3" ry="4" fill="#44ff88" stroke="none" />
+      <path d="M18 26 L14 18 M32 28 L32 20 M46 26 L50 18" strokeWidth="2.5" />
+      <path d="M8 36 L56 36 L54 72 L10 72 Z" />
+      <ellipse cx="32" cy="52" rx="22" ry="12" />
+      <ellipse cx="32" cy="70" rx="18" ry="10" />
+      <path d="M10 40 Q32 36 54 40 M10 56 Q32 52 54 56" fill="none" strokeWidth="1.5" strokeOpacity="0.4" />
+      <polygon points="8,36 2,26 14,34" /><polygon points="56,36 62,26 50,34" />
+      <path d="M14 80 C8 90 10 98 6 102 M26 82 C22 92 24 100 20 102 M38 82 C42 92 40 100 44 102 M50 80 C56 90 54 98 58 102" fill="none" strokeWidth="4.5" />
+    </>
+  ),
+
+  jungle_guardian: (
+    <>
+      <path d="M22 12 L18 0 L16 -8 L22 -2 L18 -10 L24 -4 L20 -12 L28 -2 Z" strokeWidth="2" />
+      <path d="M42 12 L46 0 L48 -8 L42 -2 L46 -10 L40 -4 L44 -12 L36 -2 Z" strokeWidth="2" />
+      <ellipse cx="32" cy="24" rx="16" ry="16" />
+      <ellipse cx="24" cy="22" rx="5" ry="5.5" fill="#220000" stroke="none" /><ellipse cx="40" cy="22" rx="5" ry="5.5" fill="#220000" stroke="none" />
+      <path d="M8 40 L56 40 L58 84 L6 84 Z" />
+      <polygon points="10,42 6,30 16,40" /><polygon points="22,40 18,26 26,40" />
+      <polygon points="38,40 42,26 46,40" /><polygon points="54,42 58,30 62,40" />
+      <path d="M8 46 L-6 68 L6 74 L18 58 Z" /><path d="M56 44 L70 66 L58 72 L46 56 Z" />
+      <rect x="6" y="84" width="22" height="10" rx="3" /><rect x="36" y="84" width="22" height="10" rx="3" />
+      <path d="M18 50 C10 46 6 58 12 64" fill="none" strokeWidth="3" />
+      <path d="M46 54 C54 50 58 62 52 68" fill="none" strokeWidth="3" />
+    </>
+  ),
+
+  green_warden: (
+    <>
+      <path d="M20 10 L16 -2 L12 -10 L18 -4 L14 -12 L20 -6 L16 -14 L22 -4 L20 -12 L26 -2 L24 -10 L30 0 Z" strokeWidth="2" />
+      <path d="M44 10 L48 -2 L52 -10 L46 -4 L50 -12 L44 -6 L48 -14 L42 -4 L44 -12 L38 -2 L40 -10 L34 0 Z" strokeWidth="2" />
+      <ellipse cx="32" cy="26" rx="20" ry="18" />
+      <ellipse cx="24" cy="24" rx="5.5" ry="6" fill="#220000" stroke="none" /><ellipse cx="40" cy="24" rx="5.5" ry="6" fill="#220000" stroke="none" />
+      <ellipse cx="24" cy="24" rx="3" ry="3.5" fill="#44ff44" stroke="none" /><ellipse cx="40" cy="24" rx="3" ry="3.5" fill="#44ff44" stroke="none" />
+      <path d="M6 44 L58 44 L62 90 L2 90 Z" />
+      <path d="M6 50 C-8 46 -12 62 -4 70 L6 66 Z" /><path d="M58 48 C72 44 76 60 68 68 L58 64 Z" />
+      <path d="M4 54 L-12 76 L4 82 L18 66 Z" /><path d="M60 52 L76 74 L60 80 L46 64 Z" />
+      <rect x="2" y="90" width="28" height="10" rx="3" /><rect x="34" y="90" width="28" height="10" rx="3" />
+      <polygon points="8,46 2,34 16,44" /><polygon points="22,44 18,30 28,44" />
+      <polygon points="36,44 40,30 46,44" /><polygon points="56,46 60,34 70,44" />
+      <path d="M16 58 C8 54 4 66 10 72" fill="none" strokeWidth="4" />
+      <path d="M48 62 C56 58 60 70 54 76" fill="none" strokeWidth="4" />
+    </>
+  ),
+
+  elite_voodoo_warrior: (
+    <>
+      <ellipse cx="32" cy="14" rx="12" ry="13" />
+      <path d="M28 6 L24 -4 L28 0 L26 -8 L30 -4 M34 -6 L38 -10 L36 -4 L40 -8 L36 2" strokeWidth="2" />
+      <ellipse cx="26" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" /><ellipse cx="38" cy="12" rx="3.5" ry="4" fill="#220000" stroke="none" />
+      <ellipse cx="26" cy="12" rx="2" ry="2.5" fill="#dd88ff" stroke="none" /><ellipse cx="38" cy="12" rx="2" ry="2.5" fill="#dd88ff" stroke="none" />
+      <path d="M14 26 L50 26 L48 68 L16 68 Z" />
+      <polygon points="14,28 8,18 20,26" /><polygon points="50,28 56,18 44,26" />
+      <path d="M12 30 L-4 52 L6 58 L18 42 Z" /><path d="M52 28 L66 50 L56 56 L44 40 Z" />
+      <rect x="16" y="68" width="14" height="24" rx="3" /><rect x="34" y="68" width="14" height="24" rx="3" />
+      <rect x="64" y="-2" width="5" height="70" rx="2" />
+      <polygon points="64,-2 58,-12 70,-12 76,-2" />
+      <circle cx="62" cy="-14" r="5" fill="none" strokeWidth="2" />
+      <path d="M60 30 L54 22 L58 20 L60 28 Z" /><path d="M62 46 L56 38 L60 36 L62 44 Z" />
+      <path d="M-6" y="12" width="6" height="44" rx="3" />
+      <rect x="-6" y="12" width="6" height="44" rx="3" />
+      <path d="M-6 12 C-16 6 -18 -4 -12 -2 C-10 4 -6 10 -4 14 Z" />
+      <rect x="-12" y="30" width="18" height="4" rx="2" />
+    </>
+  ),
+
+  soul_devourer: (
+    <>
+      <path d="M20 10 C18 0 46 0 44 10 L44 24 L20 24 Z" fillOpacity="0.85" />
+      <ellipse cx="32" cy="26" rx="13" ry="12" fillOpacity="0.9" />
+      <ellipse cx="25" cy="24" rx="4.5" ry="5.5" fill="#220000" stroke="none" /><ellipse cx="39" cy="24" rx="4.5" ry="5.5" fill="#220000" stroke="none" />
+      <ellipse cx="25" cy="24" rx="2.5" ry="3.5" fill="#aa66ff" stroke="none" /><ellipse cx="39" cy="24" rx="2.5" ry="3.5" fill="#aa66ff" stroke="none" />
+      <path d="M16 36 L48 36 L52 76 L12 76 Z" fillOpacity="0.75" />
+      <path d="M16 40 C6 36 2 48 6 56 L12 56 Z" fillOpacity="0.6" /><path d="M48 38 C58 34 62 46 58 54 L52 54 Z" fillOpacity="0.6" />
+      <path d="M14 42 L-2 64 L8 70 L20 54 Z" fillOpacity="0.7" /><path d="M50 40 L64 62 L54 68 L42 52 Z" fillOpacity="0.7" />
+      <path d="M16 74 C10 88 12 98 8 100 M26 78 C22 92 24 100 20 100 M38 78 C42 92 40 100 44 100 M48 74 C54 88 52 98 56 100" fill="none" strokeWidth="5" strokeOpacity="0.55" />
+      <path d="M24 50 L20 60 M28 52 L26 62 M36 52 L38 62 M40 50 L44 60" fill="none" strokeWidth="1.5" strokeOpacity="0.4" />
+    </>
+  ),
+
+  cursed_colossus: (
+    <>
+      <polygon points="32,-6 46,8 46,24 18,24 18,8" />
+      <polygon points="32,-6 40,-14 46,8" /><polygon points="32,-6 24,-14 18,8" />
+      <rect x="14" y="24" width="36" height="54" rx="2" />
+      <polygon points="12,26 -4,50 8,56 18,36" /><polygon points="52,26 68,50 56,56 46,36" />
+      <polygon points="-4,50 -10,40 4,46" /><polygon points="68,50 74,40 60,46" />
+      <polygon points="20,26 16,16 24,26" /><polygon points="30,24 26,12 34,24" /><polygon points="40,26 44,16 36,26" />
+      <rect x="14" y="78" width="14" height="18" rx="3" /><rect x="36" y="78" width="14" height="18" rx="3" />
+      <ellipse cx="25" cy="38" rx="5" ry="6" fill="#aa66ff" stroke="none" fillOpacity="0.5" /><ellipse cx="39" cy="38" rx="5" ry="6" fill="#aa66ff" stroke="none" fillOpacity="0.5" />
+      <path d="M20 50 L14 44 M22 58 L16 52 M42 50 L48 44 M42 58 L48 52" strokeWidth="2" strokeOpacity="0.4" />
+    </>
+  ),
+
+  ancient_loa: (
+    <>
+      <path d="M22 14 L18 2 L14 -6 L20 0 L16 -8 L22 -2 L18 -10 L24 -2 L22 -10 L28 2 L26 -6 L32 4 Z" strokeWidth="1.5" fillOpacity="0.9" />
+      <path d="M42 14 L46 2 L50 -6 L44 0 L48 -8 L42 -2 L46 -10 L40 -2 L42 -10 L36 2 L38 -6 L32 4 Z" strokeWidth="1.5" fillOpacity="0.9" />
+      <ellipse cx="32" cy="24" rx="14" ry="16" fillOpacity="0.95" />
+      <ellipse cx="24" cy="22" rx="5" ry="6" fill="#000" stroke="none" /><ellipse cx="40" cy="22" rx="5" ry="6" fill="#000" stroke="none" />
+      <ellipse cx="24" cy="22" rx="3" ry="4" fill="#cc88ff" stroke="none" /><ellipse cx="40" cy="22" rx="3" ry="4" fill="#cc88ff" stroke="none" />
+      <path d="M16 38 L48 38 L46 78 L18 78 Z" fillOpacity="0.8" />
+      <path d="M16 42 C4 40 0 54 6 62 L12 62 Z" fillOpacity="0.7" /><path d="M48 40 C60 38 64 52 58 60 L52 60 Z" fillOpacity="0.7" />
+      <path d="M14 44 L-4 68 L8 74 L20 58 Z" fillOpacity="0.8" /><path d="M50 42 L68 66 L56 72 L44 56 Z" fillOpacity="0.8" />
+      <rect x="18" y="78" width="14" height="18" rx="3" fillOpacity="0.8" /><rect x="32" y="78" width="14" height="18" rx="3" fillOpacity="0.8" />
+      <rect x="-6" y="4" width="6" height="80" rx="3" />
+      <path d="M-8 4 C-18 -2 -22 -12 -14 -10 C-10 -4 -6 2 -4 6 Z" />
+      <circle cx="-8" cy="-12" r="5" fill="none" strokeWidth="2" />
+      <circle cx="-14" cy="-18" r="3" fill="none" strokeWidth="1.5" /><circle cx="-2" cy="-18" r="3" fill="none" strokeWidth="1.5" />
+      <circle cx="-8" cy="-22" r="3" fill="none" strokeWidth="1.5" />
+      <rect x="-12" y="36" width="20" height="4" rx="2" />
+    </>
+  ),
+
+  spirit_crocolisk: (
+    <>
+      <path d="M44 18 L66 10 L66 16 L58 18 L66 20 L66 26 L44 24 Z" fillOpacity="0.7" />
+      <ellipse cx="30" cy="22" rx="18" ry="16" fillOpacity="0.75" />
+      <ellipse cx="22" cy="20" rx="5" ry="5.5" fill="#000" stroke="none" /><ellipse cx="38" cy="20" rx="5" ry="5.5" fill="#000" stroke="none" />
+      <ellipse cx="22" cy="20" rx="2.5" ry="3" fill="#88ffaa" stroke="none" /><ellipse cx="38" cy="20" rx="2.5" ry="3" fill="#88ffaa" stroke="none" />
+      <path d="M8 38 L56 38 L58 78 L6 78 Z" fillOpacity="0.6" />
+      <rect x="6" y="78" width="18" height="14" rx="3" fillOpacity="0.6" /><rect x="20" y="78" width="18" height="14" rx="3" fillOpacity="0.6" />
+      <rect x="36" y="78" width="18" height="14" rx="3" fillOpacity="0.6" />
+      <path d="M56 52 C62 62 58 78 50 80 C60 78 68 64 62 52 Z" fillOpacity="0.7" />
+      <circle cx="32" cy="50" r="26" fill="none" strokeWidth="1.5" strokeOpacity="0.25" strokeDasharray="5 4" />
+    </>
+  ),
+
+  spirit_gorilla: (
+    <>
+      <ellipse cx="20" cy="16" rx="10" ry="9" fillOpacity="0.7" /><ellipse cx="44" cy="16" rx="10" ry="9" fillOpacity="0.7" />
+      <ellipse cx="32" cy="26" rx="18" ry="18" fillOpacity="0.75" />
+      <ellipse cx="23" cy="24" rx="5" ry="6" fill="#000" stroke="none" /><ellipse cx="41" cy="24" rx="5" ry="6" fill="#000" stroke="none" />
+      <ellipse cx="23" cy="24" rx="3" ry="3.5" fill="#88ffcc" stroke="none" /><ellipse cx="41" cy="24" rx="3" ry="3.5" fill="#88ffcc" stroke="none" />
+      <path d="M6 44 L58 44 L60 86 L4 86 Z" fillOpacity="0.65" />
+      <rect x="4" y="86" width="24" height="10" rx="3" fillOpacity="0.6" /><rect x="36" y="86" width="24" height="10" rx="3" fillOpacity="0.6" />
+      <path d="M6 50 C-8 46 -12 62 -6 70 L4 66 Z" fillOpacity="0.7" /><path d="M58 50 C72 46 76 62 70 70 L60 66 Z" fillOpacity="0.7" />
+      <path d="M4 54 L-12 76 L4 82 L18 66 Z" fillOpacity="0.7" /><path d="M60 52 L76 74 L60 80 L46 64 Z" fillOpacity="0.7" />
+      <circle cx="32" cy="60" r="28" fill="none" strokeWidth="1.5" strokeOpacity="0.2" strokeDasharray="6 5" />
+    </>
+  ),
+
+  spirit_eagle: (
+    <>
+      <path d="M32 50 C22 38 6 28 0 12 C8 14 14 26 18 36 C10 22 12 8 20 10 C20 24 24 38 30 48 Z" fillOpacity="0.7" />
+      <path d="M32 50 C42 38 58 28 64 12 C56 14 50 26 46 36 C54 22 52 8 44 10 C44 24 40 38 34 48 Z" fillOpacity="0.7" />
+      <ellipse cx="32" cy="60" rx="10" ry="12" fillOpacity="0.75" />
+      <ellipse cx="32" cy="42" rx="9" ry="9" fillOpacity="0.8" />
+      <circle cx="27" cy="40" r="3" fill="#000" stroke="none" /><circle cx="37" cy="40" r="3" fill="#000" stroke="none" />
+      <circle cx="27" cy="40" r="1.5" fill="#aaddff" stroke="none" /><circle cx="37" cy="40" r="1.5" fill="#aaddff" stroke="none" />
+      <path d="M26 70 L22 80 M32 72 L30 82 M38 70 L42 80" strokeWidth="4" strokeOpacity="0.65" />
+      <circle cx="32" cy="50" r="24" fill="none" strokeWidth="1.5" strokeOpacity="0.22" strokeDasharray="5 4" />
+    </>
+  ),
+
+  zamkoro: (
+    <>
+      <path d="M22 16 L18 4 L14 -6 L20 0 L14 -12 L22 -6 L18 -14 L26 -4 L22 -12 L28 0 L24 -8 L32 6 Z" strokeWidth="1.5" />
+      <path d="M42 16 L46 4 L50 -6 L44 0 L50 -12 L42 -6 L46 -14 L38 -4 L42 -12 L36 0 L40 -8 L32 6 Z" strokeWidth="1.5" />
+      <ellipse cx="32" cy="28" rx="16" ry="18" />
+      <ellipse cx="24" cy="26" rx="6" ry="7" fill="#000" stroke="none" /><ellipse cx="40" cy="26" rx="6" ry="7" fill="#000" stroke="none" />
+      <ellipse cx="24" cy="26" rx="3.5" ry="4.5" fill="#44ff88" stroke="none" /><ellipse cx="40" cy="26" rx="3.5" ry="4.5" fill="#44ff88" stroke="none" />
+      <path d="M16 44 L48 44 L46 80 L18 80 Z" />
+      <path d="M18 48 C6 46 2 60 8 68 L14 68 Z" /><path d="M46 46 C58 44 62 58 56 66 L50 66 Z" />
+      <path d="M14 50 L-6 76 L8 82 L22 64 Z" /><path d="M50 48 L70 74 L56 80 L42 62 Z" />
+      <rect x="18" y="80" width="14" height="16" rx="3" /><rect x="32" y="80" width="14" height="16" rx="3" />
+      <path d="M-6" y="10" width="6" height="80" rx="3" />
+      <rect x="-6" y="10" width="6" height="80" rx="3" />
+      <path d="M-8 10 C-20 4 -24 -8 -16 -6 C-12 0 -6 8 -4 12 Z" />
+      <circle cx="-10" cy="-8" r="7" fill="none" strokeWidth="2.5" />
+      <circle cx="-18" cy="-16" r="4" fill="none" strokeWidth="2" /><circle cx="-2" cy="-16" r="4" fill="none" strokeWidth="2" />
+      <circle cx="-10" cy="-22" r="4" fill="none" strokeWidth="2" />
+      <rect x="-14" y="34" width="22" height="5" rx="2" />
+      <circle cx="14" cy="56" r="5" fill="#44ff88" stroke="none" fillOpacity="0.3" />
+      <circle cx="50" cy="58" r="5" fill="#44ff88" stroke="none" fillOpacity="0.3" />
+      <circle cx="32" cy="62" r="5" fill="#44ff88" stroke="none" fillOpacity="0.4" />
+      <circle cx="32" cy="32" r="32" fill="none" strokeWidth="1.5" strokeOpacity="0.12" strokeDasharray="8 6" />
+    </>
+  ),
+
+  // ── existing sprites ────────────────────────────────────────────────────────
   fallen: (
     <>
       {/* Small horns */}

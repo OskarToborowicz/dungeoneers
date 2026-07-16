@@ -74,13 +74,18 @@ function App() {
     useState<Record<ConsumableId, number>>(EMPTY_CONSUMABLES);
   const [shopStock, setShopStock] = useState<Item[]>([]);
   const [dungeonRun, setDungeonRun] = useState<DungeonRunState | null>(null);
-  const [selectedAct, setSelectedAct] = useState<1 | 2>(1);
+  const [selectedAct, setSelectedAct] = useState<1 | 2 | 3>(1);
   const [hubTab, setHubTab] = useState<
     "character" | "inventory" | "dungeons" | "shop" | "gambler"
   >("character");
   const [deathSummary, setDeathSummary] = useState<DeathSummary | null>(null);
   const [loaded, setLoaded] = useState(false);
   const [showPortalMessage, setShowPortalMessage] = useState(false);
+  const [showSewersIntro, setShowSewersIntro] = useState(false);
+  const [showSewersEscape, setShowSewersEscape] = useState(false);
+  const [hasShownSewersIntro, setHasShownSewersIntro] = useState(false);
+  const [showAct3Message, setShowAct3Message] = useState(false);
+  const [showAct4Message, setShowAct4Message] = useState(false);
   const [droppedItem, setDroppedItem] = useState<
     import("./game/types").Item | null
   >(null);
@@ -178,7 +183,9 @@ function App() {
             setClearedDungeons([]);
             setConsumables({ healthPotion: 1, manaPotion: 0 });
             setShopStock(newShopStock);
-            setHubTab("character");
+            setHubTab("dungeons");
+            setShowSewersIntro(true);
+            setHasShownSewersIntro(true);
             setSelectedAct(1);
             setCreating(false);
           }}
@@ -240,6 +247,7 @@ function App() {
     );
     setDungeonRun(null);
     setSelectedAct(1);
+    setHasShownSewersIntro(false);
   }
 
   function handleDeleteSlot(slotId: string) {
@@ -510,18 +518,6 @@ function App() {
     }
 
     const xpCap = getXpCapLevel(clearedDungeons, dungeonRun.dungeonId);
-    const isReclear = clearedDungeons.includes(dungeonRun.dungeonId);
-    const reducedReclearIds = new Set([
-      "diablo",
-      "imp-field",
-      "lava-river",
-      "ashen-caves",
-      "higher-hell",
-      "lower-hell",
-      "hellcore",
-    ]);
-    const reclearMult =
-      isReclear && reducedReclearIds.has(dungeonRun.dungeonId) ? 0.25 : 1;
     setCharacter((prev) => {
       if (!prev) return prev;
       const withGold = {
@@ -530,7 +526,7 @@ function App() {
         runStats: updatedRunStats,
       };
       const cappedXp =
-        prev.level >= xpCap ? 0 : Math.round(result.xpReward * reclearMult);
+        prev.level >= xpCap ? 0 : result.xpReward;
       const { character: withXp } = grantXp(withGold, cappedXp);
       return withXp;
     });
@@ -584,12 +580,18 @@ function App() {
           ? prev
           : [...prev, dungeonRun.dungeonId],
       );
-      if (wasNew && dungeonRun.dungeonId === "diablo")
+      if (wasNew && dungeonRun.dungeonId === "sewers")
+        setShowSewersEscape(true);
+      if (wasNew && dungeonRun.dungeonId === "bandits-town-hall")
         setShowPortalMessage(true);
+      if (wasNew && dungeonRun.dungeonId === "the-white-maw")
+        setShowAct3Message(true);
+      if (wasNew && dungeonRun.dungeonId === "sacrificial-altar")
+        setShowAct4Message(true);
       const completedDungeon = DUNGEONS.find(
         (d) => d.id === dungeonRun.dungeonId,
       );
-      setSelectedAct((completedDungeon?.act ?? 1) as 1 | 2);
+      setSelectedAct((completedDungeon?.act ?? 1) as 1 | 2 | 3);
       setHubTab("dungeons");
       setDungeonRun(null);
       return;
@@ -645,20 +647,7 @@ function App() {
             character.level >=
             getXpCapLevel(clearedDungeons, dungeonRun.dungeonId)
           }
-          xpMultiplier={
-            clearedDungeons.includes(dungeonRun.dungeonId) &&
-            new Set([
-              "diablo",
-              "imp-field",
-              "lava-river",
-              "ashen-caves",
-              "higher-hell",
-              "lower-hell",
-              "hellcore",
-            ]).has(dungeonRun.dungeonId)
-              ? 0.25
-              : 1
-          }
+          xpMultiplier={1}
           clearedDungeons={clearedDungeons}
           onUsePotion={handleUsePotion}
           onFinished={handleFightFinished}
@@ -695,12 +684,28 @@ function App() {
         onGamble={handleGamble}
         showPortalMessage={showPortalMessage}
         onDismissPortal={() => setShowPortalMessage(false)}
+        showSewersIntro={showSewersIntro}
+        onDismissSewersIntro={() => setShowSewersIntro(false)}
+        showSewersEscape={showSewersEscape}
+        onDismissSewersEscape={() => setShowSewersEscape(false)}
+        showAct3Message={showAct3Message}
+        onDismissAct3Message={() => setShowAct3Message(false)}
+        showAct4Message={showAct4Message}
+        onDismissAct4Message={() => setShowAct4Message(false)}
+        sewersCleared={clearedDungeons.includes("sewers")}
         droppedItem={droppedItem}
         onDismissDroppedItem={() => setDroppedItem(null)}
         selectedAct={selectedAct}
         onSelectAct={setSelectedAct}
         selectedTab={hubTab}
-        onSelectTab={(t) => { if (t === "inventory") setHasUnseenDrops(false); setHubTab(t); }}
+        onSelectTab={(t) => {
+          if (t === "inventory") setHasUnseenDrops(false);
+          if (t === "dungeons" && !clearedDungeons.includes("sewers") && !hasShownSewersIntro) {
+            setShowSewersIntro(true);
+            setHasShownSewersIntro(true);
+          }
+          setHubTab(t);
+        }}
         hasUnseenDrops={hasUnseenDrops}
       />
       <FullscreenButton />

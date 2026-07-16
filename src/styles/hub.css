@@ -243,6 +243,13 @@
   border-left-color: var(--border-gold-bright);
 }
 
+.tab-bar button.tab-locked,
+.tab-bar button.tab-locked:hover {
+  opacity: 0.3;
+  cursor: not-allowed;
+  color: var(--text-dim);
+}
+
 .tab-panel {
   background: var(--bg-panel);
   border: 1px solid var(--border-gold);
