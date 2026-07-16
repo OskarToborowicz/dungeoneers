@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 
 interface JournalEntry {
   icon: string;
@@ -194,6 +194,16 @@ interface Props {
 
 export function JournalTab({ clearedDungeons }: Props) {
   const sections = buildSections(clearedDungeons);
+  const [openEntries, setOpenEntries] = useState<Set<string>>(new Set());
+
+  function toggle(title: string) {
+    setOpenEntries((prev) => {
+      const next = new Set(prev);
+      if (next.has(title)) next.delete(title);
+      else next.add(title);
+      return next;
+    });
+  }
 
   return (
     <div className="tab-panel journal-panel">
@@ -212,29 +222,34 @@ export function JournalTab({ clearedDungeons }: Props) {
                 {anyUnlocked ? section.label : section.label.replace(/— .+$/, "— ????")}
               </div>
               <div className="journal-entries">
-                {section.entries.map((entry) => (
-                  <div
-                    key={entry.title}
-                    className={`journal-entry${entry.unlocked ? "" : " journal-entry--locked"}`}
-                    style={{ "--act-accent": section.accentColor } as React.CSSProperties}
-                    tabIndex={entry.unlocked ? 0 : -1}
-                  >
-                    <div className="journal-entry-header">
-                      <span className="journal-entry-icon">{entry.unlocked ? entry.icon : "?"}</span>
-                      <span className="journal-entry-title">{entry.unlocked ? entry.title : "????"}</span>
-                      {entry.unlocked && (
-                        <span className="journal-entry-caret">›</span>
-                      )}
-                    </div>
-                    {entry.unlocked ? (
-                      <div className="journal-entry-body">
-                        <div className="journal-entry-inner">
-                          {entry.content}
-                        </div>
+                {section.entries.map((entry) => {
+                  const isOpen = openEntries.has(entry.title);
+                  return (
+                    <div
+                      key={entry.title}
+                      className={`journal-entry${entry.unlocked ? "" : " journal-entry--locked"}${isOpen ? " journal-entry--open" : ""}`}
+                      style={{ "--act-accent": section.accentColor } as React.CSSProperties}
+                      tabIndex={entry.unlocked ? 0 : -1}
+                      onClick={() => entry.unlocked && toggle(entry.title)}
+                      onKeyDown={(e) => e.key === "Enter" && entry.unlocked && toggle(entry.title)}
+                    >
+                      <div className="journal-entry-header">
+                        <span className="journal-entry-icon">{entry.unlocked ? entry.icon : "?"}</span>
+                        <span className="journal-entry-title">{entry.unlocked ? entry.title : "????"}</span>
+                        {entry.unlocked && (
+                          <span className="journal-entry-caret">›</span>
+                        )}
                       </div>
-                    ) : null}
-                  </div>
-                ))}
+                      {entry.unlocked ? (
+                        <div className="journal-entry-body">
+                          <div className="journal-entry-inner">
+                            {entry.content}
+                          </div>
+                        </div>
+                      ) : null}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );

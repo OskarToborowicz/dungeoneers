@@ -40,7 +40,7 @@ export interface BattleState {
   stunnedRounds: number; // Necromancer Golem Defense cast: monster cannot act for 1 turn
   absorbShield: number; // Temporary absorb buffer — damage hits this before playerLife; resets each round
   preparation: number; // Assassin: 0–3 charges, gained on basic attack, spent by abilities
-  vanishRounds: number; // Assassin Vanish: turns of full damage immunity remaining
+  vanishRounds: number; // Assassin Vanish: turns of 55% damage reduction remaining
   shadowBondAutoBonus: boolean; // Assassin Shadow Bond (lv.35): next basic attack deals +50%
 }
 
@@ -1020,13 +1020,13 @@ export function resolveRound(
         tryIgnite(dmg);
 
         // ── Eviscerate (Assassin) ─────────────────────────────────────────────
-        // 1.5× + 0.5× per Preparation spent (max 3×). Spends all Preparation.
-        // Serpent's Kiss (+10% poison) and lifesteal apply. Shadow Bond triggers at 3 prep.
+        // 1× + 0.5× per Preparation spent (max 2.5×). Spends all Preparation.
+        // Shadow Bond triggers at 3 prep.
       } else if (def.ability.kind === "eviscerate") {
         if (Math.random() > ALWAYS_MISS_CHANCE) {
           const prepSpent = preparation;
           preparation = 0;
-          const power = 1.5 + 0.5 * prepSpent;
+          const power = 1.0 + 0.5 * prepSpent;
           const isCrit = Math.random() < critChance;
           let dmg = Math.round(
             randomInRange(stats.damage) * power * electrocuteMult * deathwhisperMult * lowLifeMult,
@@ -1160,7 +1160,7 @@ export function resolveRound(
         tryIgnite(dmg);
 
         // ── Vanish (Assassin) ─────────────────────────────────────────────────
-        // 0.75× weapon damage burst + immunity for 1+prepSpent turns. Clears player debuffs.
+        // 0.75× weapon damage burst + 55% damage reduction for 1+prepSpent turns. Clears player debuffs.
       } else if (def.ability2.kind === "vanish") {
         const prepSpent = preparation;
         preparation = 0;
@@ -1176,8 +1176,8 @@ export function resolveRound(
         monsterLife -= burstDmg;
         damageDealt += burstDmg;
         let vanishMsg = isCrit
-          ? `Critical hit! Metal powder bursts for ${burstDmg} damage — Vanish! Immune for ${vanishRounds} turn${vanishRounds !== 1 ? "s" : ""}.`
-          : `Metal powder bursts for ${burstDmg} damage — Vanish! Immune for ${vanishRounds} turn${vanishRounds !== 1 ? "s" : ""}.`;
+          ? `Critical hit! Metal powder bursts for ${burstDmg} damage — Vanish! Damage reduced 55% for ${vanishRounds} turn${vanishRounds !== 1 ? "s" : ""}.`
+          : `Metal powder bursts for ${burstDmg} damage — Vanish! Damage reduced 55% for ${vanishRounds} turn${vanishRounds !== 1 ? "s" : ""}.`;
         // Shadow Bond (lv.35): 3 prep used → heal + empower next auto
         if (prepSpent === ASSASSIN_MAX_PREPARATION && character.level >= 35) {
           const bondHeal = Math.round(stats.maxLife * ASSASSIN_SHADOW_BOND_ABILITY_HEAL);
@@ -1576,19 +1576,13 @@ export function resolveRound(
             1,
             Math.round(spellDmg * (1 - stats.magicDmgReduction / 100)),
           );
+        if (spellVanished) spellDmg = Math.max(1, Math.round(spellDmg * 0.45));
 
-        if (spellVanished) {
-          log.push({
-            actor: "monster",
-            message: `${monster.name} casts ${spell.name} — Vanish! You are immune.`,
-            playerLife: Math.max(0, playerLife),
-            monsterLife: Math.max(0, monsterLife),
-          });
-        } else if (spell.kind === "burst") {
+        if (spell.kind === "burst") {
           takeDamage(spellDmg);
           log.push({
             actor: "monster",
-            message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!${frostShieldRounds > 0 ? " Frost Shield absorbs 60%." : ""}${golemRounds > 0 ? " Stone Golem reflects 30% back!" : ""}${blurSpell ? " Blur reduces 25%." : ""}`,
+            message: `${monster.name} casts ${spell.name} for ${spellDmg} damage!${frostShieldRounds > 0 ? " Frost Shield absorbs 60%." : ""}${golemRounds > 0 ? " Stone Golem reflects 30% back!" : ""}${blurSpell ? " Blur reduces 25%." : ""}${spellVanished ? " Vanish reduces 55%." : ""}`,
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
@@ -1600,7 +1594,7 @@ export function resolveRound(
           playerPoisonDamage = Math.round(spellDmg * 0.4);
           log.push({
             actor: "monster",
-            message: `${monster.name} casts ${spell.name} for ${initialHit} damage, poisoning you!`,
+            message: `${monster.name} casts ${spell.name} for ${initialHit} damage, poisoning you!${spellVanished ? " Vanish reduces 55%." : ""}`,
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
@@ -1612,7 +1606,7 @@ export function resolveRound(
           playerBurnDamage = Math.round(spellDmg * 0.4);
           log.push({
             actor: "monster",
-            message: `${monster.name} casts ${spell.name} for ${initialHit} damage, setting you ablaze!`,
+            message: `${monster.name} casts ${spell.name} for ${initialHit} damage, setting you ablaze!${spellVanished ? " Vanish reduces 55%." : ""}`,
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
@@ -1622,7 +1616,7 @@ export function resolveRound(
           monsterLife = Math.min(monster.life, monsterLife + spellDmg);
           log.push({
             actor: "monster",
-            message: `${monster.name} casts ${spell.name}, draining ${spellDmg} life from you!`,
+            message: `${monster.name} casts ${spell.name}, draining ${spellDmg} life from you!${spellVanished ? " Vanish reduces 55%." : ""}`,
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
@@ -1715,14 +1709,7 @@ export function resolveRound(
           dmg = Math.max(1, dmg - reflected);
         }
 
-        if (normalVanished) {
-          log.push({
-            actor: "monster",
-            message: `${monster.name} attacks — Vanish! You are immune.`,
-            playerLife: Math.max(0, playerLife),
-            monsterLife: Math.max(0, monsterLife),
-          });
-        } else {
+        if (normalVanished) dmg = Math.max(1, Math.round(dmg * 0.45));
 
         takeDamage(dmg);
 
@@ -1743,6 +1730,7 @@ export function resolveRound(
         if (golemRounds > 0) message += " Stone Golem reflects 30% back!";
         if (aegisBlocked) message = `${monster.name} attacks — Aegis of the Fortress blocks the blow entirely!`;
         if (boneweaveBlocked) message += " Boneweave Gloves block the blow!";
+        if (normalVanished) message += " Vanish reduces damage by 55%.";
 
         // Paladin passives
         if (character.classId === "paladin") {
@@ -1765,7 +1753,6 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
-        } // end !normalVanished
       } else {
         log.push({
           actor: "monster",
