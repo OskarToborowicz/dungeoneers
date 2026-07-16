@@ -155,6 +155,7 @@ export interface DerivedStats {
   thornReflect: number;
   manaRegenMult: number;
   blockChance: number;
+  aegisBlockChance: number;
   lowLifeDamageBonus: number;
   electrocuteOnHit: boolean;
   heartseekerBoost: boolean;
@@ -225,6 +226,7 @@ export function getDerivedStats(
       ? 1.15
       : 1.0;
   const blockChance = equipment.gloves?.boneweaveGloves ? 5 : 0;
+  const aegisBlockChance = equipment.shield?.aegisOfTheFortress ? 15 : 0;
   const lowLifeDamageBonus = equipment.helm?.crownOfTheFallen ? 0.25 : 0;
   const electrocuteOnHit = equipment.weapon?.stormstring === true;
   const heartseekerBoost = equipment.weapon?.doomcrier === true;
@@ -255,6 +257,7 @@ export function getDerivedStats(
     thornReflect,
     manaRegenMult,
     blockChance,
+    aegisBlockChance,
     lowLifeDamageBonus,
     electrocuteOnHit,
     heartseekerBoost,

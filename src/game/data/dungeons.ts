@@ -11,7 +11,7 @@ function monster(
   goldReward: [number, number],
   spell?: MonsterSpell
 ): MonsterDefinition {
-  return { name, level, life, damage, defense, attackRating, xpReward, goldReward, spell };
+  return { name, level, life: Math.round(life * 1.25), damage, defense, attackRating: Math.round(attackRating * 1.25), xpReward, goldReward, spell };
 }
 
 export const REGULAR_DUNGEON_COUNT_ACT1 = 8;

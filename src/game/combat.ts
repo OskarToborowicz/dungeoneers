@@ -1605,9 +1605,16 @@ export function resolveRound(
             Math.round(dmg * (1 - stats.physDmgReduction / 100)),
           );
         if (frostShieldRounds > 0) dmg = Math.max(1, Math.round(dmg * 0.4));
+        // Aegis of the Fortress: 15% chance to fully block the hit
+        const aegisBlocked =
+          stats.aegisBlockChance > 0 &&
+          Math.random() < stats.aegisBlockChance / 100;
+        if (aegisBlocked) dmg = 0;
         // Boneweave Gloves: 5% chance to reduce hit to exactly 1 damage
         const boneweaveBlocked =
-          stats.blockChance > 0 && Math.random() < stats.blockChance / 100;
+          !aegisBlocked &&
+          stats.blockChance > 0 &&
+          Math.random() < stats.blockChance / 100;
         if (boneweaveBlocked) dmg = 1;
         // Golem Defense: 30% of physical damage reflected; player takes 70%
         if (golemRounds > 0) {
@@ -1634,6 +1641,7 @@ export function resolveRound(
           message += ` Iron Skin absorbs ${Math.round(ironSkin * 100)}%.`;
         if (frostShieldRounds > 0) message += " Frost Shield absorbs 60%.";
         if (golemRounds > 0) message += " Stone Golem reflects 30% back!";
+        if (aegisBlocked) message = `${monster.name} attacks — Aegis of the Fortress blocks the blow entirely!`;
         if (boneweaveBlocked) message += " Boneweave Gloves block the blow!";
 
         // Paladin passives

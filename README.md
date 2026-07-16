@@ -247,7 +247,7 @@ Press `Space` to continue after a victory or defeat screen.
 hitChance = attackRating / (defense × 1.5)
 hitChance = clamp(hitChance, 0.15, 0.98)
 ```
-Monsters always have at least a 15% chance to hit regardless of the player's defense.
+Monsters always have at least a 15% chance to hit regardless of the player's defense. All monster HP and attack rating values are buffed by **25%** compared to their base design values.
 
 ### Critical Strikes
 
@@ -796,25 +796,47 @@ Completing a dungeon marks it as cleared (shown with a badge) but it can be repl
 
 | Dungeon | Monster Levels | Boss | Boss Life |
 |---|---|---|---|
-| Blood Moor | 1–3 | Corpsefire | 60 |
-| Cold Plains | 3–5 | Bishibosh | 110 |
-| Stony Field | 6–8 | Rakanishu | 180 |
-| Dark Wood | 10–12 | Treehead Woodfist | 320 |
-| Ruins of Tristram | 15–18 | The Countess | 520 |
-| Rogue Monastery *(endgame)* | 22–30 | Andariel | 3,500 |
+| Sewers | 1–3 | The Rat King | 59 |
+| Dark Forest | 2–4 | Forest Hag | 94 |
+| Cave | 4–6 | Alpha Wolf | 154 |
+| Foggy Fields | 7–9 | Living Shadow | 239 |
+| Graveyard | 9–11 | Mass of Bones | 345 |
+| Crypt | 11–13 | Niktag | 463 |
+| Goblins' Path | 13–15 | Goblin King | 590 |
+| Bandit Town | 15–17 | Exiled City Guard | 781 |
+| Bandit's Town Hall *(endgame)* | 20–22 | Bandit Chieftain | 1,435 |
 
 ### Act 2
 
-Unlocked after clearing Rogue Monastery. Select via the Act 1 / Act 2 toggle in the Dungeons tab.
+Unlocked after clearing Bandit's Town Hall.
 
 | Dungeon | Monster Levels | Boss | Boss Life |
 |---|---|---|---|
-| Imp Field | 30–33 | Queen of Imps | 1,700 |
-| Lava River | 34–38 | Emberfire | 2,430 |
-| Ashen Caves | 39–43 | It | 3,360 |
-| Higher Hell | 44–50 | Reltih | 4,680 |
-| Lower Hell | 51–57 | The Reaper | 6,570 |
-| Hellcore *(endgame)* | 60–70 | Core of Hell | 18,570 |
+| Frostfang Pass | 22–24 | Ice Golem | 1,313 |
+| Icy Cave | 24–26 | Crystal Colossus | 1,640 |
+| Tundra | 27–29 | The Pale Stag | 2,034 |
+| Moonglass Lake | 29–31 | Moon Reflection | 2,494 |
+| Whispering Glacier | 31–33 | White Chimera | 3,019 |
+| The Crystal Labyrinth | 33–35 | Frozen Taur | 3,674 |
+| The Frostforge | 36–38 | Core of the Frozen Forge | 4,594 |
+| Summit Peak | 39–41 | Ghost of the Mountain | 5,380 |
+| The White Maw *(endgame)* | 40–43 | Sikktharkk | 7,570 |
+
+### Act 3
+
+Unlocked after clearing The White Maw.
+
+| Dungeon | Monster Levels | Boss | Boss Life |
+|---|---|---|---|
+| Overgrown Entrance | 43–45 | Ancient Treant | 4,039 |
+| Serpent Marsh | 45–49 | Mother of the Swamp | 5,111 |
+| Whispering River | 48–51 | The Great Emerald Crocolisk | 6,184 |
+| Village of Lost Souls | 51–54 | The Soul Collector | 7,470 |
+| Bloodvine Jungle | 54–58 | The Devourer Bloom | 8,973 |
+| Temple of Forgotten Gods | 54–58 | Golden Idol | 8,973 |
+| Heart of the Jungle | 58–62 | The Green Warden | 10,688 |
+| The Black Ziggurat | 60–64 | Ancient Loa | 13,048 |
+| Sacrificial Altar *(endgame)* | 64–66 | Zam'Koro, The Loa of Endless Night | 20,378 |
 
 Each boss casts a unique spell — see the [Monster Spells](#monster-spells) section.
 

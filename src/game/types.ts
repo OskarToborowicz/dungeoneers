@@ -129,6 +129,7 @@ export interface Item {
   vipersKiss?: boolean;
   shadowfang?: boolean;
   deathwhisper?: boolean;
+  aegisOfTheFortress?: boolean;
 }
 
 export interface RunStats {

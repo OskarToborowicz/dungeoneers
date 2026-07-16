@@ -154,6 +154,11 @@ export function UniqueEffectLines({ item }: { item: Item }) {
           <em>30% chance for Frost Bolt to echo at 50% power</em>
         </div>
       )}
+      {item.aegisOfTheFortress && (
+        <div className="item-line mirror-flavor">
+          <em>15% chance to completely block incoming physical damage</em>
+        </div>
+      )}
     </>
   );
 }

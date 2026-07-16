@@ -1,5 +1,6 @@
 import type { ClassId, Item } from "../types";
 import {
+  generateAegisOfTheFortress,
   generateSpellbladesMask,
   generateApprenticesFocus,
   generateBlooddrinker,
@@ -64,6 +65,7 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   { generator: generateMaskOfMidnight,   chance: 0.0025, minLevel: 25 },
   { generator: generateMaskOfTwilight,   chance: 0.0025, minLevel: 25 },
   { generator: generateStoneHusk,        chance: 0.005,  minLevel: 25 },
+  { generator: generateAegisOfTheFortress, chance: 0.003, minLevel: 20, classId: "paladin" },
   { generator: generateCrownOfTheFallen, chance: 0.0025, minLevel: 45 },
 
   // ── Act 1 ─────────────────────────────────────────────────────────────────────

@@ -988,6 +988,23 @@ export function generateDeathwhisper(): Item {
   };
 }
 
+export function generateAegisOfTheFortress(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Aegis of the Fortress",
+    slot: "shield",
+    rarity: "unique",
+    itemLevel: 20,
+    baseDefense: 18,
+    affixes: [
+      { label: "", stat: "vitality", value: randInt(40, 60) },
+      { label: "", stat: "defense", value: randInt(15, 25) },
+    ],
+    aegisOfTheFortress: true,
+  };
+}
+
 export function generateItemForSlot(
   slot: EquipmentSlot,
   itemLevel: number,
