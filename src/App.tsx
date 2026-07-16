@@ -59,6 +59,7 @@ interface DungeonRunState {
   currentCooldown: number;
   currentCooldown2: number;
   currentPreparation: number;
+  currentHolyLightCharges: number;
 }
 
 function App() {
@@ -235,6 +236,7 @@ function App() {
           currentCooldown: run.currentCooldown,
           currentCooldown2: run.currentCooldown2,
           currentPreparation: run.currentPreparation ?? 0,
+          currentHolyLightCharges: run.currentHolyLightCharges ?? 0,
         });
         return;
       }
@@ -455,6 +457,7 @@ function App() {
           currentCooldown: 0,
           currentCooldown2: 0,
           currentPreparation: 0,
+          currentHolyLightCharges: 0,
         },
       });
     }
@@ -467,6 +470,7 @@ function App() {
       currentCooldown: 0,
       currentCooldown2: 0,
       currentPreparation: 0,
+      currentHolyLightCharges: 0,
     });
   }
 
@@ -615,6 +619,7 @@ function App() {
       currentCooldown: result.endingCooldown,
       currentCooldown2: result.endingCooldown2,
       currentPreparation: result.endingPreparation ?? 0,
+      currentHolyLightCharges: result.endingHolyLightCharges ?? 0,
     };
     if (activeSlotId) {
       writeSave(activeSlotId, {
@@ -633,6 +638,7 @@ function App() {
           currentCooldown: nextRunState.currentCooldown,
           currentCooldown2: nextRunState.currentCooldown2,
           currentPreparation: nextRunState.currentPreparation,
+          currentHolyLightCharges: nextRunState.currentHolyLightCharges,
         },
       });
     }
@@ -654,6 +660,7 @@ function App() {
           startingCooldown={dungeonRun.currentCooldown}
           startingCooldown2={dungeonRun.currentCooldown2}
           startingPreparation={dungeonRun.currentPreparation}
+          startingHolyLightCharges={dungeonRun.currentHolyLightCharges}
           consumables={consumables}
           escapeTokens={character.escapeTokens ?? 0}
           xpCapped={

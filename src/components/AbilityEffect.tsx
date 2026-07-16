@@ -11,7 +11,7 @@ interface Props {
   travelDist?: number;
 }
 
-export const ATTACK_EFFECT_CLASSES = new Set<ClassId>(["amazon"]);
+export const ATTACK_EFFECT_CLASSES = new Set<ClassId>(["amazon", "paladin"]);
 
 export function AbilityEffect({
   classId,
@@ -43,8 +43,9 @@ export function AbilityEffect({
         {classId === "amazon" && useAttack && <SingleArrowFx />}
         {classId === "amazon" && !useAbility2 && !useAttack && <MultishotFx />}
         {classId === "amazon" && useAbility2 && <FreezingArrowFx />}
-        {classId === "paladin" && !useAbility2 && <HolyBoltFx />}
-        {classId === "paladin" && useAbility2 && <RegenNovaFx />}
+        {classId === "paladin" && useAttack && <PaladinSlashFx />}
+        {classId === "paladin" && !useAbility2 && !useAttack && <HolyBoltFx />}
+        {classId === "paladin" && useAbility2 && <HolyLightFx />}
         {classId === "druid" && <BiteFx />}
         {classId === "monk" && !useAbility2 && <SpinningCraneKickFx />}
         {classId === "monk" && useAbility2 && <SerenityFx />}
@@ -328,6 +329,34 @@ function MultishotFx() {
   );
 }
 
+function PaladinSlashFx() {
+  return (
+    <g>
+      <defs>
+        <filter id="ae-pal-glow" x="-200%" y="-3%" width="500%" height="106%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3" />
+        </filter>
+      </defs>
+      {/* blurred outer glow — trail smear */}
+      <line x1="36" y1="10" x2="42" y2="108"
+        stroke="#ddaa22" strokeWidth="7" strokeLinecap="round"
+        filter="url(#ae-pal-glow)"
+        strokeDasharray="100" strokeDashoffset="100"
+        className="ae-p-trail" />
+      {/* gold mid trail */}
+      <line x1="36" y1="10" x2="42" y2="108"
+        stroke="#ffcc44" strokeWidth="2.5" strokeLinecap="round"
+        strokeDasharray="100" strokeDashoffset="100"
+        className="ae-p-trail" />
+      {/* white bright tip — travels top to bottom */}
+      <line x1="36" y1="10" x2="42" y2="108"
+        stroke="#ffffff" strokeWidth="1.5" strokeLinecap="round"
+        strokeDasharray="20 100" strokeDashoffset="0"
+        className="ae-p-tip" />
+    </g>
+  );
+}
+
 function HolyBoltFx() {
   return (
     <g>
@@ -521,85 +550,30 @@ function FreezingArrowFx() {
   );
 }
 
-function RegenNovaFx() {
+function HolyLightFx() {
   return (
-    <g style={{ transformOrigin: "70px 60px" }}>
-      {/* Expanding outer ring */}
-      <circle
-        className="ae-regen-ring-1"
-        cx="70"
-        cy="60"
-        r="28"
-        fill="none"
-        stroke="#aaee88"
-        strokeWidth="2.5"
-        opacity="0.85"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      {/* Mid ring delayed */}
-      <circle
-        className="ae-regen-ring-2"
-        cx="70"
-        cy="60"
-        r="18"
-        fill="none"
-        stroke="#ddffa0"
-        strokeWidth="2"
-        opacity="0.9"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      {/* Soft glow core */}
-      <g className="ae-regen-core" style={{ transformOrigin: "70px 60px" }}>
-        <circle cx="70" cy="60" r="12" fill="#99ee66" opacity="0.55" />
-        <circle cx="70" cy="60" r="6" fill="#eeffbb" opacity="0.9" />
-        <circle cx="70" cy="60" r="3" fill="#ffffff" opacity="0.95" />
+    <g>
+      {/* Gold pulse ring */}
+      <circle cx="32" cy="60" r="22" fill="none" stroke="#ddaa22" strokeWidth="2.5"
+        opacity="0.9" style={{ transformOrigin: "32px 60px" }}
+        className="ae-hl-ring" />
+      {/* Glow core */}
+      <g className="ae-hl-core" style={{ transformOrigin: "32px 60px" }}>
+        <circle cx="32" cy="60" r="14" fill="#ddaa22" opacity="0.35" />
+        <circle cx="32" cy="60" r="7" fill="#ffdd55" opacity="0.8" />
+        <circle cx="32" cy="60" r="3" fill="#ffffff" opacity="0.95" />
       </g>
-      {/* Rising sparkles */}
-      <circle
-        className="ae-regen-spark ae-rs-1"
-        cx="70"
-        cy="42"
-        r="2.2"
-        fill="#bbff77"
-        opacity="0.9"
-        style={{ transformOrigin: "70px 42px" }}
-      />
-      <circle
-        className="ae-regen-spark ae-rs-2"
-        cx="54"
-        cy="50"
-        r="1.8"
-        fill="#aaffaa"
-        opacity="0.85"
-        style={{ transformOrigin: "54px 50px" }}
-      />
-      <circle
-        className="ae-regen-spark ae-rs-3"
-        cx="86"
-        cy="50"
-        r="1.8"
-        fill="#ccff88"
-        opacity="0.85"
-        style={{ transformOrigin: "86px 50px" }}
-      />
-      <circle
-        className="ae-regen-spark ae-rs-4"
-        cx="60"
-        cy="36"
-        r="1.5"
-        fill="#eeffcc"
-        opacity="0.8"
-        style={{ transformOrigin: "60px 36px" }}
-      />
-      <circle
-        className="ae-regen-spark ae-rs-5"
-        cx="80"
-        cy="36"
-        r="1.5"
-        fill="#eeffcc"
-        opacity="0.8"
-        style={{ transformOrigin: "80px 36px" }}
-      />
+      {/* Rising gold sparks */}
+      <circle cx="32" cy="40" r="2" fill="#ffdd55" opacity="0.9"
+        style={{ transformOrigin: "32px 40px" }} className="ae-hl-spark ae-hl-s1" />
+      <circle cx="18" cy="50" r="1.6" fill="#ddaa22" opacity="0.8"
+        style={{ transformOrigin: "18px 50px" }} className="ae-hl-spark ae-hl-s2" />
+      <circle cx="46" cy="48" r="1.6" fill="#ffcc44" opacity="0.8"
+        style={{ transformOrigin: "46px 48px" }} className="ae-hl-spark ae-hl-s3" />
+      <circle cx="24" cy="35" r="1.3" fill="#ffffaa" opacity="0.85"
+        style={{ transformOrigin: "24px 35px" }} className="ae-hl-spark ae-hl-s4" />
+      <circle cx="42" cy="34" r="1.3" fill="#ffffaa" opacity="0.8"
+        style={{ transformOrigin: "42px 34px" }} className="ae-hl-spark ae-hl-s5" />
     </g>
   );
 }

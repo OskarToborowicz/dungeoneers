@@ -306,6 +306,25 @@
   animation: ae-arrow-fly 0.45s ease-out forwards;
 }
 
+/* Paladin basic attack — sword slash with blurred light trail */
+@keyframes ae-p-trail-kf {
+  0%   { stroke-dashoffset: 100; opacity: 0; }
+  5%   { opacity: 1; }
+  42%  { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes ae-p-tip-kf {
+  0%   { stroke-dashoffset: 0; opacity: 1; }
+  60%  { stroke-dashoffset: -120; opacity: 0.6; }
+  100% { stroke-dashoffset: -120; opacity: 0; }
+}
+.ae-p-trail {
+  animation: ae-p-trail-kf 0.22s ease-out forwards;
+}
+.ae-p-tip {
+  animation: ae-p-tip-kf 0.16s ease-in forwards;
+}
+
 /* Holy Bolt – Paladin */
 @keyframes ae-hb-fly {
   0% {

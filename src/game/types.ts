@@ -33,7 +33,7 @@ export type AbilityKind =
   | "buff"
   | "whirlwind"
   | "freeze"
-  | "regen"
+  | "holy_light"
   | "blind_powder"
   | "frost_shield"
   | "golem"
@@ -218,5 +218,6 @@ export interface SaveGame {
     currentCooldown: number;
     currentCooldown2: number;
     currentPreparation?: number;
+    currentHolyLightCharges?: number;
   };
 }

@@ -30,7 +30,7 @@ export interface BattleState {
   bloodFuryRounds: number; // Barbarian Blood Fury active turns remaining
   ability2Cooldown: number;
   frozenRounds: number; // Huntress Freezing Shot: monster cannot act
-  regenRounds: number; // Paladin Regenerating Nova: heals player each turn
+  holyLightCharges: number; // Paladin Holy Light: remaining empowered-attack charges
   disorientRounds: number; // After Blind fades: monster deals 25% reduced damage
   blindRounds: number; // Assassin Blinding Powder: monster cannot act
   frostShieldRounds: number; // Sorceress Frost Shield: incoming damage reduced 60%
@@ -62,6 +62,7 @@ export interface CombatResult {
   endingPreparation: number;
   endingCooldown: number;
   endingCooldown2: number;
+  endingHolyLightCharges: number;
   damageDealt: number;
 }
 
@@ -163,6 +164,7 @@ export function createBattleState(
   startingCooldown: number,
   startingCooldown2 = 0,
   startingPreparation = 0,
+  startingHolyLightCharges = 0,
 ): BattleState {
   return {
     playerLife: startingLife,
@@ -182,7 +184,7 @@ export function createBattleState(
     bloodFuryRounds: 0,
     ability2Cooldown: startingCooldown2,
     frozenRounds: 0,
-    regenRounds: 0,
+    holyLightCharges: startingHolyLightCharges,
     disorientRounds: 0,
     blindRounds: 0,
     frostShieldRounds: 0,
@@ -213,7 +215,7 @@ export function canUseAbility2(
 ): boolean {
   const def = CLASSES[character.classId];
   if (!def.ability2) return false;
-  if (def.ability2.kind === "regen" && state.regenRounds > 0) return false;
+  if (def.ability2.kind === "holy_light" && state.holyLightCharges > 0) return false;
   if (def.ability2.kind === "frost_shield" && state.frostShieldRounds > 0)
     return false;
   if (def.ability2.kind === "golem" && state.golemRounds > 0) return false; // Can't re-summon while active
@@ -337,9 +339,9 @@ export function getAbility2Preview(
   if (ability.kind === "frost_shield") {
     return { label: "—", type: "Buff" };
   }
-  if (ability.kind === "regen") {
-    const healPerTick = Math.round(stats.maxLife * 0.1);
-    return { label: `3× ${healPerTick} heal`, type: "Heal" };
+  if (ability.kind === "holy_light") {
+    const healPerHit = Math.round(stats.maxLife * 0.12);
+    return { label: `3× ${healPerHit} heal`, type: "Heal" };
   }
   if (ability.kind === "golem") {
     return { label: "Stun 1 turn + 30% reflect × 3", type: "Buff" };
@@ -404,7 +406,7 @@ export function resolveRound(
     bloodFuryRounds,
     ability2Cooldown,
     frozenRounds,
-    regenRounds,
+    holyLightCharges,
     disorientRounds,
     blindRounds,
     frostShieldRounds,
@@ -469,9 +471,9 @@ export function resolveRound(
   };
 
   // ── Basic attack ────────────────────────────────────────────────────────────
-  // Shared by direct attacks, Blood Fury activation, and Regenerating Nova activation.
+  // Shared by direct attacks, Blood Fury activation, and Holy Light activation.
   // Handles: Barbarian Double Swing, Blood Fury lifesteal, Madness, Life Leech,
-  //          Electrocute proc, Heartseeker, Assassin Venom, Shadowfang, Fury generation.
+  //          Electrocute proc, Heartseeker, Holy Light heal, Assassin Venom, Shadowfang, Fury generation.
   const doBasicAttack = () => {
     const hitChance = 1 - ALWAYS_MISS_CHANCE;
     let damageMult = 1.0;
@@ -525,6 +527,13 @@ export function resolveRound(
           applyHeal(leeched);
           attackMsg += ` Life Leech restores ${leeched} life.`;
         }
+      }
+      // Holy Light (Paladin ability2): each empowered attack heals 12% max life
+      if (character.classId === "paladin" && holyLightCharges > 0) {
+        const holyHeal = Math.round(stats.maxLife * 0.12);
+        applyHeal(holyHeal);
+        holyLightCharges -= 1;
+        attackMsg += ` Holy Light restores ${holyHeal} life! (${holyLightCharges} charge${holyLightCharges !== 1 ? "s" : ""} remaining)`;
       }
       // Stormstring unique bow: applies Electrocute on every hit
       if (stats.electrocuteOnHit) {
@@ -1191,15 +1200,13 @@ export function resolveRound(
           monsterLife: Math.max(0, monsterLife),
         });
 
-        // ── Regenerating Nova (Paladin) ───────────────────────────────────────
-        // Immediate first heal tick + 2 more on subsequent turns. Player also attacks this turn.
-      } else if (def.ability2.kind === "regen") {
-        regenRounds = 3;
-        const firstHeal = Math.round(stats.maxLife * 0.1);
-        playerLife = Math.min(stats.maxLife, playerLife + firstHeal);
+        // ── Holy Light (Paladin) ──────────────────────────────────────────────
+        // Coats player in holy radiance, immediately attacks, and empowers next 3 auto attacks to heal.
+      } else if (def.ability2.kind === "holy_light") {
+        holyLightCharges = 3;
         log.push({
           actor: "player",
-          message: `Regenerating Nova radiates holy light — you recover ${firstHeal} life! (3 turns)`,
+          message: `Holy Light surrounds you! Your next 3 attacks will restore life.`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
@@ -1308,27 +1315,6 @@ export function resolveRound(
   // Electrocute duration (Stormstring)
   if (electrocuteRounds > 0) electrocuteRounds -= 1;
 
-  // Regenerating Nova heals on turns 2 and 3 (turn 1 fired at activation)
-  if (regenRounds > 0) {
-    regenRounds -= 1;
-    if (regenRounds > 0) {
-      const regenHeal = Math.round(stats.maxLife * 0.1);
-      playerLife = Math.min(stats.maxLife, playerLife + regenHeal);
-      log.push({
-        actor: "player",
-        message: `Regenerating Nova pulses — you recover ${regenHeal} life! (${regenRounds} turn${regenRounds !== 1 ? "s" : ""} remaining)`,
-        playerLife: Math.max(0, playerLife),
-        monsterLife: Math.max(0, monsterLife),
-      });
-    } else {
-      log.push({
-        actor: "player",
-        message: "Regenerating Nova fades.",
-        playerLife: Math.max(0, playerLife),
-        monsterLife: Math.max(0, monsterLife),
-      });
-    }
-  }
 
   // Transcendence (Monk lv.35): passively restore 7% of max life each turn
   if (
@@ -1392,7 +1378,7 @@ export function resolveRound(
       bloodFuryRounds,
       ability2Cooldown,
       frozenRounds,
-      regenRounds,
+      holyLightCharges,
       disorientRounds,
       blindRounds,
       frostShieldRounds,

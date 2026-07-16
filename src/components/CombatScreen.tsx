@@ -42,6 +42,7 @@ interface Props {
   startingCooldown: number;
   startingCooldown2: number;
   startingPreparation?: number;
+  startingHolyLightCharges?: number;
   consumables: Record<ConsumableId, number>;
   escapeTokens: number;
   xpCapped: boolean;
@@ -62,6 +63,7 @@ export function CombatScreen({
   startingCooldown,
   startingCooldown2,
   startingPreparation = 0,
+  startingHolyLightCharges = 0,
   consumables,
   escapeTokens,
   xpCapped,
@@ -82,6 +84,7 @@ export function CombatScreen({
       startingCooldown,
       startingCooldown2,
       startingPreparation,
+      startingHolyLightCharges,
     ),
   );
   const [log, setLog] = useState<CombatLogEntry[]>([]);
@@ -310,6 +313,7 @@ export function CombatScreen({
       endingPreparation: battle.preparation,
       endingCooldown: battle.abilityCooldown,
       endingCooldown2: battle.ability2Cooldown,
+      endingHolyLightCharges: battle.holyLightCharges,
       damageDealt: totalDamageDealt,
     });
   }
@@ -549,7 +553,7 @@ export function CombatScreen({
             </div>
           )}
           <div
-            className={`battle-side player-side${battle.bloodFuryRounds > 0 ? " blood-fury-active" : ""}${battle.regenRounds > 0 ? " regen-aura-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}`}
+            className={`battle-side player-side${battle.bloodFuryRounds > 0 ? " blood-fury-active" : ""}${battle.holyLightCharges > 0 ? " holy-light-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}`}
           >
             <CharacterSprite
               classId={character.classId}
@@ -787,7 +791,7 @@ export function CombatScreen({
           {(battle.playerPoisonRounds > 0 ||
             battle.playerBurnRounds > 0 ||
             battle.bloodFuryRounds > 0 ||
-            battle.regenRounds > 0 ||
+            battle.holyLightCharges > 0 ||
             battle.frostShieldRounds > 0 ||
             battle.vanishRounds > 0) && (
             <div className="status-effects">
@@ -801,9 +805,9 @@ export function CombatScreen({
                   Blood Fury {battle.bloodFuryRounds}
                 </span>
               )}
-              {battle.regenRounds > 0 && (
-                <span className="status-pill regen">
-                  ✦ Regen Nova {battle.regenRounds}
+              {battle.holyLightCharges > 0 && (
+                <span className="status-pill holy-light">
+                  ✦ Holy Light ×{battle.holyLightCharges}
                 </span>
               )}
               {battle.frostShieldRounds > 0 && (
@@ -948,8 +952,8 @@ export function CombatScreen({
                 <span className="hotkey-badge">3</span>
                 {def.ability2.name}
                 <span className="action-cost">
-                  {battle.regenRounds > 0 && def.ability2.kind === "regen"
-                    ? `Active: ${battle.regenRounds} turns`
+                  {battle.holyLightCharges > 0 && def.ability2.kind === "holy_light"
+                    ? `Active: ×${battle.holyLightCharges}`
                     : battle.frostShieldRounds > 0 &&
                         def.ability2.kind === "frost_shield"
                       ? `Active: ${battle.frostShieldRounds} turns`
