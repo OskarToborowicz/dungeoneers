@@ -35,3 +35,7 @@ export function uniqueWeapon(_color: string): ReactNode {
 export function offHand(): ReactNode {
   return <image href={offHandUrl} {...IMG} />;
 }
+
+export function uniqueOffHand(): ReactNode {
+  return <image href={offHandUrl} {...IMG} />;
+}

@@ -79,7 +79,8 @@ type ClassSpriteModule = {
   body: () => React.ReactNode;
   weapon: (color: string) => React.ReactNode;
   uniqueWeapon: (color: string) => React.ReactNode;
-  offHand?: () => React.ReactNode;
+  offHand?: (color: string) => React.ReactNode;
+  // uniqueOffhand: (color: string) => React.ReactNode;
 };
 
 const CLASS_SPRITES: Record<ClassId, ClassSpriteModule> = {
@@ -124,9 +125,10 @@ export function CharacterSprite({
   const uid = useId();
   const bodyGlowId = `${uid}-body-glow`;
   const weaponGlowId = `${uid}-weapon-glow`;
-
+  const offhandGlowId = `${uid}-weapon-glow`;
   const classColor = CLASS_COLORS[classId];
   const weaponColor = isUnique ? UNIQUE_COLOR : classColor;
+  const offhandColor = isUnique ? UNIQUE_COLOR : classColor;
   const height = Math.round(size * 1.5);
   const scale = size / 64;
   const sprite = CLASS_SPRITES[classId];
@@ -147,8 +149,16 @@ export function CharacterSprite({
       style={{ display: "block" }}
     >
       <defs>
-        <GlowFilterDef id={bodyGlowId} color={classColor} intensity={glowIntensity} />
-        <GlowFilterDef id={weaponGlowId} color={weaponColor} intensity={glowIntensity} />
+        <GlowFilterDef
+          id={bodyGlowId}
+          color={classColor}
+          intensity={glowIntensity}
+        />
+        <GlowFilterDef
+          id={weaponGlowId}
+          color={weaponColor}
+          intensity={glowIntensity}
+        />
       </defs>
       {statusEffects.includes("poison") && (
         <ellipse
@@ -179,11 +189,10 @@ export function CharacterSprite({
       <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
         {sprite.body()}
       </g>
-      {sprite.offHand && (
-        <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
-          {sprite.offHand()}
-        </g>
-      )}
+
+      <g {...sharedG} stroke={weaponColor} filter={`url(#${offhandGlowId})`}>
+        {sprite.offHand && sprite.offHand(offhandColor)}
+      </g>
       <g {...sharedG} stroke={weaponColor} filter={`url(#${weaponGlowId})`}>
         {isUnique
           ? sprite.uniqueWeapon(weaponColor)
