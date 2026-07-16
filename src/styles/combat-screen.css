@@ -97,6 +97,30 @@
   background: linear-gradient(90deg, #aa2200, #ff5522);
 }
 
+.preparation-globes {
+  display: flex;
+  gap: 6px;
+  margin-top: 4px;
+  align-items: center;
+  height: 10px;
+}
+
+.prep-globe {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid #555;
+  background: #2a2a2a;
+  flex-shrink: 0;
+  transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.prep-globe.filled {
+  background: radial-gradient(circle at 35% 35%, #ff6a6a, #cc1111);
+  border-color: #ff4444;
+  box-shadow: 0 0 5px rgba(220, 30, 30, 0.7);
+}
+
 .xp-bar-combat {
   position: relative;
   height: 16px;
@@ -155,6 +179,12 @@
   background: rgba(220, 80, 0, 0.18);
   border: 1px solid #dd5500;
   color: #ff8833;
+}
+
+.status-pill.vanish {
+  background: rgba(60, 60, 80, 0.35);
+  border: 1px solid #8899bb;
+  color: #aabbdd;
 }
 
 .status-pill.blood-fury {
@@ -996,6 +1026,9 @@
 }
 .combat-stat.fury {
   color: var(--accent-red-bright);
+}
+.combat-stat.preparation {
+  color: #ff5555;
 }
 
 .potion-row {

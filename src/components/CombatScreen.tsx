@@ -41,6 +41,7 @@ interface Props {
   startingMana: number;
   startingCooldown: number;
   startingCooldown2: number;
+  startingPreparation?: number;
   consumables: Record<ConsumableId, number>;
   escapeTokens: number;
   xpCapped: boolean;
@@ -60,6 +61,7 @@ export function CombatScreen({
   startingMana,
   startingCooldown,
   startingCooldown2,
+  startingPreparation = 0,
   consumables,
   escapeTokens,
   xpCapped,
@@ -79,6 +81,7 @@ export function CombatScreen({
       startingMana,
       startingCooldown,
       startingCooldown2,
+      startingPreparation,
     ),
   );
   const [log, setLog] = useState<CombatLogEntry[]>([]);
@@ -304,6 +307,7 @@ export function CombatScreen({
       goldReward: reward?.gold ?? 0,
       endingLife: battle.playerLife,
       endingMana: battle.playerMana,
+      endingPreparation: battle.preparation,
       endingCooldown: battle.abilityCooldown,
       endingCooldown2: battle.ability2Cooldown,
       damageDealt: totalDamageDealt,
@@ -660,17 +664,28 @@ export function CombatScreen({
               </div>
             );
           })()}
-          <div className={`resource-bar ${def.resourceType}`}>
-            <div
-              className={`resource-bar-fill ${def.resourceType}`}
-              style={{
-                width: `${Math.max(0, (battle.playerMana / derived.maxMana) * 100)}%`,
-              }}
-            />
-            <span className="bar-num">
-              {battle.playerMana}/{derived.maxMana}
-            </span>
-          </div>
+          {def.resourceType === "preparation" ? (
+            <div className="preparation-globes">
+              {[0, 1, 2].map((i) => (
+                <div
+                  key={i}
+                  className={`prep-globe${battle.preparation > i ? " filled" : ""}`}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className={`resource-bar ${def.resourceType}`}>
+              <div
+                className={`resource-bar-fill ${def.resourceType}`}
+                style={{
+                  width: `${Math.max(0, (battle.playerMana / derived.maxMana) * 100)}%`,
+                }}
+              />
+              <span className="bar-num">
+                {battle.playerMana}/{derived.maxMana}
+              </span>
+            </div>
+          )}
           <div className="xp-bar-combat">
             <div
               className="xp-bar-combat-fill"
@@ -695,21 +710,31 @@ export function CombatScreen({
                 <span className="overheal-badge">+{battle.absorbShield}</span>
               )}
             </span>
-            <span className={`combat-stat ${def.resourceType}`}>
-              {def.resourceType === "mana" ? (
-                <svg viewBox="0 0 8 10" width="8" height="10">
-                  <path
-                    d="M4 1 C4 1 7 5 7 7a3 3 0 0 1-6 0c0-2 3-6 3-6z"
-                    fill="#4477ff"
-                  />
-                </svg>
-              ) : (
+            {def.resourceType !== "preparation" && (
+              <span className={`combat-stat ${def.resourceType}`}>
+                {def.resourceType === "mana" ? (
+                  <svg viewBox="0 0 8 10" width="8" height="10">
+                    <path
+                      d="M4 1 C4 1 7 5 7 7a3 3 0 0 1-6 0c0-2 3-6 3-6z"
+                      fill="#4477ff"
+                    />
+                  </svg>
+                ) : (
+                  <svg viewBox="0 0 10 10" width="10" height="10">
+                    <path d="M5 1 L9 5 L5 9 L1 5 Z" fill="#cc3300" />
+                  </svg>
+                )}
+                {battle.playerMana}/{derived.maxMana}
+              </span>
+            )}
+            {def.resourceType === "preparation" && (
+              <span className="combat-stat preparation">
                 <svg viewBox="0 0 10 10" width="10" height="10">
-                  <path d="M5 1 L9 5 L5 9 L1 5 Z" fill="#cc3300" />
+                  <circle cx="5" cy="5" r="4" fill="#cc1111" />
                 </svg>
-              )}
-              {battle.playerMana}/{derived.maxMana}
-            </span>
+                {battle.preparation}/3 Prep
+              </span>
+            )}
           </div>
           <div className="potion-row">
             <button
@@ -763,8 +788,14 @@ export function CombatScreen({
             battle.playerBurnRounds > 0 ||
             battle.bloodFuryRounds > 0 ||
             battle.regenRounds > 0 ||
-            battle.frostShieldRounds > 0) && (
+            battle.frostShieldRounds > 0 ||
+            battle.vanishRounds > 0) && (
             <div className="status-effects">
+              {battle.vanishRounds > 0 && (
+                <span className="status-pill vanish">
+                  ◌ Vanish {battle.vanishRounds}
+                </span>
+              )}
               {battle.bloodFuryRounds > 0 && (
                 <span className="status-pill blood-fury">
                   Blood Fury {battle.bloodFuryRounds}

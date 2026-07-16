@@ -56,15 +56,20 @@ interface Props {
   onDismissSewersIntro?: () => void;
   showSewersEscape?: boolean;
   onDismissSewersEscape?: () => void;
+  showGheedonMessage?: boolean;
+  onDismissGheedonMessage?: () => void;
   showAct3Message?: boolean;
   onDismissAct3Message?: () => void;
   showAct4Message?: boolean;
   onDismissAct4Message?: () => void;
+  showEndingMessage?: boolean;
+  onDismissEndingMessage?: () => void;
   sewersCleared?: boolean;
+  goblinsPathCleared?: boolean;
   droppedItem?: Item | null;
   onDismissDroppedItem?: () => void;
-  selectedAct: 1 | 2 | 3;
-  onSelectAct: (act: 1 | 2 | 3) => void;
+  selectedAct: 1 | 2 | 3 | 4;
+  onSelectAct: (act: 1 | 2 | 3 | 4) => void;
   selectedTab: TabId;
   onSelectTab: (tab: TabId) => void;
   hasUnseenDrops?: boolean;
@@ -98,11 +103,16 @@ export function Hub({
   onDismissSewersIntro,
   showSewersEscape,
   onDismissSewersEscape,
+  showGheedonMessage,
+  onDismissGheedonMessage,
   showAct3Message,
   onDismissAct3Message,
   showAct4Message,
   onDismissAct4Message,
+  showEndingMessage,
+  onDismissEndingMessage,
   sewersCleared = false,
+  goblinsPathCleared = false,
   droppedItem,
   onDismissDroppedItem,
   selectedAct,
@@ -122,7 +132,9 @@ export function Hub({
       !droppedItem ||
       showPortalMessage ||
       showSewersEscape ||
-      showAct4Message
+      showGheedonMessage ||
+      showAct4Message ||
+      showEndingMessage
     )
       return;
     if (droppedItem.rarity === "unique" && !isSoundMuted()) {
@@ -144,7 +156,9 @@ export function Hub({
       {droppedItem &&
         !showPortalMessage &&
         !showSewersEscape &&
-        !showAct4Message && (
+        !showGheedonMessage &&
+        !showAct4Message &&
+        !showEndingMessage && (
           <div
             className={`drop-banner${droppedItem.rarity === "unique" ? " drop-banner--unique" : ""}`}
             onClick={onDismissDroppedItem}
@@ -192,12 +206,57 @@ export function Hub({
             <div className="portal-icon">🌅</div>
             <h2>You Escaped the Sewers</h2>
             <p>
-              Against all odds, you clawed your way out. The world lies ahead —
-              dungeons to plunder, enemies to conquer, and a king who will
-              answer for what he did.
+              Against all odds, you clawed your way out. As your eyes adjust to
+              the light, a kind voice greets you — a travelling merchant,
+              Aldric, who happened to be passing through. He takes one look at
+              you and smiles.
+            </p>
+            <p style={{ fontStyle: "italic", opacity: 0.85 }}>
+              "You look like someone who could use a good blade — or at least a
+              warm meal. I go where the road takes me. Perhaps it takes me with
+              you."
+            </p>
+            <p>
+              He will accompany you and sell you supplies throughout your
+              journey. The world now lies ahead.
             </p>
             <button className="primary-button" onClick={onDismissSewersEscape}>
               Embark on Your Journey
+            </button>
+          </div>
+        </div>
+      )}
+      {showGheedonMessage && (
+        <div className="portal-overlay">
+          <div className="portal-modal">
+            <div className="portal-icon">🎲</div>
+            <h2>A Man in a Cage</h2>
+            <p>
+              Among the goblin warren's clutter you spot a wooden cage by the
+              road — and inside it, a wiry man with quick eyes and ink-stained
+              fingers, surrounded by a small pile of trinkets the goblins hadn't
+              bothered to take.
+            </p>
+            <p style={{ fontStyle: "italic", opacity: 0.85 }}>
+              "Ah — a capable one! Gheedon is the name. Collector, connoisseur,
+              occasional gambler. I was merely... inspecting some of the
+              goblins' finer acquisitions when they took exception to my
+              presence."
+            </p>
+            <p>
+              He dusts himself off and grins. His curiosity for magic, rare, and
+              unique items is insatiable — he keeps an eye on everything that
+              passes through the world and offers it to you. But don't expect a
+              straightforward deal. Gheedon likes to keep things interesting.
+            </p>
+            <p style={{ fontStyle: "italic", opacity: 0.85 }}>
+              "I'll do it my way. Take it or leave it."
+            </p>
+            <button
+              className="primary-button"
+              onClick={onDismissGheedonMessage}
+            >
+              Let's See What You've Got
             </button>
           </div>
         </div>
@@ -215,6 +274,40 @@ export function Hub({
             </p>
             <button className="primary-button" onClick={onDismissAct3Message}>
               Descend Into the Jungle
+            </button>
+          </div>
+        </div>
+      )}
+      {showEndingMessage && (
+        <div className="portal-overlay">
+          <div className="portal-modal">
+            <div className="portal-icon">🌌</div>
+            <h2>The Void Collapses</h2>
+            <p>
+              The realm tears itself apart. Stone dissolves into void. The sky
+              collapses inward as Relith's final scream fades into nothing.
+            </p>
+            <p>Then — silence.</p>
+            <p>
+              A rift of pale light tears open above the rubble. You feel it
+              pulling, dragging you through — and in an instant, you're
+              somewhere else.
+            </p>
+            <p>
+              Cold stone beneath your hands. The scent of rain and iron. You
+              push yourself upright, and the fog clears.
+            </p>
+            <p style={{ fontStyle: "italic", opacity: 0.85 }}>
+              Before you, across a valley blanketed in mist, stands a great
+              castle — its towers lit with golden light, its banners
+              unmistakable. The castle you were thrown out of. The castle that
+              damned you to die beneath the sewers.
+            </p>
+            <p style={{ fontStyle: "italic", opacity: 0.85 }}>
+              It is calling you home.
+            </p>
+            <button className="primary-button" onClick={onDismissEndingMessage}>
+              Continue
             </button>
           </div>
         </div>
@@ -492,8 +585,8 @@ export function Hub({
               </svg>
             </button>
             <button
-              className={`${tab === "gambler" ? "active" : ""}${!sewersCleared ? " tab-locked" : ""}`}
-              disabled={!sewersCleared}
+              className={`${tab === "gambler" ? "active" : ""}${!goblinsPathCleared ? " tab-locked" : ""}`}
+              disabled={!goblinsPathCleared}
               onClick={() => setTab("gambler")}
             >
               Gamble{" "}

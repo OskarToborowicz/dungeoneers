@@ -13,10 +13,10 @@ const STAT_LABEL: Record<string, string> = {
   magicDamage: "Magic Damage",
   goldFind: "% Gold Find",
   lifeLeech: "% Life Leech",
-  manaRegen: "Mana Regen / Turn",
   magicDmgReduction: "% Magic Damage Reduced",
   physDmgReduction: "% Physical Damage Reduced",
   critChance: "% Crit Chance",
+  critDamageBonus: "% Critical Strike Damage",
 };
 
 const AFFIX_ORDER: Record<string, number> = {
@@ -187,7 +187,7 @@ export function ItemTooltip({ item }: { item: Item }) {
         sortAffixes(item.affixes).map((a, i) => (
           <div className="item-line affix" key={i}>
             {a.value > 0 ? "+" : ""}
-            {a.value} {STAT_LABEL[a.stat]}
+            {Number.isInteger(a.value) ? a.value : a.value.toFixed(1)} {STAT_LABEL[a.stat]}
           </div>
         ))}
       <UniqueEffectLines item={item} />

@@ -3,8 +3,8 @@ import { DUNGEONS } from "../game/data/dungeons";
 interface Props {
   clearedDungeons: string[];
   onStart: (dungeonId: string) => void;
-  selectedAct: 1 | 2 | 3;
-  onSelectAct: (act: 1 | 2 | 3) => void;
+  selectedAct: 1 | 2 | 3 | 4;
+  onSelectAct: (act: 1 | 2 | 3 | 4) => void;
 }
 
 export function DungeonsTab({
@@ -19,19 +19,37 @@ export function DungeonsTab({
   const act2Endgame = DUNGEONS.filter((d) => d.act === 2 && d.endgame);
   const act3Regular = DUNGEONS.filter((d) => d.act === 3 && !d.endgame);
   const act3Endgame = DUNGEONS.filter((d) => d.act === 3 && d.endgame);
+  const act4Regular = DUNGEONS.filter((d) => d.act === 4 && !d.endgame);
+  const act4Endgame = DUNGEONS.filter((d) => d.act === 4 && d.endgame);
 
   const act2Unlocked = act1Endgame.every((d) => clearedDungeons.includes(d.id));
   const act3Unlocked = act2Endgame.every((d) => clearedDungeons.includes(d.id));
+  const act4Unlocked = act3Endgame.every((d) => clearedDungeons.includes(d.id));
 
   const allAct1RegularCleared = act1Regular.every((d) => clearedDungeons.includes(d.id));
   const allAct2RegularCleared = act2Regular.every((d) => clearedDungeons.includes(d.id));
   const allAct3RegularCleared = act3Regular.every((d) => clearedDungeons.includes(d.id));
+  const allAct4RegularCleared = act4Regular.every((d) => clearedDungeons.includes(d.id));
 
   const act = selectedAct;
 
-  const regularDungeons = act === 1 ? act1Regular : act === 2 ? act2Regular : act3Regular;
-  const endgameDungeons = act === 1 ? act1Endgame : act === 2 ? act2Endgame : act3Endgame;
-  const allRegularCleared = act === 1 ? allAct1RegularCleared : act === 2 ? allAct2RegularCleared : allAct3RegularCleared;
+  const regularDungeons =
+    act === 1 ? act1Regular :
+    act === 2 ? act2Regular :
+    act === 3 ? act3Regular :
+    act4Regular;
+
+  const endgameDungeons =
+    act === 1 ? act1Endgame :
+    act === 2 ? act2Endgame :
+    act === 3 ? act3Endgame :
+    act4Endgame;
+
+  const allRegularCleared =
+    act === 1 ? allAct1RegularCleared :
+    act === 2 ? allAct2RegularCleared :
+    act === 3 ? allAct3RegularCleared :
+    allAct4RegularCleared;
 
   const remainingRegular = regularDungeons.filter(
     (d) => !clearedDungeons.includes(d.id),
@@ -40,17 +58,20 @@ export function DungeonsTab({
   const endgameLabel =
     act === 1 ? "STORM THE TOWN HALL" :
     act === 2 ? "FACE SIKKTHARKK" :
-    "FACE ZAM'KORO";
+    act === 3 ? "FACE ZAM'KORO" :
+    "FACE RELITH";
 
   const lockedHintName =
     act === 1 ? "??? — Bandit's Town Hall" :
     act === 2 ? "??? — The White Maw" :
-    "??? — Sacrificial Altar";
+    act === 3 ? "??? — Sacrificial Altar" :
+    "??? — Throne of Endless Night";
 
   const lockedHintDesc =
     act === 1 ? "Clear all dungeons to reveal what lies beyond." :
     act === 2 ? "Clear all dungeons to face the Great Frozen Dragon." :
-    "Clear all dungeons to face Zam'Koro, the Loa of Endless Night.";
+    act === 3 ? "Clear all dungeons to face Zam'Koro, the Loa of Endless Night." :
+    "Clear all dungeons to face Relith, the Void Devourer.";
 
   return (
     <div className="tab-panel">
@@ -76,6 +97,14 @@ export function DungeonsTab({
                 onClick={() => onSelectAct(3)}
               >
                 Act 3
+              </button>
+            )}
+            {act4Unlocked && (
+              <button
+                className={`act-tab${act === 4 ? " active" : ""}`}
+                onClick={() => onSelectAct(4)}
+              >
+                Act 4
               </button>
             )}
           </div>
@@ -170,6 +199,15 @@ export function DungeonsTab({
             <div className="dungeon-name">??? — Act 3</div>
             <p className="dungeon-desc">
               Defeat Sikktharkk to descend into the jungle and unlock Act 3.
+            </p>
+          </div>
+        )}
+
+        {act === 3 && !act4Unlocked && allAct3RegularCleared && (
+          <div className="dungeon-card locked endgame-locked-hint">
+            <div className="dungeon-name">??? — Act 4</div>
+            <p className="dungeon-desc">
+              Defeat Zam'Koro to tear the veil and unlock Act 4: Realm of the Endless Night.
             </p>
           </div>
         )}

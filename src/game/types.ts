@@ -15,7 +15,7 @@ export interface BaseStats {
   energy: number;
 }
 
-export type ResourceType = "mana" | "fury";
+export type ResourceType = "mana" | "fury" | "preparation";
 
 export interface ClassPassive {
   name: string;
@@ -31,13 +31,15 @@ export type AbilityKind =
   | "bite"
   | "trap"
   | "buff"
-  | "obliterate"
+  | "whirlwind"
   | "freeze"
   | "regen"
   | "blind_powder"
   | "frost_shield"
   | "golem"
-  | "serenity";
+  | "serenity"
+  | "eviscerate"
+  | "vanish";
 
 export interface AbilityDefinition {
   name: string;
@@ -92,10 +94,10 @@ export interface ItemAffix {
     | "magicDamage"
     | "goldFind"
     | "lifeLeech"
-    | "manaRegen"
     | "magicDmgReduction"
     | "physDmgReduction"
-    | "critChance";
+    | "critChance"
+    | "critDamageBonus";
   value: number;
 }
 
@@ -177,7 +179,7 @@ export interface DungeonDefinition {
   description: string;
   waves: MonsterDefinition[];
   boss: MonsterDefinition;
-  act: 1 | 2 | 3;
+  act: 1 | 2 | 3 | 4;
   endgame?: boolean;
 }
 
@@ -215,5 +217,6 @@ export interface SaveGame {
     currentMana: number;
     currentCooldown: number;
     currentCooldown2: number;
+    currentPreparation?: number;
   };
 }
