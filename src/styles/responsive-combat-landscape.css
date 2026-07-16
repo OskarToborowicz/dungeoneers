@@ -174,11 +174,23 @@
     font-size: 11px;
     margin: 0;
   }
+  /* The button lives in the flee column instead — easier to reach in landscape. */
   .combat-result .primary-button {
+    display: none;
+  }
+
+  .combat-result-actions {
+    grid-area: flee;
+    align-self: end;
+    display: flex;
+  }
+
+  .combat-result-actions .primary-button {
+    width: 100%;
+    height: 72px;
     margin-top: 0;
-    padding: 6px 14px;
+    padding: 6px 8px;
     font-size: 12px;
-    flex-shrink: 0;
   }
 
   .combat-actions {
@@ -204,7 +216,6 @@
     order: 0;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     min-width: 0;
     overflow: hidden;
     gap: 4px;

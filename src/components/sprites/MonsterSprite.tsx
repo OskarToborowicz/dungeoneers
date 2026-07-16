@@ -7,6 +7,7 @@ interface Props {
   name: string;
   size?: number;
   state?: SpriteState;
+  statusEffects?: Array<"poison" | "burn">;
 }
 
 const MONSTER_TYPES: Record<string, string> = {
@@ -3852,7 +3853,12 @@ const SPRITES: Record<string, ReactNode> = {
   ),
 };
 
-export function MonsterSprite({ name, size = 64, state = "idle" }: Props) {
+export function MonsterSprite({
+  name,
+  size = 64,
+  state = "idle",
+  statusEffects = [],
+}: Props) {
   const [animKey, setAnimKey] = useState(0);
   useEffect(() => { setAnimKey((k) => k + 1); }, [state]);
 
@@ -3881,6 +3887,26 @@ export function MonsterSprite({ name, size = 64, state = "idle" }: Props) {
       >
         {SPRITES[type] ?? SPRITES["fallen"]}
       </motion.g>
+      {statusEffects.includes("burn") && (
+        <ellipse
+          cx="32"
+          cy="50"
+          rx="28"
+          ry="48"
+          fill="none"
+          stroke="#ff6600"
+          strokeWidth="2.5"
+          className="status-aura-burn"
+          strokeOpacity="0.7"
+        />
+      )}
+      {statusEffects.includes("poison") && (
+        <>
+          <circle cx="20" cy="55" r="2.5" className="poisoned" />
+          <circle cx="34" cy="48" r="2" className="poisoned delay1" />
+          <circle cx="44" cy="58" r="3" className="poisoned delay2" />
+        </>
+      )}
     </svg>
   );
 }

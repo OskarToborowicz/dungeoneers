@@ -94,6 +94,10 @@ export function CombatScreen({
   );
   const [totalDamageDealt, setTotalDamageDealt] = useState(0);
   const [playerAnim, setPlayerAnim] = useState<SpriteState>("idle");
+  const [potionFx, setPotionFx] = useState<{
+    type: "health" | "mana";
+    key: number;
+  } | null>(null);
   const [monsterAnim, setMonsterAnim] = useState<SpriteState>("idle");
   const [abilityEffect, setAbilityEffect] = useState(0);
   const [ability2Effect, setAbility2Effect] = useState(0);
@@ -161,6 +165,15 @@ export function CombatScreen({
     const wasAbility = action === "ability" && canUseAbility(character, battle);
     const wasAbility2 =
       action === "ability2" && canUseAbility2(character, battle);
+    // Drinking is not a swing — skip the lunge, show bubbles instead.
+    const isPotion = action === "healthPotion" || action === "manaPotion";
+    if (isPotion) {
+      setPotionFx((p) => ({
+        type: action === "healthPotion" ? "health" : "mana",
+        key: (p?.key ?? 0) + 1,
+      }));
+      setTimeout(() => setPotionFx(null), 900);
+    }
     const result = resolveRound(
       character,
       derived,
@@ -201,7 +214,7 @@ export function CombatScreen({
         xp: monster.xpReward,
         gold: rollGoldReward(monster, derived.goldFindBonus),
       });
-      setPlayerAnim("attack");
+      if (!isPotion) setPlayerAnim("attack");
       setTimeout(() => {
         setPlayerAnim("idle");
         setMonsterAnim("dead");
@@ -220,7 +233,7 @@ export function CombatScreen({
       setLog((prev) => [...prev, ...result.log]);
       setStatus(result.status);
       setTotalDamageDealt((d) => d + result.damageDealt);
-      setPlayerAnim("attack");
+      if (!isPotion) setPlayerAnim("attack");
       setTimeout(() => setPlayerAnim("dead"), 500);
     } else {
       // Sequential animation: player first, then monster
@@ -240,7 +253,7 @@ export function CombatScreen({
         e.message.includes("Critical hit!"),
       );
       setIsAnimating(true);
-      setPlayerAnim("attack");
+      if (!isPotion) setPlayerAnim("attack");
       if (hasCrit) {
         setCritFlash(true);
         setTimeout(() => setCritFlash(false), 600);
@@ -555,6 +568,17 @@ export function CombatScreen({
           <div
             className={`battle-side player-side${battle.bloodFuryRounds > 0 ? " blood-fury-active" : ""}${battle.holyLightCharges > 0 ? " holy-light-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}`}
           >
+            {potionFx && (
+              <div
+                key={potionFx.key}
+                className={`potion-bubbles ${potionFx.type}`}
+              >
+                <span />
+                <span />
+                <span />
+                <span />
+              </div>
+            )}
             <CharacterSprite
               classId={character.classId}
               size={80}
@@ -574,7 +598,15 @@ export function CombatScreen({
             />
           </div>
           <div className="battle-side monster-side">
-            <MonsterSprite name={monster.name} size={80} state={monsterAnim} />
+            <MonsterSprite
+              name={monster.name}
+              size={80}
+              state={monsterAnim}
+              statusEffects={[
+                ...(battle.poisonRounds > 0 ? ["poison" as const] : []),
+                ...(battle.burnStacks.length > 0 ? ["burn" as const] : []),
+              ]}
+            />
           </div>
         </div>
 
@@ -999,6 +1031,14 @@ export function CombatScreen({
               </span>
             </button>
           </div>
+        </div>
+      )}
+
+      {status !== "ongoing" && (
+        <div className="combat-result-actions">
+          <button className="primary-button" onClick={handleContinue}>
+            {status === "victory" ? "Continue" : "Accept Your Fate"}
+          </button>
         </div>
       )}
 

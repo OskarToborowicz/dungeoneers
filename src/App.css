@@ -28,6 +28,7 @@
 @import "./styles/responsive-mobile.css";
 @import "./styles/responsive-combat-landscape.css";
 @import "./styles/responsive-creation-landscape.css";
+@import "./styles/responsive-gameover-landscape.css";
 @import "./styles/fullscreen-button.css";
 @import "./styles/responsive-hub-landscape.css";
 @import "./styles/responsive-tablet-touch.css";

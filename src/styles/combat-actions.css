@@ -93,6 +93,11 @@
   box-shadow: 0 0 24px color-mix(in srgb, var(--border-gold) 20%, transparent);
 }
 
+/* Landscape-only duplicate of the result button, placed in the flee column. */
+.combat-result-actions {
+  display: none;
+}
+
 .victory-text {
   color: var(--border-gold-bright);
 }

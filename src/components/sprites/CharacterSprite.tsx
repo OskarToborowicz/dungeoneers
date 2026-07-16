@@ -168,19 +168,6 @@ export function CharacterSprite({
           intensity={glowIntensity}
         />
       </defs>
-      {statusEffects.includes("burn") && (
-        <ellipse
-          cx="32"
-          cy="50"
-          rx="28"
-          ry="48"
-          fill="none"
-          stroke="#ff6600"
-          strokeWidth="2.5"
-          className="status-aura-burn"
-          strokeOpacity="0.7"
-        />
-      )}
       <g {...sharedG} stroke={classColor} filter={`url(#${bodyGlowId})`}>
         {sprite.body()}
       </g>
@@ -196,6 +183,19 @@ export function CharacterSprite({
           ? sprite.uniqueWeapon(weaponColor)
           : sprite.weapon(weaponColor)}
       </g>
+      {statusEffects.includes("burn") && (
+        <ellipse
+          cx="32"
+          cy="50"
+          rx="28"
+          ry="48"
+          fill="none"
+          stroke="#ff6600"
+          strokeWidth="2.5"
+          className="status-aura-burn"
+          strokeOpacity="0.7"
+        />
+      )}
       {animated && statusEffects.includes("poison") && (
         <>
           <circle cx="20" cy="55" r="2.5" className="poisoned" />

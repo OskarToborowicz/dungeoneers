@@ -112,7 +112,10 @@
   border: 1px solid #555;
   background: #2a2a2a;
   flex-shrink: 0;
-  transition: background 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+  transition:
+    background 0.15s ease,
+    box-shadow 0.15s ease,
+    border-color 0.15s ease;
 }
 
 .prep-globe.filled {
@@ -301,29 +304,62 @@
   animation: ae-hl-ring-expand 0.65s ease-out forwards;
 }
 @keyframes ae-hl-ring-expand {
-  0%   { r: 5; opacity: 0.95; }
-  100% { r: 36; opacity: 0; }
+  0% {
+    r: 5;
+    opacity: 0.95;
+  }
+  100% {
+    r: 36;
+    opacity: 0;
+  }
 }
 .ae-hl-core {
   animation: ae-hl-core-pop 0.7s ease-out both;
 }
 @keyframes ae-hl-core-pop {
-  0%   { transform: scale(0.1); opacity: 0; }
-  45%  { transform: scale(1.3); opacity: 1; }
-  100% { transform: scale(1); opacity: 0; }
+  0% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+  45% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
 }
 .ae-hl-spark {
   animation: ae-hl-spark-rise 0.7s ease-out both;
 }
-.ae-hl-s1 { animation-delay: 0.08s; }
-.ae-hl-s2 { animation-delay: 0.14s; }
-.ae-hl-s3 { animation-delay: 0.14s; }
-.ae-hl-s4 { animation-delay: 0.22s; }
-.ae-hl-s5 { animation-delay: 0.22s; }
+.ae-hl-s1 {
+  animation-delay: 0.08s;
+}
+.ae-hl-s2 {
+  animation-delay: 0.14s;
+}
+.ae-hl-s3 {
+  animation-delay: 0.14s;
+}
+.ae-hl-s4 {
+  animation-delay: 0.22s;
+}
+.ae-hl-s5 {
+  animation-delay: 0.22s;
+}
 @keyframes ae-hl-spark-rise {
-  0%   { transform: translateY(0) scale(0.4); opacity: 0; }
-  35%  { opacity: 1; }
-  100% { transform: translateY(-20px) scale(1.1); opacity: 0; }
+  0% {
+    transform: translateY(0) scale(0.4);
+    opacity: 0;
+  }
+  35% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px) scale(1.1);
+    opacity: 0;
+  }
 }
 
 /* Player-side blood fury glow while buff is active */
@@ -332,8 +368,13 @@
   filter: drop-shadow(0 0 8px #cc2200);
 }
 @keyframes blood-fury-pulse {
-  0%, 100% { filter: drop-shadow(0 0 5px #aa110088); }
-  50%       { filter: drop-shadow(0 0 14px #ff3300cc); }
+  0%,
+  100% {
+    filter: drop-shadow(0 0 5px #aa110088);
+  }
+  50% {
+    filter: drop-shadow(0 0 14px #ff3300cc);
+  }
 }
 
 /* Player-side holy glow while Holy Light charges are active */
@@ -739,6 +780,75 @@
 
 .status-aura-burn {
   animation: flicker 0.25s infinite alternate;
+}
+
+/* Potion bubbles — rise from the top of the player sprite while drinking */
+.potion-bubbles {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  width: 44px;
+  height: 26px;
+  margin-left: -22px;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.potion-bubbles span {
+  position: absolute;
+  bottom: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  opacity: 0;
+  animation: potionBubbleRise 0.85s ease-out forwards;
+}
+
+.potion-bubbles.health span {
+  background: #e8443c;
+  box-shadow: 0 0 6px rgba(255, 80, 70, 0.9);
+}
+
+.potion-bubbles.mana span {
+  background: #3f7fe0;
+  box-shadow: 0 0 6px rgba(90, 150, 255, 0.9);
+}
+
+.potion-bubbles span:nth-child(1) {
+  left: 4px;
+  animation-delay: 0s;
+}
+.potion-bubbles span:nth-child(2) {
+  left: 15px;
+  width: 5px;
+  height: 5px;
+  animation-delay: 0.12s;
+}
+.potion-bubbles span:nth-child(3) {
+  left: 25px;
+  width: 8px;
+  height: 8px;
+  animation-delay: 0.22s;
+}
+.potion-bubbles span:nth-child(4) {
+  left: 34px;
+  width: 5px;
+  height: 5px;
+  animation-delay: 0.34s;
+}
+
+@keyframes potionBubbleRise {
+  0% {
+    transform: translateY(6px) scale(0.5);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-20px) scale(1.15);
+    opacity: 0;
+  }
 }
 @keyframes aura-pulse-poison {
   0%,

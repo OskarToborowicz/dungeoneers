@@ -1,0 +1,52 @@
+/* ── 21. Responsive: game over landscape ─────────────────────────────────── */
+@media (orientation: landscape) and (max-height: 500px) {
+  .game-over-screen {
+    padding: 6px 16px;
+  }
+
+  .death-title {
+    font-size: 22px;
+    letter-spacing: 2px;
+    margin: 0;
+  }
+
+  .death-sprite {
+    padding: 2px 0;
+  }
+
+  .death-sprite svg {
+    width: 40px !important;
+    height: 60px !important;
+  }
+
+  .game-over-screen .subtitle {
+    font-size: 11px;
+    margin: 0 0 4px;
+  }
+
+  .death-stats-panel {
+    max-width: 320px;
+    padding: 2px 14px;
+    margin: 6px 0;
+  }
+
+  .death-stat-row {
+    padding: 3px 0;
+    font-size: 11px;
+  }
+
+  .death-stat-value {
+    font-size: 12px;
+  }
+
+  .game-over-screen .empty-note {
+    font-size: 10px;
+    margin: 0;
+  }
+
+  .game-over-screen .primary-button {
+    margin-top: 8px;
+    padding: 6px 18px;
+    font-size: 12px;
+  }
+}
