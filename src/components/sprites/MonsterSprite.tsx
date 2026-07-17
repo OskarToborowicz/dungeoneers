@@ -2,6 +2,7 @@ import { motion } from "motion/react";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import type { SpriteState } from "./CharacterSprite";
+import { MONSTER_ASSETS, MONSTER_IMG } from "./monsterAssets";
 
 interface Props {
   name: string;
@@ -206,7 +207,7 @@ const MONSTER_COLORS: Record<string, string> = {
   boss_andariel: "#88cc22",
   // Act 1 — new
   rat: "#997755",
-  leech: "#445533",
+  leech: "#4ec257",
   boss_rat: "#775533",
   elk: "#886644",
   boar: "#665544",
@@ -3865,6 +3866,8 @@ export function MonsterSprite({
   const type = MONSTER_TYPES[name] ?? "fallen";
   const color = MONSTER_COLORS[type] ?? "#888888";
   const height = Math.round(size * 1.5);
+  // Silhouette file if one exists for this type, otherwise the inline paths.
+  const assetUrl = MONSTER_ASSETS[type];
 
   return (
     <svg
@@ -3883,9 +3886,18 @@ export function MonsterSprite({
         strokeWidth="1.8"
         strokeLinejoin="round"
         strokeLinecap="round"
-        style={{ filter: `drop-shadow(0 0 6px ${color}) drop-shadow(0 0 2px ${color})` }}
+        // Layers compound: each drop-shadow re-blurs the previous result, so
+        // adding tight passes thickens and saturates the halo rather than
+        // sharpening it. Drop a pass to tone the glow down.
+        style={{
+          filter: `drop-shadow(0 0 7px ${color}) drop-shadow(0 0 3px ${color}) drop-shadow(0 0 2px ${color}) drop-shadow(0 0 1px ${color})`,
+        }}
       >
-        {SPRITES[type] ?? SPRITES["fallen"]}
+        {assetUrl ? (
+          <image href={assetUrl} {...MONSTER_IMG} />
+        ) : (
+          (SPRITES[type] ?? SPRITES["fallen"])
+        )}
       </motion.g>
       {statusEffects.includes("burn") && (
         <ellipse

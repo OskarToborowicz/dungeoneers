@@ -271,12 +271,33 @@ tick can kill the monster and the monster can kill the player on a drink turn.
 
 ### MonsterSprite (`src/components/sprites/MonsterSprite.tsx`)
 
-Monsters map by name to a `type` key in `MONSTER_TYPES`. Each type has:
-- A sprite shape in `SPRITES`
+Monsters map by name to a `type` key in `MONSTER_TYPES`. Several monsters share
+one type on purpose (`Fallen One`, `Devilkin`, `Dark One` → `fallen`). Each type has:
 - A color in `MONSTER_COLORS`
 - An animation style in `TYPE_ANIM` (`float | sway | stomp | skitter | pulse | lurch`)
+- Art: either a silhouette SVG file (preferred) **or** inline paths in `SPRITES`
 
-All Act 1 and Act 2 monsters have unique sprites. New monsters need entries in all three records.
+**Monster art assets.** `src/components/sprites/monsterAssets.ts` globs
+`src/assets/monsters/*.svg` eagerly at build time and keys them by filename.
+Dropping `<type>.svg` into that folder makes `MonsterSprite` render it as an
+`<image>` — **no code change**. Types without a file fall back to `SPRITES`, so
+both styles coexist and migration can go one monster at a time.
+
+Unlike class sprites, monster art is **one flat file per type — silhouette only,
+no body/weapon/offhand split**, because monsters have no gear. Art spec (artboard
+1024×1536, fill `#120e0a`, transparent background, no baked glow) lives in
+`src/assets/monsters/README.md`.
+
+**Facing:** inline `SPRITES` art is drawn facing right and mirrored by the
+`scaleX(-1)` on the `<svg>`. Asset art is drawn **facing left, toward the hero**,
+so `MONSTER_IMG` carries `transform="translate(64,0) scale(-1,1)"` to cancel that
+mirror — the double flip renders the file as authored. Do not "simplify" it away.
+
+The `<image>` renders inside the same `motion.g` as inline art, so `fill`/`stroke`
+on that group are ignored but the `drop-shadow` glow from `MONSTER_COLORS` still
+applies — which is why the glow must not be baked into the file.
+
+Adding a monster with inline art still needs entries in all three records.
 
 ---
 
