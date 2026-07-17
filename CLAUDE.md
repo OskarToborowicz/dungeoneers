@@ -32,7 +32,7 @@ errors in `src/`. Only `-b` (build mode) actually follows the references to
 | `src/game/storage.ts` | localStorage read/write (`SaveSlot[]` array — NOT an object) |
 | `src/App.tsx` | Root state, routing between screens |
 | `src/App.css` | Aggregator only — `@import`s every file in `src/styles/` in cascade order. Never add rules directly here. |
-| `src/styles/*.css` | One file per section (e.g. `combat-screen.css`, `responsive-mobile.css`, `responsive-hub-landscape.css`). **Import order in `App.css` is load-bearing** — several responsive rules rely on later-in-cascade wins between equal-specificity selectors across files (e.g. `responsive-tablet-touch.css` must stay after `responsive-hub-landscape.css`). Adding a new file requires adding its `@import` line in the correct position, not just alphabetically. |
+| `src/styles/*.css` | One file per section (e.g. `combat-screen.css`, `responsive-mobile.css`, `responsive-hub-landscape.css`, `responsive-gameover-landscape.css`). **Import order in `App.css` is load-bearing** — several responsive rules rely on later-in-cascade wins between equal-specificity selectors across files (e.g. `responsive-tablet-touch.css` must stay after `responsive-hub-landscape.css`). Adding a new file requires adding its `@import` line in the correct position, not just alphabetically. |
 | `src/components/useItemHover.ts` | Shared hook for fixed-position item tooltip + compare panel on hover |
 | `src/components/ItemTooltip.tsx` | `UniqueEffectLines` — renders unique effect text per boolean flag; `sortAffixes()` — display order |
 | `src/components/AbilityEffect.tsx` | Per-class combat animations (ability, ability2, attack, detonation); exports `ATTACK_EFFECT_CLASSES` |
@@ -75,7 +75,7 @@ On load: if `inCombat && activeDungeonRun` → resume from checkpoint. F5 during
 To inject a test save in the browser console:
 ```js
 const saves = JSON.parse(localStorage.getItem('diabolo-saves') || '[]');
-saves.push({ id: '99', lastPlayedAt: Date.now(), save: { character: { name: 'TestGod', classId: 'amazon', level: 50, xp: 0, gold: 99999, unspentStatPoints: 0, allocatedStats: { strength: 50, dexterity: 50, vitality: 50, energy: 50 }, abilityCooldown: 0, escapeTokens: 99, runStats: { damageDealt: 0, goldEarned: 0, kills: 0 } }, equipment: {}, inventory: [], clearedDungeons: ['blood-moor','cold-plains','stony-field','dark-wood','tristram','diablo'], consumables: { healthPotion: 99, manaPotion: 99 }, shopStock: [] } });
+saves.push({ id: '99', lastPlayedAt: Date.now(), save: { character: { name: 'TestGod', classId: 'amazon', level: 50, xp: 0, gold: 99999, unspentStatPoints: 0, allocatedStats: { strength: 50, dexterity: 50, vitality: 50, energy: 50 }, abilityCooldown: 0, escapeTokens: 99, runStats: { damageDealt: 0, goldEarned: 0, kills: 0 } }, equipment: {}, inventory: [], clearedDungeons: ['sewers','dark-forest','cave','foggy-fields','graveyard','crypt','goblins-path','bandit-town','bandits-town-hall'], consumables: { healthPotion: 99, manaPotion: 99 }, shopStock: [] } });
 localStorage.setItem('diabolo-saves', JSON.stringify(saves));
 location.reload();
 ```
@@ -88,10 +88,21 @@ To clear all saves: `localStorage.clear(); location.reload();`
 
 ### Acts
 
-- **Act 1**: 5 regular dungeons + Rogue Monastery endgame (boss: Andariel)
-- **Act 2**: unlocks after clearing Andariel (`clearedDungeons.includes("diablo")`)
-  - 5 regular dungeons + Hellcore endgame (boss: Core of Hell)
-  - Act 2 tab appears in DungeonsTab when Act 2 is unlocked
+Four acts, each **8 regular dungeons + 1 endgame dungeon**. The endgame unlocks
+after all 8 regulars in that act are cleared; clearing it opens the next act.
+`DungeonDefinition.act` (1–4) drives the act tabs in `DungeonsTab`.
+
+| Act | Name | Endgame dungeon (id) | Endgame boss |
+|---|---|---|---|
+| 1 | The Road Out | Bandit's Town Hall (`bandits-town-hall`) | Bandit Chieftain |
+| 2 | The Frozen Peaks | The White Maw (`the-white-maw`) | Sikktharkk |
+| 3 | The Jungle Depths | Sacrificial Altar (`sacrificial-altar`) | Zam'Koro |
+| 4 | Realm of Endless Night | Throne of Endless Night (`throne-of-endless-night`) | Reltih |
+
+Act 1 dungeon ids in order: `sewers`, `dark-forest`, `cave`, `foggy-fields`,
+`graveyard`, `crypt`, `goblins-path`, `bandit-town`, `bandits-town-hall`.
+See `src/game/data/dungeons.ts` for the full list — **README.md has the
+authoritative per-dungeon table** (monster levels + bosses for all four acts).
 
 ### Combat flow (per turn)
 
@@ -141,11 +152,10 @@ All abilities have a 2% `ALWAYS_MISS_CHANCE`. Set `canMiss: false` on an ability
 
 **Poison Cloud** (`kind: "dot"`, magic): DoT ability — initial hit + 3 poison ticks. `power: 1.4`, `magic: true`.
 
-**Golem Defense** (`kind: "golem"`, `canMiss: false`): Summons a stone golem that absorbs 20% of all incoming damage (physical + spell) for 3 turns, then detonates on the enemy for total absorbed damage. Can crit on detonation.
-- BattleState fields: `golemRounds: number` (countdown), `golemAbsorbed: number` (damage absorbed so far)
+**Golem Defense** (`kind: "golem"`, `canMiss: false`): Summons a stone golem for 3 turns and stuns the enemy for 1 turn on cast. While the golem is up, **30% of all incoming damage (physical + spell) is reflected back at the enemy** — the player takes only the remaining 70%. There is no detonation.
+- BattleState fields: `golemRounds: number` (countdown), `stunnedRounds: number` (set to 1 on cast)
 - Shown on the battlefield like the Assassin's Fire Trap — SVG with countdown badge
 - `canUseAbility2` blocks re-summoning while `golemRounds > 0`
-- Detonation fires after monster attacks on the turn the counter hits 0
 
 **Soul Siphon** (always active): All magic damage heals 15% of damage dealt — applies to Poison Cloud's initial hit AND every poison tick. Constant: `NECROMANCER_SOUL_SIPHON = 0.15`.
 
@@ -237,6 +247,27 @@ Each class file exports three **named** functions (import style is `import * as 
 **Barbarian weapons render BEFORE body** (axes behind character). All other classes render weapons AFTER body.
 
 **XP cap per dungeon:** `getXpCapLevel(clearedDungeons, currentDungeonId)` returns `currentDungeon.boss.level + 5`.
+
+### Sprite motion and status effects
+
+`getAnimate()` / `getTransition()` in `CharacterSprite.tsx` take `classId`.
+`RECOIL_ATTACK_CLASSES` (`amazon`, `sorceress`, `necromancer`) get a backwards
+recoil `x: [0, -8*scale, 0]` on the `attack` state instead of the default
+forward hop `y: [0, -12*scale, 5*scale, 0]`. Character sprites face right (only
+`MonsterSprite` has `scaleX(-1)`), so backwards is **negative x**.
+
+Both `CharacterSprite` and `MonsterSprite` accept `statusEffects?: Array<"poison" | "burn">`
+and render identically — burn aura (`.status-aura-burn` ellipse) then poison
+bubbles (`.poisoned` circles), **both after the model so they draw on top**.
+Wired in `CombatScreen`: player from `playerPoisonRounds` / `playerBurnRounds`,
+monster from `poisonRounds` / `burnStacks.length`.
+
+**Potion bubbles:** drinking sets `potionFx: { type: "health" | "mana"; key: number }`
+in `CombatScreen`; the `key` counter forces a remount so the animation replays.
+Rendered as `.potion-bubbles` inside `.battle-side.player-side` (which needs
+`position: relative`). Potions must **not** set `playerAnim("attack")` — guard
+all three branches (normal / victory / defeat) with `isPotion`, since a poison
+tick can kill the monster and the monster can kill the player on a drink turn.
 
 ### MonsterSprite (`src/components/sprites/MonsterSprite.tsx`)
 
@@ -336,6 +367,17 @@ Key rules:
 - `.combat-bars .combat-bar-block:last-child` (monster HP block) hidden — monster HP is shown separately in the flee column via `.landscape-monster-hp` div
 - `.landscape-monster-name` and `.landscape-monster-hp` — hidden in portrait, shown in landscape; both live inside the `combat-flee` DOM element
 
+**Result button:** on victory/defeat `.combat-actions` is not rendered, so the
+`flee` grid area is free. `.combat-result-actions` (a direct child of
+`.combat-screen`, `display: none` by default) takes `grid-area: flee` +
+`align-self: end` in landscape, putting Continue at the bottom-right where the
+thumb is. The button is **duplicated in JSX** — the copy inside `.combat-result`
+is hidden in landscape. Changing its label or `onClick` means editing both.
+
+**Game over screen:** `responsive-gameover-landscape.css` shrinks the whole
+death screen (title 44→22px, sprite 90→40px via `!important` on `svg`, tighter
+stat rows) so it fits ~430px without scrolling. Nothing is hidden.
+
 **Bar-number overlay:** `.bar-num` spans are always in the JSX (inside `.hp-bar`/`.resource-bar`). In portrait they are clipped by `overflow: hidden`. In landscape:
 ```css
 .combat-bars .bar-num,
@@ -357,6 +399,17 @@ The fill stays as a normal-flow block element (not absolute). The bar-num overla
 - `generateItemForSlot()` in `items.ts` — creates magic/rare items for a specific slot/class combo
 
 Gamble result shows via existing drop banner (`setDroppedItem`).
+
+### Inventory drag-and-drop on touch
+
+`InventoryTab` uses **`MouseSensor` + `TouchSensor`, never `PointerSensor`**. On
+touch devices both a pointer and a touch sensor fire; `PointerSensor` wins after
+8px of movement and hijacks the scroll gesture, so every attempt to scroll the
+grid started a drag instead. `TouchSensor` with `delay: 250` handles touch alone.
+
+Drag handles use `touchAction: "pan-y"`, **not `"none"`**. The handle covers the
+whole cell, so `none` blocks vertical scrolling anywhere the finger lands on an
+item — which is the entire grid.
 
 ### Inventory: item order and sort
 
@@ -389,10 +442,11 @@ All visual effects during combat live in `AbilityEffect.tsx` (SVG-based, rendere
 - `useAbility2=true` → ability 2
 - `detonation=true` → detonation effect (assassin trap only)
 
-**Basic attack animation system:** `ATTACK_EFFECT_CLASSES` (exported `Set<ClassId>`) controls which classes show an attack animation. `CombatScreen` imports and checks it — adding a new class requires only editing `AbilityEffect.tsx`:
+**Basic attack animation system:** `ATTACK_EFFECT_CLASSES` (exported `Set<ClassId>`) controls which classes show an attack animation — currently `amazon`, `paladin`, `barbarian`. `CombatScreen` imports and checks it — adding a new class requires only editing `AbilityEffect.tsx`:
 1. Add classId to `ATTACK_EFFECT_CLASSES`
 2. Add `{classId === "newclass" && useAttack && <NewClassFx />}` in the render
-3. Write the component + CSS keyframes
+3. **Add `&& !useAttack` to that class's existing ability-1 render line** — ability 1 is gated on `!useAbility2` alone, so without this the ability animation also fires on every basic attack
+4. Write the component + CSS keyframes
 
 **SVG coordinate system:** All animations use a `200×120` viewBox. Player sprite center: `cx=32`. Monster sprite center: `cx=168`. Travel distance = 136 SVG units (168−32). CSS variable `--travel-dist: 136px` is set on the SVG element; keyframes use `var(--travel-dist, 136px)` for translateX.
 

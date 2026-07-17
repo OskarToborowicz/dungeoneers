@@ -96,18 +96,34 @@ const CLASS_SPRITES: Record<ClassId, ClassSpriteModule> = {
   monk,
 };
 
-function getAnimate(state: SpriteState, scale: number) {
+/** Ranged and caster classes get knocked back by their own shot instead of
+ *  hopping forward — they never close the distance. Sprites face right, so
+ *  "backwards" is negative x. */
+const RECOIL_ATTACK_CLASSES = new Set<ClassId>([
+  "amazon",
+  "sorceress",
+  "necromancer",
+]);
+
+function getAnimate(state: SpriteState, scale: number, classId: ClassId) {
   if (state === "idle") return { y: [0, -5 * scale, 0] };
-  if (state === "attack") return { y: [0, -12 * scale, 5 * scale, 0] };
+  if (state === "attack")
+    return RECOIL_ATTACK_CLASSES.has(classId)
+      ? { x: [0, -8 * scale, 0] }
+      : { y: [0, -12 * scale, 5 * scale, 0] };
   if (state === "hit")
     return { x: [0, -10 * scale, 10 * scale, -6 * scale, 6 * scale, 0] };
   return { y: 28 * scale, opacity: 0.25 };
 }
 
-function getTransition(state: SpriteState) {
+function getTransition(state: SpriteState, classId: ClassId) {
   if (state === "idle")
     return { duration: 2.4, repeat: Infinity, ease: "easeInOut" as const };
-  if (state === "attack") return { duration: 0.4 };
+  if (state === "attack")
+    return RECOIL_ATTACK_CLASSES.has(classId)
+      ? // snap back fast, drift forward slowly — reads as absorbing the shot
+        { duration: 0.4, times: [0, 0.18, 1], ease: "easeOut" as const }
+      : { duration: 0.4 };
   if (state === "hit") return { duration: 0.38 };
   return { duration: 0.55, ease: "easeIn" as const };
 }
@@ -224,8 +240,8 @@ export function CharacterSprite({
   return (
     <motion.div
       key={animKey}
-      animate={getAnimate(state, scale)}
-      transition={getTransition(state)}
+      animate={getAnimate(state, scale, classId)}
+      transition={getTransition(state, classId)}
       style={{ display: "inline-block" }}
     >
       {svg}

@@ -11,7 +11,11 @@ interface Props {
   travelDist?: number;
 }
 
-export const ATTACK_EFFECT_CLASSES = new Set<ClassId>(["amazon", "paladin"]);
+export const ATTACK_EFFECT_CLASSES = new Set<ClassId>([
+  "amazon",
+  "paladin",
+  "barbarian",
+]);
 
 export function AbilityEffect({
   classId,
@@ -34,7 +38,10 @@ export function AbilityEffect({
         overflow="visible"
         style={{ "--travel-dist": `${travelDist}px` } as React.CSSProperties}
       >
-        {classId === "barbarian" && !useAbility2 && <BloodFuryFx />}
+        {classId === "barbarian" && useAttack && <BarbarianCleaveFx />}
+        {classId === "barbarian" && !useAbility2 && !useAttack && (
+          <BloodFuryFx />
+        )}
         {classId === "barbarian" && useAbility2 && <WhirlwindFx />}
         {classId === "necromancer" && !useAbility2 && <PoisonCloudFx />}
         {classId === "necromancer" && useAbility2 && <GolemRollInFx />}
@@ -53,6 +60,52 @@ export function AbilityEffect({
         {classId === "assassin" && useAbility2 && <VanishFx />}
       </svg>
     </div>
+  );
+}
+
+function BarbarianCleaveFx() {
+  return (
+    <g>
+      <defs>
+        <filter id="ae-barb-glow" x="-200%" y="-3%" width="500%" height="106%">
+          <feGaussianBlur in="SourceGraphic" stdDeviation="3.5" />
+        </filter>
+      </defs>
+      {/* blurred outer smear */}
+      <path
+        d="M 56 14 Q 76 60 32 106"
+        fill="none"
+        stroke="#e04020"
+        strokeWidth="9"
+        strokeLinecap="round"
+        filter="url(#ae-barb-glow)"
+        strokeDasharray="130"
+        strokeDashoffset="130"
+        className="ae-b-trail"
+      />
+      {/* mid arc */}
+      <path
+        d="M 56 14 Q 76 60 32 106"
+        fill="none"
+        stroke="#ff7a3c"
+        strokeWidth="3"
+        strokeLinecap="round"
+        strokeDasharray="130"
+        strokeDashoffset="130"
+        className="ae-b-trail"
+      />
+      {/* bright leading edge */}
+      <path
+        d="M 56 14 Q 76 60 32 106"
+        fill="none"
+        stroke="#ffe6cc"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeDasharray="24 140"
+        strokeDashoffset="0"
+        className="ae-b-tip"
+      />
+    </g>
   );
 }
 

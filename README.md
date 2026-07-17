@@ -248,6 +248,8 @@ After using an ability, its cooldown counter is set. It decrements by 1 at the e
 
 Potions share an individual cooldown per type. After drinking a Health or Mana Potion, that specific potion type cannot be used for **3 turns**. Both types count down independently. The remaining cooldown is shown on the button.
 
+Drinking does not play an attack animation — the sprite stays put and bubbles rise from above it instead: **red for Health, blue for Mana**.
+
 ### Poison (Necromancer)
 
 When Poison Cloud hits, the target is poisoned for 3 rounds. Each round the poison ticks at the **start of the monster's turn** (after the player acts, before the monster attacks). Poison damage is fixed at cast time:
@@ -267,7 +269,7 @@ Vanish hurls a metal powder burst for `0.75×` weapon damage, then grants immuni
 
 ### Status Effects
 
-Active status effects are shown as colored pills below each combatant's HP bar and as a pulsing aura on the player sprite.
+Active status effects are shown as colored pills below each combatant's HP bar, and on the sprites themselves. **Both the player and the monster** show the same visuals: poison as rising green bubbles, burn as a flickering orange aura. Both draw on top of the model.
 
 **On the monster:**
 
@@ -302,6 +304,27 @@ Poison and Burn applied to the player tick at the start of the monster's turn. D
 ```
 round(spellDmg × 0.4)  ×  3 rounds
 ```
+
+### Sprite Motion
+
+When the player acts, their sprite reacts. Melee classes lunge forward with a hop; ranged and caster classes are pushed **backwards** by their own shot instead, since they never close the distance. The recoil applies to both basic attacks and abilities.
+
+| Class | Reaction on attack / ability |
+|---|---|
+| Huntress, Sorceress, Necromancer | Recoil backwards, snapping back fast and drifting forward slowly |
+| Barbarian, Paladin, Druid, Assassin, Monk | Forward hop |
+
+Taking a hit shakes the sprite horizontally; death drops and fades it.
+
+### Basic Attack Animations
+
+Most classes show only the sprite reaction on a basic attack. Three have a dedicated SVG effect:
+
+| Class | Basic attack animation |
+|---|---|
+| Barbarian | Heavy axe cleave — a thick orange-red arc sweeping down, slower than the paladin's slash |
+| Huntress | Single green arrow flying toward the enemy |
+| Paladin | Gold sword slash with a blurred light trail |
 
 ### Ability Animations
 
