@@ -12,6 +12,16 @@ Build check: `npx tsc -b --force` — NOT `npx tsc --noEmit` at the root. The ro
 errors in `src/`. Only `-b` (build mode) actually follows the references to
 `tsconfig.app.json` / `tsconfig.node.json` and type-checks the project.
 
+Balance sim: `npm run sim` (`scripts/balance-sim.mts`, run via `tsx`). Headless —
+plays any class through the real combat engine (`resolveRound`) across the whole
+dungeon table, many trials each, reports clear-rate + avg ending life per dungeon.
+Flags: `--class=<id|all>`, `--gear=start|rare` (rare = 3-affix rares at ilvl =
+boss level), `--act=1..4|all`, `--runs=N`, `--verbose`. The AI is a per-class
+heuristic (emergency potion → situational ability2 → main ability → attack), not
+optimal play — trust *relative* comparisons more than absolute clear-rates, since
+a weak class could reflect a weak policy rather than weak tuning. Sustain classes
+(Paladin, Monk) fire their healing regardless of policy, so their edge is real.
+
 ---
 
 ## Architecture
