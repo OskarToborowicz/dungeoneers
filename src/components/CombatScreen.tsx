@@ -32,6 +32,12 @@ import { AbilityEffect, ATTACK_EFFECT_CLASSES } from "./AbilityEffect";
 import { MonsterSpellEffect } from "./MonsterSpellEffect";
 import { PotionIcon } from "./PotionIcon";
 
+// The log is a scrolling box that only ever shows the tail. Keeping every entry
+// from a long fight grew the rendered node count without bound — each render
+// re-mapped the whole array and the scroll-to-bottom effect reflowed it — which
+// is why frames got heavier the longer combat ran. Cap to the recent tail.
+const MAX_LOG = 60;
+
 interface Props {
   character: Character;
   derived: DerivedStats;
@@ -207,7 +213,7 @@ export function CombatScreen({
       )
         setAttackEffect((n) => n + 1);
       setBattle(result.state);
-      setLog((prev) => [...prev, ...result.log]);
+      setLog((prev) => [...prev, ...result.log].slice(-MAX_LOG));
       setStatus(result.status);
       setTotalDamageDealt((d) => d + result.damageDealt);
       setReward({
@@ -230,7 +236,7 @@ export function CombatScreen({
       )
         setAttackEffect((n) => n + 1);
       setBattle(result.state);
-      setLog((prev) => [...prev, ...result.log]);
+      setLog((prev) => [...prev, ...result.log].slice(-MAX_LOG));
       setStatus(result.status);
       setTotalDamageDealt((d) => d + result.damageDealt);
       if (!isPotion) setPlayerAnim("attack");
@@ -278,7 +284,7 @@ export function CombatScreen({
 
       setTimeout(() => {
         setPlayerAnim("idle");
-        setLog((prev) => [...prev, ...playerEntries]);
+        setLog((prev) => [...prev, ...playerEntries].slice(-MAX_LOG));
         const monsterAttacked = monsterEntries.length > 0;
         if (monsterAttacked) {
           setMonsterAnim("attack");
@@ -296,7 +302,7 @@ export function CombatScreen({
           setTimeout(() => {
             setMonsterAnim("idle");
             setBattle(result.state);
-            setLog((prev) => [...prev, ...monsterEntries]);
+            setLog((prev) => [...prev, ...monsterEntries].slice(-MAX_LOG));
             setStatus(result.status);
             setTotalDamageDealt((d) => d + result.damageDealt);
             setIsAnimating(false);

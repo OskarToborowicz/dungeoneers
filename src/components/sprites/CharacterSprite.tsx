@@ -106,7 +106,7 @@ const RECOIL_ATTACK_CLASSES = new Set<ClassId>([
 ]);
 
 function getAnimate(state: SpriteState, scale: number, classId: ClassId) {
-  if (state === "idle") return { y: [0, -5 * scale, 0] };
+  if (state === "idle") return { x: 0, y: 0 };
   if (state === "attack")
     return RECOIL_ATTACK_CLASSES.has(classId)
       ? { x: [0, -8 * scale, 0] }
@@ -117,8 +117,7 @@ function getAnimate(state: SpriteState, scale: number, classId: ClassId) {
 }
 
 function getTransition(state: SpriteState, classId: ClassId) {
-  if (state === "idle")
-    return { duration: 2.4, repeat: Infinity, ease: "easeInOut" as const };
+  if (state === "idle") return { duration: 0 };
   if (state === "attack")
     return RECOIL_ATTACK_CLASSES.has(classId)
       ? // snap back fast, drift forward slowly — reads as absorbing the shot
