@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import type { ReactNode } from "react";
 import type { SpriteState } from "./CharacterSprite";
 import { MONSTER_ASSETS, MONSTER_IMG } from "./monsterAssets";
@@ -6753,6 +6753,8 @@ export function MonsterSprite({
   const height = Math.round(size * 1.5);
   // Silhouette file if one exists for this type, otherwise the inline paths.
   const assetUrl = MONSTER_ASSETS[type];
+  const uid = useId();
+  const glowId = `${uid}-mglow`;
 
   return (
     <svg
@@ -6762,6 +6764,17 @@ export function MonsterSprite({
       overflow="visible"
       style={{ display: "block", transform: "scaleX(-1)" }}
     >
+      {/* SVG feDropShadow, not CSS filter: drop-shadow — iOS Safari renders the
+          CSS form unreliably on a <g> wrapping an <image>. This is the same
+          mechanism the hero glow uses (CharacterSprite GlowFilterDef), which
+          works on mobile. Stacked passes compound into a stronger halo. */}
+      <defs>
+        <filter id={glowId} x="-150%" y="-150%" width="400%" height="400%">
+          <feDropShadow dx="0" dy="0" stdDeviation="3.5" floodColor={color} floodOpacity="1" />
+          <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor={color} floodOpacity="1" />
+          <feDropShadow dx="0" dy="0" stdDeviation="0.8" floodColor={color} floodOpacity="1" />
+        </filter>
+      </defs>
       <motion.g
         key={animKey}
         animate={getAnimate(state, type)}
@@ -6771,12 +6784,7 @@ export function MonsterSprite({
         strokeWidth="1.8"
         strokeLinejoin="round"
         strokeLinecap="round"
-        // Layers compound: each drop-shadow re-blurs the previous result, so
-        // adding tight passes thickens and saturates the halo rather than
-        // sharpening it. Drop a pass to tone the glow down.
-        style={{
-          filter: `drop-shadow(0 0 7px ${color}) drop-shadow(0 0 3px ${color}) drop-shadow(0 0 2px ${color}) drop-shadow(0 0 1px ${color})`,
-        }}
+        filter={`url(#${glowId})`}
       >
         {assetUrl ? (
           <image href={assetUrl} {...MONSTER_IMG} />
