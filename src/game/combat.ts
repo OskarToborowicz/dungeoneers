@@ -42,6 +42,9 @@ export interface BattleState {
   preparation: number; // Assassin: 0–3 charges, gained on basic attack, spent by abilities
   vanishRounds: number; // Assassin Vanish: turns of 55% damage reduction remaining
   shadowBondAutoBonus: boolean; // Assassin Shadow Bond (lv.35): next basic attack deals +50%
+  bonechillTurns: number; // Bonechill scythe: remaining turns of doubled Soul Siphon
+  ebonreapCounter: number; // Ebonreap scythe: basic attack counter (proc at 3)
+  openerBonusUsed: boolean; // Soulvoid Girdle: first ability use bonus already fired
 }
 
 export type PlayerActionKind =
@@ -99,7 +102,6 @@ const SORCERESS_MANA_REGEN_RATE = 0.1; // 10% mana per turn via Arcane Flow (lv.
 const PALADIN_DAMAGE_TAKEN_HEAL = 0.15; // Divine Retribution: 15% of damage taken → life
 
 // Necromancer
-const NECROMANCER_SOUL_SIPHON = 0.15; // 15% of all magic damage dealt → life
 const NECROMANCER_VIRULENCE_MULT = 1.25; // DoT ticks deal 25% more damage (lv.20)
 
 // Assassin
@@ -196,6 +198,9 @@ export function createBattleState(
     preparation: startingPreparation,
     vanishRounds: 0,
     shadowBondAutoBonus: false,
+    bonechillTurns: 3,
+    ebonreapCounter: 0,
+    openerBonusUsed: false,
   };
 }
 
@@ -417,24 +422,24 @@ export function resolveRound(
   let preparation = state.preparation;
   let vanishRounds = state.vanishRounds;
   let shadowBondAutoBonus = state.shadowBondAutoBonus;
+  let bonechillTurns = state.bonechillTurns ?? 3;
+  let ebonreapCounter = state.ebonreapCounter ?? 0;
+  let openerBonusUsed = state.openerBonusUsed ?? false;
   let absorbShield = 0; // Resets every round — overheal from last turn does not carry over
   let burnStacks = state.burnStacks.map((s) => ({ ...s }));
   let serenityBlindThisTurn = false;
+  // Snapshot whether the monster is afflicted at the start of this turn (Forsaken Sigil)
+  const hasDoT = poisonRounds > 0 || burnStacks.length > 0;
 
   // Multipliers computed once per round from current state
   const electrocuteMult = electrocuteRounds > 0 ? 1.2 : 1.0;
-  // Deathwhisper (Assassin unique): +30% all damage while enemy is blinded or disoriented
-  const deathwhisperMult =
-    stats.deathwhisperBoost && (blindRounds > 0 || disorientRounds > 0)
-      ? 1.3
-      : 1.0;
   // Heartseeker follow-up arrow: 50% of crit damage, or 70% with Doomcrier equipped
   const heartseekerMult = stats.heartseekerBoost ? 0.7 : 0.5;
   let damageDealt = 0;
   let trapDetonated = false;
   // The Pentagram: +100 damage but only when below 30% life
   const lowLifeMult =
-    stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.3
+    stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.4
       ? 1 + stats.lowLifeDamageBonus
       : 1.0;
 
@@ -459,7 +464,7 @@ export function resolveRound(
   // Demon's Tail belt: every direct hit pushes an independent burn stack (30% of hit, 2 turns).
   const tryIgnite = (dmg: number, source = "Demon's Tail") => {
     if (stats.igniteChance > 0 && dmg > 0 && monsterLife > 0) {
-      const igniteDmg = Math.round(dmg * 0.3);
+      const igniteDmg = Math.round(dmg * 0.25);
       burnStacks.push({ rounds: 2, damage: igniteDmg, source });
       log.push({
         actor: "player",
@@ -500,8 +505,7 @@ export function resolveRound(
       let dmg = Math.round(
         randomInRange(stats.damage) *
           damageMult *
-          electrocuteMult *
-          deathwhisperMult,
+          electrocuteMult,
       );
       if (isCrit) dmg = Math.round(dmg * critMultiplier);
       monsterLife -= dmg;
@@ -555,6 +559,17 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
       tryIgnite(basicHitDmg);
+      // Bloodfist: critical hits restore 5% of max life
+      if (basicHitCrit && stats.critHealPct > 0) {
+        const critHeal = Math.round(stats.maxLife * stats.critHealPct);
+        applyHeal(critHeal);
+        log.push({
+          actor: "player",
+          message: `Bloodfist restores ${critHeal} life!`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+      }
     } else {
       log.push({
         actor: "player",
@@ -675,6 +690,68 @@ export function resolveRound(
       });
     }
 
+    // Ebonreap scythe: every 3rd basic attack hit fires a spectral strike (80% weapon dmg, magic)
+    if (stats.ebonreapActive && basicHitDmg > 0 && monsterLife > 0) {
+      ebonreapCounter += 1;
+      if (ebonreapCounter >= 3) {
+        ebonreapCounter = 0;
+        const spectralDmg = Math.max(
+          1,
+          Math.round(randomInRange(stats.damage) * 0.8 * stats.magicDamageMult),
+        );
+        monsterLife -= spectralDmg;
+        damageDealt += spectralDmg;
+        log.push({
+          actor: "player",
+          message: `Ebonreap — a spectral scythe sweeps for ${spectralDmg} magic damage!`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+      }
+    }
+
+    // On-hit procs (Sword of the Elements): each rolls independently after the main hit
+    if (basicHitDmg > 0 && monsterLife > 0) {
+      if (stats.freezeOnHitChance > 0 && Math.random() < stats.freezeOnHitChance / 100) {
+        frozenRounds = 2;
+        log.push({
+          actor: "player",
+          message: `Sword of the Elements freezes ${monster.name} for 2 turns!`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+      }
+      if (stats.igniteOnHitChance > 0 && Math.random() < stats.igniteOnHitChance / 100) {
+        const igDmg = Math.round(basicHitDmg * 0.3);
+        burnStacks.push({ rounds: 2, damage: igDmg, source: "Sword of the Elements" });
+        log.push({
+          actor: "player",
+          message: `Sword of the Elements ignites for ${igDmg} fire damage per turn!`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+      }
+      if (stats.poisonOnHitChance > 0 && Math.random() < stats.poisonOnHitChance / 100) {
+        poisonRounds = 2;
+        poisonDamage = Math.round(basicHitDmg * 0.3);
+        log.push({
+          actor: "player",
+          message: `Sword of the Elements poisons for ${poisonDamage} damage per turn!`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+      }
+      if (stats.shockOnHitChance > 0 && Math.random() < stats.shockOnHitChance / 100) {
+        electrocuteRounds = 2;
+        log.push({
+          actor: "player",
+          message: `Sword of the Elements electrocutes ${monster.name}! Enemy takes 20% more damage for 2 turns.`,
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+      }
+    }
+
     // Double Swing (Barbarian passive): 25% base chance, +25% during Blood Fury
     const doubleSwingChance =
       BARBARIAN_DOUBLE_SWING_CHANCE +
@@ -757,12 +834,11 @@ export function resolveRound(
   };
 
   // ── Step 1: Player action ────────────────────────────────────────────────────
+  const useAbility =
+    action === "ability" &&
+    playerMana >= def.ability.manaCost &&
+    abilityCooldown <= 0;
   if (monsterLife > 0) {
-    const useAbility =
-      action === "ability" &&
-      playerMana >= def.ability.manaCost &&
-      abilityCooldown <= 0;
-
     if (useAbility) {
       playerMana -= def.ability.manaCost;
       abilityCooldown = def.ability.cooldown;
@@ -803,7 +879,6 @@ export function resolveRound(
           ) *
             lowLifeMult *
             electrocuteMult *
-            deathwhisperMult *
             arcanistMult,
         );
         if (isCrit) dmg = Math.round(dmg * critMultiplier);
@@ -851,8 +926,7 @@ export function resolveRound(
         let dmg = Math.round(
           rollAbilityDamage(stats, 0.4, def.ability.magic) *
             lowLifeMult *
-            electrocuteMult *
-            deathwhisperMult,
+            electrocuteMult,
         );
         if (isCrit) dmg = Math.round(dmg * critMultiplier);
         monsterLife -= dmg;
@@ -867,9 +941,10 @@ export function resolveRound(
             stats.poisonDamageMult *
             virulenceMult,
         );
+        const siphonPct = stats.soulSiphonPct * (stats.bonechillActive && bonechillTurns > 0 ? 2 : 1);
         const siphonHitHeal =
           character.classId === "necromancer"
-            ? Math.round(dmg * NECROMANCER_SOUL_SIPHON)
+            ? Math.round(dmg * siphonPct)
             : 0;
         if (siphonHitHeal > 0) {
           applyHeal(siphonHitHeal);
@@ -887,15 +962,14 @@ export function resolveRound(
         // ── Multishot (Huntress) ────────────────────────────────────────────────
         // Multiple independent hits; each can crit and trigger Heartseeker.
       } else if (def.ability.kind === "multi") {
-        const hitCount = def.ability.hits ?? 3;
+        const hitCount = (character.classId === "monk" && stats.stormfistActive) ? 4 : (def.ability.hits ?? 3);
         for (let i = 0; i < hitCount; i++) {
           if (monsterLife <= 0) break;
 
           let hitDmg = Math.round(
             rollAbilityDamage(stats, def.ability.power, def.ability.magic) *
               lowLifeMult *
-              electrocuteMult *
-              deathwhisperMult,
+              electrocuteMult,
           );
           const isHitCrit = Math.random() < critChance;
           if (isHitCrit) hitDmg = Math.round(hitDmg * critMultiplier);
@@ -971,8 +1045,7 @@ export function resolveRound(
             def.ability.magicPower ?? 1,
           ) *
             lowLifeMult *
-            electrocuteMult *
-            deathwhisperMult,
+            electrocuteMult,
         );
         if (isCrit) dmg = Math.round(dmg * critMultiplier);
         const healAmt = Math.round(dmg * 0.35);
@@ -997,8 +1070,7 @@ export function resolveRound(
         const dmg = Math.round(
           (baseDmg + dexBonus) *
             lowLifeMult *
-            electrocuteMult *
-            deathwhisperMult,
+            electrocuteMult,
         );
         const healAmt = Math.round(dmg * 0.15);
         monsterLife -= dmg;
@@ -1029,7 +1101,7 @@ export function resolveRound(
           const power = 1.0 + 0.5 * prepSpent;
           const isCrit = Math.random() < critChance;
           let dmg = Math.round(
-            randomInRange(stats.damage) * power * electrocuteMult * deathwhisperMult * lowLifeMult,
+            randomInRange(stats.damage) * power * electrocuteMult * lowLifeMult,
           );
           if (isCrit) dmg = Math.round(dmg * critMultiplier);
           monsterLife -= dmg;
@@ -1093,8 +1165,7 @@ export function resolveRound(
           let dmg = Math.round(
             (baseDmg + dexBonus) *
               lowLifeMult *
-              electrocuteMult *
-              deathwhisperMult,
+              electrocuteMult,
           );
           if (isCrit) dmg = Math.round(dmg * critMultiplier);
           monsterLife -= dmg;
@@ -1136,8 +1207,7 @@ export function resolveRound(
             power *
             madnessMult *
             lowLifeMult *
-            electrocuteMult *
-            deathwhisperMult,
+            electrocuteMult,
         );
         if (isCrit) dmg = Math.round(dmg * critMultiplier);
         monsterLife -= dmg;
@@ -1170,7 +1240,7 @@ export function resolveRound(
         playerBurnRounds = 0;
         // Powder burst: 0.75× weapon damage
         const baseDmg = randomInRange(stats.damage);
-        let burstDmg = Math.round(baseDmg * def.ability2.power * electrocuteMult * deathwhisperMult);
+        let burstDmg = Math.round(baseDmg * def.ability2.power * electrocuteMult);
         const isCrit = Math.random() < critChance;
         if (isCrit) burstDmg = Math.round(burstDmg * critMultiplier);
         monsterLife -= burstDmg;
@@ -1303,6 +1373,37 @@ export function resolveRound(
     }
   }
 
+  // Soulvoid Girdle: first ability use each combat deals 20% increased damage
+  if (useAbility && stats.openerDamageBonus > 0 && !openerBonusUsed && monsterLife > 0 && damageDealt > 0) {
+    const bonus = Math.round(damageDealt * stats.openerDamageBonus);
+    if (bonus > 0) {
+      monsterLife -= bonus;
+      damageDealt += bonus;
+      log.push({
+        actor: "player",
+        message: `Soulvoid Girdle amplifies the strike — ${bonus} bonus damage!`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    }
+    openerBonusUsed = true;
+  }
+
+  // Forsaken Sigil: +15% damage against poisoned or burning enemies
+  if (stats.dotVictimBonus > 0 && hasDoT && damageDealt > 0 && monsterLife > 0) {
+    const bonus = Math.round(damageDealt * stats.dotVictimBonus);
+    if (bonus > 0) {
+      monsterLife -= bonus;
+      damageDealt += bonus;
+      log.push({
+        actor: "player",
+        message: `Forsaken Sigil strikes the afflicted for ${bonus} bonus damage!`,
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    }
+  }
+
   // ── Step 2: Post-action cooldowns & buff tick-downs ──────────────────────────
   if (abilityCooldown > 0) abilityCooldown -= 1;
   if (ability2Cooldown > 0) ability2Cooldown -= 1;
@@ -1311,6 +1412,9 @@ export function resolveRound(
 
   // Blood Fury duration
   if (bloodFuryRounds > 0) bloodFuryRounds -= 1;
+
+  // Bonechill scythe: doubled Soul Siphon fades after 3 turns
+  if (bonechillTurns > 0) bonechillTurns -= 1;
 
   // Electrocute duration (Stormstring)
   if (electrocuteRounds > 0) electrocuteRounds -= 1;
@@ -1390,6 +1494,9 @@ export function resolveRound(
       preparation,
       vanishRounds,
       shadowBondAutoBonus,
+      bonechillTurns,
+      ebonreapCounter,
+      openerBonusUsed,
     };
   }
 
@@ -1432,9 +1539,10 @@ export function resolveRound(
     monsterLife -= poisonDamage;
     damageDealt += poisonDamage;
     poisonRounds -= 1;
+    const tickSiphonPct = stats.soulSiphonPct * (stats.bonechillActive && bonechillTurns > 0 ? 2 : 1);
     const necroHeal =
       character.classId === "necromancer"
-        ? Math.round(poisonDamage * NECROMANCER_SOUL_SIPHON)
+        ? Math.round(poisonDamage * tickSiphonPct)
         : 0;
     if (necroHeal > 0) {
       applyHeal(necroHeal);
@@ -1550,7 +1658,8 @@ export function resolveRound(
             (disorientRounds > 0 ? 0.75 : 1.0),
         );
 
-        // Damage reduction order: Frost Shield → Golem redirect → Fade → Iron Skin → gear reduction
+        // Damage reduction order: Ironclad flat → Frost Shield → Golem redirect → Blur → Iron Skin → gear reduction
+        if (stats.ironcladFlat > 0) spellDmg = Math.max(0, spellDmg - stats.ironcladFlat);
         if (frostShieldRounds > 0)
           spellDmg = Math.max(1, Math.round(spellDmg * 0.4));
         // Golem Defense: 30% of spell damage is dealt back to the monster; player takes 70%
@@ -1640,6 +1749,16 @@ export function resolveRound(
             monsterLife: Math.max(0, monsterLife),
           });
         }
+        // Voidgaze: 15% chance to disorient attacker when taking spell damage
+        if (stats.disorientOnHitChance > 0 && monsterLife > 0 && Math.random() < stats.disorientOnHitChance / 100) {
+          disorientRounds = 2;
+          log.push({
+            actor: "player",
+            message: `Voidgaze disorients ${monster.name}!`,
+            playerLife: Math.max(0, playerLife),
+            monsterLife: Math.max(0, monsterLife),
+          });
+        }
       } // end !amazonDodgedSpell
     } else {
       // Normal monster attack
@@ -1667,6 +1786,9 @@ export function resolveRound(
         );
         if (isMonsterCrit) dmg = Math.round(dmg * 1.75);
 
+        // Ironclad Hauberk: flat 5 damage reduction before all other reductions
+        if (stats.ironcladFlat > 0) dmg = Math.max(0, dmg - stats.ironcladFlat);
+
         // Thick Hide (Druid): reduces all physical damage by Dex × 0.2%, capped at 25%
         if (character.classId === "druid") {
           const reduction = Math.min(0.25, stats.stats.dexterity * 0.002);
@@ -1689,6 +1811,9 @@ export function resolveRound(
             1,
             Math.round(dmg * (1 - stats.physDmgReduction / 100)),
           );
+        const bastionsActive = stats.lowLifePhysDmgReduction > 0 && playerLife < stats.maxLife * 0.5;
+        if (bastionsActive)
+          dmg = Math.max(1, Math.round(dmg * (1 - stats.lowLifePhysDmgReduction / 100)));
         if (frostShieldRounds > 0) dmg = Math.max(1, Math.round(dmg * 0.4));
         // Aegis of the Fortress: 15% chance to fully block the hit
         const aegisBlocked =
@@ -1701,6 +1826,13 @@ export function resolveRound(
           stats.blockChance > 0 &&
           Math.random() < stats.blockChance / 100;
         if (boneweaveBlocked) dmg = 1;
+        // Penitent's Guard: 12% chance to block the hit entirely
+        const penitentsBlocked =
+          !aegisBlocked &&
+          !boneweaveBlocked &&
+          stats.shieldBlockChance > 0 &&
+          Math.random() < stats.shieldBlockChance / 100;
+        if (penitentsBlocked) dmg = 0;
         // Golem Defense: 30% of physical damage reflected; player takes 70%
         if (golemRounds > 0) {
           const reflected = Math.round(dmg * 0.3);
@@ -1730,7 +1862,9 @@ export function resolveRound(
         if (golemRounds > 0) message += " Stone Golem reflects 30% back!";
         if (aegisBlocked) message = `${monster.name} attacks — Aegis of the Fortress blocks the blow entirely!`;
         if (boneweaveBlocked) message += " Boneweave Gloves block the blow!";
+        if (penitentsBlocked) message = `${monster.name} attacks — Heaven's Wrath blocks the blow!`;
         if (normalVanished) message += " Vanish reduces damage by 55%.";
+        if (bastionsActive) message += " Bastion's Remnant absorbs 12%.";
 
         // Paladin passives
         if (character.classId === "paladin") {
@@ -1746,6 +1880,19 @@ export function resolveRound(
           damageDealt += reflectDmg;
           message += ` Thornback reflects ${reflectDmg} damage!`;
         }
+        // Heaven's Wrath: heal 8% max life on block
+        if (penitentsBlocked && stats.shieldBlockHealPct > 0) {
+          const blockHeal = Math.round(stats.maxLife * stats.shieldBlockHealPct);
+          applyHeal(blockHeal);
+          message += ` Heaven's Wrath restores ${blockHeal} life!`;
+        }
+        // Stoneguard: reflect 20% of physical damage back
+        if (stats.physReflectPct > 0 && dmg > 0) {
+          const reflectDmg = Math.round(dmg * stats.physReflectPct);
+          monsterLife -= reflectDmg;
+          damageDealt += reflectDmg;
+          message += ` Stoneguard reflects ${reflectDmg} damage!`;
+        }
 
         log.push({
           actor: "monster",
@@ -1753,6 +1900,28 @@ export function resolveRound(
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
+        // Heaven's Wrath: 18% chance to retaliate after taking damage
+        if (stats.counterOnHitChance > 0 && dmg > 0 && monsterLife > 0 && Math.random() < stats.counterOnHitChance) {
+          const retDmg = Math.round(randomInRange(stats.damage) * stats.magicDamageMult);
+          monsterLife -= retDmg;
+          damageDealt += retDmg;
+          log.push({
+            actor: "player",
+            message: `Penitent's Guard retaliates for ${retDmg} holy damage!`,
+            playerLife: Math.max(0, playerLife),
+            monsterLife: Math.max(0, monsterLife),
+          });
+        }
+        // Voidgaze: 15% chance to disorient attacker when taking physical damage
+        if (stats.disorientOnHitChance > 0 && dmg > 0 && monsterLife > 0 && Math.random() < stats.disorientOnHitChance / 100) {
+          disorientRounds = 2;
+          log.push({
+            actor: "player",
+            message: `Voidgaze disorients ${monster.name}!`,
+            playerLife: Math.max(0, playerLife),
+            monsterLife: Math.max(0, monsterLife),
+          });
+        }
       } else {
         log.push({
           actor: "monster",
@@ -1775,7 +1944,7 @@ export function resolveRound(
   ) {
     const isCrit = Math.random() < critChance;
     let counterDmg = Math.round(
-      randomInRange(stats.damage) * electrocuteMult * deathwhisperMult,
+      randomInRange(stats.damage) * electrocuteMult,
     );
     if (isCrit) counterDmg = Math.round(counterDmg * critMultiplier);
     monsterLife -= counterDmg;
@@ -1822,20 +1991,15 @@ export function resolveRound(
   // Detonates the frame trapRounds transitions from 1 → 0 (i.e. state.trapRounds > 0 but now 0).
   if (trapRounds === 0 && state.trapRounds > 0) {
     const trapLowLifeMult =
-      stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.3
+      stats.lowLifeDamageBonus > 0 && playerLife < stats.maxLife * 0.4
         ? 1 + stats.lowLifeDamageBonus
         : 1.0;
     const trapElectrocuteMult = electrocuteRounds > 0 ? 1.2 : 1.0;
-    const trapDeathwhisperMult =
-      stats.deathwhisperBoost && (blindRounds > 0 || disorientRounds > 0)
-        ? 1.3
-        : 1.0;
     const trapDmg = Math.round(
       stats.stats.dexterity *
         def.ability.power *
         trapLowLifeMult *
-        trapElectrocuteMult *
-        trapDeathwhisperMult,
+        trapElectrocuteMult,
     );
     const isCrit = Math.random() < critChance;
     const finalTrapDmg = isCrit

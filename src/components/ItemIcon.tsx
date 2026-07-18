@@ -7,7 +7,6 @@ function iconKind(item: Item): string {
     const name = item.name.toLowerCase();
     if (name.includes("axe")) return "axe";
     if (name.includes("scythe")) return "scythe";
-    if (name.includes("mace")) return "mace";
     if (name.includes("staff")) return "staff";
     if (name.includes("bow")) return "bow";
     if (name.includes("totem")) return "totem";
@@ -70,10 +69,11 @@ const ICONS: Record<string, ReactNode> = {
     </g>
   ),
   sword: (
-    <g fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line x1="10" y1="34" x2="30" y2="8" />
-      <line x1="12" y1="22" x2="20" y2="30" />
-      <circle cx="8" cy="36" r="2.5" fill="currentColor" stroke="none" />
+    <g strokeLinecap="round" strokeLinejoin="round">
+      <polygon points="12,30 15,32 35,5" fill="currentColor" stroke="currentColor" strokeWidth="0.5" />
+      <line x1="7" y1="37" x2="13" y2="31" stroke="currentColor" strokeWidth="2.5" fill="none" />
+      <line x1="9" y1="28" x2="17" y2="34" stroke="currentColor" strokeWidth="2.5" fill="none" />
+      <circle cx="6" cy="38" r="2.5" fill="currentColor" stroke="none" />
     </g>
   ),
   totem: (
@@ -131,83 +131,6 @@ const ICONS: Record<string, ReactNode> = {
     >
       <line x1="28" y1="38" x2="14" y2="8" />
       <polygon points="14,8 4,3 4,20 14,16" fill="currentColor" />
-    </g>
-  ),
-  mace: (
-    <g strokeLinecap="round">
-      <line
-        x1="9"
-        y1="36"
-        x2="19"
-        y2="26"
-        stroke="currentColor"
-        strokeWidth="2.5"
-        fill="none"
-      />
-      <circle
-        cx="26"
-        cy="15"
-        r="7"
-        fill="currentColor"
-        stroke="currentColor"
-        strokeWidth="1"
-      />
-      <line
-        x1="26"
-        y1="8"
-        x2="26"
-        y2="3"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <line
-        x1="33"
-        y1="15"
-        x2="38"
-        y2="15"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <line
-        x1="31"
-        y1="9"
-        x2="34"
-        y2="5"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <line
-        x1="21"
-        y1="9"
-        x2="18"
-        y2="5"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <line
-        x1="19"
-        y1="15"
-        x2="14"
-        y2="15"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <line
-        x1="21"
-        y1="21"
-        x2="18"
-        y2="25"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
-      <line
-        x1="31"
-        y1="21"
-        x2="34"
-        y2="25"
-        stroke="currentColor"
-        strokeWidth="2"
-      />
     </g>
   ),
   staff: (

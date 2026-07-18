@@ -44,6 +44,10 @@ export function getEquipmentStatBonus(
   physDmgReduction: number;
   critChanceBonus: number;
   critDamageBonus: number;
+  freezeOnHitBonus: number;
+  igniteOnHitBonus: number;
+  poisonOnHitBonus: number;
+  shockOnHitBonus: number;
   weaponDamage?: [number, number];
 } {
   const stats: BaseStats = {
@@ -63,6 +67,10 @@ export function getEquipmentStatBonus(
   let physDmgReduction = 0;
   let critChanceBonus = 0;
   let critDamageBonus = 0;
+  let freezeOnHitBonus = 0;
+  let igniteOnHitBonus = 0;
+  let poisonOnHitBonus = 0;
+  let shockOnHitBonus = 0;
   let weaponDamage: [number, number] | undefined;
 
   for (const item of Object.values(equipment)) {
@@ -90,6 +98,10 @@ export function getEquipmentStatBonus(
         physDmgReduction += affix.value;
       else if (affix.stat === "critChance") critChanceBonus += affix.value;
       else if (affix.stat === "critDamageBonus") critDamageBonus += affix.value;
+      else if (affix.stat === "freezeOnHit") freezeOnHitBonus += affix.value;
+      else if (affix.stat === "igniteOnHit") igniteOnHitBonus += affix.value;
+      else if (affix.stat === "poisonOnHit") poisonOnHitBonus += affix.value;
+      else if (affix.stat === "shockOnHit") shockOnHitBonus += affix.value;
       else stats[affix.stat] += affix.value;
     }
   }
@@ -114,6 +126,10 @@ export function getEquipmentStatBonus(
         physDmgReduction += affix.value;
       else if (affix.stat === "critChance") critChanceBonus += affix.value;
       else if (affix.stat === "critDamageBonus") critDamageBonus += affix.value;
+      else if (affix.stat === "freezeOnHit") freezeOnHitBonus += affix.value;
+      else if (affix.stat === "igniteOnHit") igniteOnHitBonus += affix.value;
+      else if (affix.stat === "poisonOnHit") poisonOnHitBonus += affix.value;
+      else if (affix.stat === "shockOnHit") shockOnHitBonus += affix.value;
       else stats[affix.stat] += affix.value;
     }
   }
@@ -131,6 +147,10 @@ export function getEquipmentStatBonus(
     physDmgReduction,
     critChanceBonus,
     critDamageBonus,
+    freezeOnHitBonus,
+    igniteOnHitBonus,
+    poisonOnHitBonus,
+    shockOnHitBonus,
     weaponDamage,
   };
 }
@@ -162,8 +182,25 @@ export interface DerivedStats {
   arcanistStaff: boolean;
   burstEchoChance: number;
   shadowfangProc: boolean;
-  deathwhisperBoost: boolean;
   spellbladesMask: boolean;
+  shieldBlockChance: number;
+  shieldBlockHealPct: number;
+  physReflectPct: number;
+  counterOnHitChance: number;
+  soulSiphonPct: number;
+  bonechillActive: boolean;
+  ebonreapActive: boolean;
+  stormfistActive: boolean;
+  ironcladFlat: number;
+  freezeOnHitChance: number;
+  igniteOnHitChance: number;
+  poisonOnHitChance: number;
+  shockOnHitChance: number;
+  disorientOnHitChance: number;
+  lowLifePhysDmgReduction: number;
+  critHealPct: number;
+  openerDamageBonus: number;
+  dotVictimBonus: number;
 }
 
 export function getDerivedStats(
@@ -219,7 +256,7 @@ export function getDerivedStats(
 
   const igniteChance = equipment.belt?.demonsTail ? 20 : 0;
   const disorientOnAttackChance = equipment.helm?.reapersHood ? 20 : 0;
-  const poisonDamageMult = equipment.belt?.venomweaveWrap ? 1.25 : 1.0;
+  const poisonDamageMult = equipment.belt?.venomweaveWrap ? 1.1 : 1.0;
   const thornReflect = equipment.armor?.thornback ? 0.1 : 0;
   const manaRegenMult =
     equipment.ring1?.eyeOfTheStorm || equipment.ring2?.eyeOfTheStorm
@@ -235,8 +272,27 @@ export function getDerivedStats(
   const shadowfangProc =
     equipment.weapon?.shadowfang === true ||
     equipment.shield?.shadowfang === true;
-  const deathwhisperBoost = equipment.weapon?.deathwhisper === true;
   const spellbladesMask = equipment.helm?.spellbladesMask === true;
+  const shieldBlockChance = equipment.shield?.heavensWrath ? 12 : 0;
+  const shieldBlockHealPct = equipment.shield?.heavensWrath ? 0.08 : 0;
+  const physReflectPct = equipment.shield?.stoneguard ? 0.2 : 0;
+  const counterOnHitChance = equipment.shield?.penitentsGuard ? 0.18 : 0;
+  const soulSiphonPct = equipment.weapon?.graveToll ? 0.2 : 0.15;
+  const bonechillActive = equipment.weapon?.bonechill === true;
+  const ebonreapActive = equipment.weapon?.ebonreap === true;
+  const stormfistActive = equipment.weapon?.stormfist === true;
+  const ironcladFlat = equipment.armor?.ironcladHauberk ? 5 : 0;
+  const freezeOnHitChance = equip.freezeOnHitBonus;
+  const igniteOnHitChance = equip.igniteOnHitBonus;
+  const poisonOnHitChance = equip.poisonOnHitBonus;
+  const shockOnHitChance = equip.shockOnHitBonus;
+  const disorientOnHitChance = equipment.helm?.voidgaze ? 15 : 0;
+  const lowLifePhysDmgReduction = equipment.armor?.bastionsRemnant ? 12 : 0;
+  const critHealPct = equipment.gloves?.bloodfist ? 0.05 : 0;
+  const openerDamageBonus = equipment.belt?.soulvoidGirdle
+    ? (equipment.belt.openerBonusPct ?? 20) / 100
+    : 0;
+  const dotVictimBonus = equipment.amulet?.forsakenSigil ? 0.15 : 0;
   return {
     stats,
     maxLife: maxLife + mindOverMatterBonus,
@@ -264,8 +320,25 @@ export function getDerivedStats(
     arcanistStaff,
     burstEchoChance,
     shadowfangProc,
-    deathwhisperBoost,
     spellbladesMask,
+    shieldBlockChance,
+    shieldBlockHealPct,
+    physReflectPct,
+    counterOnHitChance,
+    soulSiphonPct,
+    bonechillActive,
+    ebonreapActive,
+    stormfistActive,
+    ironcladFlat,
+    freezeOnHitChance,
+    igniteOnHitChance,
+    poisonOnHitChance,
+    shockOnHitChance,
+    disorientOnHitChance,
+    lowLifePhysDmgReduction,
+    critHealPct,
+    openerDamageBonus,
+    dotVictimBonus,
   };
 }
 
