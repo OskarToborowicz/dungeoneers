@@ -752,7 +752,6 @@ Unique items have fixed stats and are not generated through the normal rarity ro
 | The Arcanist | Weapon (Sorceress) | Bandit's Town Hall + Act II early bosses, Sorceress only | 0.1% | Base 9–18 dmg; +30–45 Magic Damage, +20–30 Energy, −15 Vitality; Frost Bolt deals +40% damage while Frost Shield is active |
 | Eternity's Edge | Weapon (Sorceress) | Act II late bosses, Sorceress only | 0.1% | Base 15–26 dmg; +55–75 Magic Damage, +40–55 Energy, +6% Crit Chance; 30% chance for Frost Bolt to echo at 50% power |
 | Shadowfang | Weapon (Assassin) | Bandit's Town Hall + Act II early bosses, Assassin only | 0.2% | Base 9–15 dmg; +30–45 Dexterity, +20–30 Damage, −15 Vitality; 20% chance after each hit to call a phantom strike at 50% damage |
-| Deathwhisper | Weapon (Assassin) | Act II late bosses, Assassin only | 0.2% | Base 15–23 dmg; +55–75 Dexterity, +35–50 Damage, +6% Crit Chance; all damage +30% while the enemy is under any negative status effect |
 
 ### Gheedon the Gambler
 
