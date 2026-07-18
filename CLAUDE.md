@@ -123,9 +123,9 @@ authoritative per-dungeon table** (monster levels + bosses for all four acts).
 5. Player DoT ticks (poison / burn)
 6. Monster burn stacks tick (`burnStacks[]` — each stack independent)
 
-### Burn stacks (`burnStacks`)
+### DoT stacks (`burnStacks`)
 
-`BattleState.burnStacks` is `{ rounds: number; damage: number; source: string }[]`. Each source of ignite pushes its own entry — they are completely independent. Every turn each active stack ticks, deals its damage, decrements rounds, then expired stacks are filtered out. The log message and badge both show the source name and remaining rounds. Currently only `Demon's Tail` calls `tryIgnite()`, but any future item or skill can pass a different `source` string.
+`BattleState.burnStacks` is `{ rounds: number; damage: number; source: string; kind: "burn" | "poison" | "bleed" }[]` — a **generic stacking-DoT system**, not just fire. Each source pushes its own independent entry. Every turn each active stack ticks, deals its damage, decrements rounds, then expired stacks are filtered out. The tick log verb and the status-pill icon/color derive from `kind` (burn 🔥 orange, poison ☠ green, bleed 🩸 red). Sources: `Demon's Tail` (burn, via `tryIgnite`), `Vine Whip` (bleed), `Nature's Wrath` (poison). `burnStacks` is transient (not serialized in the save), so the shape is safe to extend.
 
 **Log order rule:** ignite message always appears AFTER the attack/skill damage line that triggered it.
 
@@ -205,6 +205,20 @@ Heartseeker fires after crits from both basic attack and each Multishot arrow.
 
 **Color**: `#54E396`. **Weapon**: Katar (non-two-handed, monk only).
 
+### Druid abilities and passives (forest rework)
+
+**Vine Whip** (`kind: "vine_whip"`, ability 1): physical, can crit. `weaponDmg × 1.2 + Dex × 1.0`. **35%** chance on hit to apply a `bleed` DoT stack (15% of the hit/turn, 3 turns). Triggers Lifebloom.
+
+**Grove** (`kind: "bark_wall"`, `canMiss: false`, ability 2 — display name "Grove", internal id stays `bark_wall`/`barkWallRounds`): sets `barkWallRounds = 2`. While > 0, the **entire monster action is short-circuited** — an early branch in the monster-acts block logs "The Grove blocks…" and skips all attack/spell resolution, so no damage and no status gets through. Decrements in the Step 11 duration block next to `frostShieldRounds`. Can't recast while active. Rendered on the battlefield as a standing model (like the golem) gated on `barkWallRounds > 0` in `CombatScreen`.
+
+**Bramble** (passive, lv1): every basic attack does `thornStacks += 1`; at 3 it resets to 0 and erupts for `round(0.5 × vineWhipDamage())` pure physical (shares the `vineWhipDamage()` helper; `DRUID_VINE_WHIP_POWER` must match `ability.power` in classes.ts). `thornStacks` is a plain 0–3 counter, **not** a DoT.
+
+**Lifebloom** (passive2, lv20): direct hits (basic attack + Vine Whip) heal 8% of damage dealt. Explicitly **not** on DoT ticks.
+
+**Nature's Wrath** (passive3, lv35): every basic attack pushes an independent `poison` DoT stack (20% of the hit/turn, 3 turns) into `burnStacks`. Separate from Bramble.
+
+The druid hooks (Lifebloom, Bramble, Nature's Wrath) live in `doBasicAttack` after the landed-hit block, gated on `character.classId === "druid"`. **Thick Hide is gone** — its Dex-based physical reduction was removed from the monster-attack branch.
+
 ### Passive system in types
 
 `ClassDefinition` supports:
@@ -212,7 +226,7 @@ Heartseeker fires after crits from both basic attack and each Multishot arrow.
 - `passive2?: { levelRequirement: number }` — unlocks at given level
 - `passive3?: { levelRequirement: number }` — unlocks at given level
 
-Huntress, Necromancer, and Monk all use passive3. All classes can be extended to use it.
+Huntress, Necromancer, Monk, and Druid all use passive3. All classes can be extended to use it.
 
 ---
 

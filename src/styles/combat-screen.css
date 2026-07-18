@@ -184,6 +184,18 @@
   color: #ff8833;
 }
 
+.status-pill.bleed {
+  background: rgba(180, 30, 30, 0.18);
+  border: 1px solid #bb2222;
+  color: #ff5555;
+}
+
+.status-pill.bark-wall {
+  background: rgba(90, 70, 40, 0.28);
+  border: 1px solid #9c7a44;
+  color: #d8b878;
+}
+
 .status-pill.vanish {
   background: rgba(60, 60, 80, 0.35);
   border: 1px solid #8899bb;
@@ -756,6 +768,44 @@
 .poisoned {
   fill: #52d65b;
   animation: poisonBubble 1.5s infinite ease-in;
+}
+
+/* Bleed drops (Druid Vine Whip) — dripping blood while the bleed status is active */
+.bleed {
+  pointer-events: none;
+}
+.blood-drop {
+  fill: #8b0000;
+  opacity: 0;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+.bleeding .drop-1 {
+  animation: bleedDrop 0.7s ease-out infinite;
+}
+.bleeding .drop-2 {
+  animation: bleedDrop 0.7s ease-out 0.12s infinite;
+}
+.bleeding .drop-3 {
+  animation: bleedDrop 0.7s ease-out 0.24s infinite;
+}
+@keyframes bleedDrop {
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.6);
+  }
+  10% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(8px) scale(0.95, 1.25);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.8, 1.6);
+  }
 }
 
 .delay1 {

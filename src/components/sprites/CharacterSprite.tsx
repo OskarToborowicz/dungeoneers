@@ -19,7 +19,7 @@ interface Props {
   isUniqueWeapon?: boolean;
   isUniqueOffHand?: boolean;
 
-  statusEffects?: Array<"poison" | "burn">;
+  statusEffects?: Array<"poison" | "burn" | "bleed">;
   /** Idle/attack/hit/dead motion — only combat needs this in motion. */
   animated?: boolean;
 }
@@ -217,6 +217,13 @@ export function CharacterSprite({
           <circle cx="34" cy="48" r="2" className="poisoned delay1" />
           <circle cx="44" cy="58" r="3" className="poisoned delay2" />
         </>
+      )}
+      {statusEffects.includes("bleed") && (
+        <g className="bleed bleeding">
+          <ellipse className="blood-drop drop-1" cx="30" cy="60" rx="1.5" ry="2" />
+          <ellipse className="blood-drop drop-2" cx="34" cy="62" rx="1.4" ry="1.8" />
+          <ellipse className="blood-drop drop-3" cx="28" cy="64" rx="1.2" ry="1.6" />
+        </g>
       )}
     </svg>
   );

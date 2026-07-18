@@ -14,32 +14,68 @@
 
 /* Blood Fury – Barbarian */
 @keyframes ae-bloodfury-ring-expand {
-  0%   { opacity: 0; r: 4; }
-  20%  { opacity: 0.9; }
-  100% { opacity: 0; r: 40; }
+  0% {
+    opacity: 0;
+    r: 4;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    r: 40;
+  }
 }
 @keyframes ae-bloodfury-wave-out {
-  0%   { opacity: 0; transform: scaleX(0.2); }
-  25%  { opacity: 1; }
-  100% { opacity: 0; transform: scaleX(1); }
+  0% {
+    opacity: 0;
+    transform: scaleX(0.2);
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: scaleX(1);
+  }
 }
 @keyframes ae-bloodfury-core-pop {
-  0%   { opacity: 0; r: 2; }
-  25%  { opacity: 0.85; r: 16; }
-  65%  { opacity: 0.6; r: 14; }
-  100% { opacity: 0; r: 10; }
+  0% {
+    opacity: 0;
+    r: 2;
+  }
+  25% {
+    opacity: 0.85;
+    r: 16;
+  }
+  65% {
+    opacity: 0.6;
+    r: 14;
+  }
+  100% {
+    opacity: 0;
+    r: 10;
+  }
 }
 .ae-bloodfury-ring {
   animation: ae-bloodfury-ring-expand 0.6s ease-out forwards;
 }
-.ae-bf-r2 { animation-delay: 0.08s; }
+.ae-bf-r2 {
+  animation-delay: 0.08s;
+}
 .ae-bloodfury-wave {
   transform-origin: 46px 60px;
   animation: ae-bloodfury-wave-out 0.55s ease-out forwards;
 }
-.ae-bf-w1 { animation-delay: 0.1s; }
-.ae-bf-w2 { animation-delay: 0.18s; }
-.ae-bf-w3 { animation-delay: 0.26s; }
+.ae-bf-w1 {
+  animation-delay: 0.1s;
+}
+.ae-bf-w2 {
+  animation-delay: 0.18s;
+}
+.ae-bf-w3 {
+  animation-delay: 0.26s;
+}
 .ae-bloodfury-core {
   animation: ae-bloodfury-core-pop 0.5s ease-out forwards;
 }
@@ -147,6 +183,30 @@
 }
 .golem-field-body {
   animation: golem-field-pulse 1.4s ease-in-out infinite;
+}
+
+/* Druid Grove — standing summoned model on the player side, gated on barkWallRounds */
+.grove-on-field {
+  position: absolute;
+  left: 32%;
+  bottom: -20px;
+  z-index: 2;
+  filter: drop-shadow(0 0 6px #4a9d4a);
+  pointer-events: none;
+  animation: grove-fade-in 2s ease-out;
+}
+.grove-on-field svg {
+  width: 124px;
+  height: 170px;
+  overflow: visible;
+}
+@keyframes grove-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .golem-field-eye {
   animation: golem-eye-glow 1.4s ease-in-out infinite;
@@ -308,15 +368,34 @@
 
 /* Paladin basic attack — sword slash with blurred light trail */
 @keyframes ae-p-trail-kf {
-  0%   { stroke-dashoffset: 100; opacity: 0; }
-  5%   { opacity: 1; }
-  42%  { stroke-dashoffset: 0; }
-  100% { stroke-dashoffset: 0; opacity: 0; }
+  0% {
+    stroke-dashoffset: 100;
+    opacity: 0;
+  }
+  5% {
+    opacity: 1;
+  }
+  42% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
 }
 @keyframes ae-p-tip-kf {
-  0%   { stroke-dashoffset: 0; opacity: 1; }
-  60%  { stroke-dashoffset: -120; opacity: 0.6; }
-  100% { stroke-dashoffset: -120; opacity: 0; }
+  0% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  60% {
+    stroke-dashoffset: -120;
+    opacity: 0.6;
+  }
+  100% {
+    stroke-dashoffset: -120;
+    opacity: 0;
+  }
 }
 .ae-p-trail {
   animation: ae-p-trail-kf 0.22s ease-out forwards;
@@ -432,25 +511,59 @@
 
 /* Eviscerate – Assassin ability 1 */
 @keyframes ae-eviscerate-slash-draw {
-  0% { opacity: 0; stroke-dashoffset: 260; }
-  15% { opacity: 1; }
-  55% { opacity: 0.9; stroke-dashoffset: 0; }
-  100% { opacity: 0; stroke-dashoffset: 0; }
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 260;
+  }
+  15% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 0.9;
+    stroke-dashoffset: 0;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
 }
 @keyframes ae-eviscerate-burst-pop {
-  0% { transform: scale(0.1); opacity: 0; }
-  30% { transform: scale(1.3); opacity: 1; }
-  70% { transform: scale(1); opacity: 0.85; }
-  100% { transform: scale(1.1); opacity: 0; }
+  0% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+  30% {
+    transform: scale(1.3);
+    opacity: 1;
+  }
+  70% {
+    transform: scale(1);
+    opacity: 0.85;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0;
+  }
 }
 @keyframes ae-eviscerate-poison-drip {
-  0% { opacity: 0; r: 2; }
-  40% { opacity: 0.85; r: 8; }
-  100% { opacity: 0; r: 3; transform: translateY(12px); }
+  0% {
+    opacity: 0;
+    r: 2;
+  }
+  40% {
+    opacity: 0.85;
+    r: 8;
+  }
+  100% {
+    opacity: 0;
+    r: 3;
+    transform: translateY(12px);
+  }
 }
 .ae-eviscerate-slash {
   stroke-dasharray: 260;
-  animation: ae-eviscerate-slash-draw 0.38s cubic-bezier(0.1, 0, 0.4, 1) forwards;
+  animation: ae-eviscerate-slash-draw 0.38s cubic-bezier(0.1, 0, 0.4, 1)
+    forwards;
 }
 .ae-ev-s2 {
   animation-delay: 0.04s;
@@ -464,21 +577,54 @@
 
 /* Vanish – Assassin ability 2 */
 @keyframes ae-vanish-burst-expand {
-  0% { transform: scale(0.1); opacity: 0; }
-  25% { transform: scale(1.2); opacity: 1; }
-  60% { transform: scale(1); opacity: 0.7; }
-  100% { transform: scale(1.4); opacity: 0; }
+  0% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+  25% {
+    transform: scale(1.2);
+    opacity: 1;
+  }
+  60% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
 }
 @keyframes ae-vanish-smoke-rise {
-  0% { opacity: 0; transform: translateY(0) scale(0.5); }
-  30% { opacity: 0.6; transform: translateY(-8px) scale(1); }
-  100% { opacity: 0; transform: translateY(-22px) scale(1.3); }
+  0% {
+    opacity: 0;
+    transform: translateY(0) scale(0.5);
+  }
+  30% {
+    opacity: 0.6;
+    transform: translateY(-8px) scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-22px) scale(1.3);
+  }
 }
 @keyframes ae-vanish-shards-fly {
-  0% { opacity: 0; transform: scale(0.2); }
-  20% { opacity: 1; transform: scale(1.1); }
-  70% { opacity: 0.8; transform: scale(1); }
-  100% { opacity: 0; transform: scale(1.2); }
+  0% {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  70% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.2);
+  }
 }
 .ae-vanish-burst {
   animation: ae-vanish-burst-expand 0.5s ease-out forwards;
@@ -486,8 +632,12 @@
 .ae-vanish-smoke {
   animation: ae-vanish-smoke-rise 0.6s ease-out 0.15s forwards;
 }
-.ae-vs-2 { animation-delay: 0.22s; }
-.ae-vs-3 { animation-delay: 0.19s; }
+.ae-vs-2 {
+  animation-delay: 0.22s;
+}
+.ae-vs-3 {
+  animation-delay: 0.19s;
+}
 .ae-vanish-shards {
   animation: ae-vanish-shards-fly 0.55s ease-out 0.3s forwards;
 }
@@ -608,4 +758,3 @@
   align-items: center;
   position: relative;
 }
-

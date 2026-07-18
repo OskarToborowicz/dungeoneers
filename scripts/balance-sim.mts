@@ -56,7 +56,7 @@ function buildChar(classId: ClassId, level: number): Character {
 
 // ── AI policy ─────────────────────────────────────────────────────────────────
 // ability2 kinds that are defensive/utility (use when hurt) vs offensive (nuke).
-const DEFENSIVE_A2 = new Set(["frost_shield", "golem", "serenity", "vanish", "holy_light", "regen"]);
+const DEFENSIVE_A2 = new Set(["frost_shield", "golem", "serenity", "vanish", "holy_light", "regen", "bark_wall"]);
 function pickAction(ch: Character, st: BattleState, maxLife: number, potHp: number, isBoss: boolean): PlayerActionKind {
   const def = CLASSES[ch.classId];
   const lifePct = st.playerLife / maxLife;

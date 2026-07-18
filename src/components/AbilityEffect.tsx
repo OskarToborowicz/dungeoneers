@@ -53,7 +53,7 @@ export function AbilityEffect({
         {classId === "paladin" && useAttack && <PaladinSlashFx />}
         {classId === "paladin" && !useAbility2 && !useAttack && <HolyBoltFx />}
         {classId === "paladin" && useAbility2 && <HolyLightFx />}
-        {classId === "druid" && <BiteFx />}
+        {classId === "druid" && !useAbility2 && <BiteFx />}
         {classId === "monk" && !useAbility2 && <SpinningCraneKickFx />}
         {classId === "monk" && useAbility2 && <SerenityFx />}
         {classId === "assassin" && !useAbility2 && <EviscerateFx />}

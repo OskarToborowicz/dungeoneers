@@ -35,7 +35,7 @@ Eight classes are available, each with a unique resource type, active ability, a
 | Sorceress | Mana | War Staff | Magic burst damage — 2 active abilities, 3 passives |
 | Huntress | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities, 3 passives |
 | Paladin | Mana | Mace | Tank/sustain with healing aura — 2 active abilities, 3 passives |
-| Druid | Mana | Totem | Dex-scaling melee with lifesteal and damage reduction |
+| Druid | Mana | Totem | Forest bruiser — vine whip with bleed, bark-wall immunity, thorn/poison stacks — 2 active abilities, 3 passives |
 | Assassin | Preparation | Claw | Shadow warrior who builds Preparation through combat and unleashes devastating strikes — 2 active abilities, 3 passives |
 | Monk | Chi | Katar | Fast multi-hit melee with self-sustain and counter-attack — 2 active abilities, 3 passives |
 
@@ -280,8 +280,11 @@ Active status effects are shown as colored pills below each combatant's HP bar, 
 | ❄ Frozen N | Huntress Freezing Shot | Blue pill, remaining frozen turns |
 | ⚡ Electrocute N | Huntress — Stormstring bow on hit | Yellow pill, remaining turns; enemy takes 20% increased damage from all sources |
 | 🔥 Burn N | Demon's Tail belt — every hit/ability | Orange pill per active stack; shows source and damage per turn |
+| 🩸 Bleed N | Druid Vine Whip (35% on hit) | Red pill per stack; 15% of the hit per turn for 3 turns |
+| ☠ Poison N | Druid Nature's Wrath — every basic attack (lv.35) | Green pill per stack; 20% of the hit per turn for 3 turns |
+| 🌿 Thorns N/3 | Druid Bramble — every basic attack | Green pill; erupts at 3 stacks for physical damage |
 
-**Burn stacks independently** — each hit with Demon's Tail equipped pushes a new `{ rounds, damage, source }` entry. Multiple stacks can be active simultaneously, each with its own timer and damage value (30% of the triggering hit).
+**DoT stacks are independent** — burn (Demon's Tail), bleed (Vine Whip), and poison (Nature's Wrath) all share one stacking system: each hit pushes a `{ rounds, damage, source, kind }` entry, and every active stack ticks on its own timer. **Thorns** are a separate 0–3 counter, not a DoT — they build on basic attacks and erupt at 3.
 
 **Stunned** prevents the monster from acting for the duration. Applied by Golem Defense on cast.
 
@@ -296,6 +299,7 @@ Active status effects are shown as colored pills below each combatant's HP bar, 
 | Blood Fury N | Barbarian Blood Fury | Red pill, remaining turns; red pulsing glow on sprite |
 | ✦ Regen Nova N | Paladin Regenerating Nova | Green pill, pulsing green glow |
 | ❄ Frost Shield N | Sorceress Frost Shield | Cyan pill, pulsing icy blue glow |
+| 🌳 Grove N | Druid Grove | Brown pill, remaining blocked turns (all damage negated) |
 | ◌ Vanish N | Assassin Vanish | Purple pill, remaining immune turns |
 | ☠ Poison N | Monster Poison DoT spell | Green pill, green glow |
 | 🔥 Burn N | Monster Burn DoT spell | Orange pill, orange glow |
@@ -341,7 +345,8 @@ Each class ability triggers a short SVG overlay animation over the battle arena 
 | Huntress | Freezing Shot | Icy blue arrow flying toward the enemy + frost explosion on impact |
 | Paladin | Holy Bolt | Golden holy cross with radiant pulse |
 | Paladin | Regenerating Nova | Green healing rings expand from the player with rising sparkles |
-| Druid | Werewolf Bite | Three green claw slashes |
+| Druid | Vine Whip | *(SVG pending)* |
+| Druid | Grove | Standing summoned model, fades after 2 turns *(SVG pending)* |
 | Assassin | Eviscerate | Red diagonal slash + impact burst + poison drip at the enemy |
 | Assassin | Vanish | Smoke burst at the player + metal shards scatter at the enemy |
 | Sorceress | Frost Shield | Expanding frost rings with ice crystal shards radiating from the player |
@@ -441,12 +446,19 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Heal per turn**: `round(maxLife × 0.10)` — 10% of maximum life
 - **Special**: Does **not** end the turn — the player also attacks on the activation turn
 
-### Druid — Werewolf Bite
-- **Kind**: bite (physical — no magic bonus)
-- **Mana Cost**: 18
-- **Cooldown**: 3 turns
-- **Damage**: `randomInRange(weaponDamage) + round(dexterity × 1.5)` — bypasses the power multiplier entirely
-- **Lifesteal**: heals the player for **15% of damage dealt**
+### Druid — Vine Whip
+- **Kind**: vine_whip (physical — no magic bonus)
+- **Mana Cost**: 20
+- **Cooldown**: 2 turns
+- **Damage**: `round(randomInRange(weaponDamage) × 1.2 + dexterity × 1.0)` — **can crit**
+- **Bleed**: 35% chance on hit to apply a bleed stack — 15% of the hit's damage per turn for 3 turns
+
+### Druid — Grove *(Ability 2)*
+- **Kind**: bark_wall (`canMiss: false`, no damage)
+- **Mana Cost**: 45
+- **Cooldown**: 6 turns
+- **Effect**: For **2 turns** the enemy's attacks are fully blocked — the monster deals **0 damage** and no status effect gets through
+- Cannot be recast while active (`barkWallRounds`)
 
 ### Assassin — Eviscerate
 - **Kind**: eviscerate (physical — no magic bonus)
@@ -551,11 +563,15 @@ maxLife += round(maxMana × 0.15)
 ### Paladin — Judgement *(unlocks at level 35)*
 - Each basic attack deals bonus holy damage equal to **25% of total Magic Damage** plus **25% of Strength**.
 
-### Druid — Thick Hide *(always active)*
-- Reduces incoming damage based on Dexterity:
-```
-reduction = min(0.25, dexterity × 0.002)
-```
+### Druid — Bramble *(always active)*
+- Each **basic attack** embeds a thorn stack in the enemy (`thornStacks`, 0–3).
+- At **3 stacks** the thorns erupt for `round(0.5 × Vine Whip formula)` pure physical damage, then reset to 0.
+
+### Druid — Lifebloom *(unlocks at level 20)*
+- **Direct hits** (basic attack + Vine Whip) heal the player for **8% of damage dealt**. Does not trigger on DoT ticks.
+
+### Druid — Nature's Wrath *(unlocks at level 35)*
+- Every **basic attack** applies an independent **stacking poison** — 20% of the hit's damage per turn for 3 turns. Separate from Bramble's thorn stacks.
 
 ### Assassin — Serpent's Kiss *(always active)*
 - Basic attacks and Eviscerate deal an additional **10% of damage dealt as instant poison damage**. The poison damage is applied immediately and logged as a separate hit.

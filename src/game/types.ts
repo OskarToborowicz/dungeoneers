@@ -29,6 +29,8 @@ export type AbilityKind =
   | "multi"
   | "heal"
   | "bite"
+  | "vine_whip"
+  | "bark_wall"
   | "trap"
   | "buff"
   | "whirlwind"

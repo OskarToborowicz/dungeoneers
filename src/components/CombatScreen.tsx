@@ -31,6 +31,7 @@ import { MonsterSprite } from "./sprites/MonsterSprite";
 import { AbilityEffect, ATTACK_EFFECT_CLASSES } from "./AbilityEffect";
 import { MonsterSpellEffect } from "./MonsterSpellEffect";
 import { PotionIcon } from "./PotionIcon";
+import druidGroveUrl from "../assets/classes/druid/skill_2.svg";
 
 // The log is a scrolling box that only ever shows the tail. Keeping every entry
 // from a long fight grew the rendered node count without bound — each render
@@ -508,6 +509,37 @@ export function CombatScreen({
               </svg>
             </div>
           )}
+          {battle.barkWallRounds > 0 && (
+            <div className="grove-on-field">
+              {/* Standing summoned model from src/assets/classes/druid/skill_2.svg
+                  (swap that file to replace the art). Fades in on cast, unmounts
+                  when barkWallRounds hits 0. */}
+              <svg viewBox="0 0 60 90" overflow="visible">
+                <image
+                  className="grove-field-body"
+                  href={druidGroveUrl}
+                  x="0"
+                  y="0"
+                  width="60"
+                  height="90"
+                  preserveAspectRatio="xMidYMax meet"
+                />
+                <text
+                  x="35"
+                  y="80"
+                  textAnchor="end"
+                  fill="#94B030"
+                  fontSize="9"
+                  stroke="#000"
+                  strokeWidth="3"
+                  fontWeight=""
+                  paintOrder="stroke"
+                >
+                  {battle.barkWallRounds}
+                </text>
+              </svg>
+            </div>
+          )}
           {battle.trapRounds > 0 && !trapDetonateEffect && (
             <div className="trap-on-field">
               <svg viewBox="0 0 44 28" overflow="visible">
@@ -609,8 +641,16 @@ export function CombatScreen({
               size={80}
               state={monsterAnim}
               statusEffects={[
-                ...(battle.poisonRounds > 0 ? ["poison" as const] : []),
-                ...(battle.burnStacks.length > 0 ? ["burn" as const] : []),
+                ...(battle.poisonRounds > 0 ||
+                battle.burnStacks.some((s) => s.kind === "poison")
+                  ? ["poison" as const]
+                  : []),
+                ...(battle.burnStacks.some((s) => s.kind === "burn")
+                  ? ["burn" as const]
+                  : []),
+                ...(battle.burnStacks.some((s) => s.kind === "bleed")
+                  ? ["bleed" as const]
+                  : []),
               ]}
             />
           </div>
@@ -831,6 +871,7 @@ export function CombatScreen({
             battle.bloodFuryRounds > 0 ||
             battle.holyLightCharges > 0 ||
             battle.frostShieldRounds > 0 ||
+            battle.barkWallRounds > 0 ||
             battle.vanishRounds > 0) && (
             <div className="status-effects">
               {battle.vanishRounds > 0 && (
@@ -851,6 +892,11 @@ export function CombatScreen({
               {battle.frostShieldRounds > 0 && (
                 <span className="status-pill frost-shield">
                   ❄ Frost Shield {battle.frostShieldRounds}
+                </span>
+              )}
+              {battle.barkWallRounds > 0 && (
+                <span className="status-pill bark-wall">
+                  🌳 Grove {battle.barkWallRounds}
                 </span>
               )}
               {battle.playerPoisonRounds > 0 && (
@@ -897,6 +943,7 @@ export function CombatScreen({
             battle.blindRounds > 0 ||
             battle.disorientRounds > 0 ||
             battle.burnStacks.some((s) => s.rounds > 0) ||
+            battle.thornStacks > 0 ||
             battle.electrocuteRounds > 0) && (
             <div className="status-effects">
               {battle.poisonRounds > 0 && (
@@ -924,18 +971,47 @@ export function CombatScreen({
                   ◌ Disorient {battle.disorientRounds}
                 </span>
               )}
-              {battle.burnStacks.map(
-                (s, i) =>
-                  s.rounds > 0 && (
-                    <span
-                      key={i}
-                      className="status-pill burn"
-                      title={`${s.source}: ${s.damage} fire/turn · ${s.rounds} turn${s.rounds !== 1 ? "s" : ""} remaining`}
-                    >
-                      🔥 Burn {s.rounds}
-                    </span>
-                  ),
+              {battle.thornStacks > 0 && (
+                <span
+                  className="status-pill poison"
+                  title="Bramble — erupts at 3 stacks"
+                >
+                  🌿 Thorns {battle.thornStacks}/3
+                </span>
               )}
+              {battle.burnStacks.map((s, i) => {
+                if (s.rounds <= 0) return null;
+                const dot =
+                  s.kind === "poison"
+                    ? {
+                        cls: "poison",
+                        icon: "☠",
+                        label: "Poison",
+                        unit: "poison",
+                      }
+                    : s.kind === "bleed"
+                      ? {
+                          cls: "bleed",
+                          icon: "🩸",
+                          label: "Bleed",
+                          unit: "bleed",
+                        }
+                      : {
+                          cls: "burn",
+                          icon: "🔥",
+                          label: "Burn",
+                          unit: "fire",
+                        };
+                return (
+                  <span
+                    key={i}
+                    className={`status-pill ${dot.cls}`}
+                    title={`${s.source}: ${s.damage} ${dot.unit}/turn · ${s.rounds} turn${s.rounds !== 1 ? "s" : ""} remaining`}
+                  >
+                    {dot.icon} {dot.label} {s.rounds}
+                  </span>
+                );
+              })}
               {battle.electrocuteRounds > 0 && (
                 <span className="status-pill electrocute">
                   ⚡ Electrocute {battle.electrocuteRounds}
@@ -990,7 +1066,8 @@ export function CombatScreen({
                 <span className="hotkey-badge">3</span>
                 {def.ability2.name}
                 <span className="action-cost">
-                  {battle.holyLightCharges > 0 && def.ability2.kind === "holy_light"
+                  {battle.holyLightCharges > 0 &&
+                  def.ability2.kind === "holy_light"
                     ? `Active: ×${battle.holyLightCharges}`
                     : battle.frostShieldRounds > 0 &&
                         def.ability2.kind === "frost_shield"

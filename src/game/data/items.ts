@@ -54,7 +54,7 @@ const WEAPON_BASES: ItemBase[] = [
     allowedClasses: ["paladin"],
   },
   {
-    name: "Totem",
+    name: "Whip",
     slot: "weapon",
     baseDamage: [2, 6],
     twoHanded: true,

@@ -34,7 +34,9 @@ export interface BattleState {
   disorientRounds: number; // After Blind fades: monster deals 25% reduced damage
   blindRounds: number; // Assassin Blinding Powder: monster cannot act
   frostShieldRounds: number; // Sorceress Frost Shield: incoming damage reduced 60%
-  burnStacks: { rounds: number; damage: number; source: string }[]; // Each Demon's Tail hit pushes an independent stack
+  barkWallRounds: number; // Druid Bark Wall: monster deals 0 damage while > 0
+  thornStacks: number; // Druid Bramble: 0–3, +1 per basic attack, explodes at 3
+  burnStacks: { rounds: number; damage: number; source: string; kind: "burn" | "poison" | "bleed" }[]; // Independent DoT stacks — Demon's Tail (burn), Vine Whip (bleed), Nature's Wrath (poison)
   electrocuteRounds: number; // Stormstring on-hit: monster takes 20% more damage
   golemRounds: number; // Necromancer Golem Defense: turns remaining, redirects 30% of incoming dmg
   stunnedRounds: number; // Necromancer Golem Defense cast: monster cannot act for 1 turn
@@ -118,6 +120,21 @@ const MONK_TRANSCENDENCE_REGEN = 0.07; // 7% max life regen per turn (lv.35)
 const MONK_SERENITY_HEAL = 0.3; // Serenity heals 30% of max life
 const MONK_COUNTER_ATTACK_CHANCE = 0.12; // 12% chance to counter-attack after monster hits
 
+const DRUID_VINE_WHIP_POWER = 1.2; // Vine Whip weapon multiplier — must match ability.power in classes.ts
+const DRUID_VINE_WHIP_DEX = 1.0; // Vine Whip: + Dexterity × this, on top of weapon × ability.power
+const DRUID_BLEED_CHANCE = 0.35; // Vine Whip: chance to apply bleed on hit
+const DRUID_BLEED_FRACTION = 0.15; // Bleed ticks for 15% of the hit's damage per round
+const DRUID_BLEED_ROUNDS = 3;
+const DRUID_LIFEBLOOM = 0.08; // Direct hits heal 8% of damage dealt (lv.20)
+const DRUID_THORN_EXPLODE = 0.5; // Bramble burst = half of the Vine Whip formula (pure physical)
+const DRUID_NATURES_WRATH_FRACTION = 0.2; // Nature's Wrath poison stack: 20% of hit damage/round (lv.35)
+const DRUID_NATURES_WRATH_ROUNDS = 3;
+
+// Vine Whip / Bramble share one damage formula: weapon × power + Dexterity.
+function vineWhipDamage(stats: DerivedStats, power: number): number {
+  return randomInRange(stats.damage) * power + stats.stats.dexterity * DRUID_VINE_WHIP_DEX;
+}
+
 // Helpers
 
 // Iron Skin: scales with missing life; 0 at full HP, ~16% at 40% missing.
@@ -188,6 +205,8 @@ export function createBattleState(
     disorientRounds: 0,
     blindRounds: 0,
     frostShieldRounds: 0,
+    barkWallRounds: 0,
+    thornStacks: 0,
     burnStacks: [],
     electrocuteRounds: 0,
     golemRounds: 0,
@@ -219,6 +238,7 @@ export function canUseAbility2(
   if (def.ability2.kind === "frost_shield" && state.frostShieldRounds > 0)
     return false;
   if (def.ability2.kind === "golem" && state.golemRounds > 0) return false; // Can't re-summon while active
+  if (def.ability2.kind === "bark_wall" && state.barkWallRounds > 0) return false; // Can't recast while active
   return (
     state.playerMana >= def.ability2.manaCost && state.ability2Cooldown <= 0
   );
@@ -310,6 +330,10 @@ export function getAbilityPreview(
     const heal = Math.round(est * 0.15);
     return { label: `~${est} + ${heal} heal`, type: "Physical" };
   }
+  if (ability.kind === "vine_whip") {
+    const est = Math.round(avg * ability.power + stats.stats.dexterity * 1.0);
+    return { label: `~${est} + 35% bleed`, type: "Physical" };
+  }
   if (ability.kind === "trap") {
     const est = Math.round(stats.stats.dexterity * ability.power);
     return { label: `~${est}`, type: "Physical" };
@@ -338,6 +362,9 @@ export function getAbility2Preview(
   }
   if (ability.kind === "frost_shield") {
     return { label: "—", type: "Buff" };
+  }
+  if (ability.kind === "bark_wall") {
+    return { label: "Block all damage · 2 turns", type: "Buff" };
   }
   if (ability.kind === "holy_light") {
     const healPerHit = Math.round(stats.maxLife * 0.12);
@@ -410,6 +437,8 @@ export function resolveRound(
     disorientRounds,
     blindRounds,
     frostShieldRounds,
+    barkWallRounds,
+    thornStacks,
     electrocuteRounds,
     golemRounds,
     stunnedRounds,
@@ -460,7 +489,7 @@ export function resolveRound(
   const tryIgnite = (dmg: number, source = "Demon's Tail") => {
     if (stats.igniteChance > 0 && dmg > 0 && monsterLife > 0) {
       const igniteDmg = Math.round(dmg * 0.3);
-      burnStacks.push({ rounds: 2, damage: igniteDmg, source });
+      burnStacks.push({ rounds: 2, damage: igniteDmg, source, kind: "burn" });
       log.push({
         actor: "player",
         message: `${source} ignites the enemy — ${igniteDmg} fire per turn for 2 turns!`,
@@ -555,6 +584,42 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
       tryIgnite(basicHitDmg);
+
+      // ── Druid passives on a landed basic attack ──
+      if (character.classId === "druid" && basicHitDmg > 0 && monsterLife > 0) {
+        // Lifebloom (lv.20): direct hits heal 8% of damage dealt (not DoT ticks)
+        if (character.level >= 20) {
+          const bloom = Math.round(basicHitDmg * DRUID_LIFEBLOOM);
+          if (bloom > 0) {
+            applyHeal(bloom);
+            log.push({
+              actor: "player",
+              message: `Lifebloom restores ${bloom} life.`,
+              playerLife: Math.max(0, playerLife),
+              monsterLife: Math.max(0, monsterLife),
+            });
+          }
+        }
+        // Nature's Wrath (lv.35): each attack stacks an independent poison DoT
+        if (character.level >= 35) {
+          const poisonDmg = Math.max(1, Math.round(basicHitDmg * DRUID_NATURES_WRATH_FRACTION));
+          burnStacks.push({ rounds: DRUID_NATURES_WRATH_ROUNDS, damage: poisonDmg, source: "Nature's Wrath", kind: "poison" });
+        }
+        // Bramble (lv.1): +1 thorn stack; at 3 it erupts for pure physical damage
+        thornStacks += 1;
+        if (thornStacks >= 3) {
+          thornStacks = 0;
+          const burst = Math.max(1, Math.round(vineWhipDamage(stats, DRUID_VINE_WHIP_POWER) * DRUID_THORN_EXPLODE));
+          monsterLife -= burst;
+          damageDealt += burst;
+          log.push({
+            actor: "player",
+            message: `Thorns erupt from the enemy for ${burst} damage!`,
+            playerLife: Math.max(0, playerLife),
+            monsterLife: Math.max(0, monsterLife),
+          });
+        }
+      }
     } else {
       log.push({
         actor: "player",
@@ -989,35 +1054,58 @@ export function resolveRound(
         });
         tryIgnite(dmg);
 
-        // ── Werewolf Bite (Druid) ─────────────────────────────────────────────
-        // Physical: weapon roll + 1.5× Dex. Heals 15% of damage. No crit roll.
-      } else if (def.ability.kind === "bite") {
-        const baseDmg = randomInRange(stats.damage);
-        const dexBonus = Math.round(stats.stats.dexterity * 1.5);
-        const dmg = Math.round(
-          (baseDmg + dexBonus) *
-            lowLifeMult *
-            electrocuteMult *
-            deathwhisperMult,
-        );
-        const healAmt = Math.round(dmg * 0.15);
-        monsterLife -= dmg;
-        damageDealt += dmg;
-        playerLife = Math.min(stats.maxLife, playerLife + healAmt);
-        log.push({
-          actor: "player",
-          message: `${def.ability.name} tears for ${dmg} damage (${baseDmg} + ${dexBonus} dex) and heals ${healAmt} life!`,
-          playerLife: Math.max(0, playerLife),
-          monsterLife: Math.max(0, monsterLife),
-        });
-        if (stats.lifeLeechBonus > 0) {
-          const leeched = Math.round((dmg * stats.lifeLeechBonus) / 100);
-          if (leeched > 0) {
-            applyHeal(leeched);
-            log[log.length - 1].message += ` Life Leech restores ${leeched} life.`;
+        // ── Vine Whip (Druid) ─────────────────────────────────────────────────
+        // Physical: weapon × power + Dex. Can crit. 35% chance to apply bleed.
+        // Lifebloom (lv.20) heals 8% of the hit.
+      } else if (def.ability.kind === "vine_whip") {
+        if (Math.random() > ALWAYS_MISS_CHANCE) {
+          const isCrit = Math.random() < critChance;
+          let dmg = Math.round(
+            vineWhipDamage(stats, def.ability.power) *
+              lowLifeMult *
+              electrocuteMult *
+              deathwhisperMult,
+          );
+          if (isCrit) dmg = Math.round(dmg * critMultiplier);
+          monsterLife -= dmg;
+          damageDealt += dmg;
+          let msg = isCrit
+            ? `Critical hit! ${def.ability.name} lashes for ${dmg} damage.`
+            : `${def.ability.name} lashes for ${dmg} damage.`;
+          if (Math.random() < DRUID_BLEED_CHANCE) {
+            const bleedDmg = Math.max(1, Math.round(dmg * DRUID_BLEED_FRACTION));
+            burnStacks.push({ rounds: DRUID_BLEED_ROUNDS, damage: bleedDmg, source: "Vine Whip", kind: "bleed" });
+            msg += ` The enemy is left bleeding.`;
           }
+          if (character.level >= 20) {
+            const bloom = Math.round(dmg * DRUID_LIFEBLOOM);
+            if (bloom > 0) {
+              applyHeal(bloom);
+              msg += ` Lifebloom restores ${bloom} life.`;
+            }
+          }
+          if (stats.lifeLeechBonus > 0) {
+            const leeched = Math.round((dmg * stats.lifeLeechBonus) / 100);
+            if (leeched > 0) {
+              applyHeal(leeched);
+              msg += ` Life Leech restores ${leeched} life.`;
+            }
+          }
+          log.push({
+            actor: "player",
+            message: msg,
+            playerLife: Math.max(0, playerLife),
+            monsterLife: Math.max(0, monsterLife),
+          });
+          tryIgnite(dmg);
+        } else {
+          log.push({
+            actor: "player",
+            message: `${def.ability.name} misses.`,
+            playerLife: Math.max(0, playerLife),
+            monsterLife: Math.max(0, monsterLife),
+          });
         }
-        tryIgnite(dmg);
 
         // ── Eviscerate (Assassin) ─────────────────────────────────────────────
         // 1× + 0.5× per Preparation spent (max 2.5×). Spends all Preparation.
@@ -1196,6 +1284,17 @@ export function resolveRound(
           actor: "player",
           message:
             "Frost Shield encases you in magical ice — incoming damage reduced by 60% for 3 turns!",
+          playerLife: Math.max(0, playerLife),
+          monsterLife: Math.max(0, monsterLife),
+        });
+
+        // ── Bark Wall (Druid) ─────────────────────────────────────────────────
+        // Full damage block for 2 rounds. Cannot be recast while active.
+      } else if (def.ability2.kind === "bark_wall") {
+        barkWallRounds = 2;
+        log.push({
+          actor: "player",
+          message: "A protective Grove rises around you — the enemy's attacks are blocked for 2 turns!",
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
@@ -1382,6 +1481,8 @@ export function resolveRound(
       disorientRounds,
       blindRounds,
       frostShieldRounds,
+      barkWallRounds,
+      thornStacks,
       burnStacks,
       electrocuteRounds,
       golemRounds,
@@ -1450,8 +1551,13 @@ export function resolveRound(
     }
   }
 
-  // ── Step 7: Burn stacks tick (Demon's Tail) ───────────────────────────────────
+  // ── Step 7: DoT stacks tick (Demon's Tail burn, Vine Whip bleed, Nature's Wrath poison) ─
   // Each stack is independent; multiple can be active simultaneously.
+  const DOT_VERB: Record<"burn" | "poison" | "bleed", string> = {
+    burn: "burns for {d} fire damage",
+    poison: "takes {d} poison damage",
+    bleed: "bleeds for {d} damage",
+  };
   for (const stack of burnStacks) {
     if (stack.rounds > 0) {
       monsterLife -= stack.damage;
@@ -1459,7 +1565,7 @@ export function resolveRound(
       stack.rounds -= 1;
       log.push({
         actor: "player",
-        message: `${monster.name} burns for ${stack.damage} fire damage. (${stack.rounds} turn${stack.rounds !== 1 ? "s" : ""} remaining)`,
+        message: `${monster.name} ${DOT_VERB[stack.kind].replace("{d}", String(stack.damage))}. (${stack.rounds} turn${stack.rounds !== 1 ? "s" : ""} remaining)`,
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });
@@ -1524,7 +1630,16 @@ export function resolveRound(
   // Disorient countdown (independent of blind; 25% dmg reduction applied at hit time)
   if (disorientRounds > 0) disorientRounds -= 1;
 
-  if (monsterActsThisTurn) {
+  if (monsterActsThisTurn && barkWallRounds > 0) {
+    // Bark Wall (Druid): the monster attacks but the wall blocks it entirely —
+    // no damage and no status effect gets through.
+    log.push({
+      actor: "monster",
+      message: `The Grove blocks ${monster.name}'s attack!`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+  } else if (monsterActsThisTurn) {
     // Monster either casts its spell or does a normal attack.
     // Spell: boss unique ability on a ~35-45% chance with a 3-turn cooldown.
     const spell = monster.spell;
@@ -1667,12 +1782,6 @@ export function resolveRound(
         );
         if (isMonsterCrit) dmg = Math.round(dmg * 1.75);
 
-        // Thick Hide (Druid): reduces all physical damage by Dex × 0.2%, capped at 25%
-        if (character.classId === "druid") {
-          const reduction = Math.min(0.25, stats.stats.dexterity * 0.002);
-          dmg = Math.max(1, Math.round(dmg * (1 - reduction)));
-        }
-
         // Damage reduction order: Blur → Iron Skin → gear reduction → Frost Shield → Boneweave → Golem redirect
         const blurNormal =
           character.classId === "assassin" && character.level >= 20 && Math.random() < ASSASSIN_BLUR_CHANCE;
@@ -1717,12 +1826,6 @@ export function resolveRound(
           ? `Critical hit! ${monster.name} deals ${dmg} damage.`
           : `${monster.name} hits you for ${dmg} damage.`;
 
-        if (character.classId === "druid") {
-          const reductionPct = Math.round(
-            Math.min(25, stats.stats.dexterity * 0.2),
-          );
-          message += ` Thick Hide absorbs ${reductionPct}%.`;
-        }
         if (blurNormal) message += " Blur reduces the blow by 25%.";
         if (ironSkin > 0)
           message += ` Iron Skin absorbs ${Math.round(ironSkin * 100)}%.`;
@@ -1800,6 +1903,17 @@ export function resolveRound(
       log.push({
         actor: "player",
         message: "Frost Shield fades.",
+        playerLife: Math.max(0, playerLife),
+        monsterLife: Math.max(0, monsterLife),
+      });
+    }
+  }
+  if (barkWallRounds > 0) {
+    barkWallRounds -= 1;
+    if (barkWallRounds === 0) {
+      log.push({
+        actor: "player",
+        message: "The Grove withers away.",
         playerLife: Math.max(0, playerLife),
         monsterLife: Math.max(0, monsterLife),
       });
