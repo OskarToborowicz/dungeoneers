@@ -151,6 +151,11 @@ export interface Item {
   soulvoidGirdle?: boolean;
   openerBonusPct?: number;
   forsakenSigil?: boolean;
+  tanglewhip?: boolean;
+  worldrootTotem?: boolean;
+  verdantCoil?: boolean;
+  thornweaveEffigy?: boolean;
+  bloodbriar?: boolean;
 }
 
 export interface RunStats {

@@ -215,6 +215,31 @@ export function UniqueEffectLines({ item }: { item: Item }) {
           <em>+15% damage against poisoned or burning enemies</em>
         </div>
       )}
+      {item.tanglewhip && (
+        <div className="item-line mirror-flavor">
+          <em>Vine Whip bleed chance increased to 50%</em>
+        </div>
+      )}
+      {item.worldrootTotem && (
+        <div className="item-line mirror-flavor">
+          <em>Grove lasts 3 turns instead of 2</em>
+        </div>
+      )}
+      {item.verdantCoil && (
+        <div className="item-line mirror-flavor">
+          <em>Lifebloom heals 12% of damage dealt instead of 8%</em>
+        </div>
+      )}
+      {item.thornweaveEffigy && (
+        <div className="item-line mirror-flavor">
+          <em>Nature's Wrath poison stacks deal 35% of hit per turn instead of 20%</em>
+        </div>
+      )}
+      {item.bloodbriar && (
+        <div className="item-line mirror-flavor">
+          <em>Bramble erupts at 2 stacks instead of 3</em>
+        </div>
+      )}
     </>
   );
 }

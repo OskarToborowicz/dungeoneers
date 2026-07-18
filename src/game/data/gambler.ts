@@ -32,6 +32,11 @@ import {
   generateTheArcanist,
   generateEternitysEdge,
   generateShadowfang,
+  generateTanglewhip,
+  generateWorldrootTotem,
+  generateVerdantCoil,
+  generateThornweaveEffigy,
+  generateBloodbriar,
   generatePenitentsGuard,
   generateStoneguard,
   generateHeavensWrath,
@@ -145,6 +150,13 @@ const CLASS_WEAPON_POOL: Partial<Record<ClassId, UniquePoolEntry[]>> = {
   monk: [
     { generator: generateJadeKnuckles },
     { generator: generateStormfist,  minLevel: 42 },
+  ],
+  druid: [
+    { generator: generateTanglewhip,       minLevel: 8 },
+    { generator: generateWorldrootTotem,   minLevel: 20 },
+    { generator: generateVerdantCoil,      minLevel: 33 },
+    { generator: generateThornweaveEffigy, minLevel: 54 },
+    { generator: generateBloodbriar,       minLevel: 74 },
   ],
 };
 

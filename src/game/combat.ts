@@ -347,7 +347,7 @@ export function getAbilityPreview(
   }
   if (ability.kind === "vine_whip") {
     const est = Math.round(avg * ability.power + stats.stats.dexterity * 1.0);
-    return { label: `~${est} + 35% bleed`, type: "Physical" };
+    return { label: `~${est} + ${stats.tanglewhipActive ? "50%" : "35%"} bleed`, type: "Physical" };
   }
   if (ability.kind === "trap") {
     const est = Math.round(stats.stats.dexterity * ability.power);
@@ -602,7 +602,7 @@ export function resolveRound(
       if (character.classId === "druid" && basicHitDmg > 0 && monsterLife > 0) {
         // Lifebloom (lv.20): direct hits heal 8% of damage dealt (not DoT ticks)
         if (character.level >= 20) {
-          const bloom = Math.round(basicHitDmg * DRUID_LIFEBLOOM);
+          const bloom = Math.round(basicHitDmg * (stats.verdantCoilActive ? 0.12 : DRUID_LIFEBLOOM));
           if (bloom > 0) {
             applyHeal(bloom);
             log.push({
@@ -617,7 +617,7 @@ export function resolveRound(
         if (character.level >= 35) {
           const poisonDmg = Math.max(
             1,
-            Math.round(basicHitDmg * DRUID_NATURES_WRATH_FRACTION),
+            Math.round(basicHitDmg * (stats.thornweaveEffigy ? 0.35 : DRUID_NATURES_WRATH_FRACTION)),
           );
           burnStacks.push({
             rounds: DRUID_NATURES_WRATH_ROUNDS,
@@ -628,7 +628,7 @@ export function resolveRound(
         }
         // Bramble (lv.1): +1 thorn stack; at 3 it erupts for pure physical damage
         thornStacks += 1;
-        if (thornStacks >= 3) {
+        if (thornStacks >= (stats.bloodbriarActive ? 2 : 3)) {
           thornStacks = 0;
           const burst = Math.max(
             1,
@@ -1184,7 +1184,7 @@ export function resolveRound(
           let msg = isCrit
             ? `Critical hit! ${def.ability.name} lashes for ${dmg} damage.`
             : `${def.ability.name} lashes for ${dmg} damage.`;
-          if (Math.random() < DRUID_BLEED_CHANCE) {
+          if (Math.random() < (stats.tanglewhipActive ? 0.5 : DRUID_BLEED_CHANCE)) {
             const bleedDmg = Math.max(
               1,
               Math.round(dmg * DRUID_BLEED_FRACTION),
@@ -1198,7 +1198,7 @@ export function resolveRound(
             msg += ` The enemy is left bleeding.`;
           }
           if (character.level >= 20) {
-            const bloom = Math.round(dmg * DRUID_LIFEBLOOM);
+            const bloom = Math.round(dmg * (stats.verdantCoilActive ? 0.12 : DRUID_LIFEBLOOM));
             if (bloom > 0) {
               applyHeal(bloom);
               msg += ` Lifebloom restores ${bloom} life.`;
@@ -1433,7 +1433,7 @@ export function resolveRound(
         // ── Bark Wall (Druid) ─────────────────────────────────────────────────
         // Full damage block for 2 rounds. Cannot be recast while active.
       } else if (def.ability2.kind === "bark_wall") {
-        barkWallRounds = 2;
+        barkWallRounds = stats.worldrootTotem ? 3 : 2;
         log.push({
           actor: "player",
           message:

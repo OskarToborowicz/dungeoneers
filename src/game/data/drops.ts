@@ -1,5 +1,10 @@
 import type { ClassId, Item } from "../types";
 import {
+  generateTanglewhip,
+  generateWorldrootTotem,
+  generateVerdantCoil,
+  generateThornweaveEffigy,
+  generateBloodbriar,
   generateAegisOfTheFortress,
   generatePenitentsGuard,
   generateStoneguard,
@@ -55,6 +60,8 @@ export interface UniqueDropEntry {
   /** undefined = any boss dungeon */
   dungeons?: string[];
   minLevel?: number;
+  /** Only checked when dungeons is undefined — location-pinned items always drop from their dungeons */
+  maxLevel?: number;
   classId?: ClassId;
 }
 
@@ -67,21 +74,21 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   { generator: generateSpellbladesMask, chance: 0.0025, dungeons: ["bandit-town", "bandits-town-hall", ...ACT2_DUNGEONS] },
 
   // ── Any-boss globals ──────────────────────────────────────────────────────────
-  { generator: generateRagpickersSash,   chance: 0.0025 },
-  { generator: generateHeavyStompers,    chance: 0.005 },
-  { generator: generateCrackedLens,      chance: 0.0025, minLevel: 5 },
-  { generator: generateSharpFangs,       chance: 0.002,  minLevel: 15 },
-  { generator: generateThornback,        chance: 0.0025, minLevel: 12 },
-  { generator: generateEyeOfTheStorm,    chance: 0.0025, minLevel: 18 },
-  { generator: generateBoneweaveGloves,  chance: 0.0025, minLevel: 20 },
-  { generator: generateMaskOfMidnight,   chance: 0.0025, minLevel: 25 },
-  { generator: generateMaskOfTwilight,   chance: 0.0025, minLevel: 25 },
-  { generator: generateStoneHusk,        chance: 0.005,  minLevel: 25 },
-  { generator: generateAegisOfTheFortress, chance: 0.003, minLevel: 20, classId: "paladin" },
-  { generator: generatePenitentsGuard,    chance: 0.002, classId: "paladin" },
-  { generator: generateStoneguard,        chance: 0.002, minLevel: 30, classId: "paladin" },
-  { generator: generateHeavensWrath,      chance: 0.002, minLevel: 50, classId: "paladin" },
-  { generator: generateCrownOfTheFallen, chance: 0.0025, minLevel: 45 },
+  { generator: generateRagpickersSash,   chance: 0.0025, maxLevel: 30 },
+  { generator: generateHeavyStompers,    chance: 0.005,  maxLevel: 35 },
+  { generator: generateCrackedLens,      chance: 0.0025, minLevel: 5,  maxLevel: 35 },
+  { generator: generateSharpFangs,       chance: 0.002,  minLevel: 15, maxLevel: 45 },
+  { generator: generateThornback,        chance: 0.0025, minLevel: 12, maxLevel: 40 },
+  { generator: generateEyeOfTheStorm,    chance: 0.0025, minLevel: 18, maxLevel: 50 },
+  { generator: generateBoneweaveGloves,  chance: 0.0025, minLevel: 20, maxLevel: 50 },
+  { generator: generateMaskOfMidnight,   chance: 0.0025, minLevel: 25, maxLevel: 55 },
+  { generator: generateMaskOfTwilight,   chance: 0.0025, minLevel: 25, maxLevel: 55 },
+  { generator: generateStoneHusk,        chance: 0.005,  minLevel: 25, maxLevel: 55 },
+  { generator: generateAegisOfTheFortress, chance: 0.003, minLevel: 20, maxLevel: 55, classId: "paladin" },
+  { generator: generatePenitentsGuard,    chance: 0.002,               maxLevel: 35, classId: "paladin" },
+  { generator: generateStoneguard,        chance: 0.002, minLevel: 30, maxLevel: 60, classId: "paladin" },
+  { generator: generateHeavensWrath,      chance: 0.002, minLevel: 50,               classId: "paladin" },
+  { generator: generateCrownOfTheFallen, chance: 0.0025, minLevel: 45, maxLevel: 75 },
 
   // ── Act 1 ─────────────────────────────────────────────────────────────────────
   { generator: generatePeasantHood,      chance: 0.015,  dungeons: ["sewers", "dark-forest"] },
@@ -101,12 +108,12 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   { generator: generateJusticar,         chance: 0.0015, classId: "paladin",    minLevel: 28 },
   { generator: generateSanctifier,       chance: 0.0015, classId: "paladin",    minLevel: 50 },
 
-  { generator: generateBlooddrinker,     chance: 0.0015, classId: "barbarian",  minLevel: 10 },
-  { generator: generateIronjaw,          chance: 0.0015, classId: "barbarian",  minLevel: 28 },
+  { generator: generateBlooddrinker,     chance: 0.0015, classId: "barbarian",  minLevel: 10, maxLevel: 40 },
+  { generator: generateIronjaw,          chance: 0.0015, classId: "barbarian",  minLevel: 28, maxLevel: 60 },
   { generator: generateWorldbreaker,     chance: 0.0015, classId: "barbarian",  minLevel: 50 },
 
-  { generator: generateWhisper,          chance: 0.0015, classId: "amazon",     minLevel: 8 },
-  { generator: generateStormstring,      chance: 0.0015, classId: "amazon",     minLevel: 28 },
+  { generator: generateWhisper,          chance: 0.0015, classId: "amazon",     minLevel: 8,  maxLevel: 38 },
+  { generator: generateStormstring,      chance: 0.0015, classId: "amazon",     minLevel: 28, maxLevel: 60 },
   { generator: generateDoomcrier,        chance: 0.0015, classId: "amazon",     minLevel: 50 },
 
   { generator: generateApprenticesFocus, chance: 0.002,  classId: "sorceress",  dungeons: ACT1_DUNGEONS },
@@ -115,13 +122,20 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
 
   { generator: generateShadowfang,       chance: 0.002,  classId: "assassin",   dungeons: ["bandits-town-hall", ...ACT2_DUNGEONS.slice(0, 4)] },
 
+  // ── Druid weapons ─────────────────────────────────────────────────────────────
+  { generator: generateTanglewhip,       chance: 0.003,  classId: "druid",      dungeons: ACT1_DUNGEONS,                                   minLevel: 8 },
+  { generator: generateWorldrootTotem,   chance: 0.003,  classId: "druid",      dungeons: ["bandits-town-hall", ...ACT2_DUNGEONS.slice(0, 4)], minLevel: 20 },
+  { generator: generateVerdantCoil,      chance: 0.0015, classId: "druid",      dungeons: ACT2_DUNGEONS.slice(3),                              minLevel: 33 },
+  { generator: generateThornweaveEffigy, chance: 0.0015, classId: "druid",      dungeons: ACT3_DUNGEONS.slice(3),                              minLevel: 54 },
+  { generator: generateBloodbriar,       chance: 0.0015, classId: "druid",                                                                     minLevel: 74 },
+
   // ── New uniques ───────────────────────────────────────────────────────────────
-  { generator: generateGraveToll,        chance: 0.0025, classId: "necromancer", minLevel: 10 },
-  { generator: generateBonechill,        chance: 0.002,  classId: "necromancer", minLevel: 32 },
+  { generator: generateGraveToll,        chance: 0.0025, classId: "necromancer", minLevel: 10, maxLevel: 42 },
+  { generator: generateBonechill,        chance: 0.002,  classId: "necromancer", minLevel: 32, maxLevel: 62 },
   { generator: generateEbonreap,         chance: 0.0015, classId: "necromancer", minLevel: 50 },
-  { generator: generateJadeKnuckles,     chance: 0.0025, classId: "monk" },
+  { generator: generateJadeKnuckles,     chance: 0.0025, classId: "monk",                      maxLevel: 40 },
   { generator: generateStormfist,        chance: 0.002,  classId: "monk",        minLevel: 38 },
-  { generator: generateIroncladHauberk,  chance: 0.0015, minLevel: 45 },
+  { generator: generateIroncladHauberk,  chance: 0.0015, minLevel: 45,           maxLevel: 70 },
   { generator: generateTheGavel,         chance: 0.002,  classId: "paladin", minLevel: 30 },
 
   // ── Act 3/4 endgame uniques ───────────────────────────────────────────────────

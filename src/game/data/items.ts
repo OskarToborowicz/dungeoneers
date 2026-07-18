@@ -1275,6 +1275,106 @@ export function generateForsakenSigil(): Item {
   };
 }
 
+export function generateTanglewhip(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Tanglewhip",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 10,
+    baseDamage: [5, 10],
+    twoHanded: true,
+    weaponType: "totem",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(12, 18) },
+      { label: "", stat: "damage",    value: randInt(8, 14) },
+      { label: "", stat: "vitality",  value: randInt(8, 12) },
+    ],
+    tanglewhip: true,
+  };
+}
+
+export function generateWorldrootTotem(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Worldroot",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 23,
+    baseDamage: [9, 15],
+    twoHanded: true,
+    weaponType: "totem",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(22, 32) },
+      { label: "", stat: "damage",    value: randInt(16, 24) },
+      { label: "", stat: "vitality",  value: randInt(10, 16) },
+    ],
+    worldrootTotem: true,
+  };
+}
+
+export function generateVerdantCoil(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Verdant Coil",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 36,
+    baseDamage: [12, 21],
+    twoHanded: true,
+    weaponType: "totem",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(32, 46) },
+      { label: "", stat: "damage",    value: randInt(22, 32) },
+      { label: "", stat: "energy",    value: randInt(14, 20) },
+    ],
+    verdantCoil: true,
+  };
+}
+
+export function generateThornweaveEffigy(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Thornweave Effigy",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 56,
+    baseDamage: [17, 28],
+    twoHanded: true,
+    weaponType: "totem",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(46, 62) },
+      { label: "", stat: "damage",    value: randInt(36, 50) },
+      { label: "", stat: "vitality",  value: randInt(26, 36) },
+    ],
+    thornweaveEffigy: true,
+  };
+}
+
+export function generateBloodbriar(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Bloodbriar",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 79,
+    baseDamage: [24, 38],
+    twoHanded: true,
+    weaponType: "totem",
+    affixes: [
+      { label: "", stat: "dexterity",  value: randInt(66, 86) },
+      { label: "", stat: "damage",     value: randInt(52, 72) },
+      { label: "", stat: "critChance", value: 6 },
+    ],
+    bloodbriar: true,
+  };
+}
+
 export function generateItemForSlot(
   slot: EquipmentSlot,
   itemLevel: number,

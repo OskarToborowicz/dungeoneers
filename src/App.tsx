@@ -554,6 +554,10 @@ function App() {
         if (entry.dungeons && !entry.dungeons.includes(dungeonRun.dungeonId))
           continue;
         if (entry.minLevel && character.level < entry.minLevel) continue;
+        if (!entry.dungeons && entry.maxLevel) {
+          const bossDef = DUNGEONS.find((d) => d.id === dungeonRun.dungeonId)?.boss;
+          if (bossDef && bossDef.level > entry.maxLevel) continue;
+        }
         if (entry.classId && entry.classId !== character.classId) continue;
         if (Math.random() >= entry.chance) continue;
         const item = entry.generator();

@@ -201,6 +201,11 @@ export interface DerivedStats {
   critHealPct: number;
   openerDamageBonus: number;
   dotVictimBonus: number;
+  tanglewhipActive: boolean;
+  worldrootTotem: boolean;
+  verdantCoilActive: boolean;
+  thornweaveEffigy: boolean;
+  bloodbriarActive: boolean;
 }
 
 export function getDerivedStats(
@@ -293,6 +298,11 @@ export function getDerivedStats(
     ? (equipment.belt.openerBonusPct ?? 20) / 100
     : 0;
   const dotVictimBonus = equipment.amulet?.forsakenSigil ? 0.15 : 0;
+  const tanglewhipActive = equipment.weapon?.tanglewhip === true;
+  const worldrootTotem = equipment.weapon?.worldrootTotem === true;
+  const verdantCoilActive = equipment.weapon?.verdantCoil === true;
+  const thornweaveEffigy = equipment.weapon?.thornweaveEffigy === true;
+  const bloodbriarActive = equipment.weapon?.bloodbriar === true;
   return {
     stats,
     maxLife: maxLife + mindOverMatterBonus,
@@ -339,6 +349,11 @@ export function getDerivedStats(
     critHealPct,
     openerDamageBonus,
     dotVictimBonus,
+    tanglewhipActive,
+    worldrootTotem,
+    verdantCoilActive,
+    thornweaveEffigy,
+    bloodbriarActive,
   };
 }
 
