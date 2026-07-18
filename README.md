@@ -734,40 +734,50 @@ restockFee = round(10 + (level − 1) × 8)
 
 Unique items have fixed stats and are not generated through the normal rarity roll. Drop logic lives in `src/game/data/drops.ts` (`UNIQUE_DROP_TABLE`) — each entry rolls independently on every boss kill.
 
+**Drop gating rules:**
+- `minLevel` — player must be at or above this level for the entry to roll.
+- `maxLevel` — only applies to entries with **no** dungeon restriction. Compares against the **boss's level**: if the boss is above `maxLevel`, the entry is skipped. Location-pinned items (those with a `dungeons` list) always roll from their dedicated encounters regardless of boss level.
+- `classId` — only rolls for that class.
+
 | Name | Slot | Drop Source | Chance | Stats / Effect |
 |---|---|---|---|---|
 | Spellblade's Mask | Helm | Goblins' Path, Bandit's Town Hall, any Act II boss | 0.25% | +15 Damage, +15 Magic Damage; each basic attack fires a bonus magic hit equal to 10% of physical damage dealt + 10% of magic damage bonus |
 | Peasant Hood | Helm | Any boss (early Act I) | 5% | +10 Damage, +10 Vitality, +25% Gold Find |
-| Ragpicker's Sash | Belt | Any boss | 0.25% | +5 Vitality, +20% Gold Find |
-| Cracked Lens | Helm | Any boss (lv 5+) | 0.25% | +15 Magic Damage, +10 Energy, −10 Defense |
-| Thornback | Armor | Any boss (lv 12+) | 0.25% | +30 Defense; reflects 10% of all physical damage taken back to the attacker |
-| Sharp Fangs | Gloves | Any boss (lv 15+) | 0.2% | +30 Strength, +30 Dexterity, +30 Damage, +30 Magic Damage |
+| Ragpicker's Sash | Belt | Any boss (boss lv ≤ 30) | 0.25% | +5 Vitality, +20% Gold Find |
+| Cracked Lens | Helm | Any boss (lv 5+, boss lv ≤ 35) | 0.25% | +15 Magic Damage, +10 Energy, −10 Defense |
+| Thornback | Armor | Any boss (lv 12+, boss lv ≤ 40) | 0.25% | +30 Defense; reflects 10% of all physical damage taken back to the attacker |
+| Sharp Fangs | Gloves | Any boss (lv 15+, boss lv ≤ 45) | 0.2% | +30 Strength, +30 Dexterity, +30 Damage, +30 Magic Damage |
 | Venomweave Wrap | Belt | Act I mid-to-late bosses (lv 15+) | 0.25% | +20 Dexterity; +25% Poison Damage |
 | Mirror Ring | Ring | Bandit's Town Hall endgame | 1% | Mirrors all affixes of the other ring slot |
-| Eye of the Storm | Ring | Any boss (lv 18+) | 0.25% | +25 Energy, −15 Strength; +15% Mana Regeneration |
-| Boneweave Gloves | Gloves | Any boss (lv 20+) | 0.25% | +20 Vitality, +15 Defense; 5% chance to reduce an incoming hit to 1 damage |
-| Mask of Midnight | Helm | Any boss (lv 25+) | 0.25% | +25–35 Vitality, +25–35 Damage, +5% Crit Chance |
-| Mask of Twilight | Helm | Any boss (lv 25+) | 0.25% | +25–35 Energy, +25–35 Magic Damage, +5% Crit Chance |
-| Stone Husk | Armor | Any boss (lv 25+) | 0.5% | +20–30 Vitality, +40–60 Life, 5–10% Phys Dmg Reduced, 5–10% Magic Dmg Reduced |
-| Heavy Stompers | Boots | Any boss | 0.5% | +200 Life, +100 Defense, −20 Strength, −20 Dexterity, −20 Energy |
+| Eye of the Storm | Ring | Any boss (lv 18+, boss lv ≤ 50) | 0.25% | +25 Energy, −15 Strength; +15% Mana Regeneration |
+| Boneweave Gloves | Gloves | Any boss (lv 20+, boss lv ≤ 50) | 0.25% | +20 Vitality, +15 Defense; 5% chance to reduce an incoming hit to 1 damage |
+| Mask of Midnight | Helm | Any boss (lv 25+, boss lv ≤ 55) | 0.25% | +25–35 Vitality, +25–35 Damage, +5% Crit Chance |
+| Mask of Twilight | Helm | Any boss (lv 25+, boss lv ≤ 55) | 0.25% | +25–35 Energy, +25–35 Magic Damage, +5% Crit Chance |
+| Stone Husk | Armor | Any boss (lv 25+, boss lv ≤ 55) | 0.5% | +20–30 Vitality, +40–60 Life, 5–10% Phys Dmg Reduced, 5–10% Magic Dmg Reduced |
+| Heavy Stompers | Boots | Any boss (boss lv ≤ 35) | 0.5% | +200 Life, +100 Defense, −20 Strength, −20 Dexterity, −20 Energy |
 | The Pentagram | Amulet | Any Act II boss | 0.5% | +100 Damage, −100 Life |
 | Demon's Tail | Belt | Any Act II boss | 0.25% | Every direct hit pushes an independent burn stack: 30% of that hit's damage per turn for 2 turns |
 | Reaper's Hood | Helm | Act II late bosses | 0.5% | +4–7% Life Leech, +35–50 Vitality, +35–50 Damage; 20% chance to disorient on attack for 2 turns |
-| Crown of the Fallen | Helm | Any boss (lv 45+) | 0.25% | Low-life damage bonus +25% (below 35% HP) |
+| Crown of the Fallen | Helm | Any boss (lv 45+, boss lv ≤ 75) | 0.25% | Low-life damage bonus +25% (below 35% HP) |
 | Harvester | Weapon (Necromancer) | Act II late bosses, Necromancer only | 6% | Base 18–28 dmg; +50–75 Damage, +50–75 Magic Damage, +25–40 Vitality, +25–40 Energy |
-| Blooddrinker | Weapon (Barbarian) | Any boss (lv 10+), Barbarian only | 0.15% | Base 6–14 dmg; 8–12% Life Leech, +15–20 Strength, −8 Defense |
-| Ironjaw | Weapon (Barbarian) | Any boss (lv 28+), Barbarian only | 0.15% | Base 16–26 dmg; +35–50 Damage, +25–35 Vitality, +5% Crit Chance |
+| Blooddrinker | Weapon (Barbarian) | Any boss (lv 10+, boss lv ≤ 40), Barbarian only | 0.15% | Base 6–14 dmg; 8–12% Life Leech, +15–20 Strength, −8 Defense |
+| Ironjaw | Weapon (Barbarian) | Any boss (lv 28+, boss lv ≤ 60), Barbarian only | 0.15% | Base 16–26 dmg; +35–50 Damage, +25–35 Vitality, +5% Crit Chance |
 | Worldbreaker | Weapon (Barbarian) | Any boss (lv 50+), Barbarian only | 0.15% | Base 28–44 dmg; +55–75 Damage, +40–55 Strength, +30–45 Vitality, −25 Dexterity |
-| Penitent's Grace | Weapon (Paladin) | Any boss (lv 10+), Paladin only | 0.15% | Base 5–10 dmg; +10–15 Energy, +8–12 Mana Regen/Turn, +10–15 Magic Damage, +10–15 Vitality |
+| Penitent's Grace | Weapon (Paladin) | Any boss (lv 10+, boss lv ≤ 35), Paladin only | 0.15% | Base 5–10 dmg; +10–15 Energy, +8–12 Mana Regen/Turn, +10–15 Magic Damage, +10–15 Vitality |
 | Justicar | Weapon (Paladin) | Any boss (lv 28+), Paladin only | 0.15% | Base 14–22 dmg; +30–45 Damage, +20–30 Energy, +15–25 Magic Damage, −15 Strength |
 | Sanctifier | Weapon (Paladin) | Any boss (lv 50+), Paladin only | 0.15% | Base 24–38 dmg; +50–70 Magic Damage, +35–45 Damage, +40–55 Vitality, +6% Crit Chance |
-| Whisper | Weapon (Huntress) | Any boss (lv 8+), Huntress only | 0.15% | Base 5–12 dmg; +10–15 Dexterity, +10–15 Vitality, +10–15 Damage |
-| Stormstring | Weapon (Huntress) | Any boss (lv 28+), Huntress only | 0.15% | Base 16–28 dmg; +30–45 Dexterity, +25–35 Damage, −15 Strength; Electrocute on hit — enemy takes 20% more damage for 2 turns |
+| Whisper | Weapon (Huntress) | Any boss (lv 8+, boss lv ≤ 38), Huntress only | 0.15% | Base 5–12 dmg; +10–15 Dexterity, +10–15 Vitality, +10–15 Damage |
+| Stormstring | Weapon (Huntress) | Any boss (lv 28+, boss lv ≤ 60), Huntress only | 0.15% | Base 16–28 dmg; +30–45 Dexterity, +25–35 Damage, −15 Strength; Electrocute on hit — enemy takes 20% more damage for 2 turns |
 | Doomcrier | Weapon (Huntress) | Any boss (lv 50+), Huntress only | 0.15% | Base 28–46 dmg; +55–75 Damage, +40–55 Dexterity, +8% Crit Chance; Heartseeker fires at 70% instead of 50% |
 | Apprentice's Focus | Weapon (Sorceress) | Act I bosses, Sorceress only | 0.2% | Base 4–11 dmg; +12–18 Energy, +12–18 Magic Damage, +8–12 Mana |
 | The Arcanist | Weapon (Sorceress) | Bandit's Town Hall + Act II early bosses, Sorceress only | 0.1% | Base 9–18 dmg; +30–45 Magic Damage, +20–30 Energy, −15 Vitality; Frost Bolt deals +40% damage while Frost Shield is active |
 | Eternity's Edge | Weapon (Sorceress) | Act II late bosses, Sorceress only | 0.1% | Base 15–26 dmg; +55–75 Magic Damage, +40–55 Energy, +6% Crit Chance; 30% chance for Frost Bolt to echo at 50% power |
 | Shadowfang | Weapon (Assassin) | Bandit's Town Hall + Act II early bosses, Assassin only | 0.2% | Base 9–15 dmg; +30–45 Dexterity, +20–30 Damage, −15 Vitality; 20% chance after each hit to call a phantom strike at 50% damage |
+| Tanglewhip | Weapon (Druid) | Act I bosses (lv 8+), Druid only | 0.3% | Base 5–10 dmg; +12–18 Dexterity, +8–14 Damage, +8–12 Vitality; Vine Whip bleed chance increased to 50% |
+| Worldroot | Weapon (Druid) | Bandit's Town Hall + Act II early bosses (lv 20+), Druid only | 0.3% | Base 9–15 dmg; +22–32 Dexterity, +16–24 Damage, +10–16 Vitality; Grove lasts 3 turns instead of 2 |
+| Verdant Coil | Weapon (Druid) | Act II mid–late bosses (lv 33+), Druid only | 0.15% | Base 12–21 dmg; +32–46 Dexterity, +22–32 Damage, +14–20 Energy; Lifebloom heals 12% of damage dealt instead of 8% |
+| Thornweave Effigy | Weapon (Druid) | Act III mid–late bosses (lv 54+), Druid only | 0.15% | Base 17–28 dmg; +46–62 Dexterity, +36–50 Damage, +26–36 Vitality; Nature's Wrath poison stacks deal 35% of hit per turn instead of 20% |
+| Bloodbriar | Weapon (Druid) | Any boss (lv 74+), Druid only | 0.15% | Base 24–38 dmg; +66–86 Dexterity, +52–72 Damage, +6% Crit Chance; Bramble erupts at 2 stacks instead of 3 |
 
 ### Gheedon the Gambler
 
