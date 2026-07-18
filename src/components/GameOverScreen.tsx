@@ -7,6 +7,7 @@ interface Props {
   onContinue: () => void;
 }
 
+// Only Hardcore deaths reach this screen — Softcore returns straight to the hub.
 export function GameOverScreen({ summary, onContinue }: Props) {
   const def = CLASSES[summary.classId];
 

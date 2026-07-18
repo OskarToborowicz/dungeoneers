@@ -14,10 +14,12 @@ export function xpToNextLevel(level: number): number {
 export function createCharacter(
   name: string,
   classId: Character["classId"],
+  mode: Character["mode"] = "hardcore",
 ): Character {
   return {
     name,
     classId,
+    mode,
     level: 1,
     xp: 0,
     gold: 50,

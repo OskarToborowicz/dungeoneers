@@ -35,6 +35,9 @@
 .landscape-monster-hp {
   display: none;
 }
+.landscape-monster-status {
+  display: none;
+}
 
 .combat-bars {
   display: flex;

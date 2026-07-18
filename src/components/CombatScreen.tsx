@@ -55,8 +55,11 @@ interface Props {
   xpCapped: boolean;
   xpMultiplier: number;
   clearedDungeons: string[];
+  isBossFight: boolean;
+  itemsFoundThisRun: number;
+  onRollDrops: (monsterLevel: number, isBoss: boolean) => void;
   onUsePotion: (id: ConsumableId) => void;
-  onFinished: (result: CombatResult) => void;
+  onFinished: (result: CombatResult, clearAgain?: boolean) => void;
   onEscape: () => void;
 }
 
@@ -76,6 +79,9 @@ export function CombatScreen({
   xpCapped,
   xpMultiplier,
   clearedDungeons,
+  isBossFight,
+  itemsFoundThisRun,
+  onRollDrops,
   onUsePotion,
   onFinished,
   onEscape,
@@ -221,6 +227,7 @@ export function CombatScreen({
         xp: monster.xpReward,
         gold: rollGoldReward(monster, derived.goldFindBonus),
       });
+      onRollDrops(monster.level, isBossFight);
       if (!isPotion) setPlayerAnim("attack");
       setTimeout(() => {
         setPlayerAnim("idle");
@@ -323,19 +330,22 @@ export function CombatScreen({
     }
   }
 
-  function handleContinue() {
-    onFinished({
-      victory: status === "victory",
-      xpReward: reward?.xp ?? 0,
-      goldReward: reward?.gold ?? 0,
-      endingLife: battle.playerLife,
-      endingMana: battle.playerMana,
-      endingPreparation: battle.preparation,
-      endingCooldown: battle.abilityCooldown,
-      endingCooldown2: battle.ability2Cooldown,
-      endingHolyLightCharges: battle.holyLightCharges,
-      damageDealt: totalDamageDealt,
-    });
+  function handleContinue(clearAgain = false) {
+    onFinished(
+      {
+        victory: status === "victory",
+        xpReward: reward?.xp ?? 0,
+        goldReward: reward?.gold ?? 0,
+        endingLife: battle.playerLife,
+        endingMana: battle.playerMana,
+        endingPreparation: battle.preparation,
+        endingCooldown: battle.abilityCooldown,
+        endingCooldown2: battle.ability2Cooldown,
+        endingHolyLightCharges: battle.holyLightCharges,
+        damageDealt: totalDamageDealt,
+      },
+      clearAgain,
+    );
   }
 
   const abilityUsable =
@@ -345,6 +355,66 @@ export function CombatScreen({
   const attackPreview = getAttackPreview(character, derived);
   const abilityPreview = getAbilityPreview(character, derived);
   const ability2Preview = getAbility2Preview(character, derived);
+  const softcoreMode = character.mode === "softcore";
+  const canFlee = !isAnimating && (softcoreMode || escapeTokens > 0);
+
+  // Monster status pills — rendered in the bars column (portrait/desktop) and
+  // duplicated in the flee column for landscape, where the monster's HP lives.
+  const monsterStatusActive =
+    battle.poisonRounds > 0 ||
+    battle.frozenRounds > 0 ||
+    battle.stunnedRounds > 0 ||
+    battle.blindRounds > 0 ||
+    battle.disorientRounds > 0 ||
+    battle.burnStacks.some((s) => s.rounds > 0) ||
+    battle.thornStacks > 0 ||
+    battle.electrocuteRounds > 0;
+
+  const monsterStatusPills = (
+    <>
+      {battle.poisonRounds > 0 && (
+        <span className="status-pill poison">☠ Poison {battle.poisonRounds}</span>
+      )}
+      {battle.stunnedRounds > 0 && (
+        <span className="status-pill stunned">💫 Stunned {battle.stunnedRounds}</span>
+      )}
+      {battle.frozenRounds > 0 && (
+        <span className="status-pill frozen">❄ Frozen {battle.frozenRounds}</span>
+      )}
+      {battle.blindRounds > 0 && (
+        <span className="status-pill blind">◉ Blind {battle.blindRounds}</span>
+      )}
+      {battle.disorientRounds > 0 && (
+        <span className="status-pill disorient">◌ Disorient {battle.disorientRounds}</span>
+      )}
+      {battle.thornStacks > 0 && (
+        <span className="status-pill poison" title="Bramble — erupts at 3 stacks">
+          🌿 Thorns {battle.thornStacks}/3
+        </span>
+      )}
+      {battle.burnStacks.map((s, i) => {
+        if (s.rounds <= 0) return null;
+        const dot =
+          s.kind === "poison"
+            ? { cls: "poison", icon: "☠", label: "Poison", unit: "poison" }
+            : s.kind === "bleed"
+              ? { cls: "bleed", icon: "🩸", label: "Bleed", unit: "bleed" }
+              : { cls: "burn", icon: "🔥", label: "Burn", unit: "fire" };
+        return (
+          <span
+            key={i}
+            className={`status-pill ${dot.cls}`}
+            title={`${s.source}: ${s.damage} ${dot.unit}/turn · ${s.rounds} turn${s.rounds !== 1 ? "s" : ""} remaining`}
+          >
+            {dot.icon} {dot.label} {s.rounds}
+          </span>
+        );
+      })}
+      {battle.electrocuteRounds > 0 && (
+        <span className="status-pill electrocute">⚡ Electrocute {battle.electrocuteRounds}</span>
+      )}
+    </>
+  );
 
   return (
     <div className="screen combat-screen">
@@ -691,6 +761,9 @@ export function CombatScreen({
                       {!xpCapped && <>{pendingXp} XP &middot; </>}
                       {reward.gold} gold
                     </p>
+                    <p className="items-found-note">
+                      Items found: {itemsFoundThisRun}
+                    </p>
                     {levelsGained > 0 && (
                       <p className="level-up-notice">
                         Level up! Now level {simLevel}
@@ -700,11 +773,31 @@ export function CombatScreen({
                 );
               })()}
             {status === "defeat" && (
-              <p>Your journey ends here. All progress will be lost.</p>
+              <p>
+                You are dead.{" "}
+                {softcoreMode
+                  ? "You lose 10% of your gold and XP."
+                  : "All progress will be lost."}
+              </p>
             )}
-            <button className="primary-button" onClick={handleContinue}>
-              {status === "victory" ? "Continue" : "Accept Your Fate"}
+            <button
+              className={`primary-button${status === "defeat" && softcoreMode ? " respawn-button" : ""}`}
+              onClick={() => handleContinue()}
+            >
+              {status === "victory"
+                ? "Continue"
+                : softcoreMode
+                  ? "Respawn"
+                  : "Accept Your Fate"}
             </button>
+            {status === "victory" && isBossFight && (
+              <button
+                className="primary-button clear-again-button"
+                onClick={() => handleContinue(true)}
+              >
+                Clear Again
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -937,86 +1030,9 @@ export function CombatScreen({
               {battle.monsterLife}/{monster.life}
             </span>
           </div>
-          {(battle.poisonRounds > 0 ||
-            battle.frozenRounds > 0 ||
-            battle.stunnedRounds > 0 ||
-            battle.blindRounds > 0 ||
-            battle.disorientRounds > 0 ||
-            battle.burnStacks.some((s) => s.rounds > 0) ||
-            battle.thornStacks > 0 ||
-            battle.electrocuteRounds > 0) && (
-            <div className="status-effects">
-              {battle.poisonRounds > 0 && (
-                <span className="status-pill poison">
-                  ☠ Poison {battle.poisonRounds}
-                </span>
-              )}
-              {battle.stunnedRounds > 0 && (
-                <span className="status-pill stunned">
-                  💫 Stunned {battle.stunnedRounds}
-                </span>
-              )}
-              {battle.frozenRounds > 0 && (
-                <span className="status-pill frozen">
-                  ❄ Frozen {battle.frozenRounds}
-                </span>
-              )}
-              {battle.blindRounds > 0 && (
-                <span className="status-pill blind">
-                  ◉ Blind {battle.blindRounds}
-                </span>
-              )}
-              {battle.disorientRounds > 0 && (
-                <span className="status-pill disorient">
-                  ◌ Disorient {battle.disorientRounds}
-                </span>
-              )}
-              {battle.thornStacks > 0 && (
-                <span
-                  className="status-pill poison"
-                  title="Bramble — erupts at 3 stacks"
-                >
-                  🌿 Thorns {battle.thornStacks}/3
-                </span>
-              )}
-              {battle.burnStacks.map((s, i) => {
-                if (s.rounds <= 0) return null;
-                const dot =
-                  s.kind === "poison"
-                    ? {
-                        cls: "poison",
-                        icon: "☠",
-                        label: "Poison",
-                        unit: "poison",
-                      }
-                    : s.kind === "bleed"
-                      ? {
-                          cls: "bleed",
-                          icon: "🩸",
-                          label: "Bleed",
-                          unit: "bleed",
-                        }
-                      : {
-                          cls: "burn",
-                          icon: "🔥",
-                          label: "Burn",
-                          unit: "fire",
-                        };
-                return (
-                  <span
-                    key={i}
-                    className={`status-pill ${dot.cls}`}
-                    title={`${s.source}: ${s.damage} ${dot.unit}/turn · ${s.rounds} turn${s.rounds !== 1 ? "s" : ""} remaining`}
-                  >
-                    {dot.icon} {dot.label} {s.rounds}
-                  </span>
-                );
-              })}
-              {battle.electrocuteRounds > 0 && (
-                <span className="status-pill electrocute">
-                  ⚡ Electrocute {battle.electrocuteRounds}
-                </span>
-              )}
+          {monsterStatusActive && (
+            <div className="status-effects monster-status-bars">
+              {monsterStatusPills}
             </div>
           )}
         </div>
@@ -1102,15 +1118,28 @@ export function CombatScreen({
                 </span>
               </div>
             </div>
+            {monsterStatusActive && (
+              <div className="status-effects landscape-monster-status">
+                {monsterStatusPills}
+              </div>
+            )}
             <button
               className="action-button run"
-              disabled={isAnimating || escapeTokens <= 0}
+              disabled={!canFlee}
               onClick={() => setShowFleePrompt(true)}
-              title="Flee the battle. Ends the dungeon run. One use per character."
+              title={
+                softcoreMode
+                  ? "Flee the battle. Ends the dungeon run and costs 30% of your gold."
+                  : "Flee the battle. Ends the dungeon run. One use per character."
+              }
             >
               Flee
               <span className="action-cost">
-                {escapeTokens > 0 ? `${escapeTokens} token` : "No tokens"}
+                {softcoreMode
+                  ? "−30% gold"
+                  : escapeTokens > 0
+                    ? `${escapeTokens} token`
+                    : "No tokens"}
               </span>
             </button>
           </div>
@@ -1119,8 +1148,23 @@ export function CombatScreen({
 
       {status !== "ongoing" && (
         <div className="combat-result-actions">
-          <button className="primary-button" onClick={handleContinue}>
-            {status === "victory" ? "Continue" : "Accept Your Fate"}
+          {status === "victory" && isBossFight && (
+            <button
+              className="primary-button clear-again-button"
+              onClick={() => handleContinue(true)}
+            >
+              Clear Again
+            </button>
+          )}
+          <button
+            className={`primary-button${status === "defeat" && softcoreMode ? " respawn-button" : ""}`}
+            onClick={() => handleContinue()}
+          >
+            {status === "victory"
+              ? "Continue"
+              : softcoreMode
+                ? "Respawn"
+                : "Accept Your Fate"}
           </button>
         </div>
       )}

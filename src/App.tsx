@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useLayoutEffect, useState } from "react";
 import { CharacterCreation } from "./components/CharacterCreation";
 import { CharacterSelect } from "./components/CharacterSelect";
 import { Hub } from "./components/Hub";
@@ -38,7 +38,9 @@ import type {
   ConsumableId,
   DeathSummary,
   EquipmentSlot,
+  GameMode,
   Item,
+  ItemRarity,
   MonsterDefinition,
   RunStats,
   SaveGame,
@@ -81,6 +83,8 @@ function App() {
     "character" | "inventory" | "dungeons" | "shop" | "gambler" | "journal"
   >("character");
   const [deathSummary, setDeathSummary] = useState<DeathSummary | null>(null);
+  const [pendingRestart, setPendingRestart] = useState<string | null>(null);
+  const [runItemsFound, setRunItemsFound] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [showPortalMessage, setShowPortalMessage] = useState(false);
   const [showSewersIntro, setShowSewersIntro] = useState(false);
@@ -133,6 +137,16 @@ function App() {
     dungeonRun,
   ]);
 
+  // "Clear Again": restart the same dungeon once the boss-reward state has
+  // committed. useLayoutEffect (pre-paint) avoids a one-frame flash of the hub.
+  useLayoutEffect(() => {
+    if (pendingRestart && !dungeonRun) {
+      const id = pendingRestart;
+      setPendingRestart(null);
+      handleStartDungeon(id);
+    }
+  }, [pendingRestart, dungeonRun]);
+
   if (!loaded) return null;
 
   if (deathSummary) {
@@ -166,8 +180,8 @@ function App() {
       <>
         <CharacterCreation
           onBack={() => setCreating(false)}
-          onCreate={(name: string, classId: ClassId) => {
-            const newCharacter = createCharacter(name, classId);
+          onCreate={(name: string, classId: ClassId, mode: GameMode) => {
+            const newCharacter = createCharacter(name, classId, mode);
             const newShopStock = generateShopStock(1, classId, 4, []);
             const startingEquipment = generateStartingEquipment(classId);
             const save: SaveGame = {
@@ -438,6 +452,7 @@ function App() {
     if (!character) return;
     const dungeon = DUNGEONS.find((d) => d.id === dungeonId);
     if (!dungeon) return;
+    setRunItemsFound(0); // fresh per-clear item counter
     const startingLife = derived.maxLife;
     const startingMana = getStartingResource(character, derived);
     if (activeSlotId) {
@@ -475,11 +490,15 @@ function App() {
   }
 
   function handleEscape() {
-    setCharacter((prev) =>
-      prev
-        ? { ...prev, escapeTokens: Math.max(0, prev.escapeTokens - 1) }
-        : prev,
-    );
+    setCharacter((prev) => {
+      if (!prev) return prev;
+      // Softcore: flee freely (no token) but pay 30% of gold.
+      if (prev.mode === "softcore") {
+        return { ...prev, gold: prev.gold - Math.floor(prev.gold * 0.3) };
+      }
+      // Hardcore: costs one escape token.
+      return { ...prev, escapeTokens: Math.max(0, prev.escapeTokens - 1) };
+    });
     setDungeonRun(null);
   }
 
@@ -495,9 +514,51 @@ function App() {
     setSlots(getAllSaves());
   }
 
-  function handleFightFinished(result: CombatResult) {
+  // Rolled the moment a fight is won (from CombatScreen), before the victory
+  // overlay renders, so runItemsFound reflects this fight's drops too.
+  function handleRollDrops(monsterLevel: number, isBoss: boolean) {
+    if (!character || !dungeonRun) return;
+    const rarityOrder: ItemRarity[] = [
+      "normal",
+      "magic",
+      "rare",
+      "very rare",
+      "unique",
+    ];
+    let found = 0;
+    const bank = (item: Item) => {
+      setInventory((prev) => [item, ...prev]);
+      setDroppedItem((prev) =>
+        prev === null ||
+        rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity)
+          ? item
+          : prev,
+      );
+      if (["rare", "very rare", "unique"].includes(item.rarity))
+        setHasUnseenDrops(true);
+      found += 1;
+    };
+    if (isBoss) {
+      for (const entry of UNIQUE_DROP_TABLE) {
+        if (entry.dungeons && !entry.dungeons.includes(dungeonRun.dungeonId))
+          continue;
+        if (entry.minLevel && character.level < entry.minLevel) continue;
+        if (!entry.dungeons && entry.maxLevel) {
+          const bossDef = DUNGEONS.find((d) => d.id === dungeonRun.dungeonId)?.boss;
+          if (bossDef && bossDef.level > entry.maxLevel) continue;
+        }
+        if (entry.classId && entry.classId !== character.classId) continue;
+        if (Math.random() >= entry.chance) continue;
+        bank(entry.generator());
+      }
+    }
+    if (Math.random() < (isBoss ? 1 : 0.35))
+      bank(generateRandomItem(monsterLevel, character.classId));
+    if (found > 0) setRunItemsFound((n) => n + found);
+  }
+
+  function handleFightFinished(result: CombatResult, clearAgain = false) {
     if (!dungeonRun || !character) return;
-    const monster = dungeonRun.queue[dungeonRun.index];
 
     const updatedRunStats: RunStats = {
       damageDealt: character.runStats.damageDealt + result.damageDealt,
@@ -506,6 +567,21 @@ function App() {
     };
 
     if (!result.victory) {
+      // Softcore: keep the character, gear, and progress — just apply a penalty
+      // (10% gold + 10% of current-level XP) and drop straight back to the hub,
+      // no death-summary screen. Level never drops because character.xp is the
+      // progress within the current level.
+      if (character.mode === "softcore") {
+        setCharacter({
+          ...character,
+          gold: character.gold - Math.floor(character.gold * 0.1),
+          xp: character.xp - Math.floor(character.xp * 0.1),
+          runStats: updatedRunStats,
+        });
+        setDungeonRun(null); // auto-save persists the penalized character
+        return;
+      }
+      // Hardcore: permadeath — delete the save and wipe all state.
       if (activeSlotId) deleteSave(activeSlotId);
       setDeathSummary({
         characterName: character.name,
@@ -541,50 +617,9 @@ function App() {
       return withXp;
     });
 
-    const isBoss = dungeonRun.index === dungeonRun.queue.length - 1;
-    const rarityOrder: import("./game/types").ItemRarity[] = [
-      "normal",
-      "magic",
-      "rare",
-      "very rare",
-      "unique",
-    ];
-    if (isBoss) {
-      for (const entry of UNIQUE_DROP_TABLE) {
-        if (entry.dungeons && !entry.dungeons.includes(dungeonRun.dungeonId))
-          continue;
-        if (entry.minLevel && character.level < entry.minLevel) continue;
-        if (!entry.dungeons && entry.maxLevel) {
-          const bossDef = DUNGEONS.find((d) => d.id === dungeonRun.dungeonId)?.boss;
-          if (bossDef && bossDef.level > entry.maxLevel) continue;
-        }
-        if (entry.classId && entry.classId !== character.classId) continue;
-        if (Math.random() >= entry.chance) continue;
-        const item = entry.generator();
-        setInventory((prev) => [item, ...prev]);
-        setDroppedItem((prev) =>
-          prev === null ||
-          rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity)
-            ? item
-            : prev,
-        );
-        if (["rare", "very rare", "unique"].includes(item.rarity))
-          setHasUnseenDrops(true);
-      }
-    }
-    const dropChance = isBoss ? 1 : 0.35;
-    if (Math.random() < dropChance) {
-      const item = generateRandomItem(monster.level, character.classId);
-      setInventory((prev) => [item, ...prev]);
-      setDroppedItem((prev) =>
-        prev === null ||
-        rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity)
-          ? item
-          : prev,
-      );
-      if (["rare", "very rare", "unique"].includes(item.rarity))
-        setHasUnseenDrops(true);
-    }
+    // Item drops are rolled at win-time via handleRollDrops (called from
+    // CombatScreen), so the "Items found" counter is up to date on the victory
+    // screen — including the boss's own loot.
 
     const nextIndex = dungeonRun.index + 1;
     if (nextIndex >= dungeonRun.queue.length) {
@@ -594,6 +629,15 @@ function App() {
           ? prev
           : [...prev, dungeonRun.dungeonId],
       );
+      // Clear Again: skip the return-to-hub UI and restart the same dungeon.
+      // The restart is deferred to a layout effect so it runs after the reward
+      // state (gold/XP/drops) has committed — otherwise the fresh run's save
+      // would be written with stale, pre-reward values.
+      if (clearAgain) {
+        setDungeonRun(null);
+        setPendingRestart(dungeonRun.dungeonId);
+        return;
+      }
       if (wasNew && dungeonRun.dungeonId === "sewers")
         setShowSewersEscape(true);
       if (wasNew && dungeonRun.dungeonId === "goblins-path")
@@ -673,6 +717,9 @@ function App() {
           }
           xpMultiplier={1}
           clearedDungeons={clearedDungeons}
+          isBossFight={dungeonRun.index === dungeonRun.queue.length - 1}
+          itemsFoundThisRun={runItemsFound}
+          onRollDrops={handleRollDrops}
           onUsePotion={handleUsePotion}
           onFinished={handleFightFinished}
           onEscape={handleEscape}

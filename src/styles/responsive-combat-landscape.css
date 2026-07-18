@@ -77,8 +77,17 @@
   .combat-middle .combat-log::-webkit-scrollbar-thumb:hover {
     background: var(--border-gold-bright, #c9932a);
   }
+  /* Monster HP and status pills are duplicated in the flee column next to the
+     monster, so hide the whole monster bar-block in the (left) bars column. */
   .combat-bars .combat-bar-block:last-child {
     display: none;
+  }
+  .landscape-monster-status {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    justify-content: center;
+    margin-top: 4px;
   }
 
   .combat-bars .hp-bar,

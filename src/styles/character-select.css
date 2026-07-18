@@ -90,6 +90,28 @@
   margin-bottom: 3px;
 }
 
+.mode-badge {
+  margin-left: 6px;
+  padding: 1px 5px;
+  border-radius: 3px;
+  font-family: var(--body-font);
+  font-size: 10px;
+  font-weight: bold;
+  vertical-align: middle;
+}
+
+.mode-badge.hardcore {
+  background: rgba(194, 50, 31, 0.18);
+  border: 1px solid var(--accent-red-bright);
+  color: var(--accent-red-bright);
+}
+
+.mode-badge.softcore {
+  background: rgba(90, 160, 90, 0.15);
+  border: 1px solid #6aae6a;
+  color: #8fd48f;
+}
+
 .hero-card-meta {
   display: flex;
   align-items: center;

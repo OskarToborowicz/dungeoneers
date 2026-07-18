@@ -98,6 +98,51 @@
   display: none;
 }
 
+/* Clear Again — restart the same dungeon after a boss clear. Gold-outlined so
+   it reads as secondary to the red "Continue". Overrides .primary-button. */
+.clear-again-button.clear-again-button {
+  background: transparent;
+  border: 1px solid var(--border-gold-bright);
+  color: var(--border-gold-bright);
+  margin-left: 8px;
+}
+
+.clear-again-button.clear-again-button:hover:not(:disabled) {
+  background: rgba(201, 162, 75, 0.12);
+  filter: none;
+}
+
+/* Respawn (defeat) button — darker, flat material style instead of the red
+   gradient primary. Overrides .primary-button. */
+.respawn-button.respawn-button {
+  background: #2b2b30;
+  border: 1px solid #3d3d44;
+  color: #e6e6ea;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  border-radius: 4px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.45),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+  transition:
+    background 0.15s,
+    box-shadow 0.15s;
+}
+
+.respawn-button.respawn-button:hover:not(:disabled) {
+  background: #34343b;
+  filter: none;
+  box-shadow:
+    0 4px 8px rgba(0, 0, 0, 0.5),
+    0 2px 4px rgba(0, 0, 0, 0.35);
+}
+
+.respawn-button.respawn-button:active:not(:disabled) {
+  background: #26262b;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
 .victory-text {
   color: var(--border-gold-bright);
 }
@@ -110,5 +155,11 @@
   color: #ffe066;
   font-weight: bold;
   margin-top: 4px;
+}
+
+.items-found-note {
+  color: var(--text-dim);
+  font-size: 13px;
+  margin-top: 2px;
 }
 

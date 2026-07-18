@@ -164,9 +164,12 @@ export interface RunStats {
   kills: number;
 }
 
+export type GameMode = "hardcore" | "softcore";
+
 export interface Character {
   name: string;
   classId: ClassId;
+  mode: GameMode;
   level: number;
   xp: number;
   gold: number;

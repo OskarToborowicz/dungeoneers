@@ -35,7 +35,7 @@ Eight classes are available, each with a unique resource type, active ability, a
 | Sorceress | Mana | War Staff | Magic burst damage — 2 active abilities, 3 passives |
 | Huntress | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities, 3 passives |
 | Paladin | Mana | Mace | Tank/sustain with healing aura — 2 active abilities, 3 passives |
-| Druid | Mana | Totem | Forest bruiser — vine whip with bleed, bark-wall immunity, thorn/poison stacks — 2 active abilities, 3 passives |
+| Druid | Mana | Whip | Forest bruiser — vine whip with bleed, Grove immunity, thorn/poison stacks — 2 active abilities, 3 passives |
 | Assassin | Preparation | Claw | Shadow warrior who builds Preparation through combat and unleashes devastating strikes — 2 active abilities, 3 passives |
 | Monk | Chi | Katar | Fast multi-hit melee with self-sustain and counter-attack — 2 active abilities, 3 passives |
 
@@ -68,8 +68,7 @@ critChance    = min(0.60, 0.05 + dexterity × 0.001)
 ```
 Every 5 Dexterity adds +1 to both minimum and maximum weapon damage. Base crit chance is 5% and scales to a soft cap of 60%.
 
-- Druid passive (Thick Hide): `reduction = min(0.25, dexterity × 0.002)` — caps at 25% damage reduction at 125 Dexterity.
-- Druid ability (Werewolf Bite): deals `dexterity × 1.5` flat bonus damage on top of weapon damage.
+- Druid ability (Vine Whip): deals `dexterity × 1.0` flat bonus damage on top of `weaponDamage × 1.2`.
 
 ### Vitality
 Increases maximum life and defense.
@@ -203,6 +202,8 @@ Each boss's level determines the cap for that zone. Clearing each dungeon raises
 Combat is turn-based. The player chooses one action per round; the monster then attacks back.
 
 **Animations are sequential.** The player's attack animation plays first (~550 ms), then the monster's animation fires. HP bars update at the start of each combatant's animation phase. Action buttons are locked during the sequence. The damage preview on each button (range, crit ceiling, type) reflects pre-combat expected values.
+
+**Clear Again.** After defeating a dungeon's boss, the victory screen offers a **Clear Again** button next to Continue. It banks the boss rewards as normal, then immediately restarts the same dungeon from the first wave (full life/mana) instead of returning to the Hub — a quick farming loop.
 
 ### Player Actions
 
@@ -371,6 +372,8 @@ The Paladin's Divine Retribution passive (15% of damage taken converted to life)
 ### Escape Tokens
 
 Each character starts with **1 Escape Token**. Using the **Flee** action in combat consumes the token and immediately ends the dungeon run, returning the player to the Hub without dying. The save is preserved. Once the token is spent it is gone permanently — it does not replenish.
+
+**Softcore exception:** Softcore characters ignore Escape Tokens entirely — they can flee any time, but each flee costs **30% of their current gold**.
 
 ---
 
@@ -618,7 +621,7 @@ maxLife += round(maxMana × 0.15)
 
 ### Two-Handed Weapons
 
-War Staff (Necromancer/Sorceress), Bow (Huntress), and Totem (Druid) are two-handed. Equipping one unequips the shield slot.
+War Staff (Necromancer/Sorceress), Bow (Huntress), and Whip (Druid) are two-handed. Equipping one unequips the shield slot.
 
 ### Barbarian Dual-Wield
 
@@ -640,7 +643,7 @@ The Assassin can equip a Claw in the off-hand slot under the same rules as the B
 | War Staff | Sorceress | 2 | 8 | Yes |
 | Bow | Huntress | 3 | 7 | Yes |
 | Mace | Paladin | 3 | 4 | No |
-| Totem | Druid | 2 | 6 | Yes |
+| Whip | Druid | 2 | 6 | Yes |
 | Claw | Assassin | 2 | 5 | No |
 | Katar | Monk | 2 | 5 | No |
 
@@ -797,9 +800,12 @@ Unique items from gambling follow the same progression gates as dungeon drops. C
 
 The **Sort** button (next to the "Inventory" label) sorts all items in place by: **rarity** (Unique first) → **item level** (descending) → **slot**. Subsequent drops continue to appear at the top of the list regardless.
 
-### Permadeath
+### Game Modes
 
-If the player dies during a dungeon run, the character is **permanently deleted**. A death summary screen shows final stats before returning to character selection.
+Each character is created as **Hardcore** or **Softcore** (chosen at creation; a HC/SC badge shows on the character-select card). The mode is fixed for the character's life.
+
+- **Hardcore** — permadeath. On death the character is **permanently deleted**; a death summary shows final stats before returning to character selection. Fleeing costs one **Escape Token**.
+- **Softcore** — no permadeath. On death the character loses **10% of their gold and 10% of their current-level XP progress** (the level itself never drops), then drops **straight back to town** with no death-summary screen, keeping all gear and progress. Fleeing needs **no token** but costs **30% of current gold** (unlimited uses).
 
 ---
 

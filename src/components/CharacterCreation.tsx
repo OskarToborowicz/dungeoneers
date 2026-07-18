@@ -2,16 +2,17 @@ import { useState } from "react";
 import { ClassIcon } from "./ClassIcon";
 import { CharacterSprite } from "./sprites/CharacterSprite";
 import { CLASS_LIST } from "../game/data/classes";
-import type { ClassId } from "../game/types";
+import type { ClassId, GameMode } from "../game/types";
 
 interface Props {
-  onCreate: (name: string, classId: ClassId) => void;
+  onCreate: (name: string, classId: ClassId, mode: GameMode) => void;
   onBack: () => void;
 }
 
 export function CharacterCreation({ onCreate, onBack }: Props) {
   const [name, setName] = useState("");
   const [classId, setClassId] = useState<ClassId>(CLASS_LIST[0].id);
+  const [mode, setMode] = useState<GameMode>("hardcore");
 
   const selected = CLASS_LIST.find((c) => c.id === classId)!;
 
@@ -134,6 +135,22 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
       </div>
 
       <div className="creation-footer">
+        <div className="mode-select">
+          <button
+            className={`mode-button${mode === "hardcore" ? " selected" : ""}`}
+            onClick={() => setMode("hardcore")}
+          >
+            <span className="mode-name">☠ Hardcore</span>
+            <span className="mode-desc">Death is permanent</span>
+          </button>
+          <button
+            className={`mode-button${mode === "softcore" ? " selected" : ""}`}
+            onClick={() => setMode("softcore")}
+          >
+            <span className="mode-name">♻ Softcore</span>
+            <span className="mode-desc">Death costs 10% gold &amp; XP</span>
+          </button>
+        </div>
         <input
           className="name-input"
           placeholder="Enter your name"
@@ -145,7 +162,7 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
           <button
             className="primary-button"
             disabled={name.trim().length === 0}
-            onClick={() => onCreate(name.trim(), classId)}
+            onClick={() => onCreate(name.trim(), classId, mode)}
           >
             Begin Your Journey
           </button>

@@ -84,7 +84,14 @@ export function CharacterSelect({ slots, onSelect, onDelete, onNew }: Props) {
                 />
               </div>
               <div className="hero-card-info">
-                <div className="hero-card-name">{character.name}</div>
+                <div className="hero-card-name">
+                  {character.name}
+                  <span
+                    className={`mode-badge ${character.mode === "softcore" ? "softcore" : "hardcore"}`}
+                  >
+                    {character.mode === "softcore" ? "SC" : "HC"}
+                  </span>
+                </div>
                 <div className="hero-card-meta">
                   <ClassIcon classId={character.classId} size={13} />
                   {CLASS_NAMES[character.classId]} &middot; Level{" "}

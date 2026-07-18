@@ -15,6 +15,7 @@ export const ATTACK_EFFECT_CLASSES = new Set<ClassId>([
   "amazon",
   "paladin",
   "barbarian",
+  "druid",
 ]);
 
 export function AbilityEffect({
@@ -53,7 +54,8 @@ export function AbilityEffect({
         {classId === "paladin" && useAttack && <PaladinSlashFx />}
         {classId === "paladin" && !useAbility2 && !useAttack && <HolyBoltFx />}
         {classId === "paladin" && useAbility2 && <HolyLightFx />}
-        {classId === "druid" && !useAbility2 && <VineWhipFx />}
+        {classId === "druid" && useAttack && <DruidWhipFx />}
+        {classId === "druid" && !useAbility2 && !useAttack && <VineWhipFx />}
         {classId === "monk" && !useAbility2 && <SpinningCraneKickFx />}
         {classId === "monk" && useAbility2 && <SerenityFx />}
         {classId === "assassin" && !useAbility2 && <EviscerateFx />}
@@ -489,6 +491,42 @@ function VineWhipFx() {
         <line x1="156" y1="60" x2="174" y2="49" stroke="#c8f59a" strokeWidth="2.5" strokeLinecap="round" />
         <line x1="156" y1="60" x2="177" y2="62" stroke="#a6ec72" strokeWidth="2.5" strokeLinecap="round" />
         <line x1="156" y1="60" x2="171" y2="74" stroke="#c8f59a" strokeWidth="2" strokeLinecap="round" />
+      </g>
+    </g>
+  );
+}
+
+function DruidWhipFx() {
+  // Basic attack: a quick leather-whip crack — tan/brown, no leaves, so it
+  // reads distinct from the green Vine Whip ability.
+  const p = "M32 52 C72 32 116 54 158 58";
+  return (
+    <g className="ae-whipatk">
+      <path
+        className="ae-wa-lash"
+        d={p}
+        fill="none"
+        stroke="#a9793a"
+        strokeWidth="3.5"
+        strokeLinecap="round"
+        strokeDasharray="200"
+        strokeDashoffset="200"
+      />
+      <path
+        className="ae-wa-lash"
+        d={p}
+        fill="none"
+        stroke="#e6c98a"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+        strokeDasharray="200"
+        strokeDashoffset="200"
+      />
+      {/* snap at the tip */}
+      <g className="ae-wa-snap" style={{ transformOrigin: "160px 58px" }}>
+        <line x1="160" y1="58" x2="177" y2="49" stroke="#f2e0b0" strokeWidth="2" strokeLinecap="round" />
+        <line x1="160" y1="58" x2="179" y2="60" stroke="#e6c98a" strokeWidth="2" strokeLinecap="round" />
+        <line x1="160" y1="58" x2="174" y2="69" stroke="#f2e0b0" strokeWidth="1.6" strokeLinecap="round" />
       </g>
     </g>
   );

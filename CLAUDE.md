@@ -82,10 +82,22 @@ SaveSlot {
 
 On load: if `inCombat && activeDungeonRun` → resume from checkpoint. F5 during combat shows `beforeunload` confirmation.
 
+### Game modes (Hardcore / Softcore)
+
+`Character.mode: "hardcore" | "softcore"` (chosen at creation, fixed for life). Saves from before this field default to `"hardcore"` via `migrateSlot()` in `storage.ts` (runs on every read; persists on next auto-save). Death handling lives in `handleFightFinished`'s `!result.victory` branch in `App.tsx`:
+- **Hardcore** — permadeath: `deleteSave`, wipe state, show `GameOverScreen`.
+- **Softcore** — no summary screen: lose 10% gold + 10% of current-level XP (level never drops since `character.xp` is progress within the level), keep gear, drop straight back to hub. Fleeing needs no Escape Token but costs 30% gold (`handleEscape` + the flee button branch on `character.mode`).
+
+`GameOverScreen` is **hardcore-only** now — softcore never reaches it.
+
+### Clear Again
+
+After a boss clear the victory screen shows a **Clear Again** button (gated on `isBossFight`, passed from `App` as `dungeonRun.index === queue.length - 1`). It calls `onFinished(result, /*clearAgain*/ true)`. In `App`, the boss-victory branch banks rewards as usual, then sets `pendingRestart = dungeonId` + `setDungeonRun(null)` instead of returning to the hub. A **`useLayoutEffect`** watches `pendingRestart` and calls `handleStartDungeon(id)` — deferred so the fresh run's save is written *after* the reward state commits (avoids stale saves), and pre-paint so the hub never flashes. **`onClick` must be `() => handleContinue()`**, not `handleContinue` — the bare ref passes the event as the `clearAgain` arg (truthy).
+
 To inject a test save in the browser console:
 ```js
 const saves = JSON.parse(localStorage.getItem('diabolo-saves') || '[]');
-saves.push({ id: '99', lastPlayedAt: Date.now(), save: { character: { name: 'TestGod', classId: 'amazon', level: 50, xp: 0, gold: 99999, unspentStatPoints: 0, allocatedStats: { strength: 50, dexterity: 50, vitality: 50, energy: 50 }, abilityCooldown: 0, escapeTokens: 99, runStats: { damageDealt: 0, goldEarned: 0, kills: 0 } }, equipment: {}, inventory: [], clearedDungeons: ['sewers','dark-forest','cave','foggy-fields','graveyard','crypt','goblins-path','bandit-town','bandits-town-hall'], consumables: { healthPotion: 99, manaPotion: 99 }, shopStock: [] } });
+saves.push({ id: '99', lastPlayedAt: Date.now(), save: { character: { name: 'TestGod', classId: 'amazon', mode: 'hardcore', level: 50, xp: 0, gold: 99999, unspentStatPoints: 0, allocatedStats: { strength: 50, dexterity: 50, vitality: 50, energy: 50 }, abilityCooldown: 0, escapeTokens: 99, runStats: { damageDealt: 0, goldEarned: 0, kills: 0 } }, equipment: {}, inventory: [], clearedDungeons: ['sewers','dark-forest','cave','foggy-fields','graveyard','crypt','goblins-path','bandit-town','bandits-town-hall'], consumables: { healthPotion: 99, manaPotion: 99 }, shopStock: [] } });
 localStorage.setItem('diabolo-saves', JSON.stringify(saves));
 location.reload();
 ```

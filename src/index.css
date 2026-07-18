@@ -3,7 +3,12 @@
   src: url("./assets/diablo.ttf") format("truetype");
   font-weight: normal;
   font-style: normal;
-  font-display: swap;
+  /* `optional`, not `swap`: swap re-lays out every heading + the big combat
+     numbers when the font arrives, which is the main source of CLS. `optional`
+     never swaps mid-load — combined with the preload injected in main.tsx the
+     font is almost always ready within the short block period, so it still
+     applies on first paint without shifting the layout. */
+  font-display: optional;
 }
 
 :root {

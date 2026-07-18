@@ -25,7 +25,7 @@ function readSlots(): SaveSlot[] {
       ];
       localStorage.setItem(SAVES_KEY, JSON.stringify(slots));
       localStorage.removeItem(LEGACY_KEY);
-      return slots;
+      return slots.map(migrateSlot);
     } catch {
       /* ignore corrupt legacy */
     }
@@ -34,10 +34,25 @@ function readSlots(): SaveSlot[] {
   const raw = localStorage.getItem(SAVES_KEY);
   if (!raw) return [];
   try {
-    return JSON.parse(raw) as SaveSlot[];
+    return (JSON.parse(raw) as SaveSlot[]).map(migrateSlot);
   } catch {
     return [];
   }
+}
+
+// Characters created before game modes existed were permadeath — default them
+// to hardcore so `character.mode` is always defined.
+function migrateSlot(slot: SaveSlot): SaveSlot {
+  if (slot.save?.character && slot.save.character.mode == null) {
+    return {
+      ...slot,
+      save: {
+        ...slot.save,
+        character: { ...slot.save.character, mode: "hardcore" },
+      },
+    };
+  }
+  return slot;
 }
 
 function writeSlots(slots: SaveSlot[]): void {

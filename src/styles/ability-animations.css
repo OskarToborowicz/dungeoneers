@@ -193,7 +193,7 @@
   z-index: 2;
   filter: drop-shadow(0 0 6px #4a9d4a);
   pointer-events: none;
-  animation: grove-fade-in 2s ease-out;
+  animation: grove-fade-in 1s ease-out;
 }
 .grove-on-field svg {
   width: 124px;
@@ -499,6 +499,49 @@
     opacity: 0;
   }
 }
+/* Druid basic attack — quick leather-whip crack */
+.ae-wa-lash {
+  animation: ae-wa-crack 0.26s cubic-bezier(0.5, 0, 0.75, 0) forwards;
+}
+@keyframes ae-wa-crack {
+  0% {
+    stroke-dashoffset: 200;
+    opacity: 0;
+  }
+  15% {
+    opacity: 1;
+  }
+  55% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+.ae-wa-snap {
+  opacity: 0;
+  animation: ae-wa-snap-flash 0.24s 0.14s ease-out forwards;
+}
+@keyframes ae-wa-snap-flash {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
 /* Vine Whip – Druid ability 1: a lash cracks out toward the enemy */
 .ae-vw-lash {
   animation: ae-vw-crack 0.36s cubic-bezier(0.5, 0, 0.75, 0) forwards;
