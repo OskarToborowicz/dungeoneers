@@ -151,16 +151,21 @@ maxLife += round(maxMana × 0.15)
 
 XP to reach the next level follows a power curve:
 ```
-xpToNextLevel(level) = round(40 × level^1.55)
+xpToNextLevel(level) = round(120 × level^1.58)
 ```
 
 | Level | XP Required |
 |---|---|
-| 1→2 | 40 |
-| 2→3 | 91 |
-| 3→4 | 152 |
-| 5→6 | 313 |
-| 10→11 | 877 |
+| 1→2 | 120 |
+| 2→3 | 359 |
+| 3→4 | 681 |
+| 5→6 | 1,526 |
+| 10→11 | 4,562 |
+| 20→21 | 24,249 |
+| 35→36 | 100,978 |
+| 50→51 | 260,993 |
+| 70→71 | 636,264 |
+| 90→91 | 1,290,155 |
 
 **On level-up**: +5 stat points to spend freely, and Max Life gains +5 from the level term.
 
@@ -206,8 +211,8 @@ Combat is turn-based. The player chooses one action per round; the monster then 
 | Attack | `1` | Basic weapon hit, 98% hit rate, crit possible |
 | Ability | `2` | Class active skill (costs mana/fury/preparation, has cooldown) |
 | Ability 2 | `3` | Second active skill — available on Barbarian, Necromancer, Sorceress, Huntress, Paladin, Assassin, and Monk |
-| Health Potion | — | Restores 35% of max life; 3-turn cooldown |
-| Mana Potion | — | Restores 35% of max mana/fury; 3-turn cooldown |
+| Health Potion | — | Restores 35–50% of max life (scales with act); 3-turn cooldown |
+| Mana Potion | — | Restores 35–50% of max mana/fury (scales with act); 3-turn cooldown |
 | Flee | — | Spends an Escape Token to end the dungeon run safely |
 
 Press `Space` to continue after a victory or defeat screen.
@@ -700,10 +705,12 @@ finalValue = round(baseRoll × scale)
 
 ```
 sellValue = max(1, round(itemLevel × 2 × rarityMult))
-buyValue  = sellValue × 6
+buyValue  = round(sellValue × max(6, itemLevel × 0.25))
 ```
 
 Gold rarity multipliers: Normal ×1, Magic ×2, Rare ×4, Unique ×8.
+
+The buy multiplier scales with item level: items at ilvl ≤ 24 use the floor of 6×; at ilvl 45 it reaches ~11×; at ilvl 90 it reaches ~22.5×. This makes late-game shop items significantly more expensive relative to gold rewards.
 
 ### Sell options
 
@@ -761,7 +768,6 @@ Unique items have fixed stats and are not generated through the normal rarity ro
 | The Arcanist | Weapon (Sorceress) | Bandit's Town Hall + Act II early bosses, Sorceress only | 0.1% | Base 9–18 dmg; +30–45 Magic Damage, +20–30 Energy, −15 Vitality; Frost Bolt deals +40% damage while Frost Shield is active |
 | Eternity's Edge | Weapon (Sorceress) | Act II late bosses, Sorceress only | 0.1% | Base 15–26 dmg; +55–75 Magic Damage, +40–55 Energy, +6% Crit Chance; 30% chance for Frost Bolt to echo at 50% power |
 | Shadowfang | Weapon (Assassin) | Bandit's Town Hall + Act II early bosses, Assassin only | 0.2% | Base 9–15 dmg; +30–45 Dexterity, +20–30 Damage, −15 Vitality; 20% chance after each hit to call a phantom strike at 50% damage |
-| Deathwhisper | Weapon (Assassin) | Act II late bosses, Assassin only | 0.2% | Base 15–23 dmg; +55–75 Dexterity, +35–50 Damage, +6% Crit Chance; all damage +30% while the enemy is under any negative status effect |
 
 ### Gheedon the Gambler
 
@@ -791,10 +797,16 @@ If the player dies during a dungeon run, the character is **permanently deleted*
 
 Bought from the Shop tab.
 
-| Item | Act I Cost | Act II+ Cost | Act I Effect | Act II+ Effect | Cooldown |
-|---|---|---|---|---|---|
-| Health Potion | 12 gold | 250 gold | Restores 35% of max life | Restores 50% of max life | 3 turns |
-| Mana Potion | 12 gold | 250 gold | Restores 35% of max mana | Restores 50% of max mana | 3 turns |
+Potion cost and potency scale with act progression. The restore rate upgrades after clearing Act I's endgame; the cost rises after each act endgame.
+
+| Progression gate | Cost | HP/Mana restored |
+|---|---|---|
+| Before clearing Bandit's Town Hall | 20 gold | 35% of max |
+| After clearing Bandit's Town Hall (Act I endgame) | 100 gold | 50% of max |
+| After clearing The White Maw (Act II endgame) | 300 gold | 50% of max |
+| After clearing Sacrificial Altar (Act III endgame) | 600 gold | 50% of max |
+
+Both Health Potion and Mana Potion follow this same table. Cooldown is **3 turns** for both.
 
 **Stack cap**: each potion type is limited to **5 per character**.
 
