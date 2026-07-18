@@ -358,7 +358,7 @@ export function sellValue(item: Item): number {
 }
 
 export function buyValue(item: Item): number {
-  return sellValue(item) * 6;
+  return Math.round(sellValue(item) * Math.max(6, item.itemLevel * 0.25));
 }
 
 function generateItemFromBase(base: ItemBase, itemLevel: number): Item {
