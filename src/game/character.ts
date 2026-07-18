@@ -8,7 +8,7 @@ export const MANA_MAX = 100;
 export const STARTING_STAT_POINTS = 10;
 
 export function xpToNextLevel(level: number): number {
-  return Math.round(40 * Math.pow(level, 1.55));
+  return Math.round(120 * Math.pow(level, 1.58));
 }
 
 export function createCharacter(
