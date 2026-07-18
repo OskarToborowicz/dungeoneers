@@ -1,22 +1,6 @@
 import { RARITY_COLORS } from "../game/data/items";
-import { sortAffixes, UniqueEffectLines } from "./ItemTooltip";
+import { sortAffixes, UniqueEffectLines, STAT_LABEL } from "./ItemTooltip";
 import type { EquipmentSlot, Item } from "../game/types";
-
-const STAT_LABEL: Record<string, string> = {
-  strength: "Strength",
-  dexterity: "Dexterity",
-  vitality: "Vitality",
-  energy: "Energy",
-  damage: "Damage",
-  defense: "Defense",
-  life: "Life",
-  mana: "Mana",
-  magicDamage: "Magic Damage",
-  goldFind: "% Gold Find",
-  lifeLeech: "% Life Leech",
-  magicDmgReduction: "% Magic Damage Reduced",
-  physDmgReduction: "% Physical Damage Reduced",
-};
 
 export function getComparisons(
   slot: EquipmentSlot,

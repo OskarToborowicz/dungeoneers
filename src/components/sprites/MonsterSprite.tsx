@@ -6764,15 +6764,26 @@ export function MonsterSprite({
       overflow="visible"
       style={{ display: "block", transform: "scaleX(-1)" }}
     >
-      {/* SVG feDropShadow, not CSS filter: drop-shadow — iOS Safari renders the
-          CSS form unreliably on a <g> wrapping an <image>. This is the same
-          mechanism the hero glow uses (CharacterSprite GlowFilterDef), which
-          works on mobile. Stacked passes compound into a stronger halo. */}
+      {/* SVG filter, not CSS filter: drop-shadow — iOS Safari renders the CSS
+          form unreliably on a <g> wrapping an <image>. Built explicitly so the
+          crisp original (SourceGraphic) is always the top layer: chaining
+          feDropShadow instead fed each pass the previous *blurred* result, so
+          thin parts (legs, tail) blurred away into gaps. Here the glow is only
+          ever behind the untouched source. */}
       <defs>
         <filter id={glowId} x="-150%" y="-150%" width="400%" height="400%">
-          <feDropShadow dx="0" dy="0" stdDeviation="3.5" floodColor={color} floodOpacity="1" />
-          <feDropShadow dx="0" dy="0" stdDeviation="1.5" floodColor={color} floodOpacity="1" />
-          <feDropShadow dx="0" dy="0" stdDeviation="0.8" floodColor={color} floodOpacity="1" />
+          <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b1" />
+          <feFlood floodColor={color} floodOpacity="1" result="c1" />
+          <feComposite in="c1" in2="b1" operator="in" result="g1" />
+          <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="b2" />
+          <feFlood floodColor={color} floodOpacity="1" result="c2" />
+          <feComposite in="c2" in2="b2" operator="in" result="g2" />
+          <feMerge>
+            <feMergeNode in="g1" />
+            <feMergeNode in="g2" />
+            <feMergeNode in="g2" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
         </filter>
       </defs>
       <motion.g

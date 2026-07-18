@@ -1,7 +1,7 @@
 import { RARITY_COLORS } from "../game/data/items";
 import type { Item } from "../game/types";
 
-const STAT_LABEL: Record<string, string> = {
+export const STAT_LABEL: Record<string, string> = {
   strength: "Strength",
   dexterity: "Dexterity",
   vitality: "Vitality",
