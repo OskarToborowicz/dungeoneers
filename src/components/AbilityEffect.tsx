@@ -53,7 +53,7 @@ export function AbilityEffect({
         {classId === "paladin" && useAttack && <PaladinSlashFx />}
         {classId === "paladin" && !useAbility2 && !useAttack && <HolyBoltFx />}
         {classId === "paladin" && useAbility2 && <HolyLightFx />}
-        {classId === "druid" && !useAbility2 && <BiteFx />}
+        {classId === "druid" && !useAbility2 && <VineWhipFx />}
         {classId === "monk" && !useAbility2 && <SpinningCraneKickFx />}
         {classId === "monk" && useAbility2 && <SerenityFx />}
         {classId === "assassin" && !useAbility2 && <EviscerateFx />}
@@ -453,45 +453,43 @@ function HolyBoltFx() {
   );
 }
 
-function BiteFx() {
+function VineWhipFx() {
+  // A vine lashes out from the player and cracks against the enemy.
+  const lashPath = "M34 46 C74 20 112 46 152 60";
   return (
-    <g className="ae-bite-group">
-      <line
-        className="ae-claw ae-claw-1"
-        x1="100"
-        y1="30"
-        x2="132"
-        y2="70"
-        stroke="#88aa22"
-        strokeWidth="4"
+    <g className="ae-vinewhip">
+      {/* the lash — thick vine curving toward the enemy */}
+      <path
+        className="ae-vw-lash"
+        d={lashPath}
+        fill="none"
+        stroke="#4f9e33"
+        strokeWidth="4.5"
         strokeLinecap="round"
-        strokeDasharray="52"
-        strokeDashoffset="52"
+        strokeDasharray="200"
+        strokeDashoffset="200"
       />
-      <line
-        className="ae-claw ae-claw-2"
-        x1="114"
-        y1="26"
-        x2="146"
-        y2="66"
-        stroke="#aacc33"
-        strokeWidth="3.5"
+      {/* bright highlight running along the lash */}
+      <path
+        className="ae-vw-lash"
+        d={lashPath}
+        fill="none"
+        stroke="#a6ec72"
+        strokeWidth="1.6"
         strokeLinecap="round"
-        strokeDasharray="52"
-        strokeDashoffset="52"
+        strokeDasharray="200"
+        strokeDashoffset="200"
       />
-      <line
-        className="ae-claw ae-claw-3"
-        x1="128"
-        y1="22"
-        x2="160"
-        y2="62"
-        stroke="#88aa22"
-        strokeWidth="3"
-        strokeLinecap="round"
-        strokeDasharray="52"
-        strokeDashoffset="52"
-      />
+      {/* small leaves flicking off the vine */}
+      <path className="ae-vw-leaf ae-vw-leaf-1" d="M92 30 l7 -5 -1 8 z" fill="#6bbf4a" />
+      <path className="ae-vw-leaf ae-vw-leaf-2" d="M122 42 l7 4 -6 4 z" fill="#6bbf4a" />
+      {/* crack / impact burst where the tip snaps against the enemy */}
+      <g className="ae-vw-crack" style={{ transformOrigin: "156px 60px" }}>
+        <circle cx="156" cy="60" r="5.5" fill="#e4ffb8" />
+        <line x1="156" y1="60" x2="174" y2="49" stroke="#c8f59a" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="156" y1="60" x2="177" y2="62" stroke="#a6ec72" strokeWidth="2.5" strokeLinecap="round" />
+        <line x1="156" y1="60" x2="171" y2="74" stroke="#c8f59a" strokeWidth="2" strokeLinecap="round" />
+      </g>
     </g>
   );
 }

@@ -1176,8 +1176,7 @@ export function resolveRound(
           let dmg = Math.round(
             vineWhipDamage(stats, def.ability.power) *
               lowLifeMult *
-              electrocuteMult *
-              deathwhisperMult,
+              electrocuteMult,
           );
           if (isCrit) dmg = Math.round(dmg * critMultiplier);
           monsterLife -= dmg;
