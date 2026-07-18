@@ -6,13 +6,16 @@ export const POTION_COST_ACT2 = 250;
 export const POTION_COOLDOWN = 3;
 
 export function getPotionRestoreRate(clearedDungeons: string[]): number {
-  return clearedDungeons.includes("diablo") ? POTION_RESTORE_RATE_ACT2 : POTION_RESTORE_RATE;
+  return clearedDungeons.includes("bandits-town-hall") ? POTION_RESTORE_RATE_ACT2 : POTION_RESTORE_RATE;
 }
 
-export const POTION_COST_BASE = 12;
+export const POTION_COST_BASE = 20;
 
 export function getPotionCost(clearedDungeons: string[]): number {
-  return clearedDungeons.includes("diablo") ? POTION_COST_ACT2 : POTION_COST_BASE;
+  if (clearedDungeons.includes("sacrificial-altar")) return 600;
+  if (clearedDungeons.includes("the-white-maw")) return 300;
+  if (clearedDungeons.includes("bandits-town-hall")) return 100;
+  return POTION_COST_BASE;
 }
 
 export const CONSUMABLES: Record<ConsumableId, ConsumableDefinition> = {

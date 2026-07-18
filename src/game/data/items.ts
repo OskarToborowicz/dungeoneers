@@ -47,10 +47,11 @@ const WEAPON_BASES: ItemBase[] = [
     allowedClasses: ["amazon"],
   },
   {
-    name: "Mace",
+    name: "Sword",
     slot: "weapon",
     baseDamage: [3, 4],
     twoHanded: false,
+    weaponType: "sword",
     allowedClasses: ["paladin"],
   },
   {
@@ -357,7 +358,7 @@ export function sellValue(item: Item): number {
 }
 
 export function buyValue(item: Item): number {
-  return sellValue(item) * 6;
+  return Math.round(sellValue(item) * Math.max(6, item.itemLevel * 0.25));
 }
 
 function generateItemFromBase(base: ItemBase, itemLevel: number): Item {
@@ -616,7 +617,10 @@ export function generateThornback(): Item {
     rarity: "unique",
     itemLevel: 12,
     baseDefense: 18,
-    affixes: [{ label: "", stat: "defense", value: 30 }],
+    affixes: [
+      { label: "", stat: "defense", value: 30 },
+      { label: "", stat: "vitality", value: randInt(15, 25) },
+    ],
     thornback: true,
   };
 }
@@ -663,7 +667,10 @@ export function generateVenomweaveWrap(): Item {
     rarity: "unique",
     itemLevel: 15,
     baseDefense: 7,
-    affixes: [{ label: "", stat: "dexterity", value: 20 }],
+    affixes: [
+      { label: "", stat: "dexterity", value: 20 },
+      { label: "", stat: "magicDmgReduction", value: randInt(4, 8) },
+    ],
     venomweaveWrap: true,
   };
 }
@@ -700,28 +707,6 @@ export function generateReapersHood(): Item {
   };
 }
 
-export function generateHarvester(): Item {
-  itemCounter += 1;
-  return {
-    id: `item-${Date.now()}-${itemCounter}`,
-    name: "Harvester",
-    slot: "weapon",
-    rarity: "unique",
-    itemLevel: 58,
-    baseDamage: [18, 28],
-    twoHanded: true,
-    weaponType: "scythe",
-    affixes: [
-      { label: "", stat: "damage", value: randInt(50, 75) },
-      { label: "", stat: "magicDamage", value: randInt(50, 75) },
-      { label: "", stat: "vitality", value: randInt(25, 40) },
-      { label: "", stat: "energy", value: randInt(25, 40) },
-    ],
-    harvester: true,
-  };
-}
-
-
 export function generateJusticar(): Item {
   itemCounter += 1;
   return {
@@ -732,7 +717,7 @@ export function generateJusticar(): Item {
     itemLevel: 28,
     baseDamage: [14, 22],
     twoHanded: false,
-    weaponType: "mace",
+    weaponType: "sword",
     affixes: [
       { label: "", stat: "damage", value: randInt(30, 45) },
       { label: "", stat: "energy", value: randInt(20, 30) },
@@ -752,7 +737,7 @@ export function generateSanctifier(): Item {
     itemLevel: 50,
     baseDamage: [24, 38],
     twoHanded: false,
-    weaponType: "mace",
+    weaponType: "sword",
     affixes: [
       { label: "", stat: "magicDamage", value: randInt(50, 70) },
       { label: "", stat: "damage", value: randInt(35, 45) },
@@ -964,24 +949,62 @@ export function generateShadowfang(): Item {
   };
 }
 
-export function generateDeathwhisper(): Item {
+export function generatePenitentsGuard(): Item {
   itemCounter += 1;
-  const ilvl = 50;
   return {
     id: `item-${Date.now()}-${itemCounter}`,
-    name: "Deathwhisper",
-    slot: "weapon",
+    name: "Penitent's Guard",
+    slot: "shield",
     rarity: "unique",
-    itemLevel: ilvl,
-    baseDamage: [15, 23],
-    twoHanded: false,
-    weaponType: "claw",
+    itemLevel: 8,
+    baseDefense: 12,
     affixes: [
-      { label: "", stat: "dexterity", value: randInt(55, 75) },
-      { label: "", stat: "damage", value: randInt(35, 50) },
-      { label: "", stat: "critChance", value: 6 },
+      { label: "", stat: "defense", value: randInt(12, 20) },
+      { label: "", stat: "life", value: randInt(10, 18) },
+      { label: "", stat: "vitality", value: randInt(5, 10) },
+      { label: "", stat: "energy", value: randInt(5, 10) },
     ],
-    deathwhisper: true,
+    penitentsGuard: true,
+  };
+}
+
+export function generateStoneguard(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Stoneguard",
+    slot: "shield",
+    rarity: "unique",
+    itemLevel: 30,
+    baseDefense: 22,
+    affixes: [
+      { label: "", stat: "defense", value: randInt(28, 40) },
+      { label: "", stat: "vitality", value: randInt(20, 30) },
+      { label: "", stat: "strength", value: randInt(8, 14) },
+      { label: "", stat: "life", value: randInt(15, 25) },
+      { label: "", stat: "physDmgReduction", value: randInt(4, 7) },
+    ],
+    stoneguard: true,
+  };
+}
+
+export function generateHeavensWrath(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Heaven's Wrath",
+    slot: "shield",
+    rarity: "unique",
+    itemLevel: 55,
+    baseDefense: 32,
+    affixes: [
+      { label: "", stat: "defense", value: randInt(42, 55) },
+      { label: "", stat: "vitality", value: randInt(30, 45) },
+      { label: "", stat: "critChance", value: 4 },
+      { label: "", stat: "magicDamage", value: randInt(20, 30) },
+      { label: "", stat: "energy", value: randInt(15, 25) },
+    ],
+    heavensWrath: true,
   };
 }
 
@@ -999,6 +1022,256 @@ export function generateAegisOfTheFortress(): Item {
       { label: "", stat: "defense", value: randInt(15, 25) },
     ],
     aegisOfTheFortress: true,
+  };
+}
+
+export function generateTheGavel(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Sword of the Elements",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 30,
+    baseDamage: [21, 37],
+    twoHanded: false,
+    weaponType: "sword",
+    affixes: [
+      { label: "", stat: "damage",      value: 67 },
+      { label: "", stat: "freezeOnHit", value: randInt(6, 7) },
+      { label: "", stat: "igniteOnHit", value: randInt(6, 7) },
+      { label: "", stat: "poisonOnHit", value: randInt(6, 7) },
+      { label: "", stat: "shockOnHit",  value: randInt(6, 7) },
+    ],
+    theGavel: true,
+  };
+}
+
+export function generateGraveToll(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Grave Toll",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 12,
+    baseDamage: [8, 14],
+    twoHanded: true,
+    weaponType: "scythe",
+    affixes: [
+      { label: "", stat: "magicDamage", value: randInt(10, 18) },
+      { label: "", stat: "damage",      value: randInt(10, 16) },
+      { label: "", stat: "energy",      value: randInt(8, 14) },
+    ],
+    graveToll: true,
+  };
+}
+
+export function generateBonechill(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Bonechill",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 35,
+    baseDamage: [14, 22],
+    twoHanded: true,
+    weaponType: "scythe",
+    affixes: [
+      { label: "", stat: "magicDamage", value: randInt(28, 40) },
+      { label: "", stat: "damage",      value: randInt(20, 30) },
+      { label: "", stat: "energy",      value: randInt(18, 26) },
+      { label: "", stat: "vitality",    value: -15 },
+    ],
+    bonechill: true,
+  };
+}
+
+export function generateEbonreap(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Ebonreap",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 55,
+    baseDamage: [20, 32],
+    twoHanded: true,
+    weaponType: "scythe",
+    affixes: [
+      { label: "", stat: "magicDamage", value: randInt(45, 60) },
+      { label: "", stat: "damage",      value: randInt(35, 50) },
+      { label: "", stat: "vitality",    value: randInt(30, 40) },
+      { label: "", stat: "energy",      value: randInt(25, 35) },
+    ],
+    ebonreap: true,
+  };
+}
+
+export function generateJadeKnuckles(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Jade Knuckles",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 12,
+    baseDamage: [7, 12],
+    twoHanded: false,
+    weaponType: "katar",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(14, 20) },
+      { label: "", stat: "strength",  value: randInt(12, 18) },
+      { label: "", stat: "vitality",  value: randInt(10, 15) },
+    ],
+  };
+}
+
+export function generateStormfist(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Stormfist",
+    slot: "weapon",
+    rarity: "unique",
+    itemLevel: 42,
+    baseDamage: [16, 24],
+    twoHanded: false,
+    weaponType: "katar",
+    affixes: [
+      { label: "", stat: "dexterity", value: randInt(32, 44) },
+      { label: "", stat: "strength",  value: randInt(24, 34) },
+      { label: "", stat: "critChance", value: 4 },
+      { label: "", stat: "vitality",  value: randInt(18, 26) },
+    ],
+    stormfist: true,
+  };
+}
+
+export function generateRatKingsCoat(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Rat King's Coat",
+    slot: "armor",
+    rarity: "unique",
+    itemLevel: 5,
+    baseDefense: 8,
+    affixes: [
+      { label: "", stat: "goldFind", value: randInt(60, 75) },
+      { label: "", stat: "vitality", value: randInt(8, 14) },
+      { label: "", stat: "defense",  value: -6 },
+    ],
+  };
+}
+
+export function generateIroncladHauberk(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Ironclad Hauberk",
+    slot: "armor",
+    rarity: "unique",
+    itemLevel: 45,
+    baseDefense: 25,
+    affixes: [
+      { label: "", stat: "vitality",        value: randInt(35, 50) },
+      { label: "", stat: "defense",         value: randInt(20, 30) },
+      { label: "", stat: "physDmgReduction", value: randInt(6, 10) },
+    ],
+    ironcladHauberk: true,
+  };
+}
+
+export function generateVoidgaze(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Voidgaze",
+    slot: "helm",
+    rarity: "unique",
+    itemLevel: 62,
+    baseDefense: 22,
+    affixes: [
+      { label: "", stat: "defense",          value: randInt(35, 50) },
+      { label: "", stat: "vitality",         value: randInt(40, 55) },
+      { label: "", stat: "magicDmgReduction", value: randInt(8, 12) },
+    ],
+    voidgaze: true,
+  };
+}
+
+export function generateBastionsRemnant(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Bastion's Remnant",
+    slot: "armor",
+    rarity: "unique",
+    itemLevel: 70,
+    baseDefense: 38,
+    affixes: [
+      { label: "", stat: "defense",  value: randInt(50, 65) },
+      { label: "", stat: "vitality", value: randInt(45, 60) },
+      { label: "", stat: "life",     value: randInt(20, 30) },
+    ],
+    bastionsRemnant: true,
+  };
+}
+
+export function generateBloodfist(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Bloodfist",
+    slot: "gloves",
+    rarity: "unique",
+    itemLevel: 65,
+    baseDefense: 18,
+    affixes: [
+      { label: "", stat: "dexterity",  value: randInt(40, 55) },
+      { label: "", stat: "critChance", value: randInt(4, 6) },
+      { label: "", stat: "damage",     value: randInt(30, 45) },
+      { label: "", stat: "vitality",   value: -12 },
+    ],
+    bloodfist: true,
+  };
+}
+
+export function generateSoulvoidGirdle(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Soulvoid Girdle",
+    slot: "belt",
+    rarity: "unique",
+    itemLevel: 68,
+    baseDefense: 12,
+    affixes: [
+      { label: "", stat: "vitality", value: randInt(40, 55) },
+      { label: "", stat: "energy",   value: randInt(30, 45) },
+      { label: "", stat: "life",     value: randInt(25, 40) },
+    ],
+    soulvoidGirdle: true,
+    openerBonusPct: randInt(10, 12),
+  };
+}
+
+export function generateForsakenSigil(): Item {
+  itemCounter += 1;
+  return {
+    id: `item-${Date.now()}-${itemCounter}`,
+    name: "Forsaken Sigil",
+    slot: "amulet",
+    rarity: "unique",
+    itemLevel: 72,
+    affixes: [
+      { label: "", stat: "magicDamage", value: randInt(55, 70) },
+      { label: "", stat: "energy",      value: randInt(40, 55) },
+      { label: "", stat: "vitality",    value: randInt(20, 30) },
+    ],
+    forsakenSigil: true,
   };
 }
 

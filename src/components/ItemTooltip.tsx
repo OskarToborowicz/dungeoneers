@@ -17,6 +17,10 @@ export const STAT_LABEL: Record<string, string> = {
   physDmgReduction: "% Physical Damage Reduced",
   critChance: "% Crit Chance",
   critDamageBonus: "% Critical Strike Damage",
+  freezeOnHit: "% to Freeze",
+  igniteOnHit: "% to Ignite",
+  poisonOnHit: "% to Poison",
+  shockOnHit: "% to Electrocute",
 };
 
 const AFFIX_ORDER: Record<string, number> = {
@@ -49,7 +53,7 @@ export function UniqueEffectLines({ item }: { item: Item }) {
       <>
         <div className="item-line mirror-flavor">
           <em>
-            All your damage ignite the target for 30% of damage dealt for 2
+            All your damage ignite the target for 25% of damage dealt for 2
             rounds
           </em>
         </div>
@@ -65,14 +69,9 @@ export function UniqueEffectLines({ item }: { item: Item }) {
           <em>20% chance to disorient on attack for 2 turns</em>
         </div>
       )}
-      {item.harvester && (
-        <div className="item-line mirror-flavor">
-          <em>It's time to die.</em>
-        </div>
-      )}
       {item.venomweaveWrap && (
         <div className="item-line mirror-flavor">
-          <em>+25% Poison Damage</em>
+          <em>+10% Poison Damage</em>
         </div>
       )}
       {item.thornback && (
@@ -92,7 +91,7 @@ export function UniqueEffectLines({ item }: { item: Item }) {
       )}
       {item.crownOfTheFallen && (
         <div className="item-line mirror-flavor">
-          <em>While below 30% life, all damage dealt is increased by 25%</em>
+          <em>While below 40% life, all damage dealt is increased by 25%</em>
         </div>
       )}
       {item.stormstring && (
@@ -115,18 +114,10 @@ export function UniqueEffectLines({ item }: { item: Item }) {
           </em>
         </div>
       )}
-      {item.deathwhisper && (
-        <div className="item-line mirror-flavor">
-          <em>
-            While the enemy is blinded or disoriented, all damage dealt is
-            increased by 30%
-          </em>
-        </div>
-      )}
       {item.spellbladesMask && (
         <div className="item-line mirror-flavor">
           <em>
-            Adds 20% of damage dealt as magic to each attack. Scales with magic
+            Adds 10% of damage dealt as magic to each attack. Scales with magic
             damage bonus.
           </em>
         </div>
@@ -152,6 +143,76 @@ export function UniqueEffectLines({ item }: { item: Item }) {
       {item.aegisOfTheFortress && (
         <div className="item-line mirror-flavor">
           <em>15% chance to completely block incoming physical damage</em>
+        </div>
+      )}
+      {item.penitentsGuard && (
+        <div className="item-line mirror-flavor">
+          <em>After taking physical damage, 18% chance to retaliate for weapon damage (magic)</em>
+        </div>
+      )}
+      {item.stoneguard && (
+        <div className="item-line mirror-flavor">
+          <em>Reflects 20% of physical damage taken back at the attacker</em>
+        </div>
+      )}
+      {item.heavensWrath && (
+        <div className="item-line mirror-flavor">
+          <em>12% chance to block physical attacks; on block, restore 8% of max life</em>
+        </div>
+      )}
+      {item.graveToll && (
+        <div className="item-line mirror-flavor">
+          <em>Soul Siphon heals 20% of damage dealt instead of 15%</em>
+        </div>
+      )}
+      {item.bonechill && (
+        <div className="item-line mirror-flavor">
+          <em>Soul Siphon healing is doubled for the first 3 turns of each combat</em>
+        </div>
+      )}
+      {item.ebonreap && (
+        <div className="item-line mirror-flavor">
+          <em>Every 3rd basic attack conjures a spectral strike for 80% weapon damage (magic)</em>
+        </div>
+      )}
+      {item.stormfist && (
+        <div className="item-line mirror-flavor">
+          <em>Spinning Crane Kick strikes 4 times instead of 3</em>
+        </div>
+      )}
+      {item.ironcladHauberk && (
+        <div className="item-line mirror-flavor">
+          <em>Reduce all incoming damage by a flat 5 before other reductions</em>
+        </div>
+      )}
+      {item.theGavel && (
+        <div className="item-line mirror-flavor">
+          <em>Once wielded by a mighty carpenter</em>
+        </div>
+      )}
+      {item.voidgaze && (
+        <div className="item-line mirror-flavor">
+          <em>15% chance to disorient an attacker for 2 turns when hit</em>
+        </div>
+      )}
+      {item.bastionsRemnant && (
+        <div className="item-line mirror-flavor">
+          <em>+12% physical damage reduction while below 50% life</em>
+        </div>
+      )}
+      {item.bloodfist && (
+        <div className="item-line mirror-flavor">
+          <em>Critical hits restore 5% of max life</em>
+        </div>
+      )}
+      {item.soulvoidGirdle && (
+        <div className="item-line mirror-flavor">
+          <em>Your first ability use each combat deals {item.openerBonusPct ?? 20}% increased damage</em>
+        </div>
+      )}
+      {item.forsakenSigil && (
+        <div className="item-line mirror-flavor">
+          <em>+15% damage against poisoned or burning enemies</em>
         </div>
       )}
     </>

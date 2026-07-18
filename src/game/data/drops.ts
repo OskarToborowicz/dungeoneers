@@ -1,18 +1,19 @@
 import type { ClassId, Item } from "../types";
 import {
   generateAegisOfTheFortress,
+  generatePenitentsGuard,
+  generateStoneguard,
+  generateHeavensWrath,
   generateSpellbladesMask,
   generateApprenticesFocus,
   generateBlooddrinker,
   generateBoneweaveGloves,
   generateCrackedLens,
   generateCrownOfTheFallen,
-  generateDeathwhisper,
   generateDemonsTail,
   generateDoomcrier,
   generateEternitysEdge,
   generateEyeOfTheStorm,
-  generateHarvester,
   generateHeavyStompers,
   generateIronjaw,
   generateJusticar,
@@ -33,6 +34,19 @@ import {
   generateVenomweaveWrap,
   generateWhisper,
   generateWorldbreaker,
+  generateGraveToll,
+  generateBonechill,
+  generateEbonreap,
+  generateJadeKnuckles,
+  generateStormfist,
+  generateRatKingsCoat,
+  generateIroncladHauberk,
+  generateTheGavel,
+  generateVoidgaze,
+  generateBastionsRemnant,
+  generateBloodfist,
+  generateSoulvoidGirdle,
+  generateForsakenSigil,
 } from "./items";
 
 export interface UniqueDropEntry {
@@ -64,10 +78,14 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   { generator: generateMaskOfTwilight,   chance: 0.0025, minLevel: 25 },
   { generator: generateStoneHusk,        chance: 0.005,  minLevel: 25 },
   { generator: generateAegisOfTheFortress, chance: 0.003, minLevel: 20, classId: "paladin" },
+  { generator: generatePenitentsGuard,    chance: 0.002, classId: "paladin" },
+  { generator: generateStoneguard,        chance: 0.002, minLevel: 30, classId: "paladin" },
+  { generator: generateHeavensWrath,      chance: 0.002, minLevel: 50, classId: "paladin" },
   { generator: generateCrownOfTheFallen, chance: 0.0025, minLevel: 45 },
 
   // ── Act 1 ─────────────────────────────────────────────────────────────────────
-  { generator: generatePeasantHood,      chance: 0.05,   dungeons: ["sewers", "dark-forest"] },
+  { generator: generatePeasantHood,      chance: 0.015,  dungeons: ["sewers", "dark-forest"] },
+  { generator: generateRatKingsCoat,    chance: 0.02,   dungeons: ["sewers"] },
   { generator: generateVenomweaveWrap,   chance: 0.0025, dungeons: ["cave", "foggy-fields", "graveyard"], minLevel: 15 },
   { generator: generateMirrorRing,       chance: 0.01,   dungeons: ["bandits-town-hall"] },
 
@@ -78,7 +96,6 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   { generator: generateReapersHood,      chance: 0.002,  dungeons: ACT3_DUNGEONS, minLevel: 60 },
   { generator: generatePentagram,        chance: 0.005,  dungeons: ACT2_DUNGEONS },
   { generator: generateReapersHood,      chance: 0.005,  dungeons: ["the-white-maw"] },
-  { generator: generateHarvester,        chance: 0.06,   dungeons: ["the-white-maw"], classId: "necromancer" },
 
   // ── Class weapons ─────────────────────────────────────────────────────────────
   { generator: generateJusticar,         chance: 0.0015, classId: "paladin",    minLevel: 28 },
@@ -97,5 +114,20 @@ export const UNIQUE_DROP_TABLE: UniqueDropEntry[] = [
   { generator: generateEternitysEdge,    chance: 0.001,  classId: "sorceress",  dungeons: ACT2_DUNGEONS.slice(3) },
 
   { generator: generateShadowfang,       chance: 0.002,  classId: "assassin",   dungeons: ["bandits-town-hall", ...ACT2_DUNGEONS.slice(0, 4)] },
-  { generator: generateDeathwhisper,     chance: 0.002,  classId: "assassin",   dungeons: ACT2_DUNGEONS.slice(3) },
+
+  // ── New uniques ───────────────────────────────────────────────────────────────
+  { generator: generateGraveToll,        chance: 0.0025, classId: "necromancer", minLevel: 10 },
+  { generator: generateBonechill,        chance: 0.002,  classId: "necromancer", minLevel: 32 },
+  { generator: generateEbonreap,         chance: 0.0015, classId: "necromancer", minLevel: 50 },
+  { generator: generateJadeKnuckles,     chance: 0.0025, classId: "monk" },
+  { generator: generateStormfist,        chance: 0.002,  classId: "monk",        minLevel: 38 },
+  { generator: generateIroncladHauberk,  chance: 0.0015, minLevel: 45 },
+  { generator: generateTheGavel,         chance: 0.002,  classId: "paladin", minLevel: 30 },
+
+  // ── Act 3/4 endgame uniques ───────────────────────────────────────────────────
+  { generator: generateVoidgaze,         chance: 0.0015, minLevel: 58 },
+  { generator: generateBastionsRemnant,  chance: 0.0015, minLevel: 65 },
+  { generator: generateBloodfist,        chance: 0.0018, minLevel: 60 },
+  { generator: generateSoulvoidGirdle,   chance: 0.0015, minLevel: 63 },
+  { generator: generateForsakenSigil,    chance: 0.0015, minLevel: 68 },
 ];

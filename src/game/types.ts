@@ -99,7 +99,11 @@ export interface ItemAffix {
     | "magicDmgReduction"
     | "physDmgReduction"
     | "critChance"
-    | "critDamageBonus";
+    | "critDamageBonus"
+    | "freezeOnHit"
+    | "igniteOnHit"
+    | "poisonOnHit"
+    | "shockOnHit";
   value: number;
 }
 
@@ -119,7 +123,6 @@ export interface Item {
   demonsTail?: boolean;
   reapersHood?: boolean;
   spellbladesMask?: boolean;
-  harvester?: boolean;
   venomweaveWrap?: boolean;
   thornback?: boolean;
   eyeOfTheStorm?: boolean;
@@ -132,8 +135,22 @@ export interface Item {
   apprenticesFocus?: boolean;
 
   shadowfang?: boolean;
-  deathwhisper?: boolean;
   aegisOfTheFortress?: boolean;
+  penitentsGuard?: boolean;
+  stoneguard?: boolean;
+  heavensWrath?: boolean;
+  graveToll?: boolean;
+  bonechill?: boolean;
+  ebonreap?: boolean;
+  stormfist?: boolean;
+  ironcladHauberk?: boolean;
+  theGavel?: boolean;
+  voidgaze?: boolean;
+  bastionsRemnant?: boolean;
+  bloodfist?: boolean;
+  soulvoidGirdle?: boolean;
+  openerBonusPct?: number;
+  forsakenSigil?: boolean;
 }
 
 export interface RunStats {

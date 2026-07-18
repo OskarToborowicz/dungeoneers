@@ -75,7 +75,7 @@ function ComparePanel({ item, label }: { item: Item; label: string }) {
       )}
       {sortAffixes(item.affixes).map((a, i) => (
         <div className="item-line affix" key={i}>
-          +{a.value} {STAT_LABEL[a.stat]}
+          {a.value > 0 ? "+" : ""}{Number.isInteger(a.value) ? a.value : a.value.toFixed(1)} {STAT_LABEL[a.stat]}
         </div>
       ))}
       <UniqueEffectLines item={item} />
