@@ -266,7 +266,11 @@ export function ItemTooltip({ item }: { item: Item }) {
       {!item.mirrorRing &&
         !item.demonsTail &&
         sortAffixes(item.affixes).map((a, i) => (
-          <div className="item-line affix" key={i}>
+          <div
+            className="item-line affix"
+            key={i}
+            style={a.forgeAdded ? { color: "#7ecfee" } : undefined}
+          >
             {a.value > 0 ? "+" : ""}
             {Number.isInteger(a.value) ? a.value : a.value.toFixed(1)} {STAT_LABEL[a.stat]}
           </div>

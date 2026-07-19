@@ -105,11 +105,13 @@ export interface ItemAffix {
     | "poisonOnHit"
     | "shockOnHit";
   value: number;
+  forgeAdded?: boolean;
 }
 
 export interface Item {
   id: string;
   name: string;
+  lockedAffixIndex?: number;
   slot: EquipmentSlot;
   rarity: ItemRarity;
   itemLevel: number;
@@ -178,6 +180,8 @@ export interface Character {
   abilityCooldown: number;
   escapeTokens: number;
   runStats: RunStats;
+  hardcore?: boolean;
+  frozenAlloys?: number;
 }
 
 export interface MonsterSpell {
@@ -227,6 +231,7 @@ export interface DeathSummary {
   damageDealt: number;
   goldEarned: number;
   kills: number;
+  hardcore: boolean;
 }
 
 export interface SaveGame {

@@ -80,6 +80,21 @@ function buildSections(clearedDungeons: string[]): ActSection[] {
       accentColor: "#6ab8d4",
       entries: [
         {
+          icon: "🔥",
+          title: "The Frostforge",
+          unlocked: cleared("frostforge"),
+          content: (
+            <>
+              <p>
+                The forge still burns — but frostfire needs something to keep it alive.
+              </p>
+              <p className="journal-italic">
+                Frozen Alloys drop from bosses ahead. Bring them to the Forge in the Merchant tab to strengthen your gear.
+              </p>
+            </>
+          ),
+        },
+        {
           icon: "🌿",
           title: "The Mountain Falls",
           unlocked: cleared("the-white-maw"),

@@ -222,56 +222,88 @@ const CRIT_CHANCE_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "amulet"];
 const CRIT_DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = ["gloves", "ring1", "ring2", "amulet"];
 const MAGIC_RESIST_AFFIX_SLOTS: EquipmentSlot[] = ["helm", "armor", "boots"];
 
+type AffixEntry = (typeof AFFIX_POOL)[number];
+
+function buildSlotPool(itemLevel: number, slot: EquipmentSlot): AffixEntry[] {
+  return AFFIX_POOL.filter((a) => {
+    if (a.stat === "damage") return DAMAGE_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "magicDamage") return MAGIC_DAMAGE_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "goldFind") return GOLD_FIND_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "lifeLeech") return LIFE_LEECH_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "critChance")
+      return CRIT_CHANCE_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
+    if (a.stat === "critDamageBonus")
+      return CRIT_DAMAGE_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
+    if (a.stat === "magicDmgReduction")
+      return MAGIC_RESIST_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
+    if (a.stat === "physDmgReduction")
+      return MAGIC_RESIST_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
+    return true;
+  });
+}
+
+function rollAffixEntry(chosen: AffixEntry, itemLevel: number): ItemAffix {
+  const effectiveLevel =
+    chosen.scaleFromLevel != null ? Math.max(0, itemLevel - chosen.scaleFromLevel) : itemLevel;
+  const rate = chosen.scaleRate ?? 0.08;
+  const scale = chosen.noScale ? 1 : 1 + effectiveLevel * rate;
+  const rolled = (chosen.min + Math.random() * (chosen.max - chosen.min)) * scale;
+  const factor = chosen.decimals ? Math.pow(10, chosen.decimals) : 1;
+  const rawValue = Math.round(rolled * factor) / factor;
+  const value = chosen.cap != null ? Math.min(rawValue, chosen.cap) : rawValue;
+  return { label: chosen.label, stat: chosen.stat, value };
+}
+
 function rollAffixes(
   count: number,
   itemLevel: number,
   slot: EquipmentSlot,
 ): ItemAffix[] {
   const affixes: ItemAffix[] = [];
-  const pool = AFFIX_POOL.filter((a) => {
-    if (a.stat === "damage") return DAMAGE_AFFIX_SLOTS.includes(slot);
-    if (a.stat === "magicDamage")
-      return MAGIC_DAMAGE_AFFIX_SLOTS.includes(slot);
-    if (a.stat === "goldFind") return GOLD_FIND_AFFIX_SLOTS.includes(slot);
-    if (a.stat === "lifeLeech") return LIFE_LEECH_AFFIX_SLOTS.includes(slot);
-    if (a.stat === "critChance")
-      return (
-        CRIT_CHANCE_AFFIX_SLOTS.includes(slot) &&
-        itemLevel >= (a.itemLevelMin ?? 0)
-      );
-    if (a.stat === "critDamageBonus")
-      return (
-        CRIT_DAMAGE_AFFIX_SLOTS.includes(slot) &&
-        itemLevel >= (a.itemLevelMin ?? 0)
-      );
-    if (a.stat === "magicDmgReduction")
-      return (
-        MAGIC_RESIST_AFFIX_SLOTS.includes(slot) &&
-        itemLevel >= (a.itemLevelMin ?? 0)
-      );
-    if (a.stat === "physDmgReduction")
-      return (
-        MAGIC_RESIST_AFFIX_SLOTS.includes(slot) &&
-        itemLevel >= (a.itemLevelMin ?? 0)
-      );
-    return true;
-  });
+  const pool = buildSlotPool(itemLevel, slot);
   for (let i = 0; i < count && pool.length > 0; i++) {
     const index = Math.floor(Math.random() * pool.length);
     const [chosen] = pool.splice(index, 1);
-    const effectiveLevel =
-      chosen.scaleFromLevel != null
-        ? Math.max(0, itemLevel - chosen.scaleFromLevel)
-        : itemLevel;
-    const rate = chosen.scaleRate ?? 0.08;
-    const scale = chosen.noScale ? 1 : 1 + effectiveLevel * rate;
-    const rolled = (chosen.min + Math.random() * (chosen.max - chosen.min)) * scale;
-    const factor = chosen.decimals ? Math.pow(10, chosen.decimals) : 1;
-    const rawValue = Math.round(rolled * factor) / factor;
-    const value = chosen.cap != null ? Math.min(rawValue, chosen.cap) : rawValue;
-    affixes.push({ label: chosen.label, stat: chosen.stat, value });
+    affixes.push(rollAffixEntry(chosen, itemLevel));
   }
   return affixes;
+}
+
+export function addFourthAffix(item: Item): Item {
+  if (item.rarity !== "rare" || item.affixes.length !== 3) return item;
+  const excludeStats = new Set(item.affixes.map((a) => a.stat));
+  const pool = buildSlotPool(item.itemLevel, item.slot).filter(
+    (a) => !excludeStats.has(a.stat),
+  );
+  if (pool.length === 0) return item;
+  const chosen = pool[Math.floor(Math.random() * pool.length)];
+  return {
+    ...item,
+    affixes: [...item.affixes, { ...rollAffixEntry(chosen, item.itemLevel), forgeAdded: true }],
+    lockedAffixIndex: 3,
+  };
+}
+
+export function rerollLockedAffix(item: Item): Item {
+  const idx = item.lockedAffixIndex;
+  if (idx == null || idx < 0 || idx >= item.affixes.length) return item;
+  const excludeStats = new Set(
+    item.affixes.filter((_, i) => i !== idx).map((a) => a.stat),
+  );
+  const pool = buildSlotPool(item.itemLevel, item.slot).filter(
+    (a) => !excludeStats.has(a.stat),
+  );
+  if (pool.length === 0) return item;
+  const chosen = pool[Math.floor(Math.random() * pool.length)];
+  const newAffixes = [...item.affixes];
+  newAffixes[idx] = { ...rollAffixEntry(chosen, item.itemLevel), forgeAdded: true };
+  return { ...item, affixes: newAffixes };
+}
+
+export function lockAndRerollAffix(item: Item, affixIndex: number): Item {
+  if (item.rarity !== "rare" || affixIndex < 0 || affixIndex >= item.affixes.length)
+    return item;
+  return rerollLockedAffix({ ...item, lockedAffixIndex: affixIndex });
 }
 
 let itemCounter = 0;
@@ -304,9 +336,13 @@ export function generateRandomItem(
     isJewelry && rarityEntry.rarity === "normal"
       ? rollRarity(maxRarity, "magic")
       : rarityEntry;
-  const affixCount = isJewelry
+  const baseAffixCount = isJewelry
     ? Math.max(1, effectiveRarityEntry.affixCount)
     : effectiveRarityEntry.affixCount;
+  const affixCount =
+    effectiveRarityEntry.rarity === "rare" && Math.random() < 0.5
+      ? baseAffixCount + 1
+      : baseAffixCount;
 
   const item: Item = {
     id,

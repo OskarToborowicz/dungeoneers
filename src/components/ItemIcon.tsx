@@ -4,7 +4,11 @@ import WhipIcon from "../assets/weaponIcons/whip.svg?react";
 
 function iconKind(item: Item): string {
   if (item.slot === "weapon") {
-    if (item.weaponType) return item.weaponType;
+    if (item.weaponType) {
+      if (item.weaponType === "totem") return "whip";
+      if (item.weaponType === "katar") return "fist";
+      return item.weaponType;
+    }
     const name = item.name.toLowerCase();
     if (name.includes("axe")) return "axe";
     if (name.includes("scythe")) return "scythe";

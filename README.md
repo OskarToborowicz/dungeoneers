@@ -17,10 +17,11 @@ A browser-based Diablo-style dungeon crawler built with React + TypeScript.
 9. [Items & Equipment](#items--equipment)
 10. [Item Affixes](#item-affixes)
 11. [Item Rarity](#item-rarity)
-12. [Consumables](#consumables)
-13. [Dungeons](#dungeons)
-14. [Journal](#journal)
-15. [Save System](#save-system)
+12. [The Forge](#the-forge)
+13. [Consumables](#consumables)
+14. [Dungeons](#dungeons)
+15. [Journal](#journal)
+16. [Save System](#save-system)
 
 ---
 
@@ -34,8 +35,13 @@ Eight classes are available, each with a unique resource type, active ability, a
 | Necromancer | Mana | Scythe | Poison DoT with magic lifesteal and golem tank — 2 active abilities, 3 passives |
 | Sorceress | Mana | War Staff | Magic burst damage — 2 active abilities, 3 passives |
 | Huntress | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities, 3 passives |
+<<<<<<< HEAD
 | Paladin | Mana | Mace | Tank/sustain with healing aura — 2 active abilities, 3 passives |
 | Druid | Mana | Whip | Forest bruiser — vine whip with bleed, Grove immunity, thorn/poison stacks — 2 active abilities, 3 passives |
+=======
+| Paladin | Mana | Sword | Tank/sustain with healing aura — 2 active abilities, 3 passives |
+| Druid | Mana | Totem | Forest bruiser — vine whip with bleed, bark-wall immunity, thorn/poison stacks — 2 active abilities, 3 passives |
+>>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
 | Assassin | Preparation | Claw | Shadow warrior who builds Preparation through combat and unleashes devastating strikes — 2 active abilities, 3 passives |
 | Monk | Chi | Katar | Fast multi-hit melee with self-sustain and counter-attack — 2 active abilities, 3 passives |
 
@@ -68,7 +74,11 @@ critChance    = min(0.60, 0.05 + dexterity × 0.001)
 ```
 Every 5 Dexterity adds +1 to both minimum and maximum weapon damage. Base crit chance is 5% and scales to a soft cap of 60%.
 
+<<<<<<< HEAD
 - Druid ability (Vine Whip): deals `dexterity × 1.0` flat bonus damage on top of `weaponDamage × 1.2`.
+=======
+- Druid ability (Vine Whip): deals `dexterity × 1.0` flat bonus damage on top of weapon damage (plus the weapon damage roll itself).
+>>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
 
 ### Vitality
 Increases maximum life and defense.
@@ -170,6 +180,17 @@ xpToNextLevel(level) = round(120 × level^1.58)
 
 New characters start with **10 stat points** to allocate, a Normal-quality starting weapon, and **1 Health Potion**.
 
+### XP Multipliers
+
+All XP rewards are multiplied before being capped:
+
+| Condition | Multiplier |
+|---|---|
+| Any kill (baseline) | ×1.12 |
+| First clear of a dungeon (all kills during the run) | ×2.24 (×1.12 × ×2) |
+
+The **first-clear bonus** applies to every kill in the dungeon — waves and boss — because the dungeon is not marked cleared until after the boss dies. Replaying a cleared dungeon awards only the baseline ×1.12 multiplier (no additional penalty).
+
 ---
 
 ## XP Cap & Dungeon Progression
@@ -186,10 +207,6 @@ xpCapLevel = max(highestClearedDungeonBossLevel, currentDungeonBossLevel) + 5
 The current dungeon's boss level is included so that entering a new dungeon immediately raises the cap — preventing the situation where a player clears one act's endgame and then earns 0 XP in the next act's first dungeon.
 
 When `character.level >= xpCapLevel`, battles award **0 XP**. Gold drops and item drops are unaffected.
-
-### Reclear XP reduction
-
-Replaying a dungeon after it has already been cleared awards only **25% of the normal XP**. This applies to all acts and endgame dungeons.
 
 ### Cap progression
 
@@ -642,8 +659,13 @@ The Assassin can equip a Claw in the off-hand slot under the same rules as the B
 | Scythe | Necromancer | 3 | 8 | Yes |
 | War Staff | Sorceress | 2 | 8 | Yes |
 | Bow | Huntress | 3 | 7 | Yes |
+<<<<<<< HEAD
 | Mace | Paladin | 3 | 4 | No |
 | Whip | Druid | 2 | 6 | Yes |
+=======
+| Sword | Paladin | 3 | 4 | No |
+| Totem | Druid | 2 | 6 | Yes |
+>>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
 | Claw | Assassin | 2 | 5 | No |
 | Katar | Monk | 2 | 5 | No |
 
@@ -693,7 +715,7 @@ finalValue = round(baseRoll × scale)
 |---|---|---|---|
 | Normal | 55% | 0 | ×1.00 |
 | Magic | 30% | 1 | ×1.15 |
-| Rare | 12% | 3 | ×1.30 |
+| Rare | 12% | 3 or 4 (50/50) | ×1.30 |
 | Unique | 3% | 4 | ×1.50 |
 
 **Shop rarity is level-gated:**
@@ -782,6 +804,44 @@ Unique items have fixed stats and are not generated through the normal rarity ro
 | Thornweave Effigy | Weapon (Druid) | Act III mid–late bosses (lv 54+), Druid only | 0.15% | Base 17–28 dmg; +46–62 Dexterity, +36–50 Damage, +26–36 Vitality; Nature's Wrath poison stacks deal 35% of hit per turn instead of 20% |
 | Bloodbriar | Weapon (Druid) | Any boss (lv 74+), Druid only | 0.15% | Base 24–38 dmg; +66–86 Dexterity, +52–72 Damage, +6% Crit Chance; Bramble erupts at 2 stacks instead of 3 |
 
+---
+
+## The Forge
+
+The **Forge** sub-tab appears inside the **Merchant** tab after clearing **The Frostforge** dungeon for the first time. It lets players strengthen rare items using **Frozen Alloys** — a crafting currency that drops from bosses.
+
+### Frozen Alloy
+
+- Shown as **❄ X/10** in the Hub sidebar (visible after The Frostforge is cleared).
+- Drops from bosses with a level above 40 (all bosses from Summit Peak onward).
+- Maximum stack: **10**.
+
+| Boss level vs. player level | Drop Chance |
+|---|---|
+| Boss is within 6 levels of the player | 1.25% |
+| Boss is 7+ levels below the player | 0.25% |
+
+### Crafting Rules
+
+Place any **Rare** item in the Forge slot. Two operations are available depending on the item's affix count:
+
+**3-affix rare → Add 4th Affix**
+- Costs 1 Frozen Alloy.
+- A random 4th affix is added that does not duplicate any existing affix on the item.
+- The new affix is **locked** as the slot that can be re-rolled going forward.
+- Only the added (locked) affix may be re-rolled after this point.
+
+**4-affix rare → Re-roll an Affix**
+- Costs 1 Frozen Alloy.
+- For items with 4 affixes as their **base roll**: click any of the four affixes to select it, then confirm with **Yes / No**. That affix becomes permanently locked as the re-rollable slot.
+- For items upgraded via the Forge (lock already set): shows "Re-roll again?" with **Yes / No** — re-rolls only the locked slot.
+- The new roll cannot duplicate other affixes currently on the item.
+
+### Visual Indicators
+
+- **Forge-crafted / re-rolled affixes** appear in **light blue** in the item tooltip.
+- Items with 4 affixes show a light blue "4 affixes" label in the Forge's inventory list.
+
 ### Gheedon the Gambler
 
 The **Gambler** tab in the Hub lets players purchase mystery items from Gheedon for a flat **2500 gold** each. All eight equipment slots are available (nine for the Paladin).
@@ -800,18 +860,27 @@ Unique items from gambling follow the same progression gates as dungeon drops. C
 
 The **Sort** button (next to the "Inventory" label) sorts all items in place by: **rarity** (Unique first) → **item level** (descending) → **slot**. Subsequent drops continue to appear at the top of the list regardless.
 
+<<<<<<< HEAD
 ### Game Modes
 
 Each character is created as **Hardcore** or **Softcore** (chosen at creation; a HC/SC badge shows on the character-select card). The mode is fixed for the character's life.
 
 - **Hardcore** — permadeath. On death the character is **permanently deleted**; a death summary shows final stats before returning to character selection. Fleeing costs one **Escape Token**.
 - **Softcore** — no permadeath. On death the character loses **10% of their gold and 10% of their current-level XP progress** (the level itself never drops), then drops **straight back to town** with no death-summary screen, keeping all gear and progress. Fleeing needs **no token** but costs **30% of current gold** (unlimited uses).
+=======
+### Death Penalty
+
+Two modes are chosen at character creation:
+
+- **Softcore**: on death, the character survives but loses all current XP (reset to 0 for the current level) and all gold. A death summary screen is shown.
+- **Hardcore**: on death, the character is **permanently deleted**. A death summary screen is shown before returning to character selection.
+>>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
 
 ---
 
 ## Consumables
 
-Bought from the Shop tab.
+Bought from the **Merchant** tab (Shop sub-tab).
 
 Potion cost and potency scale with act progression. The restore rate upgrades after clearing Act I's endgame; the cost rises after each act endgame.
 
@@ -913,7 +982,7 @@ Each entry appears as a compact bar showing the message's icon and title. **Hove
 | Act | Entries |
 |---|---|
 | Act I — The Road Out | Thrown Into the Sewers · You Escaped the Sewers · A Man in a Cage · The Gate Opens |
-| Act II — The Frozen Peaks | The Mountain Falls |
+| Act II — The Frozen Peaks | The Frostforge · The Mountain Falls |
 | Act III — The Jungle Depths | The Veil Has Torn |
 | Act IV — Realm of Endless Night | The Void Collapses |
 
@@ -924,8 +993,8 @@ Each entry appears as a compact bar showing the message's icon and title. **Hove
 Up to **6 heroes** can be saved simultaneously. Saves persist in `localStorage` under `"diabolo-saves"`.
 
 Each save slot stores:
-- Full character state (name, class, level, XP, gold, allocated stats, Escape Token count)
-- All equipped items and inventory contents
+- Full character state (name, class, level, XP, gold, allocated stats, Escape Token count, Frozen Alloy count)
+- All equipped items and inventory contents (including Forge-crafted affixes and locked affix indices)
 - Cleared dungeon list
 - Consumable stack counts
 - Current shop stock

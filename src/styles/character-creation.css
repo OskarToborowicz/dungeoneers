@@ -201,6 +201,36 @@
   filter: brightness(1.15);
 }
 
+.hardcore-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.hardcore-toggle input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: #cc3333;
+  cursor: pointer;
+}
+
+.hardcore-label {
+  font-size: 13px;
+  color: #cc4444;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+}
+
+.hardcore-desc {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 400;
+  margin-left: 4px;
+}
+
 .creation-bottom-row {
   display: flex;
   gap: 12px;

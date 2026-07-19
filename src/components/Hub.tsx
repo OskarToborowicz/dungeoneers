@@ -8,6 +8,7 @@ import { InventoryTab } from "./InventoryTab";
 import { DungeonsTab } from "./DungeonsTab";
 import { ShopTab } from "./ShopTab";
 import { GamblerTab } from "./GamblerTab";
+import { ForgeTab } from "./ForgeTab";
 import { JournalTab } from "./JournalTab";
 import { ItemIcon } from "./ItemIcon";
 import { CLASSES } from "../game/data/classes";
@@ -23,7 +24,7 @@ import type {
 } from "../game/types";
 import type { GambleOffer } from "../game/data/gambler";
 
-type TabId = "character" | "inventory" | "dungeons" | "shop" | "gambler" | "journal";
+type TabId = "character" | "inventory" | "dungeons" | "merchant" | "gambler" | "journal";
 
 interface Props {
   character: Character;
@@ -59,6 +60,8 @@ interface Props {
   onDismissSewersEscape?: () => void;
   showGheedonMessage?: boolean;
   onDismissGheedonMessage?: () => void;
+  showFrostforgeMessage?: boolean;
+  onDismissFrostforgeMessage?: () => void;
   showAct3Message?: boolean;
   onDismissAct3Message?: () => void;
   showAct4Message?: boolean;
@@ -67,6 +70,9 @@ interface Props {
   onDismissEndingMessage?: () => void;
   sewersCleared?: boolean;
   goblinsPathCleared?: boolean;
+  frostforgeCleared?: boolean;
+  onForgeAddAffix?: (itemId: string) => void;
+  onForgeRerollAffix?: (itemId: string, affixIndex: number) => void;
   droppedItem?: Item | null;
   onDismissDroppedItem?: () => void;
   selectedAct: 1 | 2 | 3 | 4;
@@ -106,6 +112,8 @@ export function Hub({
   onDismissSewersEscape,
   showGheedonMessage,
   onDismissGheedonMessage,
+  showFrostforgeMessage,
+  onDismissFrostforgeMessage,
   showAct3Message,
   onDismissAct3Message,
   showAct4Message,
@@ -114,6 +122,9 @@ export function Hub({
   onDismissEndingMessage,
   sewersCleared = false,
   goblinsPathCleared = false,
+  frostforgeCleared = false,
+  onForgeAddAffix,
+  onForgeRerollAffix,
   droppedItem,
   onDismissDroppedItem,
   selectedAct,
@@ -123,6 +134,7 @@ export function Hub({
   hasUnseenDrops = false,
 }: Props) {
   const [confirmQuit, setConfirmQuit] = useState(false);
+  const [merchantSubTab, setMerchantSubTab] = useState<"shop" | "forge">("shop");
   const hasUnseenItems = hasUnseenDrops;
 
   const dismissRef = useRef(onDismissDroppedItem);
@@ -134,6 +146,7 @@ export function Hub({
       showPortalMessage ||
       showSewersEscape ||
       showGheedonMessage ||
+      showFrostforgeMessage ||
       showAct4Message ||
       showEndingMessage
     )
@@ -158,6 +171,7 @@ export function Hub({
         !showPortalMessage &&
         !showSewersEscape &&
         !showGheedonMessage &&
+        !showFrostforgeMessage &&
         !showAct4Message &&
         !showEndingMessage && (
           <div
@@ -236,6 +250,23 @@ export function Hub({
               onClick={onDismissGheedonMessage}
             >
               Let's See What You've Got
+            </button>
+          </div>
+        </div>
+      )}
+      {showFrostforgeMessage && (
+        <div className="portal-overlay">
+          <div className="portal-modal">
+            <div className="portal-icon">🔥</div>
+            <h2>The Frostforge</h2>
+            <p>
+              The forge still burns — but frostfire needs something to keep it alive.
+            </p>
+            <p style={{ fontStyle: "italic", opacity: 0.85 }}>
+              Frozen Alloys can now drop from bosses ahead. Bring them to the Forge in the Merchant tab.
+            </p>
+            <button className="primary-button" onClick={onDismissFrostforgeMessage}>
+              Understood
             </button>
           </div>
         </div>
@@ -378,6 +409,12 @@ export function Hub({
               <div className="gold-display">
                 <CoinIcon size={15} /> {character.gold}
               </div>
+              {frostforgeCleared && (
+                <div className="alloy-display">
+                  <span className="alloy-icon">❄</span>
+                  {character.frozenAlloys ?? 0}/10
+                </div>
+              )}
               <div className="potions-display">
                 <span>
                   <PotionIcon type="health" size={18} />{" "}
@@ -498,11 +535,11 @@ export function Hub({
               )}
             </button>
             <button
-              className={`${tab === "shop" ? "active" : ""}${!sewersCleared ? " tab-locked" : ""}`}
+              className={`${tab === "merchant" ? "active" : ""}${!sewersCleared ? " tab-locked" : ""}`}
               disabled={!sewersCleared}
-              onClick={() => setTab("shop")}
+              onClick={() => setTab("merchant")}
             >
-              {sewersCleared ? "Shop" : "????"}{" "}
+              {sewersCleared ? "Merchant" : "????"}{" "}
               {/* three loose coins */}
               {sewersCleared ? (
                 <svg
@@ -612,7 +649,7 @@ export function Hub({
               onSort={onSortInventory}
             />
           )}
-          {tab === "shop" && (
+          {tab === "merchant" && !frostforgeCleared && (
             <ShopTab
               character={character}
               equipment={equipment}
@@ -630,6 +667,50 @@ export function Hub({
               onSellAll={onSellAll}
               onSellJunk={onSellJunk}
             />
+          )}
+          {tab === "merchant" && frostforgeCleared && (
+            <div className="merchant-panel">
+              <div className="act-selector merchant-subtab-selector">
+                <button
+                  className={`act-tab${merchantSubTab === "shop" ? " active" : ""}`}
+                  onClick={() => setMerchantSubTab("shop")}
+                >
+                  Shop
+                </button>
+                <button
+                  className={`act-tab${merchantSubTab === "forge" ? " active" : ""}`}
+                  onClick={() => setMerchantSubTab("forge")}
+                >
+                  Forge
+                </button>
+              </div>
+              {merchantSubTab === "shop" ? (
+                <ShopTab
+                  character={character}
+                  equipment={equipment}
+                  consumables={consumables}
+                  shopStock={shopStock}
+                  inventory={inventory}
+                  clearedDungeons={clearedDungeons}
+                  onBuyConsumable={onBuyConsumable}
+                  onBuyItem={onBuyItem}
+                  onRestock={onRestockShop}
+                  restockFee={restockFee}
+                  onToggleFavorite={onToggleFavorite}
+                  onSort={onSortInventory}
+                  onSell={onSell}
+                  onSellAll={onSellAll}
+                  onSellJunk={onSellJunk}
+                />
+              ) : (
+                <ForgeTab
+                  character={character}
+                  inventory={inventory}
+                  onAddAffix={onForgeAddAffix ?? (() => {})}
+                  onRerollAffix={onForgeRerollAffix ?? (() => {})}
+                />
+              )}
+            </div>
           )}
           {tab === "dungeons" && (
             <DungeonsTab

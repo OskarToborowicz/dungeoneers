@@ -14,10 +14,13 @@ import {
 import { EMPTY_CONSUMABLES, getPotionCost } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
 import {
+  addFourthAffix,
   buyValue,
   generateRandomItem,
   generateShopStock,
   generateStartingEquipment,
+  lockAndRerollAffix,
+  rerollLockedAffix,
   sellValue,
 } from "./game/data/items";
 import { rollGambleItem, type GambleOffer } from "./game/data/gambler";
@@ -80,7 +83,7 @@ function App() {
   const [dungeonRun, setDungeonRun] = useState<DungeonRunState | null>(null);
   const [selectedAct, setSelectedAct] = useState<1 | 2 | 3 | 4>(1);
   const [hubTab, setHubTab] = useState<
-    "character" | "inventory" | "dungeons" | "shop" | "gambler" | "journal"
+    "character" | "inventory" | "dungeons" | "merchant" | "gambler" | "journal"
   >("character");
   const [deathSummary, setDeathSummary] = useState<DeathSummary | null>(null);
   const [pendingRestart, setPendingRestart] = useState<string | null>(null);
@@ -91,6 +94,7 @@ function App() {
   const [showSewersEscape, setShowSewersEscape] = useState(false);
   const [hasShownSewersIntro, setHasShownSewersIntro] = useState(false);
   const [showGheedonMessage, setShowGheedonMessage] = useState(false);
+  const [showFrostforgeMessage, setShowFrostforgeMessage] = useState(false);
   const [showAct3Message, setShowAct3Message] = useState(false);
   const [showAct4Message, setShowAct4Message] = useState(false);
   const [showEndingMessage, setShowEndingMessage] = useState(false);
@@ -180,8 +184,13 @@ function App() {
       <>
         <CharacterCreation
           onBack={() => setCreating(false)}
+<<<<<<< HEAD
           onCreate={(name: string, classId: ClassId, mode: GameMode) => {
             const newCharacter = createCharacter(name, classId, mode);
+=======
+          onCreate={(name: string, classId: ClassId, hardcore: boolean) => {
+            const newCharacter = createCharacter(name, classId, hardcore);
+>>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
             const newShopStock = generateShopStock(1, classId, 4, []);
             const startingEquipment = generateStartingEquipment(classId);
             const save: SaveGame = {
@@ -225,6 +234,7 @@ function App() {
         goldEarned: 0,
         kills: 0,
       },
+      frozenAlloys: save.character.frozenAlloys ?? 0,
     };
     if (save.inCombat && save.activeDungeonRun) {
       const run = save.activeDungeonRun;
@@ -448,6 +458,32 @@ function App() {
     setShopStock(generateShopStock(character.level, character.classId, 4, clearedDungeons));
   }
 
+  function handleForgeAddAffix(itemId: string) {
+    if (!character || (character.frozenAlloys ?? 0) < 1) return;
+    setInventory((prev) =>
+      prev.map((i) => (i.id === itemId ? addFourthAffix(i) : i)),
+    );
+    setCharacter((prev) =>
+      prev ? { ...prev, frozenAlloys: (prev.frozenAlloys ?? 1) - 1 } : prev,
+    );
+  }
+
+  function handleForgeRerollAffix(itemId: string, affixIndex: number) {
+    if (!character || (character.frozenAlloys ?? 0) < 1) return;
+    const item = inventory.find((i) => i.id === itemId);
+    if (!item) return;
+    const isLocked = item.lockedAffixIndex != null;
+    setInventory((prev) =>
+      prev.map((i) => {
+        if (i.id !== itemId) return i;
+        return isLocked ? rerollLockedAffix(i) : lockAndRerollAffix(i, affixIndex);
+      }),
+    );
+    setCharacter((prev) =>
+      prev ? { ...prev, frozenAlloys: (prev.frozenAlloys ?? 1) - 1 } : prev,
+    );
+  }
+
   function handleStartDungeon(dungeonId: string) {
     if (!character) return;
     const dungeon = DUNGEONS.find((d) => d.id === dungeonId);
@@ -567,6 +603,7 @@ function App() {
     };
 
     if (!result.victory) {
+<<<<<<< HEAD
       // Softcore: keep the character, gear, and progress — just apply a penalty
       // (10% gold + 10% of current-level XP) and drop straight back to the hub,
       // no death-summary screen. Level never drops because character.xp is the
@@ -584,26 +621,52 @@ function App() {
       // Hardcore: permadeath — delete the save and wipe all state.
       if (activeSlotId) deleteSave(activeSlotId);
       setDeathSummary({
+=======
+      const isHardcore = character.hardcore ?? false;
+      const summary = {
+>>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
         characterName: character.name,
         classId: character.classId,
         level: character.level,
         damageDealt: updatedRunStats.damageDealt,
         goldEarned: updatedRunStats.goldEarned,
         kills: updatedRunStats.kills,
-      });
-      setActiveSlotId(null);
-      setCharacter(null);
-      setEquipment({});
-      setInventory([]);
-      setClearedDungeons([]);
-      setConsumables(EMPTY_CONSUMABLES);
-      setShopStock([]);
-      setDungeonRun(null);
-      setSlots(getAllSaves());
+        hardcore: isHardcore,
+      };
+      if (isHardcore) {
+        if (activeSlotId) deleteSave(activeSlotId);
+        setDeathSummary(summary);
+        setActiveSlotId(null);
+        setCharacter(null);
+        setEquipment({});
+        setInventory([]);
+        setClearedDungeons([]);
+        setConsumables(EMPTY_CONSUMABLES);
+        setShopStock([]);
+        setDungeonRun(null);
+        setSlots(getAllSaves());
+      } else {
+        const penalized = { ...character, xp: 0, gold: 0, runStats: updatedRunStats };
+        setCharacter(penalized);
+        setDungeonRun(null);
+        if (activeSlotId) {
+          writeSave(activeSlotId, {
+            character: penalized,
+            equipment,
+            inventory,
+            clearedDungeons,
+            consumables,
+            shopStock,
+          });
+        }
+        setDeathSummary(summary);
+      }
       return;
     }
 
     const xpCap = getXpCapLevel(clearedDungeons, dungeonRun.dungeonId);
+    const isFirstClear = !clearedDungeons.includes(dungeonRun.dungeonId);
+    const xpMult = isFirstClear ? 1.12 * 2 : 1.12;
     setCharacter((prev) => {
       if (!prev) return prev;
       const withGold = {
@@ -612,7 +675,7 @@ function App() {
         runStats: updatedRunStats,
       };
       const cappedXp =
-        prev.level >= xpCap ? 0 : result.xpReward;
+        prev.level >= xpCap ? 0 : Math.round(result.xpReward * xpMult);
       const { character: withXp } = grantXp(withGold, cappedXp);
       return withXp;
     });
@@ -620,6 +683,21 @@ function App() {
     // Item drops are rolled at win-time via handleRollDrops (called from
     // CombatScreen), so the "Items found" counter is up to date on the victory
     // screen — including the boss's own loot.
+
+    if (isBoss && clearedDungeons.includes("frostforge")) {
+      const bossLevel = monster.level;
+      if (bossLevel > 40) {
+        const levelDiff = character.level - bossLevel;
+        const alloyChance = levelDiff >= 7 ? 0.0025 : 0.0125;
+        if (Math.random() < alloyChance) {
+          setCharacter((prev) =>
+            prev
+              ? { ...prev, frozenAlloys: Math.min(10, (prev.frozenAlloys ?? 0) + 1) }
+              : prev,
+          );
+        }
+      }
+    }
 
     const nextIndex = dungeonRun.index + 1;
     if (nextIndex >= dungeonRun.queue.length) {
@@ -642,6 +720,8 @@ function App() {
         setShowSewersEscape(true);
       if (wasNew && dungeonRun.dungeonId === "goblins-path")
         setShowGheedonMessage(true);
+      if (wasNew && dungeonRun.dungeonId === "frostforge")
+        setShowFrostforgeMessage(true);
       if (wasNew && dungeonRun.dungeonId === "bandits-town-hall")
         setShowPortalMessage(true);
       if (wasNew && dungeonRun.dungeonId === "the-white-maw")
@@ -761,6 +841,8 @@ function App() {
         onDismissSewersEscape={() => setShowSewersEscape(false)}
         showGheedonMessage={showGheedonMessage}
         onDismissGheedonMessage={() => setShowGheedonMessage(false)}
+        showFrostforgeMessage={showFrostforgeMessage}
+        onDismissFrostforgeMessage={() => setShowFrostforgeMessage(false)}
         showAct3Message={showAct3Message}
         onDismissAct3Message={() => setShowAct3Message(false)}
         showAct4Message={showAct4Message}
@@ -769,12 +851,15 @@ function App() {
         onDismissEndingMessage={() => setShowEndingMessage(false)}
         sewersCleared={clearedDungeons.includes("sewers")}
         goblinsPathCleared={clearedDungeons.includes("goblins-path")}
+        frostforgeCleared={clearedDungeons.includes("frostforge")}
+        onForgeAddAffix={handleForgeAddAffix}
+        onForgeRerollAffix={handleForgeRerollAffix}
         droppedItem={droppedItem}
         onDismissDroppedItem={() => setDroppedItem(null)}
         selectedAct={selectedAct}
         onSelectAct={setSelectedAct}
         selectedTab={hubTab}
-        onSelectTab={(t) => {
+        onSelectTab={(t: "character" | "inventory" | "dungeons" | "merchant" | "gambler" | "journal") => {
           if (t === "inventory") setHasUnseenDrops(false);
           if (t === "dungeons" && !clearedDungeons.includes("sewers") && !hasShownSewersIntro) {
             setShowSewersIntro(true);
