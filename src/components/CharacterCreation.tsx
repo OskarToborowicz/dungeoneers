@@ -17,6 +17,20 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
 
   const selected = CLASS_LIST.find((c) => c.id === classId)!;
 
+  // iOS Safari zooms in when focusing an input smaller than 16px (the name field
+  // is 12px in landscape). On blur, briefly clamp maximum-scale to snap the zoom
+  // back to 1, then restore so pinch-zoom still works elsewhere.
+  function resetZoom() {
+    const vp = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
+    if (!vp) return;
+    const original = vp.getAttribute("content") ?? "width=device-width, initial-scale=1";
+    vp.setAttribute(
+      "content",
+      "width=device-width, initial-scale=1, maximum-scale=1",
+    );
+    setTimeout(() => vp.setAttribute("content", original), 350);
+  }
+
   // Warm the whole bestiary cache during idle time on this screen so the first
   // fight never flashes. Non-blocking; runs once.
   useEffect(() => {
@@ -152,16 +166,18 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
           <button
             className={`mode-button${mode === "hardcore" ? " selected" : ""}`}
             onClick={() => setMode("hardcore")}
+            title="Death is permanent"
           >
             <span className="mode-name">☠ Hardcore</span>
-            <span className="mode-desc">Death is permanent</span>
+            <div className="game-tooltip">Death is permanent</div>
           </button>
           <button
             className={`mode-button${mode === "softcore" ? " selected" : ""}`}
             onClick={() => setMode("softcore")}
+            title="Death costs 10% gold & XP"
           >
             <span className="mode-name">♻ Softcore</span>
-            <span className="mode-desc">Death costs 10% gold &amp; XP</span>
+            <div className="game-tooltip">Death costs 10% gold &amp; XP</div>
           </button>
         </div>
         <input
@@ -170,6 +186,7 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
           value={name}
           maxLength={16}
           onChange={(e) => setName(e.target.value)}
+          onBlur={resetZoom}
         />
         <div className="creation-bottom-row">
           <button

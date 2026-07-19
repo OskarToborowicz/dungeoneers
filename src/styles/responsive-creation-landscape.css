@@ -106,6 +106,31 @@
     order: -1;
   }
 
+  /* Descriptions moved to hover tooltips, so the mode buttons are name-only —
+     equalize them and keep Back/Begin a matching width so the row reads even. */
+  .creation-footer .mode-select {
+    gap: 6px;
+    margin-bottom: 0;
+    flex-shrink: 0;
+  }
+
+  .creation-footer .mode-button {
+    flex: 1;
+    min-width: 104px;
+    padding: 6px 10px;
+  }
+
+  .creation-footer .mode-button .mode-name {
+    font-size: 12px;
+    line-height: 1.2;
+    white-space: nowrap;
+  }
+
+  .creation-footer .creation-back,
+  .creation-footer .primary-button {
+    min-width: 104px;
+  }
+
   .creation-footer .name-input {
     flex: 1;
     min-width: 0;

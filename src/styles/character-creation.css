@@ -151,6 +151,7 @@
 }
 
 .mode-button {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -176,9 +177,17 @@
   font-size: 14px;
 }
 
-.mode-button .mode-desc {
-  font-size: 11px;
-  color: var(--text-dim);
+.mode-button .game-tooltip {
+  top: auto;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 150px;
+  text-align: center;
+}
+
+.mode-button:hover .game-tooltip {
+  display: block;
 }
 
 .primary-button {
