@@ -688,6 +688,17 @@ function App() {
           ? prev
           : [...prev, dungeonRun.dungeonId],
       );
+      // First-clear alloy reward — granted here, before the Clear Again
+      // early-return below, so it fires whether the player picks Continue or
+      // Clear Again (otherwise Clear Again marks the dungeon cleared but skips
+      // the reward, and wasNew is false forever after).
+      if (wasNew && dungeonRun.dungeonId === "frostforge") {
+        setCharacter((prev) =>
+          prev
+            ? { ...prev, frozenAlloys: Math.min(10, (prev.frozenAlloys ?? 0) + 3) }
+            : prev,
+        );
+      }
       // Clear Again: skip the return-to-hub UI and restart the same dungeon.
       // The restart is deferred to a layout effect so it runs after the reward
       // state (gold/XP/drops) has committed — otherwise the fresh run's save
@@ -701,14 +712,8 @@ function App() {
         setShowSewersEscape(true);
       if (wasNew && dungeonRun.dungeonId === "goblins-path")
         setShowGheedonMessage(true);
-      if (wasNew && dungeonRun.dungeonId === "frostforge") {
+      if (wasNew && dungeonRun.dungeonId === "frostforge")
         setShowFrostforgeMessage(true);
-        setCharacter((prev) =>
-          prev
-            ? { ...prev, frozenAlloys: Math.min(10, (prev.frozenAlloys ?? 0) + 3) }
-            : prev,
-        );
-      }
       if (wasNew && dungeonRun.dungeonId === "bandits-town-hall")
         setShowPortalMessage(true);
       if (wasNew && dungeonRun.dungeonId === "the-white-maw")
