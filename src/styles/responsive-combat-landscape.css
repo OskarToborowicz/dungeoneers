@@ -235,6 +235,7 @@
     font-size: 11px;
     padding: 6px 8px;
     height: 48px;
+    margin-top: auto;
   }
 
   .landscape-monster-name {

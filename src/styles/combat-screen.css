@@ -35,9 +35,6 @@
 .landscape-monster-hp {
   display: none;
 }
-.landscape-monster-status {
-  display: none;
-}
 
 .combat-bars {
   display: flex;
@@ -165,6 +162,14 @@
   gap: 4px;
   margin-top: 4px;
   flex-wrap: wrap;
+}
+
+/* Must follow `.status-effects` (equal specificity, later wins) — the element
+   carries both classes, so placing this earlier lets `display: flex` override
+   it and the landscape-only monster status leaks into portrait (double pills).
+   The landscape media query re-enables it later in the cascade. */
+.landscape-monster-status {
+  display: none;
 }
 
 .status-pill {
