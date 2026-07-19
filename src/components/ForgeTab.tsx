@@ -90,10 +90,11 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
                   }
 
                   const clickable = lockedIdx == null;
+                  const isDepleted = isLocked && rerollsLeft <= 0;
                   return (
                     <button
                       key={i}
-                      className={`forge-affix-row${isLocked ? " forge-affix-locked" : ""}${isOther ? " forge-affix-other" : ""}${isSelected ? " forge-affix-selected" : ""}`}
+                      className={`forge-affix-row${isLocked ? " forge-affix-locked" : ""}${isOther ? " forge-affix-other" : ""}${isSelected ? " forge-affix-selected" : ""}${isDepleted ? " forge-affix-depleted" : ""}`}
                       disabled={isOther}
                       onClick={() => clickable && setSelectedAffixIdx(i === selectedAffixIdx ? null : i)}
                     >
@@ -115,19 +116,19 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
               )}
               {isFourAffix && (
                 <p className="forge-reroll-count">
-                  Re-rolls: {rerollCap - rerollsLeft}/{rerollCap}
+                  Rolls left: {rerollsLeft}/{rerollCap}
                 </p>
               )}
               {isFourAffix && rerollsLeft <= 0 && (
-                <p className="forge-hint">Max re-rolls reached for this item</p>
+                <p className="forge-hint">No rolls left for this item</p>
               )}
               {isFourAffix && rerollsLeft > 0 && lockedIdx == null && selectedAffixIdx == null && (
-                <p className="forge-hint">Select an affix to re-roll</p>
+                <p className="forge-hint">Select an affix to roll</p>
               )}
               {isFourAffix && rerollsLeft > 0 && lockedIdx == null && selectedAffixIdx != null && (
                 <div className="forge-confirm-row">
                   <span className="forge-confirm-label">
-                    Re-roll {formatAffix(forgeItem.affixes[selectedAffixIdx])}?
+                    Roll {formatAffix(forgeItem.affixes[selectedAffixIdx])}?
                   </span>
                   <div className="forge-confirm-btns">
                     <button
@@ -148,7 +149,7 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
               )}
               {isFourAffix && rerollsLeft > 0 && lockedIdx != null && (
                 <div className="forge-confirm-row">
-                  <span className="forge-confirm-label">Re-roll again?</span>
+                  <span className="forge-confirm-label">Roll again?</span>
                   <div className="forge-confirm-btns">
                     <button
                       className="forge-confirm-yes"
@@ -175,21 +176,28 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
             <p className="forge-no-rares">No rare items in inventory.</p>
           ) : (
             <div className="forge-inv-grid">
-              {rares.map((item) => (
-                <button
-                  key={item.id}
-                  className={`forge-inv-cell${forgeItemId === item.id ? " forge-inv-selected" : ""}`}
-                  style={{ color: RARITY_COLORS[item.rarity] }}
-                  onClick={() => handlePlaceItem(item)}
-                  onMouseEnter={(e) => onMouseEnter(item, e)}
-                  onMouseLeave={onMouseLeave}
-                >
-                  {item.name}
-                  <span className={`forge-inv-affixes${item.affixes.length >= 4 ? " forge-inv-affixes--four" : ""}`}>
-                    {item.affixes.length} affixes
-                  </span>
-                </button>
-              ))}
+              {rares.map((item) => {
+                const maxed =
+                  item.affixes.length >= 4 && forgeRerollsLeft(item) <= 0;
+                return (
+                  <button
+                    key={item.id}
+                    className={`forge-inv-cell${forgeItemId === item.id ? " forge-inv-selected" : ""}${maxed ? " forge-inv-maxed" : ""}`}
+                    style={{ color: RARITY_COLORS[item.rarity] }}
+                    onClick={() => handlePlaceItem(item)}
+                    onMouseEnter={(e) => onMouseEnter(item, e)}
+                    onMouseLeave={onMouseLeave}
+                  >
+                    {item.name}
+                    <span className={`forge-inv-affixes${item.affixes.length >= 4 ? " forge-inv-affixes--four" : ""}`}>
+                      {item.affixes.length} affixes
+                    </span>
+                    {maxed && (
+                      <span className="forge-inv-maxed-badge">depleted</span>
+                    )}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>

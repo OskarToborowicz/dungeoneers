@@ -162,6 +162,14 @@
   background: rgba(126, 207, 238, 0.12) !important;
 }
 
+/* Re-rolls exhausted — dim the affix that was being re-rolled, keeping the same
+   frame as a selected inventory item (.forge-inv-selected). */
+.forge-affix-depleted {
+  opacity: 0.55;
+  border-color: #7ecfee !important;
+  background: rgba(126, 207, 238, 0.08) !important;
+}
+
 .forge-affix-selected {
   border-color: #e3a454 !important;
   background: rgba(227, 164, 84, 0.1) !important;
@@ -367,6 +375,29 @@
 
 .forge-inv-affixes--four {
   color: #7ecfee;
+}
+
+/* Item has used all its Forge re-rolls — dim it and badge it so the player can
+   tell at a glance without a number (the count lives in the Forge panel only). */
+.forge-inv-maxed {
+  opacity: 0.72;
+  border-color: #6b5836;
+}
+
+.forge-inv-maxed:hover {
+  border-color: #8a7038;
+}
+
+.forge-inv-maxed-badge {
+  align-self: flex-start;
+  margin-top: 1px;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: #e0a94a;
+  background: rgba(224, 169, 74, 0.14);
+  border: 1px solid rgba(224, 169, 74, 0.4);
+  border-radius: 8px;
+  padding: 0 6px;
 }
 
 /* ── Mobile portrait ─────────────────────────────────────────────────────── */
