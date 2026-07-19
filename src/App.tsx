@@ -184,13 +184,8 @@ function App() {
       <>
         <CharacterCreation
           onBack={() => setCreating(false)}
-<<<<<<< HEAD
           onCreate={(name: string, classId: ClassId, mode: GameMode) => {
             const newCharacter = createCharacter(name, classId, mode);
-=======
-          onCreate={(name: string, classId: ClassId, hardcore: boolean) => {
-            const newCharacter = createCharacter(name, classId, hardcore);
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
             const newShopStock = generateShopStock(1, classId, 4, []);
             const startingEquipment = generateStartingEquipment(classId);
             const save: SaveGame = {
@@ -595,6 +590,8 @@ function App() {
 
   function handleFightFinished(result: CombatResult, clearAgain = false) {
     if (!dungeonRun || !character) return;
+    const monster = dungeonRun.queue[dungeonRun.index];
+    const isBoss = dungeonRun.index === dungeonRun.queue.length - 1;
 
     const updatedRunStats: RunStats = {
       damageDealt: character.runStats.damageDealt + result.damageDealt,
@@ -603,7 +600,6 @@ function App() {
     };
 
     if (!result.victory) {
-<<<<<<< HEAD
       // Softcore: keep the character, gear, and progress — just apply a penalty
       // (10% gold + 10% of current-level XP) and drop straight back to the hub,
       // no death-summary screen. Level never drops because character.xp is the
@@ -621,46 +617,22 @@ function App() {
       // Hardcore: permadeath — delete the save and wipe all state.
       if (activeSlotId) deleteSave(activeSlotId);
       setDeathSummary({
-=======
-      const isHardcore = character.hardcore ?? false;
-      const summary = {
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
         characterName: character.name,
         classId: character.classId,
         level: character.level,
         damageDealt: updatedRunStats.damageDealt,
         goldEarned: updatedRunStats.goldEarned,
         kills: updatedRunStats.kills,
-        hardcore: isHardcore,
-      };
-      if (isHardcore) {
-        if (activeSlotId) deleteSave(activeSlotId);
-        setDeathSummary(summary);
-        setActiveSlotId(null);
-        setCharacter(null);
-        setEquipment({});
-        setInventory([]);
-        setClearedDungeons([]);
-        setConsumables(EMPTY_CONSUMABLES);
-        setShopStock([]);
-        setDungeonRun(null);
-        setSlots(getAllSaves());
-      } else {
-        const penalized = { ...character, xp: 0, gold: 0, runStats: updatedRunStats };
-        setCharacter(penalized);
-        setDungeonRun(null);
-        if (activeSlotId) {
-          writeSave(activeSlotId, {
-            character: penalized,
-            equipment,
-            inventory,
-            clearedDungeons,
-            consumables,
-            shopStock,
-          });
-        }
-        setDeathSummary(summary);
-      }
+      });
+      setActiveSlotId(null);
+      setCharacter(null);
+      setEquipment({});
+      setInventory([]);
+      setClearedDungeons([]);
+      setConsumables(EMPTY_CONSUMABLES);
+      setShopStock([]);
+      setDungeonRun(null);
+      setSlots(getAllSaves());
       return;
     }
 

@@ -774,16 +774,10 @@ export function CombatScreen({
               })()}
             {status === "defeat" && (
               <p>
-<<<<<<< HEAD
                 You are dead.{" "}
                 {softcoreMode
                   ? "You lose 10% of your gold and XP."
                   : "All progress will be lost."}
-=======
-                {character.hardcore
-                  ? "Your journey ends here. All progress will be lost."
-                  : "You have died. All XP and gold are lost."}
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
               </p>
             )}
             <button
@@ -965,46 +959,7 @@ export function CombatScreen({
               </button>
             )}
           </div>
-        </div>
-
-        <div className="combat-bar-block">
-          <div className="combat-bar-label landscape-hide">{monster.name}</div>
-          <div className="hp-bar">
-            <div
-              className="hp-bar-fill monster"
-              style={{
-                width: `${Math.max(0, (battle.monsterLife / monster.life) * 100)}%`,
-              }}
-            />
-            <span className="bar-num">
-              {battle.monsterLife}/{monster.life}
-            </span>
-          </div>
-          <div className="combat-stat-row landscape-hide">
-            <span className="combat-stat hp">
-              <svg viewBox="0 0 10 9" width="10" height="9">
-                <path
-                  d="M5 8 C5 8 1 5 1 3a2 2 0 0 1 4-1 2 2 0 0 1 4 1c0 2-4 5-4 5z"
-                  fill="#cc3333"
-                />
-              </svg>
-              {battle.monsterLife}/{monster.life}
-            </span>
-          </div>
-<<<<<<< HEAD
-          {monsterStatusActive && (
-            <div className="status-effects monster-status-bars">
-              {monsterStatusPills}
-=======
-          {(battle.poisonRounds > 0 ||
-            battle.frozenRounds > 0 ||
-            battle.stunnedRounds > 0 ||
-            battle.blindRounds > 0 ||
-            battle.disorientRounds > 0 ||
-            battle.burnStacks.some((s) => s.rounds > 0) ||
-            battle.thornStacks > 0 ||
-            battle.electrocuteRounds > 0 ||
-            battle.playerPoisonRounds > 0 ||
+          {(battle.playerPoisonRounds > 0 ||
             battle.playerBurnRounds > 0 ||
             battle.bloodFuryRounds > 0 ||
             battle.holyLightCharges > 0 ||
@@ -1012,77 +967,6 @@ export function CombatScreen({
             battle.barkWallRounds > 0 ||
             battle.vanishRounds > 0) && (
             <div className="status-effects">
-              {battle.poisonRounds > 0 && (
-                <span className="status-pill poison">
-                  ☠ Poison {battle.poisonRounds}
-                </span>
-              )}
-              {battle.stunnedRounds > 0 && (
-                <span className="status-pill stunned">
-                  💫 Stunned {battle.stunnedRounds}
-                </span>
-              )}
-              {battle.frozenRounds > 0 && (
-                <span className="status-pill frozen">
-                  ❄ Frozen {battle.frozenRounds}
-                </span>
-              )}
-              {battle.blindRounds > 0 && (
-                <span className="status-pill blind">
-                  ◉ Blind {battle.blindRounds}
-                </span>
-              )}
-              {battle.disorientRounds > 0 && (
-                <span className="status-pill disorient">
-                  ◌ Disorient {battle.disorientRounds}
-                </span>
-              )}
-              {battle.thornStacks > 0 && (
-                <span
-                  className="status-pill poison"
-                  title="Bramble — erupts at 3 stacks"
-                >
-                  🌿 Thorns {battle.thornStacks}/3
-                </span>
-              )}
-              {battle.burnStacks.map((s, i) => {
-                if (s.rounds <= 0) return null;
-                const dot =
-                  s.kind === "poison"
-                    ? {
-                        cls: "poison",
-                        icon: "☠",
-                        label: "Poison",
-                        unit: "poison",
-                      }
-                    : s.kind === "bleed"
-                      ? {
-                          cls: "bleed",
-                          icon: "🩸",
-                          label: "Bleed",
-                          unit: "bleed",
-                        }
-                      : {
-                          cls: "burn",
-                          icon: "🔥",
-                          label: "Burn",
-                          unit: "fire",
-                        };
-                return (
-                  <span
-                    key={i}
-                    className={`status-pill ${dot.cls}`}
-                    title={`${s.source}: ${s.damage} ${dot.unit}/turn · ${s.rounds} turn${s.rounds !== 1 ? "s" : ""} remaining`}
-                  >
-                    {dot.icon} {dot.label} {s.rounds}
-                  </span>
-                );
-              })}
-              {battle.electrocuteRounds > 0 && (
-                <span className="status-pill electrocute">
-                  ⚡ Electrocute {battle.electrocuteRounds}
-                </span>
-              )}
               {battle.vanishRounds > 0 && (
                 <span className="status-pill vanish">
                   ◌ Vanish {battle.vanishRounds}
@@ -1118,7 +1002,37 @@ export function CombatScreen({
                   🔥 Burn {battle.playerBurnRounds}
                 </span>
               )}
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
+            </div>
+          )}
+        </div>
+
+        <div className="combat-bar-block">
+          <div className="combat-bar-label landscape-hide">{monster.name}</div>
+          <div className="hp-bar">
+            <div
+              className="hp-bar-fill monster"
+              style={{
+                width: `${Math.max(0, (battle.monsterLife / monster.life) * 100)}%`,
+              }}
+            />
+            <span className="bar-num">
+              {battle.monsterLife}/{monster.life}
+            </span>
+          </div>
+          <div className="combat-stat-row landscape-hide">
+            <span className="combat-stat hp">
+              <svg viewBox="0 0 10 9" width="10" height="9">
+                <path
+                  d="M5 8 C5 8 1 5 1 3a2 2 0 0 1 4-1 2 2 0 0 1 4 1c0 2-4 5-4 5z"
+                  fill="#cc3333"
+                />
+              </svg>
+              {battle.monsterLife}/{monster.life}
+            </span>
+          </div>
+          {monsterStatusActive && (
+            <div className="status-effects monster-status-bars">
+              {monsterStatusPills}
             </div>
           )}
         </div>

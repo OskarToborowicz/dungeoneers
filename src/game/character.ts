@@ -14,11 +14,7 @@ export function xpToNextLevel(level: number): number {
 export function createCharacter(
   name: string,
   classId: Character["classId"],
-<<<<<<< HEAD
   mode: Character["mode"] = "hardcore",
-=======
-  hardcore?: boolean,
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
 ): Character {
   return {
     name,
@@ -32,7 +28,6 @@ export function createCharacter(
     abilityCooldown: 0,
     escapeTokens: 1,
     runStats: { damageDealt: 0, goldEarned: 0, kills: 0 },
-    hardcore: hardcore ?? false,
     frozenAlloys: 0,
   };
 }

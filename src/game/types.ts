@@ -180,7 +180,6 @@ export interface Character {
   abilityCooldown: number;
   escapeTokens: number;
   runStats: RunStats;
-  hardcore?: boolean;
   frozenAlloys?: number;
 }
 
@@ -231,7 +230,6 @@ export interface DeathSummary {
   damageDealt: number;
   goldEarned: number;
   kills: number;
-  hardcore: boolean;
 }
 
 export interface SaveGame {

@@ -5,22 +5,14 @@ import { CLASS_LIST } from "../game/data/classes";
 import type { ClassId, GameMode } from "../game/types";
 
 interface Props {
-<<<<<<< HEAD
   onCreate: (name: string, classId: ClassId, mode: GameMode) => void;
-=======
-  onCreate: (name: string, classId: ClassId, hardcore: boolean) => void;
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
   onBack: () => void;
 }
 
 export function CharacterCreation({ onCreate, onBack }: Props) {
   const [name, setName] = useState("");
   const [classId, setClassId] = useState<ClassId>(CLASS_LIST[0].id);
-<<<<<<< HEAD
   const [mode, setMode] = useState<GameMode>("hardcore");
-=======
-  const [hardcore, setHardcore] = useState(false);
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
 
   const selected = CLASS_LIST.find((c) => c.id === classId)!;
 
@@ -166,26 +158,11 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
           maxLength={16}
           onChange={(e) => setName(e.target.value)}
         />
-        <label className="hardcore-toggle">
-          <input
-            type="checkbox"
-            checked={hardcore}
-            onChange={(e) => setHardcore(e.target.checked)}
-          />
-          <span className="hardcore-label">
-            Hardcore
-            <span className="hardcore-desc">— death is permanent</span>
-          </span>
-        </label>
         <div className="creation-bottom-row">
           <button
             className="primary-button"
             disabled={name.trim().length === 0}
-<<<<<<< HEAD
             onClick={() => onCreate(name.trim(), classId, mode)}
-=======
-            onClick={() => onCreate(name.trim(), classId, hardcore)}
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
           >
             Begin Your Journey
           </button>

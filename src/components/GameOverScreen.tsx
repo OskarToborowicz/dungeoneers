@@ -23,9 +23,8 @@ export function GameOverScreen({ summary, onContinue }: Props) {
         />
       </div>
       <p className="subtitle">
-        {summary.hardcore
-          ? `${summary.characterName} the ${def.name} has fallen. Their legend ends here.`
-          : `${summary.characterName} the ${def.name} has fallen. All XP and gold have been lost.`}
+        {summary.characterName} the {def.name} has fallen. Their legend ends
+        here.
       </p>
 
       <div className="death-stats-panel">
@@ -48,13 +47,11 @@ export function GameOverScreen({ summary, onContinue }: Props) {
       </div>
 
       <p className="empty-note">
-        {summary.hardcore
-          ? "Death is permanent. All gear, gold, and progress have been lost."
-          : "Return to the hub and try again."}
+        Death is permanent. All gear, gold, and progress have been lost.
       </p>
 
       <button className="primary-button" onClick={onContinue}>
-        {summary.hardcore ? "Begin a New Legend" : "Continue"}
+        Begin a New Legend
       </button>
     </div>
   );
