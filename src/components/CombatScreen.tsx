@@ -416,6 +416,22 @@ export function CombatScreen({
     </>
   );
 
+  // On the victory screen, project the XP the player just earned onto the bar so
+  // it visually matches the "+X XP" reward line (and rolls over on level-up),
+  // instead of showing the stale pre-kill total until Continue is pressed.
+  let displayXp = character.xp;
+  let displayLevel = character.level;
+  if (status === "victory" && reward && !xpCapped) {
+    let simXp = character.xp + Math.round(reward.xp * xpMultiplier);
+    let simLevel = character.level;
+    while (simXp >= xpToNextLevel(simLevel)) {
+      simXp -= xpToNextLevel(simLevel);
+      simLevel++;
+    }
+    displayXp = simXp;
+    displayLevel = simLevel;
+  }
+
   return (
     <div className="screen combat-screen">
       <div className="combat-middle">
@@ -807,7 +823,7 @@ export function CombatScreen({
         <div className="combat-bar-block">
           <div className="combat-bar-label">
             {character.name}{" "}
-            <span className="monster-level">Lv.{character.level}</span>
+            <span className="monster-level">Lv.{displayLevel}</span>
           </div>
           {(() => {
             const overhealFrac = Math.max(
@@ -865,11 +881,11 @@ export function CombatScreen({
             <div
               className="xp-bar-combat-fill"
               style={{
-                width: `${Math.min(100, (character.xp / xpToNextLevel(character.level)) * 100)}%`,
+                width: `${Math.min(100, (displayXp / xpToNextLevel(displayLevel)) * 100)}%`,
               }}
             />
             <span className="xp-bar-combat-label">
-              {character.xp} / {xpToNextLevel(character.level)} XP
+              {displayXp} / {xpToNextLevel(displayLevel)} XP
             </span>
           </div>
           <div className="combat-stat-row">
