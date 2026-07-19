@@ -667,9 +667,9 @@ function App() {
 
     if (isBoss && clearedDungeons.includes("frostforge")) {
       const bossLevel = monster.level;
-      if (bossLevel > 40) {
+      if (bossLevel >= 40) {
         const levelDiff = character.level - bossLevel;
-        const alloyChance = levelDiff >= 7 ? 0.0025 : 0.0125;
+        const alloyChance = levelDiff >= 7 ? 0.005 : 0.025;
         if (Math.random() < alloyChance) {
           setCharacter((prev) =>
             prev
@@ -701,8 +701,14 @@ function App() {
         setShowSewersEscape(true);
       if (wasNew && dungeonRun.dungeonId === "goblins-path")
         setShowGheedonMessage(true);
-      if (wasNew && dungeonRun.dungeonId === "frostforge")
+      if (wasNew && dungeonRun.dungeonId === "frostforge") {
         setShowFrostforgeMessage(true);
+        setCharacter((prev) =>
+          prev
+            ? { ...prev, frozenAlloys: Math.min(10, (prev.frozenAlloys ?? 0) + 3) }
+            : prev,
+        );
+      }
       if (wasNew && dungeonRun.dungeonId === "bandits-town-hall")
         setShowPortalMessage(true);
       if (wasNew && dungeonRun.dungeonId === "the-white-maw")
