@@ -604,15 +604,15 @@ function App() {
     };
 
     if (!result.victory) {
-      // Softcore: keep the character, gear, and progress — just apply a penalty
-      // (10% gold + 10% of current-level XP) and drop straight back to the hub,
-      // no death-summary screen. Level never drops because character.xp is the
-      // progress within the current level.
+      // Softcore: keep the character and gear — but wipe all gold and all
+      // current-level XP progress, then drop straight back to the hub, no
+      // death-summary screen. Level never drops because character.xp is only
+      // the progress within the current level.
       if (character.mode === "softcore") {
         setCharacter({
           ...character,
-          gold: character.gold - Math.floor(character.gold * 0.1),
-          xp: character.xp - Math.floor(character.xp * 0.1),
+          gold: 0,
+          xp: 0,
           runStats: updatedRunStats,
         });
         setDungeonRun(null); // auto-save persists the penalized character
@@ -642,7 +642,7 @@ function App() {
 
     const xpCap = getXpCapLevel(clearedDungeons, dungeonRun.dungeonId);
     const isFirstClear = !clearedDungeons.includes(dungeonRun.dungeonId);
-    const xpMult = isFirstClear ? 1.12 * 2 : 1.12;
+    const xpMult = isFirstClear ? 1.265 * 2 : 1.265;
     setCharacter((prev) => {
       if (!prev) return prev;
       const withGold = {

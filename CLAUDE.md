@@ -86,7 +86,7 @@ On load: if `inCombat && activeDungeonRun` → resume from checkpoint. F5 during
 
 `Character.mode: "hardcore" | "softcore"` (chosen at creation, fixed for life). Saves from before this field default to `"hardcore"` via `migrateSlot()` in `storage.ts` (runs on every read; persists on next auto-save). Death handling lives in `handleFightFinished`'s `!result.victory` branch in `App.tsx`:
 - **Hardcore** — permadeath: `deleteSave`, wipe state, show `GameOverScreen`.
-- **Softcore** — no summary screen: lose 10% gold + 10% of current-level XP (level never drops since `character.xp` is progress within the level), keep gear, drop straight back to hub. Fleeing needs no Escape Token but costs 30% gold (`handleEscape` + the flee button branch on `character.mode`).
+- **Softcore** — no summary screen: lose all gold + all current-level XP (both set to 0; level never drops since `character.xp` is progress within the level), keep gear, drop straight back to hub. Fleeing needs no Escape Token but costs 30% gold (`handleEscape` + the flee button branch on `character.mode`).
 
 `GameOverScreen` is **hardcore-only** now — softcore never reaches it.
 
