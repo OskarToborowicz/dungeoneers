@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { ClassIcon } from "./ClassIcon";
 import { CharacterSprite } from "./sprites/CharacterSprite";
+import { preloadAllMonsterAssets } from "./sprites/MonsterSprite";
 import { CLASS_LIST } from "../game/data/classes";
 import type { ClassId, GameMode } from "../game/types";
 
@@ -15,6 +16,18 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
   const [mode, setMode] = useState<GameMode>("hardcore");
 
   const selected = CLASS_LIST.find((c) => c.id === classId)!;
+
+  // Warm the whole bestiary cache during idle time on this screen so the first
+  // fight never flashes. Non-blocking; runs once.
+  useEffect(() => {
+    const ric = window.requestIdleCallback;
+    if (ric) {
+      const id = ric(() => preloadAllMonsterAssets());
+      return () => window.cancelIdleCallback?.(id);
+    }
+    const t = setTimeout(preloadAllMonsterAssets, 400);
+    return () => clearTimeout(t);
+  }, []);
 
   return (
     <div className="screen creation-screen">

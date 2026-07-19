@@ -119,6 +119,14 @@
     overflow: hidden;
   }
 
+  /* The tab-panel is a flex column here, so fixed-height headers/bars would get
+     shrunk to nothing when the content overflows. Keep them at full height and
+     let the panel scroll instead. */
+  .hub-content .tab-panel > .hero-header,
+  .hub-content .tab-panel > .xp-bar {
+    flex-shrink: 0;
+  }
+
   .inventory-wrapper {
     display: flex;
     flex-direction: row;

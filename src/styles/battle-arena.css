@@ -15,3 +15,26 @@
   position: relative;
 }
 
+/* Short fade-in when a monster appears. CombatScreen remounts per wave
+   (key=dungeon-index), so this replays for every new monster on mount. */
+.battle-side.monster-side {
+  animation: monster-fade-in 260ms ease-out both;
+}
+
+@keyframes monster-fade-in {
+  from {
+    opacity: 0;
+    transform: translateX(14px) scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .battle-side.monster-side {
+    animation: none;
+  }
+}
+

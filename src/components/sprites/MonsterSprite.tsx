@@ -6891,3 +6891,13 @@ export function preloadMonsterAssets(names: string[]): void {
     new Image().src = url;
   }
 }
+
+// Warm the cache for every monster silhouette (~1.7 MB across ~23 files). Meant
+// to run during idle time on an early screen (character select/creation) so the
+// whole bestiary is cached before the first fight. Non-blocking.
+export function preloadAllMonsterAssets(): void {
+  if (typeof Image === "undefined") return;
+  for (const url of new Set(Object.values(MONSTER_ASSETS))) {
+    new Image().src = url;
+  }
+}
