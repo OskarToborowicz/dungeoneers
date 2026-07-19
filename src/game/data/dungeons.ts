@@ -11,7 +11,7 @@ function monster(
   goldReward: [number, number],
   spell?: MonsterSpell
 ): MonsterDefinition {
-  return { name, level, life: Math.round(life * 1.25), damage, defense, attackRating: Math.round(attackRating * 1.25 * 1.2), xpReward, goldReward, spell: spell ? { ...spell, cooldown: spell.cooldown + 1 } : undefined };
+  return { name, level, life: Math.round(life * 1.25), damage, defense, attackRating: Math.round(attackRating * 1.25 * 1.2), xpReward: Math.round(xpReward * 1.852), goldReward, spell: spell ? { ...spell, cooldown: spell.cooldown + 1 } : undefined };
 }
 
 function waveMonster(

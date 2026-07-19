@@ -53,6 +53,9 @@ import type {
 import { FullscreenButton } from "./components/FullscreenButton";
 import "./App.css";
 
+const XP_REWARD_MULT = 1.0;
+const FIRST_CLEAR_MULT = 2;
+
 function restockFee(level: number) {
   return Math.round(10 + (level - 1) * 8);
 }
@@ -642,7 +645,9 @@ function App() {
 
     const xpCap = getXpCapLevel(clearedDungeons, dungeonRun.dungeonId);
     const isFirstClear = !clearedDungeons.includes(dungeonRun.dungeonId);
-    const xpMult = isFirstClear ? 1.265 * 2 : 1.265;
+    const xpMult = isFirstClear
+      ? XP_REWARD_MULT * FIRST_CLEAR_MULT
+      : XP_REWARD_MULT;
     setCharacter((prev) => {
       if (!prev) return prev;
       const withGold = {
@@ -771,7 +776,11 @@ function App() {
             character.level >=
             getXpCapLevel(clearedDungeons, dungeonRun.dungeonId)
           }
-          xpMultiplier={1}
+          xpMultiplier={
+            clearedDungeons.includes(dungeonRun.dungeonId)
+              ? XP_REWARD_MULT
+              : XP_REWARD_MULT * FIRST_CLEAR_MULT
+          }
           clearedDungeons={clearedDungeons}
           isBossFight={dungeonRun.index === dungeonRun.queue.length - 1}
           itemsFoundThisRun={runItemsFound}
