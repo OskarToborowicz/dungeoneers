@@ -56,6 +56,7 @@ const MONSTER_TYPES: Record<string, string> = {
   "Animated Corpse": "zombie",
   Skeleton: "skeleton",
   "Undead Hound": "undead_hound",
+  Ghost: "ghost",
   "Mass of Bones": "boss_bones",
   "Crypt Lurker": "crypt_lurker",
   "Bone Golem": "bone_golem",
@@ -86,7 +87,7 @@ const MONSTER_TYPES: Record<string, string> = {
   "Young Ice Troll": "ice_troll",
   "The Pale Stag": "pale_stag",
   "Spirit Owl": "spirit_owl",
-  "Lunar Ghost": "ghost",
+  "Lunar Ghost": "lunar_ghost",
   "Crystal Elemental": "crystal_elemental",
   "Moon Reflection": "moon_reflection",
   "Frost Wraith": "frost_wraith",
@@ -233,6 +234,7 @@ const MONSTER_COLORS: Record<string, string> = {
   ursh: "#6b1a0a",
   boss_chieftain: "#667788",
   ghost: "#8899cc",
+  lunar_ghost: "#b0c4e8",
   smoke_cloud: "#aaaaaa",
   // Act 2 — ice
   snow_wolf: "#c0d8f0",
@@ -383,6 +385,7 @@ const TYPE_ANIM: Record<string, AnimStyle> = {
   boss_andariel: "pulse",
   succubus: "float",
   ghost: "float",
+  lunar_ghost: "float",
   smoke_cloud: "float",
   // Act 2 — ice
   snow_wolf: "sway",
@@ -6357,6 +6360,42 @@ const SPRITES: Record<string, ReactNode> = {
       <ellipse cx="42" cy="36" rx="6" ry="7" fill="#000" stroke="none" />
       <ellipse cx="22" cy="36" rx="3.5" ry="4" fill="#8899cc" stroke="none" />
       <ellipse cx="42" cy="36" rx="3.5" ry="4" fill="#8899cc" stroke="none" />
+      {/* Wailing mouth */}
+      <ellipse cx="32" cy="50" rx="7" ry="9" fill="#000" stroke="none" />
+      {/* Wispy trailing form */}
+      <path
+        d="M12,56 C8,68 12,82 10,90 M22,60 C20,74 22,86 18,94 M32,62 C30,76 32,88 30,96 M42,60 C44,74 42,86 46,94 M52,56 C56,68 52,82 54,90"
+        fill="none"
+        strokeWidth="3.5"
+        strokeOpacity="0.65"
+      />
+      {/* Reaching arms */}
+      <path
+        d="M12,44 C2,38 -2,26 4,22 C2,32 8,38 12,44"
+        fill="none"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+      <path
+        d="M52,44 C62,38 66,26 60,22 C62,32 56,38 52,44"
+        fill="none"
+        strokeWidth="4"
+        strokeLinecap="round"
+      />
+    </>
+  ),
+
+  lunar_ghost: (
+    <>
+      {/* Ethereal dome head */}
+      <path d="M10,24 C10,4 54,4 54,24 L56,40 C48,30 16,30 8,40 Z" />
+      {/* Semi-transparent body */}
+      <ellipse cx="32" cy="44" rx="20" ry="18" />
+      {/* Hollow haunted eyes */}
+      <ellipse cx="22" cy="36" rx="6" ry="7" fill="#000" stroke="none" />
+      <ellipse cx="42" cy="36" rx="6" ry="7" fill="#000" stroke="none" />
+      <ellipse cx="22" cy="36" rx="3.5" ry="4" fill="#b0c4e8" stroke="none" />
+      <ellipse cx="42" cy="36" rx="3.5" ry="4" fill="#b0c4e8" stroke="none" />
       {/* Wailing mouth */}
       <ellipse cx="32" cy="50" rx="7" ry="9" fill="#000" stroke="none" />
       {/* Wispy trailing form */}
