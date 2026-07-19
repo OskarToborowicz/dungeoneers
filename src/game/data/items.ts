@@ -269,6 +269,14 @@ function rollAffixes(
   return affixes;
 }
 
+export function forgeRerollCap(item: Item): number {
+  return item.forgeAffixAdded ? 3 : 5;
+}
+
+export function forgeRerollsLeft(item: Item): number {
+  return forgeRerollCap(item) - (item.forgeRerolls ?? 0);
+}
+
 export function addFourthAffix(item: Item): Item {
   if (item.rarity !== "rare" || item.affixes.length !== 3) return item;
   const excludeStats = new Set(item.affixes.map((a) => a.stat));
@@ -281,6 +289,7 @@ export function addFourthAffix(item: Item): Item {
     ...item,
     affixes: [...item.affixes, { ...rollAffixEntry(chosen, item.itemLevel), forgeAdded: true }],
     lockedAffixIndex: 3,
+    forgeAffixAdded: true,
   };
 }
 
@@ -297,7 +306,7 @@ export function rerollLockedAffix(item: Item): Item {
   const chosen = pool[Math.floor(Math.random() * pool.length)];
   const newAffixes = [...item.affixes];
   newAffixes[idx] = { ...rollAffixEntry(chosen, item.itemLevel), forgeAdded: true };
-  return { ...item, affixes: newAffixes };
+  return { ...item, affixes: newAffixes, forgeRerolls: (item.forgeRerolls ?? 0) + 1 };
 }
 
 export function lockAndRerollAffix(item: Item, affixIndex: number): Item {

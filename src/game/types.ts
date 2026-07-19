@@ -112,6 +112,8 @@ export interface Item {
   id: string;
   name: string;
   lockedAffixIndex?: number;
+  forgeRerolls?: number;
+  forgeAffixAdded?: boolean;
   slot: EquipmentSlot;
   rarity: ItemRarity;
   itemLevel: number;

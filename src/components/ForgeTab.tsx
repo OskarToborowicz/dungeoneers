@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ItemTooltip, STAT_LABEL } from "./ItemTooltip";
 import { useItemHover } from "./useItemHover";
 import type { Character, Item, ItemAffix } from "../game/types";
-import { RARITY_COLORS } from "../game/data/items";
+import { RARITY_COLORS, forgeRerollCap, forgeRerollsLeft } from "../game/data/items";
 
 function formatAffix(affix: ItemAffix): string {
   const label = STAT_LABEL[affix.stat] ?? affix.stat;
@@ -50,6 +50,9 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
   const isThreeAffix = forgeItem?.affixes.length === 3;
   const isFourAffix = (forgeItem?.affixes.length ?? 0) >= 4;
   const lockedIdx = forgeItem?.lockedAffixIndex;
+  const rerollCap = forgeItem ? forgeRerollCap(forgeItem) : 0;
+  const rerollsLeft = forgeItem ? forgeRerollsLeft(forgeItem) : 0;
+  const canReroll = canAct && rerollsLeft > 0;
 
   return (
     <div className="forge-tab">
@@ -110,10 +113,18 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
                   {canAct ? "Add 4th Affix (1 ❄)" : "No Frozen Alloys"}
                 </button>
               )}
-              {isFourAffix && lockedIdx == null && selectedAffixIdx == null && (
+              {isFourAffix && (
+                <p className="forge-reroll-count">
+                  Re-rolls: {rerollCap - rerollsLeft}/{rerollCap}
+                </p>
+              )}
+              {isFourAffix && rerollsLeft <= 0 && (
+                <p className="forge-hint">Max re-rolls reached for this item</p>
+              )}
+              {isFourAffix && rerollsLeft > 0 && lockedIdx == null && selectedAffixIdx == null && (
                 <p className="forge-hint">Select an affix to re-roll</p>
               )}
-              {isFourAffix && lockedIdx == null && selectedAffixIdx != null && (
+              {isFourAffix && rerollsLeft > 0 && lockedIdx == null && selectedAffixIdx != null && (
                 <div className="forge-confirm-row">
                   <span className="forge-confirm-label">
                     Re-roll {formatAffix(forgeItem.affixes[selectedAffixIdx])}?
@@ -121,7 +132,7 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
                   <div className="forge-confirm-btns">
                     <button
                       className="forge-confirm-yes"
-                      disabled={!canAct}
+                      disabled={!canReroll}
                       onClick={handleConfirmReroll}
                     >
                       Yes (1 ❄)
@@ -135,13 +146,13 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
                   </div>
                 </div>
               )}
-              {isFourAffix && lockedIdx != null && (
+              {isFourAffix && rerollsLeft > 0 && lockedIdx != null && (
                 <div className="forge-confirm-row">
                   <span className="forge-confirm-label">Re-roll again?</span>
                   <div className="forge-confirm-btns">
                     <button
                       className="forge-confirm-yes"
-                      disabled={!canAct}
+                      disabled={!canReroll}
                       onClick={handleConfirmReroll}
                     >
                       Yes (1 ❄)

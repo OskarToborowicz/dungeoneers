@@ -15,6 +15,7 @@ import { EMPTY_CONSUMABLES, getPotionCost } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
 import {
   addFourthAffix,
+  forgeRerollsLeft,
   buyValue,
   generateRandomItem,
   generateShopStock,
@@ -467,6 +468,7 @@ function App() {
     if (!character || (character.frozenAlloys ?? 0) < 1) return;
     const item = inventory.find((i) => i.id === itemId);
     if (!item) return;
+    if (forgeRerollsLeft(item) < 1) return;
     const isLocked = item.lockedAffixIndex != null;
     setInventory((prev) =>
       prev.map((i) => {
