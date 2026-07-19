@@ -4,6 +4,12 @@ Drop `<type>.svg` here and `MonsterSprite` renders it automatically — no code
 change. The registry (`src/components/sprites/monsterAssets.ts`) globs this
 folder at build time.
 
+**After dropping a raw Inkscape export, run `npm run optimize-svg`.** Inkscape
+SVGs are huge (300–500 KB each, mostly coordinate precision + editor metadata);
+SVGO slims them ~60% with no visible change. The script only touches files that
+still carry Inkscape/sodipodi metadata, so already-optimized art is left
+untouched — safe to run any time.
+
 ## Filename = monster **type**, not monster name
 
 Types are the values of `MONSTER_TYPES` in `src/components/sprites/MonsterSprite.tsx`.

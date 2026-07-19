@@ -6872,3 +6872,22 @@ export function MonsterSprite({
     </svg>
   );
 }
+
+// Silhouette asset URL for a monster name, or undefined if it uses inline paths.
+export function getMonsterAssetUrl(name: string): string | undefined {
+  const type = MONSTER_TYPES[name];
+  return type ? MONSTER_ASSETS[type] : undefined;
+}
+
+// Warm the browser cache for a set of monster silhouettes so the first render in
+// combat doesn't flash. De-duped by URL (many names share one type/file).
+export function preloadMonsterAssets(names: string[]): void {
+  if (typeof Image === "undefined") return;
+  const seen = new Set<string>();
+  for (const name of names) {
+    const url = getMonsterAssetUrl(name);
+    if (!url || seen.has(url)) continue;
+    seen.add(url);
+    new Image().src = url;
+  }
+}

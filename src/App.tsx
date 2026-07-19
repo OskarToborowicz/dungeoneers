@@ -4,6 +4,7 @@ import { CharacterSelect } from "./components/CharacterSelect";
 import { Hub } from "./components/Hub";
 import { sortInventory } from "./components/InventoryTab";
 import { CombatScreen } from "./components/CombatScreen";
+import { preloadMonsterAssets } from "./components/sprites/MonsterSprite";
 import { GameOverScreen } from "./components/GameOverScreen";
 import {
   createCharacter,
@@ -485,6 +486,7 @@ function App() {
     if (!character) return;
     const dungeon = DUNGEONS.find((d) => d.id === dungeonId);
     if (!dungeon) return;
+    preloadMonsterAssets([...dungeon.waves.map((m) => m.name), dungeon.boss.name]);
     setRunItemsFound(0); // fresh per-clear item counter
     const startingLife = derived.maxLife;
     const startingMana = getStartingResource(character, derived);
