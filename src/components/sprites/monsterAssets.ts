@@ -42,7 +42,7 @@ export const MONSTER_ASSETS: Record<string, string> = Object.fromEntries(
 // asset-backed monster around to face away from the player.
 export const MONSTER_IMG = {
   x: -16,
-  y: -48,
+  y: -38,
   width: 96,
   height: 144,
   preserveAspectRatio: "xMidYMax meet",
