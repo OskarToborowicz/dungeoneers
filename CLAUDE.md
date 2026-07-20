@@ -499,13 +499,53 @@ All visual effects during combat live in `AbilityEffect.tsx` (SVG-based, rendere
 - `useAbility2=true` → ability 2
 - `detonation=true` → detonation effect (assassin trap only)
 
-**Basic attack animation system:** `ATTACK_EFFECT_CLASSES` (exported `Set<ClassId>`) controls which classes show an attack animation — currently `amazon`, `paladin`, `barbarian`. `CombatScreen` imports and checks it — adding a new class requires only editing `AbilityEffect.tsx`:
+**All FX are `motion`-driven.** Every effect declares its timeline inline
+(`initial`/`animate`/`transition`) on the element — there are **no CSS keyframes
+or `.ae-*` classes** anymore (they were all removed; only the two inline SVG
+filter ids `ae-barb-glow` / `ae-pal-glow` remain, defined in-component). The
+overlay unmounts after 1200ms (`onDone`), so every timeline must finish by then.
+
+**Basic attack animation system:** `ATTACK_EFFECT_CLASSES` (exported `Set<ClassId>`) controls which classes show an attack animation — currently `amazon`, `paladin`, `barbarian`, `druid`. `CombatScreen` imports and checks it — adding a new class requires only editing `AbilityEffect.tsx`:
 1. Add classId to `ATTACK_EFFECT_CLASSES`
 2. Add `{classId === "newclass" && useAttack && <NewClassFx />}` in the render
 3. **Add `&& !useAttack` to that class's existing ability-1 render line** — ability 1 is gated on `!useAbility2` alone, so without this the ability animation also fires on every basic attack
-4. Write the component + CSS keyframes
+4. Write the component (motion-based)
 
-**SVG coordinate system:** All animations use a `200×120` viewBox. Player sprite center: `cx=32`. Monster sprite center: `cx=168`. Travel distance = 136 SVG units (168−32). CSS variable `--travel-dist: 136px` is set on the SVG element; keyframes use `var(--travel-dist, 136px)` for translateX.
+**SVG coordinate system:** All animations use a `200×120` viewBox. Player sprite center: `cx=32`. Monster sprite center: `cx=168`. Travel distance = 136 SVG units (168−32). `launchX` / `impactX` (measured by `CombatScreen`, defaulting to 32 / 168) map the FX onto the real sprite positions at any arena width; projectiles fly `launchX − impactX` inside a group translated onto the monster.
+
+### Skill art assets (per-class SVG)
+
+Optional hand-painted SVG art for abilities, discovered the same way as monster
+art. Loader: `src/components/skillAssets.ts` globs
+`src/assets/skills/<folder>/<slot>/<name>.svg` eagerly and keys by
+`"<folder>/<slot>/<name>"`.
+
+- `<folder>` — class folder name. **Amazon's folder is `huntress`** (matches
+  `src/assets/classes/`); `FOLDER_FOR` maps `ClassId → folder`.
+- `<slot>` — `"attack" | "ability_1" | "ability_2"`. A slot may hold several
+  SVGs (e.g. `frost_bolt_projectile` + `frost_bolt_impact`).
+- API: `skillAsset(classId, slot, name?)` → one URL (first in slot if `name`
+  omitted); `skillAssets(classId, slot)` → all `{name, url}` in filename order.
+
+**Color is painted INTO the file.** Skill SVGs are full-color (unlike the
+single-fill monster silhouettes) — they render via `<image href>`, which shows
+the file's own fills/gradients and **ignores any `fill` on the parent group**.
+Code can only add an outer glow (an SVG `drop-shadow` filter in the class color);
+it cannot recolor the shape. To theme a shape from code you'd have to inline the
+SVG and use `currentColor` instead of `<image>`.
+
+**Usage in `AbilityEffect.tsx`:** load the URL once at module scope
+(`const ART = skillAsset(...)`), then render `<image href={ART} …/>` inside the
+`motion.g` that drives the motion. Derive height from the file's aspect so it
+never distorts (frost bolt is 230:153 → `H = W * 153.03/230`). Always fall back
+to the drawn FX when the asset is absent (`ART ? <image…/> : <>…drawn…</>`), so
+classes without art still animate. See `FrostBoltFx` for the reference pattern.
+
+**Adding art:** drop `<name>.svg` into the slot folder → run
+`npm run optimize-svg` (it now walks `skills/` recursively, slims raw Inkscape
+exports, and **warns + skips** any file that embeds a raster bitmap — export as
+vector paths, never a placed/traced bitmap) → wire it in the relevant FX via
+`skillAsset(...)`.
 
 **`travelDist` is always 136** — DOM measurement was removed because with `xMidYMid meet`, SVG coordinate distance between fixed positions is scale-invariant.
 

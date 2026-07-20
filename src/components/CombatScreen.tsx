@@ -123,6 +123,27 @@ export function CombatScreen({
   const [showFleePrompt, setShowFleePrompt] = useState(false);
   const [critFlash, setCritFlash] = useState(false);
 
+  // Monster status auras (poison/burn/bleed) are shown ~1s after the status is
+  // actually applied, so the aura doesn't pop mid-swing — it settles in once the
+  // hit has landed. Mirrors the live battle flags into a delayed display set.
+  const wantPoison =
+    battle.poisonRounds > 0 ||
+    battle.burnStacks.some((s) => s.kind === "poison");
+  const wantBurn = battle.burnStacks.some((s) => s.kind === "burn");
+  const wantBleed = battle.burnStacks.some((s) => s.kind === "bleed");
+  const [monsterStatusFx, setMonsterStatusFx] = useState<
+    Array<"poison" | "burn" | "bleed">
+  >([]);
+  useEffect(() => {
+    const next: Array<"poison" | "burn" | "bleed"> = [
+      ...(wantPoison ? (["poison"] as const) : []),
+      ...(wantBurn ? (["burn"] as const) : []),
+      ...(wantBleed ? (["bleed"] as const) : []),
+    ];
+    const t = setTimeout(() => setMonsterStatusFx(next), 1000);
+    return () => clearTimeout(t);
+  }, [wantPoison, wantBurn, wantBleed]);
+
   // Ability-effect overlay uses a 200×120 viewBox letterboxed over the arena, so
   // its authored anchors (player 32 / monster 168) drift off the sprites as the
   // arena widens. Measure the real sprite positions, convert to viewBox units,
@@ -320,6 +341,15 @@ export function CombatScreen({
         ATTACK_EFFECT_CLASSES.has(character.classId)
       )
         setAttackEffect((n) => n + 1);
+      // Summoned standing models (Druid Grove) should pop the instant the skill
+      // is pressed — not after the turn's ~550ms animation timeout commits the
+      // full state. barkWallRounds is 0 for every other cast, so this is a no-op
+      // outside the Druid.
+      if (wasAbility2)
+        setBattle((b) => ({
+          ...b,
+          barkWallRounds: result.state.barkWallRounds,
+        }));
       // Monster HP drops immediately as player starts swinging
       if (lastPlayer) {
         setBattle((b) => ({
@@ -774,18 +804,7 @@ export function CombatScreen({
               name={monster.name}
               size={80}
               state={monsterAnim}
-              statusEffects={[
-                ...(battle.poisonRounds > 0 ||
-                battle.burnStacks.some((s) => s.kind === "poison")
-                  ? ["poison" as const]
-                  : []),
-                ...(battle.burnStacks.some((s) => s.kind === "burn")
-                  ? ["burn" as const]
-                  : []),
-                ...(battle.burnStacks.some((s) => s.kind === "bleed")
-                  ? ["bleed" as const]
-                  : []),
-              ]}
+              statusEffects={monsterStatusFx}
             />
           </div>
         </div>

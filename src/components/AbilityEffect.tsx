@@ -2,6 +2,7 @@ import { useEffect } from "react";
 import { motion } from "motion/react";
 import type React from "react";
 import type { ClassId } from "../game/types";
+import { skillAsset } from "./skillAssets";
 
 interface Props {
   classId: ClassId;
@@ -32,12 +33,9 @@ export const ATTACK_EFFECT_CLASSES = new Set<ClassId>([
 const LAUNCH_ANCHOR = 32;
 const IMPACT_ANCHOR = 168;
 
-// Projectile FX split their launch group (onto the player) from their impact
-// group (onto the monster); the parent supplies the two translate transforms.
-interface SplitProps {
-  launchTransform: string;
-  impactTransform: string;
-}
+// Every effect below is driven by `motion` — the animation timeline lives inline
+// on each element (initial/animate/transition), not in CSS keyframes. This keeps
+// the whole FX self-contained and lets each element orchestrate its own delay.
 
 export function AbilityEffect({
   classId,
@@ -57,8 +55,8 @@ export function AbilityEffect({
   // Effects fall into three positioning modes so they land on the sprites at any
   // arena width WITHOUT bloating on wide screens:
   //  • blobs (buffs, orbs, clouds) — natural size, translated onto a sprite
-  //  • projectiles — natural size, launch/impact groups translated onto each
-  //    sprite; the orb travels the measured gap (local --travel-dist)
+  //  • projectiles — natural size, self-contained: the orb flies the measured
+  //    gap between launchX and impactX
   //  • spanning line effects (whips, slashes, arrows) — scaled, so they stretch
   //    across the gap (stretching a line reads fine; a fat orb does not)
   const scale = (impactX - launchX) / (IMPACT_ANCHOR - LAUNCH_ANCHOR);
@@ -68,9 +66,6 @@ export function AbilityEffect({
   const launchTransform = `translate(${launchX - LAUNCH_ANCHOR} 0)`;
   const impactTransform = `translate(${impactX - IMPACT_ANCHOR} 0)`;
   const impactSlashTransform = `translate(${impactX - IMPACT_ANCHOR + 100} 0)`;
-  const projectileStyle = {
-    "--travel-dist": `${impactX - launchX}px`,
-  } as React.CSSProperties;
 
   return (
     <div className="ability-effect-overlay">
@@ -119,22 +114,12 @@ export function AbilityEffect({
           </g>
         )}
 
-        {/* Orb projectiles — natural size, split launch/impact, travel the gap */}
+        {/* Orb projectiles — natural size, fly the measured gap */}
         {classId === "sorceress" && !useAbility2 && (
-          <g style={projectileStyle}>
-            <FrostBoltFx
-              launchTransform={launchTransform}
-              impactTransform={impactTransform}
-            />
-          </g>
+          <FrostBoltFx launchX={launchX} impactX={impactX} />
         )}
         {classId === "paladin" && !useAbility2 && !useAttack && (
-          <g style={projectileStyle}>
-            <HolyBoltFx
-              launchTransform={launchTransform}
-              impactTransform={impactTransform}
-            />
-          </g>
+          <HolyBoltFx launchX={launchX} impactX={impactX} />
         )}
         {classId === "necromancer" && !useAbility2 && (
           <PoisonCloudFx launchX={launchX} impactX={impactX} />
@@ -142,7 +127,6 @@ export function AbilityEffect({
 
         {/* Spanning line effects — scaled to stretch across the gap */}
         <g transform={scaleTransform}>
-          {/* {classId === "barbarian" && useAttack && <BarbarianCleaveFx />} */}
           {classId === "necromancer" && useAbility2 && <GolemRollInFx />}
           {classId === "amazon" && useAttack && <SingleArrowFx />}
           {classId === "amazon" && !useAbility2 && !useAttack && (
@@ -160,7 +144,25 @@ export function AbilityEffect({
   );
 }
 
+// Projectile FX self-position: the orb is authored on the monster (x=168) and
+// starts at the player's measured position (launchX − impactX offset).
+interface ProjectileProps {
+  launchX: number;
+  impactX: number;
+}
+
 function BarbarianCleaveFx() {
+  const d = "M 56 14 Q 76 60 32 106";
+  // The blade draws itself from top to bottom, holds, then fades.
+  const draw = {
+    initial: { strokeDashoffset: 130, opacity: 0 },
+    animate: { strokeDashoffset: [130, 130, 0, 0], opacity: [0, 1, 1, 0] },
+    transition: {
+      duration: 0.34,
+      times: [0, 0.08, 0.55, 1],
+      ease: "easeOut" as const,
+    },
+  };
   return (
     <g>
       <defs>
@@ -169,103 +171,120 @@ function BarbarianCleaveFx() {
         </filter>
       </defs>
       {/* blurred outer smear */}
-      <path
-        d="M 56 14 Q 76 60 32 106"
+      <motion.path
+        d={d}
         fill="none"
         stroke="#e04020"
-        strokeWidth="9"
+        strokeWidth={9}
         strokeLinecap="round"
         filter="url(#ae-barb-glow)"
-        strokeDasharray="130"
-        strokeDashoffset="130"
-        className="ae-b-trail"
+        strokeDasharray={130}
+        {...draw}
       />
       {/* mid arc */}
-      <path
-        d="M 56 14 Q 76 60 32 106"
+      <motion.path
+        d={d}
         fill="none"
         stroke="#ff7a3c"
-        strokeWidth="3"
+        strokeWidth={3}
         strokeLinecap="round"
-        strokeDasharray="130"
-        strokeDashoffset="130"
-        className="ae-b-trail"
+        strokeDasharray={130}
+        {...draw}
       />
-      {/* bright leading edge */}
-      <path
-        d="M 56 14 Q 76 60 32 106"
+      {/* bright leading edge sweeping down the arc */}
+      <motion.path
+        d={d}
         fill="none"
         stroke="#ffe6cc"
-        strokeWidth="1.6"
+        strokeWidth={1.6}
         strokeLinecap="round"
         strokeDasharray="24 140"
-        strokeDashoffset="0"
-        className="ae-b-tip"
+        initial={{ strokeDashoffset: 0, opacity: 1 }}
+        animate={{ strokeDashoffset: [0, -150, -150], opacity: [1, 0.6, 0] }}
+        transition={{ duration: 0.34, times: [0, 0.65, 1], ease: "easeIn" }}
       />
     </g>
   );
 }
 
 function BloodFuryFx() {
+  // Rage burst at the player: expanding rings, sound-wave arcs radiating right,
+  // and a central flash.
+  const ring = (delay: number, from: number, to: number) => ({
+    initial: { r: from, opacity: 0 },
+    animate: { r: [from, from, to], opacity: [0, 0.9, 0] },
+    transition: {
+      duration: 0.6,
+      delay,
+      times: [0, 0.15, 1],
+      ease: "easeOut" as const,
+    },
+  });
+  const wave = (delay: number) => ({
+    initial: { opacity: 0, scaleX: 0.2 },
+    animate: { opacity: [0, 1, 0], scaleX: [0.2, 1, 1] },
+    transition: {
+      duration: 0.55,
+      delay,
+      times: [0, 0.25, 1],
+      ease: "easeOut" as const,
+    },
+    style: { transformOrigin: "46px 60px" } as const,
+  });
   return (
     <g>
-      {/* Rage burst — expanding red ring from player */}
-      <circle
+      <motion.circle
         cx="32"
         cy="60"
-        r="28"
         fill="none"
         stroke="#cc2200"
         strokeWidth="3"
-        opacity="0"
-        className="ae-bloodfury-ring ae-bf-r1"
+        {...ring(0, 6, 40)}
       />
-      <circle
+      <motion.circle
         cx="32"
         cy="60"
-        r="20"
         fill="none"
         stroke="#ff4422"
         strokeWidth="2"
-        opacity="0"
-        className="ae-bloodfury-ring ae-bf-r2"
+        {...ring(0.08, 6, 34)}
       />
-      {/* Shout sound-wave arcs radiating rightward */}
-      <path
+      <motion.path
         d="M 46 42 Q 60 60 46 78"
         fill="none"
         stroke="#ff5533"
         strokeWidth="2.5"
         strokeLinecap="round"
-        opacity="0"
-        className="ae-bloodfury-wave ae-bf-w1"
+        {...wave(0.1)}
       />
-      <path
+      <motion.path
         d="M 54 36 Q 74 60 54 84"
         fill="none"
         stroke="#ff4422"
         strokeWidth="2"
         strokeLinecap="round"
-        opacity="0"
-        className="ae-bloodfury-wave ae-bf-w2"
+        {...wave(0.18)}
       />
-      <path
+      <motion.path
         d="M 62 30 Q 88 60 62 90"
         fill="none"
         stroke="#cc2200"
         strokeWidth="1.5"
         strokeLinecap="round"
-        opacity="0"
-        className="ae-bloodfury-wave ae-bf-w3"
+        {...wave(0.26)}
       />
-      {/* Central rage flash */}
-      <circle
+      <motion.circle
         cx="32"
         cy="60"
-        r="14"
         fill="#ff2200"
-        opacity="0"
-        className="ae-bloodfury-core"
+        style={{ transformOrigin: "32px 60px" }}
+        initial={{ r: 2, opacity: 0 }}
+        animate={{ r: [2, 16, 14, 10], opacity: [0, 0.85, 0.6, 0] }}
+        transition={{
+          duration: 0.5,
+          times: [0, 0.25, 0.65, 1],
+          ease: "easeOut",
+        }}
       />
     </g>
   );
@@ -418,13 +437,7 @@ function PoisonSkull({ cx, cy, s }: { cx: number; cy: number; s: number }) {
   );
 }
 
-function PoisonCloudFx({
-  launchX,
-  impactX,
-}: {
-  launchX: number;
-  impactX: number;
-}) {
+function PoisonCloudFx({ launchX, impactX }: ProjectileProps) {
   // Poison Orb: charge → projectile with trail → impact flash → toxic skull
   // cloud → falling droplets. Orchestrated in time with `motion` delays.
   // Palette (dark → pale): #16240d #284d15 #4e8a24 #7bc23a #a9dc6e
@@ -569,50 +582,61 @@ function PoisonCloudFx({
 }
 
 function GolemRollInFx() {
+  // A stone boulder rolls in from the caster toward the enemy, kicking up dust.
+  const dust = (delay: number) => ({
+    initial: { opacity: 0, scaleX: 0.3 },
+    animate: { opacity: [0, 0.55, 0.4, 0], scaleX: [0.3, 1, 1.4, 1.9] },
+    transition: {
+      duration: 0.45,
+      delay,
+      times: [0, 0.18, 0.65, 1],
+      ease: "easeOut" as const,
+    },
+    style: { transformBox: "fill-box", transformOrigin: "center" } as const,
+  });
   return (
     <g>
       {/* Trail dust — positioned along the boulder's path, staggered delays */}
-      <ellipse
-        className="ae-grd-1"
+      <motion.ellipse
         cx="55"
         cy="86"
         rx="13"
         ry="4"
         fill="#b8a888"
-        style={{
-          transformBox: "fill-box",
-          transformOrigin: "center",
-          opacity: 0,
-        }}
+        {...dust(0.08)}
       />
-      <ellipse
-        className="ae-grd-2"
+      <motion.ellipse
         cx="85"
         cy="84"
         rx="10"
         ry="3.5"
         fill="#c0b090"
-        style={{
-          transformBox: "fill-box",
-          transformOrigin: "center",
-          opacity: 0,
-        }}
+        {...dust(0.25)}
       />
-      <ellipse
-        className="ae-grd-3"
+      <motion.ellipse
         cx="112"
         cy="83"
         rx="8"
         ry="3"
         fill="#b8a888"
-        style={{
-          transformBox: "fill-box",
-          transformOrigin: "center",
-          opacity: 0,
-        }}
+        {...dust(0.41)}
       />
-      {/* Spinning boulder — origin at (130,70), travels to ~x=148 (translateX 18px) */}
-      <g className="ae-groll-boulder" style={{ transformOrigin: "130px 70px" }}>
+      {/* Spinning boulder — rolls from ~x=130 rightward while rotating, then fades */}
+      <motion.g
+        style={{ transformOrigin: "130px 70px" }}
+        initial={{ x: -70, rotate: 0, scale: 0.3, opacity: 0 }}
+        animate={{
+          x: [-70, 18, 18],
+          rotate: [0, 660, 720],
+          scale: [0.3, 1, 0.9],
+          opacity: [0, 1, 0],
+        }}
+        transition={{
+          duration: 0.85,
+          times: [0, 0.78, 1],
+          ease: [0.25, 0.46, 0.45, 0.94],
+        }}
+      >
         <circle cx="130" cy="70" r="22" fill="#7a7060" opacity="0.92" />
         <circle cx="130" cy="70" r="14" fill="#8a8070" opacity="0.88" />
         <line
@@ -642,113 +666,344 @@ function GolemRollInFx() {
           strokeWidth="1.5"
           opacity="0.4"
         />
-        <circle
+        <motion.circle
           cx="130"
           cy="70"
           r="6"
           fill="#aadd88"
-          opacity="0.85"
-          className="ae-groll-eye"
+          animate={{ opacity: [0.85, 0.3, 0.85] }}
+          transition={{ duration: 0.25, repeat: Infinity, ease: "easeInOut" }}
         />
-      </g>
+      </motion.g>
     </g>
   );
 }
 
-function FrostBoltFx({ launchTransform, impactTransform }: SplitProps) {
+// Frost bolt projectile art loaded from src/assets/skills/sorceress/ability_1/.
+// If the SVG is present it renders as the flying orb; otherwise a drawn shard is
+// used. Aspect of the file is 230:153 — height derived so it never distorts.
+const FROST_BOLT_ART = skillAsset(
+  "sorceress",
+  "ability_1",
+  "frost_bolt_projectile",
+);
+const FROST_BOLT_W = 69;
+const FROST_BOLT_H = (FROST_BOLT_W * 153.03) / 230;
+// Optional impact art — if present it replaces the drawn flash + shards.
+const FROST_BURST_ART = skillAsset(
+  "sorceress",
+  "ability_1",
+  "frost_bolt_impact",
+);
+const FROST_BURST_SIZE = 96;
+
+function FrostBoltFx({ launchX, impactX }: ProjectileProps) {
+  // Icy shard flies from the caster and shatters into a frost burst on the enemy.
+  const mx = 168;
+  const my = 60;
+  const startX = launchX - impactX;
   return (
-    <g>
-      <g transform={launchTransform}>
-        <g className="ae-frost-orb" style={{ transformOrigin: "32px 60px" }}>
-          <ellipse
-            cx="18"
-            cy="60"
-            rx="14"
-            ry="4"
-            fill="#bfe9ff"
-            opacity="0.4"
+    <g transform={`translate(${impactX - mx} 0)`}>
+      {/* projectile: SVG art if authored, else a drawn shard with a pale trail.
+          Fades out right as it lands, handing off to the impact burst (delay 0.4). */}
+      <motion.g
+        initial={{ x: startX, opacity: 0 }}
+        animate={{ x: [startX, startX, 0, 0], opacity: [0, 1, 1, 0] }}
+        transition={{ duration: 0.7, times: [0, 0.05, 0.9, 1], ease: "easeIn" }}
+      >
+        {FROST_BOLT_ART ? (
+          <image
+            href={FROST_BOLT_ART}
+            x={mx - FROST_BOLT_W / 2}
+            y={my - FROST_BOLT_H / 2}
+            width={FROST_BOLT_W}
+            height={FROST_BOLT_H}
+            preserveAspectRatio="xMidYMid meet"
           />
-          <polygon
-            points="19,60 30,52 45,60 30,68"
-            fill="#3fb6f0"
-            opacity="0.95"
-          />
-          <circle cx="27" cy="57" r="3.2" fill="white" opacity="0.6" />
-        </g>
-      </g>
-      <g transform={impactTransform}>
-        <circle
-          cx="168"
-          cy="60"
-          r="20"
-          fill="#eafcff"
-          className="ae-frost-flash"
-        />
-        {([0, 45, 90, 135, 180, 225, 270, 315] as number[]).map((deg, i) => (
-          <g key={deg} transform={`translate(168,60) rotate(${deg})`}>
-            <polygon
-              className="ae-frost-shard"
-              style={{ animationDelay: `${i * 0.015}s` }}
-              points="0,-3 15,0 0,3 3,0"
-              fill="#8fd9ff"
+        ) : (
+          <>
+            <ellipse
+              cx={mx - 14}
+              cy={my}
+              rx="14"
+              ry="4"
+              fill="#bfe9ff"
+              opacity="0.4"
             />
-          </g>
-        ))}
-      </g>
+            <polygon
+              points={`${mx - 13},${my} ${mx - 2},${my - 8} ${mx + 13},${my} ${mx - 2},${my + 8}`}
+              fill="#3fb6f0"
+              opacity="0.95"
+            />
+            <circle
+              cx={mx - 5}
+              cy={my - 3}
+              r="3.2"
+              fill="white"
+              opacity="0.6"
+            />
+          </>
+        )}
+      </motion.g>
+      {FROST_BURST_ART ? (
+        /* SVG impact art — scale up, hold, fade; a touch of rotation so a
+           static "already exploded" drawing still reads as a burst */
+        <motion.g
+          style={{ transformOrigin: "168px 60px" }}
+          initial={{ scale: 0.2, opacity: 0, rotate: -12 }}
+          animate={{
+            scale: [0.2, 1, 1.15],
+            opacity: [0, 1, 0],
+            rotate: [-12, 0, 6],
+          }}
+          transition={{
+            duration: 0.45,
+            delay: 0.66,
+            times: [0, 0.35, 1],
+            ease: "easeOut",
+          }}
+        >
+          <image
+            href={FROST_BURST_ART}
+            x={mx - FROST_BURST_SIZE / 2}
+            y={my - FROST_BURST_SIZE / 2}
+            width={FROST_BURST_SIZE}
+            height={FROST_BURST_SIZE}
+            preserveAspectRatio="xMidYMid meet"
+          />
+        </motion.g>
+      ) : (
+        <>
+          {/* impact flash */}
+          <motion.circle
+            cx={mx}
+            cy={my}
+            r="20"
+            fill="#eafcff"
+            style={{ transformOrigin: "168px 60px" }}
+            initial={{ scale: 0.2, opacity: 0 }}
+            animate={{ scale: [0.2, 1, 1.7], opacity: [0, 0.85, 0] }}
+            transition={{
+              duration: 0.4,
+              delay: 0.66,
+              times: [0, 0.3, 1],
+              ease: "easeOut",
+            }}
+          />
+          {/* radiating ice shards */}
+          {([0, 45, 90, 135, 180, 225, 270, 315] as number[]).map((deg, i) => (
+            <motion.g
+              key={deg}
+              transform={`translate(${mx},${my}) rotate(${deg})`}
+              style={{ transformBox: "fill-box", transformOrigin: "center" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{
+                duration: 0.4,
+                delay: 0.66 + i * 0.012,
+                ease: "easeOut",
+              }}
+            >
+              <motion.polygon
+                points="0,-3 15,0 0,3 3,0"
+                fill="#8fd9ff"
+                initial={{ x: 0, scale: 1 }}
+                animate={{ x: [0, 32], scale: [1, 0.3] }}
+                transition={{
+                  duration: 0.4,
+                  delay: 0.66 + i * 0.012,
+                  ease: "easeOut",
+                }}
+              />
+            </motion.g>
+          ))}
+        </>
+      )}
     </g>
   );
 }
 
-function SingleArrowFx() {
+// Amazon arrow — shaft, arrowhead and feather fletching, drawn tip-forward from
+// the origin so the whole group can just translate across the arena.
+function Arrow({
+  y,
+  color,
+  scale = 1,
+}: {
+  y: number;
+  color: string;
+  scale?: number;
+}) {
+  // Drawn around y=0 (nock at origin, tip toward +x) so `scale` shrinks it in
+  // place on its flight line without shifting off the row.
   return (
-    <g className="ae-single-arrow">
+    <g transform={`translate(0 ${y}) scale(${scale})`}>
       <line
-        x1="28"
-        y1="60"
-        x2="104"
-        y2="60"
-        stroke="#44bb55"
+        x1="0"
+        y1="0"
+        x2="30"
+        y2="0"
+        stroke={color}
         strokeWidth="2.2"
         strokeLinecap="round"
       />
-      <polygon points="104,55 122,60 104,65" fill="#44bb55" />
+      <polygon points="30,-4.5 44,0 30,4.5" fill={color} />
+      {/* twin feather fletching at the nock */}
+      <path d="M0 0 l-7 -5 l4 5 l-4 5 z" fill={color} opacity="0.9" />
+      <path d="M6 0 l-6 -4 l3 4 l-3 4 z" fill={color} opacity="0.6" />
     </g>
+  );
+}
+
+const ARROW_SCALE = 0.3;
+
+function SingleArrowFx() {
+  return (
+    <motion.g
+      initial={{ x: -12, opacity: 0 }}
+      animate={{ x: [-12, 120, 132], opacity: [0, 1, 0] }}
+      transition={{ duration: 0.42, times: [0, 0.85, 1], ease: "easeOut" }}
+    >
+      <Arrow y={60} color="#5fd36e" scale={ARROW_SCALE} />
+    </motion.g>
   );
 }
 
 function MultishotFx() {
+  // Three arrows fan out from the archer and converge on the enemy.
+  const arrows = [
+    { y: 44, delay: 0 },
+    { y: 60, delay: 0.05 },
+    { y: 76, delay: 0.1 },
+  ];
   return (
     <g>
-      {/* Two arrows flying right */}
-      <g className="ae-arrow ae-arrow-1">
+      {arrows.map((a, i) => (
+        <motion.g
+          key={i}
+          initial={{ x: -12, opacity: 0 }}
+          animate={{ x: [-12, 118, 130], opacity: [0, 1, 0] }}
+          transition={{
+            duration: 0.44,
+            delay: a.delay,
+            times: [0, 0.82, 1],
+            ease: "easeOut",
+          }}
+        >
+          <Arrow y={a.y} color="#5fd36e" scale={ARROW_SCALE} />
+        </motion.g>
+      ))}
+    </g>
+  );
+}
+
+function FreezingArrowFx() {
+  return (
+    <g>
+      {/* Frozen arrow flying toward the monster */}
+      <motion.g
+        initial={{ x: -50, opacity: 0 }}
+        animate={{ x: [-50, 34, 40], opacity: [0, 1, 0] }}
+        transition={{
+          duration: 0.4,
+          times: [0, 0.85, 1],
+          ease: [0.15, 0, 0.7, 1],
+        }}
+      >
+        <line
+          x1="28"
+          y1="60"
+          x2="118"
+          y2="60"
+          stroke="#88ddff"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+        <polygon points="118,55 136,60 118,65" fill="#aaeeff" />
+        {/* Ice crystal ridges along the shaft */}
         <line
           x1="60"
-          y1="47"
-          x2="96"
-          y2="47"
-          stroke="#44bb55"
-          strokeWidth="2.2"
+          y1="54"
+          x2="60"
+          y2="66"
+          stroke="#cceeff"
+          strokeWidth="1.2"
           strokeLinecap="round"
+          opacity="0.8"
         />
-        <polygon points="96,43 110,47 96,51" fill="#44bb55" />
-      </g>
-      <g className="ae-arrow ae-arrow-2">
         <line
-          x1="55"
-          y1="73"
-          x2="91"
-          y2="73"
-          stroke="#44bb55"
-          strokeWidth="2.2"
+          x1="82"
+          y1="53"
+          x2="82"
+          y2="67"
+          stroke="#cceeff"
+          strokeWidth="1.2"
           strokeLinecap="round"
+          opacity="0.8"
         />
-        <polygon points="91,69 105,73 91,77" fill="#44bb55" />
-      </g>
+        <line
+          x1="104"
+          y1="55"
+          x2="104"
+          y2="65"
+          stroke="#cceeff"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          opacity="0.8"
+        />
+        {/* Frost sparkles */}
+        <circle cx="70" cy="55" r="1.8" fill="#88eeff" opacity="0.9" />
+        <circle cx="93" cy="65" r="1.8" fill="#88eeff" opacity="0.9" />
+        <circle cx="114" cy="54" r="1.5" fill="#bbf0ff" opacity="0.85" />
+      </motion.g>
+      {/* Icy explosion at impact */}
+      <motion.g
+        style={{ transformOrigin: "168px 60px" }}
+        initial={{ scale: 0.05, opacity: 0 }}
+        animate={{ scale: [0.05, 1.18, 1], opacity: [0, 1, 0] }}
+        transition={{
+          duration: 0.7,
+          delay: 0.38,
+          times: [0, 0.55, 1],
+          ease: "easeOut",
+        }}
+      >
+        <circle cx="168" cy="60" r="11" fill="#aaeeff" opacity="0.92" />
+        <circle cx="168" cy="60" r="5" fill="#eef9ff" opacity="0.97" />
+        <polygon points="168,40 164,53 172,53" fill="#55aacc" opacity="0.9" />
+        <polygon points="188,60 175,56 175,64" fill="#55aacc" opacity="0.9" />
+        <polygon points="168,80 172,67 164,67" fill="#55aacc" opacity="0.9" />
+        <polygon points="148,60 161,64 161,56" fill="#55aacc" opacity="0.9" />
+        <polygon points="183,45 173,56 179,49" fill="#88ccee" opacity="0.78" />
+        <polygon points="183,75 179,62 173,65" fill="#88ccee" opacity="0.78" />
+        <polygon points="153,75 159,65 153,62" fill="#88ccee" opacity="0.78" />
+        <polygon points="153,45 159,55 153,49" fill="#88ccee" opacity="0.78" />
+        <circle
+          cx="168"
+          cy="60"
+          r="27"
+          fill="none"
+          stroke="#88ccee"
+          strokeWidth="1.5"
+          opacity="0.4"
+          strokeDasharray="5 3"
+        />
+      </motion.g>
     </g>
   );
 }
 
 function PaladinSlashFx() {
+  const d = "M36 10 L42 108";
+  const draw = {
+    initial: { strokeDashoffset: 100, opacity: 0 },
+    animate: { strokeDashoffset: [100, 100, 0, 0], opacity: [0, 1, 1, 0] },
+    transition: {
+      duration: 0.26,
+      times: [0, 0.1, 0.55, 1],
+      ease: "easeOut" as const,
+    },
+  };
   return (
     <g>
       <defs>
@@ -757,107 +1012,219 @@ function PaladinSlashFx() {
         </filter>
       </defs>
       {/* blurred outer glow — trail smear */}
-      <line
-        x1="36"
-        y1="10"
-        x2="42"
-        y2="108"
+      <motion.path
+        d={d}
+        fill="none"
         stroke="#ddaa22"
-        strokeWidth="7"
+        strokeWidth={7}
         strokeLinecap="round"
         filter="url(#ae-pal-glow)"
-        strokeDasharray="100"
-        strokeDashoffset="100"
-        className="ae-p-trail"
+        strokeDasharray={100}
+        {...draw}
       />
       {/* gold mid trail */}
-      <line
-        x1="36"
-        y1="10"
-        x2="42"
-        y2="108"
+      <motion.path
+        d={d}
+        fill="none"
         stroke="#ffcc44"
-        strokeWidth="2.5"
+        strokeWidth={2.5}
         strokeLinecap="round"
-        strokeDasharray="100"
-        strokeDashoffset="100"
-        className="ae-p-trail"
+        strokeDasharray={100}
+        {...draw}
       />
-      {/* white bright tip — travels top to bottom */}
-      <line
-        x1="36"
-        y1="10"
-        x2="42"
-        y2="108"
+      {/* white bright tip travelling top to bottom */}
+      <motion.path
+        d={d}
+        fill="none"
         stroke="#ffffff"
-        strokeWidth="1.5"
+        strokeWidth={1.5}
         strokeLinecap="round"
         strokeDasharray="20 100"
-        strokeDashoffset="0"
-        className="ae-p-tip"
+        initial={{ strokeDashoffset: 0, opacity: 1 }}
+        animate={{ strokeDashoffset: [0, -120, -120], opacity: [1, 0.6, 0] }}
+        transition={{ duration: 0.24, times: [0, 0.7, 1], ease: "easeIn" }}
       />
     </g>
   );
 }
 
-function HolyBoltFx({ launchTransform, impactTransform }: SplitProps) {
+function HolyBoltFx({ launchX, impactX }: ProjectileProps) {
+  // A radiant bolt of light streaks to the enemy and detonates in a holy nova:
+  // twin crossing beams flash, rings expand, gilded spokes radiate, and motes of
+  // light scatter from a white-hot core.
+  const mx = 168;
+  const my = 60;
+  const startX = launchX - impactX;
+  const burstDelay = 0.3;
   return (
-    <g>
-      <g transform={launchTransform}>
-        <g className="ae-hb-orb" style={{ transformOrigin: "32px 60px" }}>
-          <ellipse
-            cx="20"
-            cy="60"
-            rx="11"
-            ry="3.5"
-            fill="white"
-            opacity="0.3"
+    <g transform={`translate(${impactX - mx} 0)`}>
+      {/* projectile: glowing orb with a comet trail */}
+      <motion.g
+        initial={{ x: startX, opacity: 0 }}
+        animate={{ x: [startX, startX, 0], opacity: [0, 1, 1] }}
+        transition={{ duration: 0.3, times: [0, 0.1, 1], ease: "easeIn" }}
+      >
+        <ellipse
+          cx={mx - 16}
+          cy={my}
+          rx="14"
+          ry="3.5"
+          fill="#ffe066"
+          opacity="0.35"
+        />
+        <circle cx={mx} cy={my} r="8" fill="#fff4c0" />
+        <circle cx={mx} cy={my} r="5" fill="#ffe066" />
+        <circle cx={mx - 2} cy={my - 2} r="2" fill="#ffffff" opacity="0.9" />
+      </motion.g>
+
+      {/* nova group — everything below fires on impact */}
+      {/* expanding light rings */}
+      {[
+        { r: 44, sw: 2, delay: 0, col: "#ffdd66" },
+        { r: 32, sw: 2.5, delay: 0.06, col: "#fff0a0" },
+      ].map((ring, i) => (
+        <motion.circle
+          key={i}
+          cx={mx}
+          cy={my}
+          fill="none"
+          stroke={ring.col}
+          strokeWidth={ring.sw}
+          style={{ transformOrigin: "168px 60px" }}
+          initial={{ r: 4, opacity: 0 }}
+          animate={{ r: [4, ring.r], opacity: [0, 0.9, 0] }}
+          transition={{
+            duration: 0.6,
+            delay: burstDelay + ring.delay,
+            times: [0, 0.25, 1],
+            ease: "easeOut",
+          }}
+        />
+      ))}
+
+      {/* gilded spokes radiating out (8 directions) */}
+      <motion.g
+        style={{ transformOrigin: "168px 60px" }}
+        initial={{ scale: 0.2, opacity: 0 }}
+        animate={{ scale: [0.2, 1.15, 1.5], opacity: [0, 1, 0] }}
+        transition={{
+          duration: 0.5,
+          delay: burstDelay + 0.02,
+          times: [0, 0.4, 1],
+          ease: "easeOut",
+        }}
+      >
+        {([0, 45, 90, 135, 180, 225, 270, 315] as number[]).map((deg) => (
+          <g key={deg} transform={`translate(${mx},${my}) rotate(${deg})`}>
+            <polygon points="0,-2.5 30,0 0,2.5" fill="#ffcc44" opacity="0.85" />
+          </g>
+        ))}
+      </motion.g>
+
+      {/* crossing light beams — vertical + horizontal flash of the cross */}
+      <motion.g
+        style={{ transformOrigin: "168px 60px" }}
+        initial={{ opacity: 0, scale: 0.4 }}
+        animate={{ opacity: [0, 1, 0], scale: [0.4, 1, 1.1] }}
+        transition={{
+          duration: 0.42,
+          delay: burstDelay + 0.02,
+          times: [0, 0.35, 1],
+          ease: "easeOut",
+        }}
+      >
+        <line
+          x1={mx}
+          y1={my - 40}
+          x2={mx}
+          y2={my + 40}
+          stroke="#fffbe0"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
+        <line
+          x1={mx - 40}
+          y1={my}
+          x2={mx + 40}
+          y2={my}
+          stroke="#fffbe0"
+          strokeWidth="5"
+          strokeLinecap="round"
+        />
+        <line
+          x1={mx}
+          y1={my - 40}
+          x2={mx}
+          y2={my + 40}
+          stroke="#ffdd66"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <line
+          x1={mx - 40}
+          y1={my}
+          x2={mx + 40}
+          y2={my}
+          stroke="#ffdd66"
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+      </motion.g>
+
+      {/* white-hot core pop */}
+      <motion.g
+        style={{ transformOrigin: "168px 60px" }}
+        initial={{ scale: 0.15, opacity: 0 }}
+        animate={{ scale: [0.15, 1.2, 1], opacity: [0, 1, 0] }}
+        transition={{
+          duration: 0.5,
+          delay: burstDelay,
+          times: [0, 0.3, 1],
+          ease: "easeOut",
+        }}
+      >
+        <circle cx={mx} cy={my} r="13" fill="#ffee88" opacity="0.9" />
+        <circle cx={mx} cy={my} r="7" fill="#ffffff" />
+      </motion.g>
+
+      {/* scattering motes of light */}
+      {[
+        { a: 20, dist: 30, r: 2.4, d: 0.06 },
+        { a: 70, dist: 34, r: 1.8, d: 0.1 },
+        { a: 150, dist: 28, r: 2, d: 0.04 },
+        { a: 210, dist: 32, r: 2.6, d: 0.12 },
+        { a: 300, dist: 30, r: 1.6, d: 0.08 },
+        { a: 340, dist: 26, r: 2.2, d: 0.05 },
+      ].map((m, i) => {
+        const rad = (m.a * Math.PI) / 180;
+        return (
+          <motion.circle
+            key={i}
+            cx={mx}
+            cy={my}
+            r={m.r}
+            fill="#fff0a0"
+            initial={{ x: 0, y: 0, opacity: 0 }}
+            animate={{
+              x: [0, Math.cos(rad) * m.dist],
+              y: [0, Math.sin(rad) * m.dist],
+              opacity: [0, 1, 0],
+            }}
+            transition={{
+              duration: 0.5,
+              delay: burstDelay + m.d,
+              times: [0, 0.4, 1],
+              ease: "easeOut",
+            }}
           />
-          <circle cx="32" cy="60" r="9" fill="#ffe066" opacity="0.95" />
-          <circle cx="29" cy="57" r="3.5" fill="white" opacity="0.5" />
-        </g>
-      </g>
-      <g transform={impactTransform}>
-        <g className="ae-hb-burst" style={{ transformOrigin: "168px 60px" }}>
-          <circle
-            cx="168"
-            cy="60"
-            r="38"
-            fill="none"
-            stroke="#ddaa22"
-            strokeWidth="1.5"
-            opacity="0.5"
-          />
-          <line
-            x1="168"
-            y1="22"
-            x2="168"
-            y2="98"
-            stroke="#ddaa22"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-          <line
-            x1="130"
-            y1="60"
-            x2="206"
-            y2="60"
-            stroke="#ddaa22"
-            strokeWidth="4"
-            strokeLinecap="round"
-          />
-          <circle cx="168" cy="60" r="9" fill="#ffee44" opacity="0.95" />
-          <circle cx="168" cy="60" r="5" fill="#ffffff" opacity="0.8" />
-        </g>
-      </g>
+        );
+      })}
     </g>
   );
 }
 
 function VineWhipFx() {
   // A vine lashes out from the player and cracks against the enemy.
-  // Reworked with `motion` — the whole timeline is declared inline per element
-  // instead of living in CSS keyframes.
   const lashPath = "M34 46 C74 38 112 46 152 60";
 
   // The lash draws itself, holds, then fades. Shared by both stroke passes.
@@ -956,10 +1323,9 @@ function VineWhipFx() {
 
 function DruidWhipFx() {
   // Basic attack: a quick leather-whip crack — tan/brown, no leaves, so it
-  // reads distinct from the green Vine Whip ability. Animated with `motion`.
+  // reads distinct from the green Vine Whip ability.
   const p = "M32 52 C72 32 116 54 158 58";
 
-  // Lash draws itself, holds briefly, then fades. Shared by both stroke passes.
   const lash = {
     initial: { strokeDashoffset: 200, opacity: 0 },
     animate: { strokeDashoffset: [200, 0, 0, 0], opacity: [0, 1, 1, 0] },
@@ -995,249 +1361,185 @@ function DruidWhipFx() {
 }
 
 function EviscerateFx() {
+  const slash = (
+    delay: number,
+    stroke: string,
+    sw: number,
+    x1: number,
+    y1: number,
+    x2: number,
+    y2: number,
+  ) => (
+    <motion.line
+      x1={x1}
+      y1={y1}
+      x2={x2}
+      y2={y2}
+      stroke={stroke}
+      strokeWidth={sw}
+      strokeLinecap="round"
+      strokeDasharray={260}
+      initial={{ strokeDashoffset: 260, opacity: 0 }}
+      animate={{ strokeDashoffset: [260, 0, 0], opacity: [0, 1, 0.9, 0] }}
+      transition={{
+        duration: 0.38,
+        delay,
+        times: [0, 0.4, 0.6, 1],
+        ease: [0.1, 0, 0.4, 1],
+      }}
+    />
+  );
   return (
     <g>
-      {/* Fast diagonal slash crossing from player to monster */}
-      <line
-        x1="50"
-        y1="90"
-        x2="175"
-        y2="35"
-        stroke="#ff3333"
-        strokeWidth="3"
-        strokeLinecap="round"
-        className="ae-eviscerate-slash ae-ev-s1"
-        opacity="0"
-      />
-      <line
-        x1="60"
-        y1="95"
-        x2="185"
-        y2="40"
-        stroke="#ff6655"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        className="ae-eviscerate-slash ae-ev-s2"
-        opacity="0"
-      />
+      {/* Fast diagonal slashes crossing from player to monster */}
+      {slash(0, "#ff3333", 3, 50, 90, 175, 35)}
+      {slash(0.04, "#ff6655", 1.5, 60, 95, 185, 40)}
       {/* Impact burst on monster */}
-      <g
-        className="ae-eviscerate-burst"
+      <motion.g
         style={{ transformOrigin: "168px 60px" }}
-        opacity="0"
+        initial={{ scale: 0.1, opacity: 0 }}
+        animate={{ scale: [0.1, 1.3, 1, 1.1], opacity: [0, 1, 0.85, 0] }}
+        transition={{
+          duration: 0.45,
+          delay: 0.28,
+          times: [0, 0.3, 0.7, 1],
+          ease: "easeOut",
+        }}
       >
         <circle cx="168" cy="60" r="18" fill="#cc1111" opacity="0.6" />
         <circle cx="168" cy="60" r="9" fill="#ff4444" opacity="0.85" />
         <circle cx="168" cy="60" r="4" fill="#ffaaaa" opacity="0.9" />
-      </g>
+      </motion.g>
       {/* Poison drip after impact */}
-      <circle
+      <motion.circle
         cx="168"
         cy="60"
-        r="6"
         fill="#66cc44"
-        opacity="0"
-        className="ae-eviscerate-poison"
+        initial={{ r: 2, opacity: 0, y: 0 }}
+        animate={{ r: [2, 8, 3], opacity: [0, 0.85, 0], y: [0, 0, 12] }}
+        transition={{
+          duration: 0.5,
+          delay: 0.5,
+          times: [0, 0.4, 1],
+          ease: "easeOut",
+        }}
       />
-    </g>
-  );
-}
-
-function FreezingArrowFx() {
-  return (
-    <g>
-      {/* Frozen arrow flying toward the monster */}
-      <g className="ae-ice-arrow" style={{ transformOrigin: "80px 60px" }}>
-        <line
-          x1="28"
-          y1="60"
-          x2="118"
-          y2="60"
-          stroke="#88ddff"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-        <polygon points="118,55 136,60 118,65" fill="#aaeeff" />
-        {/* Ice crystal ridges along the shaft */}
-        <line
-          x1="60"
-          y1="54"
-          x2="60"
-          y2="66"
-          stroke="#cceeff"
-          strokeWidth="1.2"
-          strokeLinecap="round"
-          opacity="0.8"
-        />
-        <line
-          x1="82"
-          y1="53"
-          x2="82"
-          y2="67"
-          stroke="#cceeff"
-          strokeWidth="1.2"
-          strokeLinecap="round"
-          opacity="0.8"
-        />
-        <line
-          x1="104"
-          y1="55"
-          x2="104"
-          y2="65"
-          stroke="#cceeff"
-          strokeWidth="1.2"
-          strokeLinecap="round"
-          opacity="0.8"
-        />
-        {/* Frost sparkles */}
-        <circle cx="70" cy="55" r="1.8" fill="#88eeff" opacity="0.9" />
-        <circle cx="93" cy="65" r="1.8" fill="#88eeff" opacity="0.9" />
-        <circle cx="114" cy="54" r="1.5" fill="#bbf0ff" opacity="0.85" />
-      </g>
-      {/* Icy explosion at impact */}
-      <g className="ae-ice-burst" style={{ transformOrigin: "168px 60px" }}>
-        <circle cx="168" cy="60" r="11" fill="#aaeeff" opacity="0.92" />
-        <circle cx="168" cy="60" r="5" fill="#eef9ff" opacity="0.97" />
-        <polygon points="168,40 164,53 172,53" fill="#55aacc" opacity="0.9" />
-        <polygon points="188,60 175,56 175,64" fill="#55aacc" opacity="0.9" />
-        <polygon points="168,80 172,67 164,67" fill="#55aacc" opacity="0.9" />
-        <polygon points="148,60 161,64 161,56" fill="#55aacc" opacity="0.9" />
-        <polygon points="183,45 173,56 179,49" fill="#88ccee" opacity="0.78" />
-        <polygon points="183,75 179,62 173,65" fill="#88ccee" opacity="0.78" />
-        <polygon points="153,75 159,65 153,62" fill="#88ccee" opacity="0.78" />
-        <polygon points="153,45 159,55 153,49" fill="#88ccee" opacity="0.78" />
-        <circle
-          cx="168"
-          cy="60"
-          r="27"
-          fill="none"
-          stroke="#88ccee"
-          strokeWidth="1.5"
-          opacity="0.4"
-          strokeDasharray="5 3"
-        />
-      </g>
     </g>
   );
 }
 
 function HolyLightFx() {
+  // Paladin buff at the player: a gold pulse ring, glowing core, rising sparks.
+  const spark = (
+    cx: number,
+    cy: number,
+    r: number,
+    fill: string,
+    delay: number,
+  ) => (
+    <motion.circle
+      cx={cx}
+      cy={cy}
+      r={r}
+      fill={fill}
+      initial={{ y: 0, scale: 0.4, opacity: 0 }}
+      animate={{ y: [0, -20], scale: [0.4, 1.1], opacity: [0, 1, 0] }}
+      transition={{
+        duration: 0.7,
+        delay,
+        times: [0, 0.35, 1],
+        ease: "easeOut",
+      }}
+    />
+  );
   return (
     <g>
       {/* Gold pulse ring */}
-      <circle
+      <motion.circle
         cx="32"
         cy="60"
-        r="22"
         fill="none"
         stroke="#ddaa22"
         strokeWidth="2.5"
-        opacity="0.9"
         style={{ transformOrigin: "32px 60px" }}
-        className="ae-hl-ring"
+        initial={{ r: 5, opacity: 0.95 }}
+        animate={{ r: [5, 36], opacity: [0.95, 0] }}
+        transition={{ duration: 0.65, ease: "easeOut" }}
       />
       {/* Glow core */}
-      <g className="ae-hl-core" style={{ transformOrigin: "32px 60px" }}>
+      <motion.g
+        style={{ transformOrigin: "32px 60px" }}
+        initial={{ scale: 0.1, opacity: 0 }}
+        animate={{ scale: [0.1, 1.3, 1], opacity: [0, 1, 0] }}
+        transition={{ duration: 0.7, times: [0, 0.45, 1], ease: "easeOut" }}
+      >
         <circle cx="32" cy="60" r="14" fill="#ddaa22" opacity="0.35" />
         <circle cx="32" cy="60" r="7" fill="#ffdd55" opacity="0.8" />
         <circle cx="32" cy="60" r="3" fill="#ffffff" opacity="0.95" />
-      </g>
+      </motion.g>
       {/* Rising gold sparks */}
-      <circle
-        cx="32"
-        cy="40"
-        r="2"
-        fill="#ffdd55"
-        opacity="0.9"
-        style={{ transformOrigin: "32px 40px" }}
-        className="ae-hl-spark ae-hl-s1"
-      />
-      <circle
-        cx="18"
-        cy="50"
-        r="1.6"
-        fill="#ddaa22"
-        opacity="0.8"
-        style={{ transformOrigin: "18px 50px" }}
-        className="ae-hl-spark ae-hl-s2"
-      />
-      <circle
-        cx="46"
-        cy="48"
-        r="1.6"
-        fill="#ffcc44"
-        opacity="0.8"
-        style={{ transformOrigin: "46px 48px" }}
-        className="ae-hl-spark ae-hl-s3"
-      />
-      <circle
-        cx="24"
-        cy="35"
-        r="1.3"
-        fill="#ffffaa"
-        opacity="0.85"
-        style={{ transformOrigin: "24px 35px" }}
-        className="ae-hl-spark ae-hl-s4"
-      />
-      <circle
-        cx="42"
-        cy="34"
-        r="1.3"
-        fill="#ffffaa"
-        opacity="0.8"
-        style={{ transformOrigin: "42px 34px" }}
-        className="ae-hl-spark ae-hl-s5"
-      />
+      {spark(32, 40, 2, "#ffdd55", 0.08)}
+      {spark(18, 50, 1.6, "#ddaa22", 0.14)}
+      {spark(46, 48, 1.6, "#ffcc44", 0.14)}
+      {spark(24, 35, 1.3, "#ffffaa", 0.22)}
+      {spark(42, 34, 1.3, "#ffffaa", 0.22)}
     </g>
   );
 }
 
 function VanishFx() {
+  const smoke = (
+    cx: number,
+    cy: number,
+    rx: number,
+    ry: number,
+    fill: string,
+    delay: number,
+  ) => (
+    <motion.ellipse
+      cx={cx}
+      cy={cy}
+      rx={rx}
+      ry={ry}
+      fill={fill}
+      style={{ transformBox: "fill-box", transformOrigin: "center" }}
+      initial={{ y: 0, scale: 0.5, opacity: 0 }}
+      animate={{ y: [0, -8, -22], scale: [0.5, 1, 1.3], opacity: [0, 0.6, 0] }}
+      transition={{ duration: 0.6, delay, times: [0, 0.3, 1], ease: "easeOut" }}
+    />
+  );
   return (
     <g>
       {/* Metal powder burst at player position */}
-      <g
-        className="ae-vanish-burst"
+      <motion.g
         style={{ transformOrigin: "32px 65px" }}
-        opacity="0"
+        initial={{ scale: 0.1, opacity: 0 }}
+        animate={{ scale: [0.1, 1.2, 1, 1.4], opacity: [0, 1, 0.7, 0] }}
+        transition={{
+          duration: 0.5,
+          times: [0, 0.25, 0.6, 1],
+          ease: "easeOut",
+        }}
       >
         <circle cx="32" cy="65" r="20" fill="#888899" opacity="0.55" />
         <circle cx="32" cy="65" r="12" fill="#aabbcc" opacity="0.7" />
         <circle cx="32" cy="65" r="5" fill="#ddeeff" opacity="0.85" />
-      </g>
+      </motion.g>
       {/* Smoke tendrils */}
-      <ellipse
-        cx="32"
-        cy="40"
-        rx="8"
-        ry="14"
-        fill="#667788"
-        opacity="0"
-        className="ae-vanish-smoke ae-vs-1"
-      />
-      <ellipse
-        cx="20"
-        cy="50"
-        rx="6"
-        ry="10"
-        fill="#778899"
-        opacity="0"
-        className="ae-vanish-smoke ae-vs-2"
-      />
-      <ellipse
-        cx="44"
-        cy="50"
-        rx="6"
-        ry="10"
-        fill="#667788"
-        opacity="0"
-        className="ae-vanish-smoke ae-vs-3"
-      />
-      {/* Metal shards on monster */}
-      <g
-        className="ae-vanish-shards"
+      {smoke(32, 40, 8, 14, "#667788", 0.15)}
+      {smoke(20, 50, 6, 10, "#778899", 0.22)}
+      {smoke(44, 50, 6, 10, "#667788", 0.19)}
+      {/* Metal shards flying at monster */}
+      <motion.g
         style={{ transformOrigin: "168px 65px" }}
-        opacity="0"
+        initial={{ scale: 0.2, opacity: 0 }}
+        animate={{ scale: [0.2, 1.1, 1, 1.2], opacity: [0, 1, 0.8, 0] }}
+        transition={{
+          duration: 0.55,
+          delay: 0.3,
+          times: [0, 0.2, 0.7, 1],
+          ease: "easeOut",
+        }}
       >
         <line
           x1="160"
@@ -1284,157 +1586,132 @@ function VanishFx() {
           strokeWidth="2"
           strokeLinecap="round"
         />
-      </g>
+      </motion.g>
     </g>
   );
 }
 
 function FrostShieldFx() {
+  // Sorceress ability2 buff: expanding frost rings, an icy core, radiating
+  // crystal shards, and twinkling sparks — all centred on the player at x=70.
+  const ORIGIN = "70px 60px";
+  const shard = (
+    points: string,
+    fill: string,
+    opacity: number,
+    delay: number,
+  ) => (
+    <motion.polygon
+      points={points}
+      fill={fill}
+      opacity={opacity}
+      style={{ transformOrigin: ORIGIN }}
+      initial={{ scale: 0, y: 0, opacity: 0 }}
+      animate={{ scale: [0, 1, 1.4], y: [0, 0, -6], opacity: [0, opacity, 0] }}
+      transition={{
+        duration: 0.65,
+        delay,
+        times: [0, 0.5, 1],
+        ease: "easeOut",
+      }}
+    />
+  );
+  const spark = (
+    cx: number,
+    cy: number,
+    r: number,
+    fill: string,
+    delay: number,
+  ) => (
+    <motion.circle
+      cx={cx}
+      cy={cy}
+      r={r}
+      fill={fill}
+      style={{ transformBox: "fill-box", transformOrigin: "center" }}
+      initial={{ scale: 0, opacity: 0 }}
+      animate={{ scale: [0, 1.5, 0.8], opacity: [0, 1, 0] }}
+      transition={{
+        duration: 0.55,
+        delay,
+        times: [0, 0.4, 1],
+        ease: "easeOut",
+      }}
+    />
+  );
   return (
-    <g style={{ transformOrigin: "70px 60px" }}>
-      {/* Outer expanding frost ring */}
-      <circle
-        className="ae-frost-ring-1"
-        cx="70"
-        cy="60"
-        r="36"
-        fill="none"
-        stroke="#aaeeff"
-        strokeWidth="2.5"
-        opacity="0.8"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      {/* Mid ring with slight delay */}
-      <circle
-        className="ae-frost-ring-2"
-        cx="70"
-        cy="60"
-        r="24"
-        fill="none"
-        stroke="#88ccff"
-        strokeWidth="2"
-        opacity="0.9"
-        style={{ transformOrigin: "70px 60px" }}
-      />
+    <g>
+      {/* Expanding frost rings */}
+      {[
+        { sw: 2.5, col: "#aaeeff", op: 0.8, delay: 0 },
+        { sw: 2, col: "#88ccff", op: 0.9, delay: 0.1 },
+      ].map((r, i) => (
+        <motion.circle
+          key={i}
+          cx="70"
+          cy="60"
+          fill="none"
+          stroke={r.col}
+          strokeWidth={r.sw}
+          style={{ transformOrigin: ORIGIN }}
+          initial={{ r: 4, opacity: r.op }}
+          animate={{ r: [4, 46], opacity: [r.op, 0] }}
+          transition={{ duration: 0.7, delay: r.delay, ease: "easeOut" }}
+        />
+      ))}
       {/* Icy glow core around player */}
-      <g className="ae-frost-core" style={{ transformOrigin: "70px 60px" }}>
+      <motion.g
+        style={{ transformOrigin: ORIGIN }}
+        initial={{ scale: 0.1, opacity: 0 }}
+        animate={{ scale: [0.1, 1.3, 1], opacity: [0, 1, 0.9] }}
+        transition={{ duration: 0.6, times: [0, 0.5, 1], ease: "easeOut" }}
+      >
         <circle cx="70" cy="60" r="18" fill="#aaeeff" opacity="0.22" />
         <circle cx="70" cy="60" r="10" fill="#cceeff" opacity="0.35" />
         <circle cx="70" cy="60" r="5" fill="#eef8ff" opacity="0.75" />
-      </g>
+      </motion.g>
       {/* Ice crystal shards radiating out */}
-      <polygon
-        className="ae-frost-shard ae-fs-1"
-        points="70,20 67,33 73,33"
-        fill="#88ccee"
-        opacity="0.85"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      <polygon
-        className="ae-frost-shard ae-fs-2"
-        points="110,60 97,57 97,63"
-        fill="#88ccee"
-        opacity="0.85"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      <polygon
-        className="ae-frost-shard ae-fs-3"
-        points="70,100 73,87 67,87"
-        fill="#88ccee"
-        opacity="0.85"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      <polygon
-        className="ae-frost-shard ae-fs-4"
-        points="30,60 43,63 43,57"
-        fill="#88ccee"
-        opacity="0.85"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      {/* Diagonal shards */}
-      <polygon
-        className="ae-frost-shard ae-fs-5"
-        points="99,31 90,41 96,44"
-        fill="#aaddff"
-        opacity="0.7"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      <polygon
-        className="ae-frost-shard ae-fs-6"
-        points="99,89 96,76 90,79"
-        fill="#aaddff"
-        opacity="0.7"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      <polygon
-        className="ae-frost-shard ae-fs-7"
-        points="41,89 44,76 50,79"
-        fill="#aaddff"
-        opacity="0.7"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      <polygon
-        className="ae-frost-shard ae-fs-8"
-        points="41,31 50,41 44,44"
-        fill="#aaddff"
-        opacity="0.7"
-        style={{ transformOrigin: "70px 60px" }}
-      />
+      {shard("70,20 67,33 73,33", "#88ccee", 0.85, 0.1)}
+      {shard("110,60 97,57 97,63", "#88ccee", 0.85, 0.14)}
+      {shard("70,100 73,87 67,87", "#88ccee", 0.85, 0.1)}
+      {shard("30,60 43,63 43,57", "#88ccee", 0.85, 0.14)}
+      {shard("99,31 90,41 96,44", "#aaddff", 0.7, 0.18)}
+      {shard("99,89 96,76 90,79", "#aaddff", 0.7, 0.18)}
+      {shard("41,89 44,76 50,79", "#aaddff", 0.7, 0.18)}
+      {shard("41,31 50,41 44,44", "#aaddff", 0.7, 0.18)}
       {/* Sparkle dots */}
-      <circle
-        className="ae-frost-spark ae-fsp-1"
-        cx="70"
-        cy="38"
-        r="2"
-        fill="#ddf4ff"
-        opacity="0.9"
-        style={{ transformOrigin: "70px 38px" }}
-      />
-      <circle
-        className="ae-frost-spark ae-fsp-2"
-        cx="95"
-        cy="48"
-        r="1.8"
-        fill="#bbecff"
-        opacity="0.85"
-        style={{ transformOrigin: "95px 48px" }}
-      />
-      <circle
-        className="ae-frost-spark ae-fsp-3"
-        cx="45"
-        cy="48"
-        r="1.8"
-        fill="#bbecff"
-        opacity="0.85"
-        style={{ transformOrigin: "45px 48px" }}
-      />
-      <circle
-        className="ae-frost-spark ae-fsp-4"
-        cx="95"
-        cy="72"
-        r="1.8"
-        fill="#bbecff"
-        opacity="0.8"
-        style={{ transformOrigin: "95px 72px" }}
-      />
-      <circle
-        className="ae-frost-spark ae-fsp-5"
-        cx="45"
-        cy="72"
-        r="1.8"
-        fill="#bbecff"
-        opacity="0.8"
-        style={{ transformOrigin: "45px 72px" }}
-      />
+      {spark(70, 38, 2, "#ddf4ff", 0.12)}
+      {spark(95, 48, 1.8, "#bbecff", 0.18)}
+      {spark(45, 48, 1.8, "#bbecff", 0.18)}
+      {spark(95, 72, 1.8, "#bbecff", 0.22)}
+      {spark(45, 72, 1.8, "#bbecff", 0.22)}
     </g>
   );
 }
 
 function SpinningCraneKickFx() {
+  // Monk ability1 (3 hits): the monk becomes a green cyclone, and three impact
+  // flashes land in sequence — one per hit of the multi-strike.
+  // Authored around (70,60); the outer transform shrinks it and moves the centre
+  // onto the monster's left edge so the spin lands on the enemy, not mid-arena.
+  const ORIGIN = "70px 60px";
   return (
-    <g style={{ transformOrigin: "70px 60px" }}>
-      {/* Outer spinning wind ring */}
-      <g className="ae-crane-spin" style={{ transformOrigin: "70px 60px" }}>
+    <g transform="translate(150 60) scale(0.6) translate(-70 -60)">
+      {/* Whirling cyclone — the wind ring genuinely rotates via motion */}
+      <motion.g
+        style={{ transformOrigin: ORIGIN }}
+        initial={{ rotate: 0, scale: 0.3, opacity: 0 }}
+        animate={{
+          rotate: [0, 900],
+          scale: [0.3, 1.1, 1.15],
+          opacity: [0, 1, 0.9, 0],
+        }}
+        transition={{
+          duration: 0.95,
+          times: [0, 0.12, 0.8, 1],
+          ease: [0.2, 0, 0.5, 1],
+        }}
+      >
         <circle
           cx="70"
           cy="60"
@@ -1497,104 +1774,157 @@ function SpinningCraneKickFx() {
           strokeLinecap="round"
           opacity="0.6"
         />
-        {/* Center glow */}
         <circle cx="70" cy="60" r="8" fill="#54E396" opacity="0.3" />
         <circle cx="70" cy="60" r="4" fill="#54E396" opacity="0.6" />
-      </g>
-      {/* Flying wind particles */}
-      <circle
-        className="ae-crane-p1"
-        cx="70"
-        cy="22"
-        r="3"
-        fill="#54E396"
-        opacity="0.85"
-      />
-      <circle
-        className="ae-crane-p2"
-        cx="108"
-        cy="60"
-        r="3"
-        fill="#54E396"
-        opacity="0.8"
-      />
-      <circle
-        className="ae-crane-p3"
-        cx="70"
-        cy="98"
-        r="3"
-        fill="#54E396"
-        opacity="0.85"
-      />
-      <circle
-        className="ae-crane-p4"
-        cx="32"
-        cy="60"
-        r="3"
-        fill="#54E396"
-        opacity="0.8"
-      />
+      </motion.g>
+
+      {/* Three sequential kick-impact flashes — one per hit */}
+      {[
+        { cx: 96, cy: 46, delay: 0.12 },
+        { cx: 100, cy: 62, delay: 0.34 },
+        { cx: 92, cy: 74, delay: 0.54 },
+      ].map((k, i) => (
+        <motion.g
+          key={i}
+          style={{ transformOrigin: `${k.cx}px ${k.cy}px` }}
+          initial={{ scale: 0.2, opacity: 0 }}
+          animate={{ scale: [0.2, 1.3, 1.6], opacity: [0, 1, 0] }}
+          transition={{
+            duration: 0.3,
+            delay: k.delay,
+            times: [0, 0.4, 1],
+            ease: "easeOut",
+          }}
+        >
+          <circle cx={k.cx} cy={k.cy} r="8" fill="#c8ffe0" opacity="0.9" />
+          <circle cx={k.cx} cy={k.cy} r="4" fill="#ffffff" />
+          {/* little sparks bursting from the strike */}
+          {[0, 72, 144, 216, 288].map((deg) => (
+            <g
+              key={deg}
+              transform={`translate(${k.cx},${k.cy}) rotate(${deg})`}
+            >
+              <polygon
+                points="0,-1.6 12,0 0,1.6"
+                fill="#54E396"
+                opacity="0.9"
+              />
+            </g>
+          ))}
+        </motion.g>
+      ))}
+
+      {/* Wind particles flung outward from the spin */}
+      {[
+        { cx: 70, cy: 22, delay: 0.12 },
+        { cx: 108, cy: 60, delay: 0.24 },
+        { cx: 70, cy: 98, delay: 0.18 },
+        { cx: 32, cy: 60, delay: 0.3 },
+      ].map((p, i) => (
+        <motion.circle
+          key={i}
+          cx={p.cx}
+          cy={p.cy}
+          r="3"
+          fill="#54E396"
+          style={{ transformBox: "fill-box", transformOrigin: "center" }}
+          initial={{ scale: 1, y: 0, opacity: 0.9 }}
+          animate={{ scale: [1, 2.5], y: [0, -6], opacity: [0.9, 0] }}
+          transition={{ duration: 0.65, delay: p.delay, ease: "easeOut" }}
+        />
+      ))}
     </g>
   );
 }
 
 function SerenityFx() {
+  // Monk ability2 (heal + cleanse): a tranquil blooming lotus of green light —
+  // calm expanding rings, unfolding petals, a soft core, and rising motes.
+  const ORIGIN = "70px 60px";
+  const petals = [0, 45, 90, 135, 180, 225, 270, 315];
+  const mote = (cx: number, cy: number, r: number, delay: number) => (
+    <motion.circle
+      cx={cx}
+      cy={cy}
+      r={r}
+      fill="#8affc0"
+      style={{ transformBox: "fill-box", transformOrigin: "center" }}
+      initial={{ y: 0, scale: 0.5, opacity: 0 }}
+      animate={{ y: [0, -18], scale: [0.5, 1.2], opacity: [0, 1, 0] }}
+      transition={{
+        duration: 0.75,
+        delay,
+        times: [0, 0.4, 1],
+        ease: "easeOut",
+      }}
+    />
+  );
   return (
-    <g style={{ transformOrigin: "70px 60px" }}>
-      <circle
-        className="ae-serenity-ring-1"
-        cx="70"
-        cy="60"
-        r="32"
-        fill="none"
-        stroke="#54E396"
-        strokeWidth="2.5"
-        opacity="0.8"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      <circle
-        className="ae-serenity-ring-2"
-        cx="70"
-        cy="60"
-        r="20"
-        fill="none"
-        stroke="#aaffcc"
-        strokeWidth="2"
-        opacity="0.7"
-        style={{ transformOrigin: "70px 60px" }}
-      />
-      <g className="ae-serenity-core" style={{ transformOrigin: "70px 60px" }}>
+    <g>
+      {/* Calm expanding rings */}
+      {[
+        { sw: 2.5, col: "#54E396", op: 0.8, delay: 0 },
+        { sw: 2, col: "#aaffcc", op: 0.7, delay: 0.12 },
+      ].map((r, i) => (
+        <motion.circle
+          key={i}
+          cx="70"
+          cy="60"
+          fill="none"
+          stroke={r.col}
+          strokeWidth={r.sw}
+          style={{ transformOrigin: ORIGIN }}
+          initial={{ r: 4, opacity: r.op }}
+          animate={{ r: [4, 40], opacity: [r.op, 0] }}
+          transition={{ duration: 0.7, delay: r.delay, ease: "easeOut" }}
+        />
+      ))}
+
+      {/* Blooming lotus petals unfolding outward */}
+      <motion.g
+        style={{ transformOrigin: ORIGIN }}
+        initial={{ scale: 0.2, opacity: 0, rotate: -20 }}
+        animate={{
+          scale: [0.2, 1, 1.05],
+          opacity: [0, 0.9, 0],
+          rotate: [-20, 0, 8],
+        }}
+        transition={{ duration: 0.8, times: [0, 0.45, 1], ease: "easeOut" }}
+      >
+        {petals.map((deg) => (
+          <g key={deg} transform={`translate(70,60) rotate(${deg})`}>
+            <path
+              d="M0 0 Q6 -14 0 -26 Q-6 -14 0 0 Z"
+              fill="#54E396"
+              opacity="0.55"
+            />
+            <path
+              d="M0 0 Q3 -12 0 -22 Q-3 -12 0 0 Z"
+              fill="#aaffcc"
+              opacity="0.5"
+            />
+          </g>
+        ))}
+      </motion.g>
+
+      {/* Soft glowing core */}
+      <motion.g
+        style={{ transformOrigin: ORIGIN }}
+        initial={{ scale: 0.2, opacity: 0 }}
+        animate={{ scale: [0.2, 1.2, 1], opacity: [0, 1, 0.6] }}
+        transition={{ duration: 0.7, times: [0, 0.4, 1], ease: "easeOut" }}
+      >
         <circle cx="70" cy="60" r="13" fill="#54E396" opacity="0.2" />
         <circle cx="70" cy="60" r="7" fill="#54E396" opacity="0.45" />
         <circle cx="70" cy="60" r="3" fill="#efffef" opacity="0.9" />
-      </g>
-      <circle
-        className="ae-regen-spark ae-rs-1"
-        cx="70"
-        cy="40"
-        r="2.2"
-        fill="#54E396"
-        opacity="0.9"
-        style={{ transformOrigin: "70px 40px" }}
-      />
-      <circle
-        className="ae-regen-spark ae-rs-2"
-        cx="52"
-        cy="50"
-        r="1.8"
-        fill="#54E396"
-        opacity="0.85"
-        style={{ transformOrigin: "52px 50px" }}
-      />
-      <circle
-        className="ae-regen-spark ae-rs-3"
-        cx="88"
-        cy="50"
-        r="1.8"
-        fill="#54E396"
-        opacity="0.85"
-        style={{ transformOrigin: "88px 50px" }}
-      />
+      </motion.g>
+
+      {/* Rising motes of restored life */}
+      {mote(70, 46, 2.2, 0.1)}
+      {mote(54, 54, 1.8, 0.16)}
+      {mote(86, 54, 1.8, 0.16)}
+      {mote(60, 44, 1.5, 0.24)}
+      {mote(82, 46, 1.5, 0.24)}
     </g>
   );
 }
