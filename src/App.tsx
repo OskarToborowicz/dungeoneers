@@ -53,7 +53,7 @@ import type {
 import { FullscreenButton } from "./components/FullscreenButton";
 import "./App.css";
 
-const XP_REWARD_MULT = 1.0;
+const XP_REWARD_MULT = 1.25;
 const FIRST_CLEAR_MULT = 2;
 
 function restockFee(level: number) {
