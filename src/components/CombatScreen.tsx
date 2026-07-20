@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { CLASSES } from "../game/data/classes";
 import { CONSUMABLES } from "../game/data/consumables";
 import { xpToNextLevel } from "../game/character";
@@ -122,6 +122,45 @@ export function CombatScreen({
   const [isAnimating, setIsAnimating] = useState(false);
   const [showFleePrompt, setShowFleePrompt] = useState(false);
   const [critFlash, setCritFlash] = useState(false);
+
+  // Ability-effect overlay uses a 200×120 viewBox letterboxed over the arena, so
+  // its authored anchors (player 32 / monster 168) drift off the sprites as the
+  // arena widens. Measure the real sprite positions, convert to viewBox units,
+  // and feed them to AbilityEffect so effects always land on the sprites.
+  const arenaRef = useRef<HTMLDivElement>(null);
+  const playerRef = useRef<HTMLDivElement>(null);
+  const monsterRef = useRef<HTMLDivElement>(null);
+  const [fxAnchors, setFxAnchors] = useState({ launchX: 32, impactX: 168 });
+
+  useLayoutEffect(() => {
+    function measure() {
+      const arena = arenaRef.current?.getBoundingClientRect();
+      const player = playerRef.current?.getBoundingClientRect();
+      const monster = monsterRef.current?.getBoundingClientRect();
+      if (!arena || !player || !monster || arena.width === 0) return;
+      const scale = Math.min(arena.width / 200, arena.height / 120);
+      if (scale === 0) return;
+      const offsetX = (arena.width - 200 * scale) / 2;
+      const toSvgX = (clientX: number) => (clientX - arena.left - offsetX) / scale;
+      const launchX = toSvgX((player.left + player.right) / 2); // player sprite centre
+      const impactX = toSvgX((monster.left + monster.right) / 2); // monster sprite centre
+      setFxAnchors((prev) =>
+        Math.abs(prev.launchX - launchX) < 0.5 &&
+        Math.abs(prev.impactX - impactX) < 0.5
+          ? prev
+          : { launchX, impactX },
+      );
+    }
+    measure();
+    // Re-measure after the monster's fade-in transform settles, and on resize.
+    const settle = setTimeout(measure, 320);
+    const ro = new ResizeObserver(measure);
+    if (arenaRef.current) ro.observe(arenaRef.current);
+    return () => {
+      clearTimeout(settle);
+      ro.disconnect();
+    };
+  }, []);
 
   useEffect(() => {
     if (logRef.current) {
@@ -440,12 +479,14 @@ export function CombatScreen({
           <span className="monster-level">Lv.{monster.level}</span>
         </h2>
 
-        <div className="battle-arena">
+        <div className="battle-arena" ref={arenaRef}>
           {attackEffect > 0 && (
             <AbilityEffect
               key={`atk-${attackEffect}`}
               classId={character.classId}
               useAttack={true}
+              launchX={fxAnchors.launchX}
+              impactX={fxAnchors.impactX}
               onDone={() => setAttackEffect(0)}
             />
           )}
@@ -453,6 +494,8 @@ export function CombatScreen({
             <AbilityEffect
               key={abilityEffect}
               classId={character.classId}
+              launchX={fxAnchors.launchX}
+              impactX={fxAnchors.impactX}
               onDone={() => setAbilityEffect(0)}
             />
           )}
@@ -461,6 +504,8 @@ export function CombatScreen({
               key={-ability2Effect}
               classId={character.classId}
               useAbility2={true}
+              launchX={fxAnchors.launchX}
+              impactX={fxAnchors.impactX}
               onDone={() => setAbility2Effect(0)}
             />
           )}
@@ -474,6 +519,8 @@ export function CombatScreen({
             <AbilityEffect
               classId="assassin"
               detonation={true}
+              launchX={fxAnchors.launchX}
+              impactX={fxAnchors.impactX}
               onDone={() => setTrapDetonateEffect(false)}
             />
           )}
@@ -690,6 +737,7 @@ export function CombatScreen({
             </div>
           )}
           <div
+            ref={playerRef}
             className={`battle-side player-side${battle.bloodFuryRounds > 0 ? " blood-fury-active" : ""}${battle.holyLightCharges > 0 ? " holy-light-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}`}
           >
             {potionFx && (
@@ -721,7 +769,7 @@ export function CombatScreen({
               ]}
             />
           </div>
-          <div className="battle-side monster-side">
+          <div className="battle-side monster-side" ref={monsterRef}>
             <MonsterSprite
               name={monster.name}
               size={80}

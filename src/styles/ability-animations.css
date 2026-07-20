@@ -81,26 +81,8 @@
 }
 
 /* Whirlwind – Barbarian */
-@keyframes ae-spin-fade {
-  0% {
-    transform: scale(0.1) rotate(0deg);
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-  65% {
-    transform: scale(1.1) rotate(540deg);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1.3) rotate(720deg);
-    opacity: 0;
-  }
-}
-.ae-whirlwind {
-  animation: ae-spin-fade 0.95s ease-out forwards;
-}
+/* Whirlwind (Barbarian ability 2) is now animated with `motion` in
+   AbilityEffect.tsx — its old ae-whirlwind / ae-spin-fade rules were removed. */
 
 /* Poison Cloud – Necromancer */
 @keyframes ae-pcloud-fly {
@@ -499,116 +481,11 @@
     opacity: 0;
   }
 }
-/* Druid basic attack — quick leather-whip crack */
-.ae-wa-lash {
-  animation: ae-wa-crack 0.26s cubic-bezier(0.5, 0, 0.75, 0) forwards;
-}
-@keyframes ae-wa-crack {
-  0% {
-    stroke-dashoffset: 200;
-    opacity: 0;
-  }
-  15% {
-    opacity: 1;
-  }
-  55% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-  75% {
-    opacity: 1;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0;
-  }
-}
-.ae-wa-snap {
-  opacity: 0;
-  animation: ae-wa-snap-flash 0.24s 0.14s ease-out forwards;
-}
-@keyframes ae-wa-snap-flash {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  40% {
-    opacity: 1;
-    transform: scale(1.1);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.5);
-  }
-}
+/* Druid basic attack (whip crack) is now animated with `motion` in
+   AbilityEffect.tsx — its old ae-wa-* keyframes lived here and were removed. */
 
-/* Vine Whip – Druid ability 1: a lash cracks out toward the enemy */
-.ae-vw-lash {
-  animation: ae-vw-crack 0.36s cubic-bezier(0.5, 0, 0.75, 0) forwards;
-}
-@keyframes ae-vw-crack {
-  0% {
-    stroke-dashoffset: 200;
-    opacity: 0;
-  }
-  12% {
-    opacity: 1;
-  }
-  50% {
-    stroke-dashoffset: 0;
-    opacity: 1;
-  }
-  75% {
-    opacity: 1;
-  }
-  100% {
-    stroke-dashoffset: 0;
-    opacity: 0;
-  }
-}
-.ae-vw-leaf {
-  opacity: 0;
-  transform-box: fill-box;
-  transform-origin: center;
-}
-.ae-vw-leaf-1 {
-  animation: ae-vw-leaf-pop 0.45s 0.16s ease-out forwards;
-}
-.ae-vw-leaf-2 {
-  animation: ae-vw-leaf-pop 0.45s 0.22s ease-out forwards;
-}
-@keyframes ae-vw-leaf-pop {
-  0% {
-    opacity: 0;
-    transform: scale(0.3) rotate(-20deg);
-  }
-  40% {
-    opacity: 1;
-    transform: scale(1) rotate(0deg);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(0.9) translateY(8px) rotate(15deg);
-  }
-}
-.ae-vw-crack {
-  opacity: 0;
-  animation: ae-vw-crack-flash 0.34s 0.2s ease-out forwards;
-}
-@keyframes ae-vw-crack-flash {
-  0% {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  35% {
-    opacity: 1;
-    transform: scale(1.15);
-  }
-  100% {
-    opacity: 0;
-    transform: scale(1.5);
-  }
-}
+/* Vine Whip (Druid ability 1) is now animated with `motion` in AbilityEffect.tsx
+   — its old ae-vw-* keyframes lived here and were removed. */
 
 /* Eviscerate – Assassin ability 1 */
 @keyframes ae-eviscerate-slash-draw {

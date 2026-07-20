@@ -104,7 +104,6 @@
   background: transparent;
   border: 1px solid var(--border-gold-bright);
   color: var(--border-gold-bright);
-  margin-left: 8px;
 }
 
 .clear-again-button.clear-again-button:hover:not(:disabled) {
@@ -162,4 +161,3 @@
   font-size: 13px;
   margin-top: 2px;
 }
-

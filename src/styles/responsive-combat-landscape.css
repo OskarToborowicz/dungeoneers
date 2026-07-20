@@ -192,6 +192,7 @@
     grid-area: flee;
     align-self: end;
     display: flex;
+    flex-direction: column;
   }
 
   .combat-result-actions .primary-button {
@@ -248,4 +249,3 @@
     word-break: break-word;
   }
 }
-
