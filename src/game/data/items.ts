@@ -125,7 +125,14 @@ const AFFIX_POOL: {
   { label: "of Life", stat: "life", min: 5, max: 20 },
   { label: "of Mana", stat: "mana", min: 5, max: 20 },
   { label: "of Arcane Power", stat: "magicDamage", min: 2, max: 6 },
-  { label: "of Greed", stat: "goldFind", min: 15, max: 25, cap: 125, scaleRate: 0.057 },
+  {
+    label: "of Greed",
+    stat: "goldFind",
+    min: 15,
+    max: 25,
+    cap: 125,
+    scaleRate: 0.057,
+  },
   { label: "of Vampirism", stat: "lifeLeech", min: 3, max: 9, noScale: true },
   {
     label: "of Devastation",
@@ -219,7 +226,12 @@ const MAGIC_DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = [
 const GOLD_FIND_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "belt"];
 const LIFE_LEECH_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "gloves"];
 const CRIT_CHANCE_AFFIX_SLOTS: EquipmentSlot[] = ["ring1", "ring2", "amulet"];
-const CRIT_DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = ["gloves", "ring1", "ring2", "amulet"];
+const CRIT_DAMAGE_AFFIX_SLOTS: EquipmentSlot[] = [
+  "gloves",
+  "ring1",
+  "ring2",
+  "amulet",
+];
 const MAGIC_RESIST_AFFIX_SLOTS: EquipmentSlot[] = ["helm", "armor", "boots"];
 
 type AffixEntry = (typeof AFFIX_POOL)[number];
@@ -227,27 +239,43 @@ type AffixEntry = (typeof AFFIX_POOL)[number];
 function buildSlotPool(itemLevel: number, slot: EquipmentSlot): AffixEntry[] {
   return AFFIX_POOL.filter((a) => {
     if (a.stat === "damage") return DAMAGE_AFFIX_SLOTS.includes(slot);
-    if (a.stat === "magicDamage") return MAGIC_DAMAGE_AFFIX_SLOTS.includes(slot);
+    if (a.stat === "magicDamage")
+      return MAGIC_DAMAGE_AFFIX_SLOTS.includes(slot);
     if (a.stat === "goldFind") return GOLD_FIND_AFFIX_SLOTS.includes(slot);
     if (a.stat === "lifeLeech") return LIFE_LEECH_AFFIX_SLOTS.includes(slot);
     if (a.stat === "critChance")
-      return CRIT_CHANCE_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
+      return (
+        CRIT_CHANCE_AFFIX_SLOTS.includes(slot) &&
+        itemLevel >= (a.itemLevelMin ?? 0)
+      );
     if (a.stat === "critDamageBonus")
-      return CRIT_DAMAGE_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
+      return (
+        CRIT_DAMAGE_AFFIX_SLOTS.includes(slot) &&
+        itemLevel >= (a.itemLevelMin ?? 0)
+      );
     if (a.stat === "magicDmgReduction")
-      return MAGIC_RESIST_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
+      return (
+        MAGIC_RESIST_AFFIX_SLOTS.includes(slot) &&
+        itemLevel >= (a.itemLevelMin ?? 0)
+      );
     if (a.stat === "physDmgReduction")
-      return MAGIC_RESIST_AFFIX_SLOTS.includes(slot) && itemLevel >= (a.itemLevelMin ?? 0);
+      return (
+        MAGIC_RESIST_AFFIX_SLOTS.includes(slot) &&
+        itemLevel >= (a.itemLevelMin ?? 0)
+      );
     return true;
   });
 }
 
 function rollAffixEntry(chosen: AffixEntry, itemLevel: number): ItemAffix {
   const effectiveLevel =
-    chosen.scaleFromLevel != null ? Math.max(0, itemLevel - chosen.scaleFromLevel) : itemLevel;
+    chosen.scaleFromLevel != null
+      ? Math.max(0, itemLevel - chosen.scaleFromLevel)
+      : itemLevel;
   const rate = chosen.scaleRate ?? 0.08;
   const scale = chosen.noScale ? 1 : 1 + effectiveLevel * rate;
-  const rolled = (chosen.min + Math.random() * (chosen.max - chosen.min)) * scale;
+  const rolled =
+    (chosen.min + Math.random() * (chosen.max - chosen.min)) * scale;
   const factor = chosen.decimals ? Math.pow(10, chosen.decimals) : 1;
   const rawValue = Math.round(rolled * factor) / factor;
   const value = chosen.cap != null ? Math.min(rawValue, chosen.cap) : rawValue;
@@ -287,7 +315,10 @@ export function addFourthAffix(item: Item): Item {
   const chosen = pool[Math.floor(Math.random() * pool.length)];
   return {
     ...item,
-    affixes: [...item.affixes, { ...rollAffixEntry(chosen, item.itemLevel), forgeAdded: true }],
+    affixes: [
+      ...item.affixes,
+      { ...rollAffixEntry(chosen, item.itemLevel), forgeAdded: true },
+    ],
     lockedAffixIndex: 3,
     forgeAffixAdded: true,
   };
@@ -305,12 +336,23 @@ export function rerollLockedAffix(item: Item): Item {
   if (pool.length === 0) return item;
   const chosen = pool[Math.floor(Math.random() * pool.length)];
   const newAffixes = [...item.affixes];
-  newAffixes[idx] = { ...rollAffixEntry(chosen, item.itemLevel), forgeAdded: true };
-  return { ...item, affixes: newAffixes, forgeRerolls: (item.forgeRerolls ?? 0) + 1 };
+  newAffixes[idx] = {
+    ...rollAffixEntry(chosen, item.itemLevel),
+    forgeAdded: true,
+  };
+  return {
+    ...item,
+    affixes: newAffixes,
+    forgeRerolls: (item.forgeRerolls ?? 0) + 1,
+  };
 }
 
 export function lockAndRerollAffix(item: Item, affixIndex: number): Item {
-  if (item.rarity !== "rare" || affixIndex < 0 || affixIndex >= item.affixes.length)
+  if (
+    item.rarity !== "rare" ||
+    affixIndex < 0 ||
+    affixIndex >= item.affixes.length
+  )
     return item;
   return rerollLockedAffix({ ...item, lockedAffixIndex: affixIndex });
 }
@@ -972,7 +1014,6 @@ export function generateEternitysEdge(): Item {
   };
 }
 
-
 export function generateShadowfang(): Item {
   itemCounter += 1;
   const ilvl = 28;
@@ -1082,11 +1123,11 @@ export function generateTheGavel(): Item {
     twoHanded: false,
     weaponType: "sword",
     affixes: [
-      { label: "", stat: "damage",      value: 67 },
+      { label: "", stat: "damage", value: 67 },
       { label: "", stat: "freezeOnHit", value: randInt(6, 7) },
       { label: "", stat: "igniteOnHit", value: randInt(6, 7) },
       { label: "", stat: "poisonOnHit", value: randInt(6, 7) },
-      { label: "", stat: "shockOnHit",  value: randInt(6, 7) },
+      { label: "", stat: "shockOnHit", value: randInt(6, 7) },
     ],
     theGavel: true,
   };
@@ -1105,8 +1146,8 @@ export function generateGraveToll(): Item {
     weaponType: "scythe",
     affixes: [
       { label: "", stat: "magicDamage", value: randInt(10, 18) },
-      { label: "", stat: "damage",      value: randInt(10, 16) },
-      { label: "", stat: "energy",      value: randInt(8, 14) },
+      { label: "", stat: "damage", value: randInt(10, 16) },
+      { label: "", stat: "energy", value: randInt(8, 14) },
     ],
     graveToll: true,
   };
@@ -1125,9 +1166,9 @@ export function generateBonechill(): Item {
     weaponType: "scythe",
     affixes: [
       { label: "", stat: "magicDamage", value: randInt(28, 40) },
-      { label: "", stat: "damage",      value: randInt(20, 30) },
-      { label: "", stat: "energy",      value: randInt(18, 26) },
-      { label: "", stat: "vitality",    value: -15 },
+      { label: "", stat: "damage", value: randInt(20, 30) },
+      { label: "", stat: "energy", value: randInt(18, 26) },
+      { label: "", stat: "vitality", value: -15 },
     ],
     bonechill: true,
   };
@@ -1146,9 +1187,9 @@ export function generateEbonreap(): Item {
     weaponType: "scythe",
     affixes: [
       { label: "", stat: "magicDamage", value: randInt(45, 60) },
-      { label: "", stat: "damage",      value: randInt(35, 50) },
-      { label: "", stat: "vitality",    value: randInt(30, 40) },
-      { label: "", stat: "energy",      value: randInt(25, 35) },
+      { label: "", stat: "damage", value: randInt(35, 50) },
+      { label: "", stat: "vitality", value: randInt(30, 40) },
+      { label: "", stat: "energy", value: randInt(25, 35) },
     ],
     ebonreap: true,
   };
@@ -1167,8 +1208,8 @@ export function generateJadeKnuckles(): Item {
     weaponType: "katar",
     affixes: [
       { label: "", stat: "dexterity", value: randInt(14, 20) },
-      { label: "", stat: "strength",  value: randInt(12, 18) },
-      { label: "", stat: "vitality",  value: randInt(10, 15) },
+      { label: "", stat: "strength", value: randInt(12, 18) },
+      { label: "", stat: "vitality", value: randInt(10, 15) },
     ],
   };
 }
@@ -1186,9 +1227,9 @@ export function generateStormfist(): Item {
     weaponType: "katar",
     affixes: [
       { label: "", stat: "dexterity", value: randInt(32, 44) },
-      { label: "", stat: "strength",  value: randInt(24, 34) },
+      { label: "", stat: "strength", value: randInt(24, 34) },
       { label: "", stat: "critChance", value: 4 },
-      { label: "", stat: "vitality",  value: randInt(18, 26) },
+      { label: "", stat: "vitality", value: randInt(18, 26) },
     ],
     stormfist: true,
   };
@@ -1206,7 +1247,7 @@ export function generateRatKingsCoat(): Item {
     affixes: [
       { label: "", stat: "goldFind", value: randInt(60, 75) },
       { label: "", stat: "vitality", value: randInt(8, 14) },
-      { label: "", stat: "defense",  value: -6 },
+      { label: "", stat: "defense", value: -6 },
     ],
   };
 }
@@ -1221,8 +1262,8 @@ export function generateIroncladHauberk(): Item {
     itemLevel: 45,
     baseDefense: 25,
     affixes: [
-      { label: "", stat: "vitality",        value: randInt(35, 50) },
-      { label: "", stat: "defense",         value: randInt(20, 30) },
+      { label: "", stat: "vitality", value: randInt(35, 50) },
+      { label: "", stat: "defense", value: randInt(20, 30) },
       { label: "", stat: "physDmgReduction", value: randInt(6, 10) },
     ],
     ironcladHauberk: true,
@@ -1239,8 +1280,8 @@ export function generateVoidgaze(): Item {
     itemLevel: 62,
     baseDefense: 22,
     affixes: [
-      { label: "", stat: "defense",          value: randInt(35, 50) },
-      { label: "", stat: "vitality",         value: randInt(40, 55) },
+      { label: "", stat: "defense", value: randInt(35, 50) },
+      { label: "", stat: "vitality", value: randInt(40, 55) },
       { label: "", stat: "magicDmgReduction", value: randInt(8, 12) },
     ],
     voidgaze: true,
@@ -1257,9 +1298,9 @@ export function generateBastionsRemnant(): Item {
     itemLevel: 70,
     baseDefense: 38,
     affixes: [
-      { label: "", stat: "defense",  value: randInt(50, 65) },
+      { label: "", stat: "defense", value: randInt(50, 65) },
       { label: "", stat: "vitality", value: randInt(45, 60) },
-      { label: "", stat: "life",     value: randInt(20, 30) },
+      { label: "", stat: "life", value: randInt(20, 30) },
     ],
     bastionsRemnant: true,
   };
@@ -1275,10 +1316,10 @@ export function generateBloodfist(): Item {
     itemLevel: 65,
     baseDefense: 18,
     affixes: [
-      { label: "", stat: "dexterity",  value: randInt(40, 55) },
+      { label: "", stat: "dexterity", value: randInt(40, 55) },
       { label: "", stat: "critChance", value: randInt(4, 6) },
-      { label: "", stat: "damage",     value: randInt(30, 45) },
-      { label: "", stat: "vitality",   value: -12 },
+      { label: "", stat: "damage", value: randInt(30, 45) },
+      { label: "", stat: "vitality", value: -12 },
     ],
     bloodfist: true,
   };
@@ -1295,8 +1336,8 @@ export function generateSoulvoidGirdle(): Item {
     baseDefense: 12,
     affixes: [
       { label: "", stat: "vitality", value: randInt(40, 55) },
-      { label: "", stat: "energy",   value: randInt(30, 45) },
-      { label: "", stat: "life",     value: randInt(25, 40) },
+      { label: "", stat: "energy", value: randInt(30, 45) },
+      { label: "", stat: "life", value: randInt(25, 40) },
     ],
     soulvoidGirdle: true,
     openerBonusPct: randInt(10, 12),
@@ -1313,8 +1354,8 @@ export function generateForsakenSigil(): Item {
     itemLevel: 72,
     affixes: [
       { label: "", stat: "magicDamage", value: randInt(55, 70) },
-      { label: "", stat: "energy",      value: randInt(40, 55) },
-      { label: "", stat: "vitality",    value: randInt(20, 30) },
+      { label: "", stat: "energy", value: randInt(40, 55) },
+      { label: "", stat: "vitality", value: randInt(20, 30) },
     ],
     forsakenSigil: true,
   };
@@ -1333,8 +1374,8 @@ export function generateTanglewhip(): Item {
     weaponType: "totem",
     affixes: [
       { label: "", stat: "dexterity", value: randInt(12, 18) },
-      { label: "", stat: "damage",    value: randInt(8, 14) },
-      { label: "", stat: "vitality",  value: randInt(8, 12) },
+      { label: "", stat: "damage", value: randInt(8, 14) },
+      { label: "", stat: "vitality", value: randInt(8, 12) },
     ],
     tanglewhip: true,
   };
@@ -1353,8 +1394,8 @@ export function generateWorldrootTotem(): Item {
     weaponType: "totem",
     affixes: [
       { label: "", stat: "dexterity", value: randInt(22, 32) },
-      { label: "", stat: "damage",    value: randInt(16, 24) },
-      { label: "", stat: "vitality",  value: randInt(10, 16) },
+      { label: "", stat: "damage", value: randInt(16, 24) },
+      { label: "", stat: "vitality", value: randInt(10, 16) },
     ],
     worldrootTotem: true,
   };
@@ -1373,8 +1414,8 @@ export function generateVerdantCoil(): Item {
     weaponType: "totem",
     affixes: [
       { label: "", stat: "dexterity", value: randInt(32, 46) },
-      { label: "", stat: "damage",    value: randInt(22, 32) },
-      { label: "", stat: "energy",    value: randInt(14, 20) },
+      { label: "", stat: "damage", value: randInt(22, 32) },
+      { label: "", stat: "energy", value: randInt(14, 20) },
     ],
     verdantCoil: true,
   };
@@ -1393,8 +1434,8 @@ export function generateThornweaveEffigy(): Item {
     weaponType: "totem",
     affixes: [
       { label: "", stat: "dexterity", value: randInt(46, 62) },
-      { label: "", stat: "damage",    value: randInt(36, 50) },
-      { label: "", stat: "vitality",  value: randInt(26, 36) },
+      { label: "", stat: "damage", value: randInt(36, 50) },
+      { label: "", stat: "vitality", value: randInt(26, 36) },
     ],
     thornweaveEffigy: true,
   };
@@ -1412,8 +1453,8 @@ export function generateBloodbriar(): Item {
     twoHanded: true,
     weaponType: "totem",
     affixes: [
-      { label: "", stat: "dexterity",  value: randInt(66, 86) },
-      { label: "", stat: "damage",     value: randInt(52, 72) },
+      { label: "", stat: "dexterity", value: randInt(66, 86) },
+      { label: "", stat: "damage", value: randInt(52, 72) },
       { label: "", stat: "critChance", value: 6 },
     ],
     bloodbriar: true,
@@ -1506,9 +1547,10 @@ export function generateShopStock(
   }
   const items: Item[] = [];
   for (let i = 0; i < count; i++) {
-    const itemLevel = highestMonsterLevel > 0
-      ? Math.max(1, highestMonsterLevel - randInt(3, 5))
-      : 1;
+    const itemLevel =
+      highestMonsterLevel > 0
+        ? Math.max(1, highestMonsterLevel - randInt(3, 5))
+        : 1;
     items.push(generateRandomItem(itemLevel, classId, maxRarity));
   }
   return items;

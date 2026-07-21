@@ -65,30 +65,38 @@ interface UniquePoolEntry {
   minLevel?: number;
   clearedAny?: string[];
 }
-
 const ACT1 = [
-  "blood-moor",
-  "cold-plains",
-  "stony-field",
-  "dark-wood",
-  "tristram",
-  "diablo",
+  "sewers",
+  "dark-forest",
+  "cave",
+  "foggy-fields",
+  "graveyard",
+  "crypt",
+  "goblins-path",
+  "bandit-town",
+  "bandits-town-hall",
 ];
 const ACT2 = [
-  "imp-field",
-  "lava-river",
-  "ashen-caves",
-  "higher-hell",
-  "lower-hell",
-  "hellcore",
+  "frostfang-pass",
+  "icy-cave",
+  "tundra",
+  "moonglass-lake",
+  "whispering-glacier",
+  "crystal-labyrinth",
+  "frostforge",
+  "summit-peak",
+  "the-white-maw",
 ];
-const LATE_ACT2 = ["higher-hell", "lower-hell", "hellcore"];
-const MID_ACT2 = [
-  "diablo",
-  "imp-field",
-  "lava-river",
-  "ashen-caves",
-  "higher-hell",
+const ACT3 = [
+  "overgrown-entrance",
+  "serpent-marsh",
+  "whispering-river",
+  "village-lost-souls",
+  "bloodvine-jungle",
+  "temple-forgotten-gods",
+  "heart-of-the-jungle",
+  "black-ziggurat",
+  "sacrificial-altar",
 ];
 
 const UNIQUE_POOL: Partial<Record<EquipmentSlot, UniquePoolEntry[]>> = {
@@ -99,7 +107,7 @@ const UNIQUE_POOL: Partial<Record<EquipmentSlot, UniquePoolEntry[]>> = {
     { generator: generateMaskOfMidnight, minLevel: 25 },
     {
       generator: generateSpellbladesMask,
-      clearedAny: ["tristram", "diablo", ...ACT2],
+      minLevel: 15,
     },
     { generator: generateCrownOfTheFallen, minLevel: 45 },
     { generator: generateReapersHood, minLevel: 45, clearedAny: ACT2 },
@@ -117,14 +125,13 @@ const UNIQUE_POOL: Partial<Record<EquipmentSlot, UniquePoolEntry[]>> = {
     {
       generator: generateVenomweaveWrap,
       minLevel: 15,
-      clearedAny: ["stony-field", "dark-wood", "tristram", "diablo", ...ACT2],
     },
     { generator: generateDemonsTail, clearedAny: ACT2 },
     { generator: generateSoulvoidGirdle, minLevel: 63 },
   ],
   ring1: [
     { generator: generateEyeOfTheStorm, minLevel: 18 },
-    { generator: generateMirrorRing, clearedAny: ["diablo", ...ACT2] },
+    { generator: generateMirrorRing, clearedAny: ACT2 },
   ],
   amulet: [
     { generator: generatePentagram, clearedAny: ACT2 },
@@ -160,11 +167,11 @@ const CLASS_WEAPON_POOL: Partial<Record<ClassId, UniquePoolEntry[]>> = {
     { generator: generateDoomcrier, minLevel: 50 },
   ],
   sorceress: [
-    { generator: generateApprenticesFocus, clearedAny: ACT1 },
-    { generator: generateTheArcanist, clearedAny: MID_ACT2 },
-    { generator: generateEternitysEdge, clearedAny: LATE_ACT2 },
+    { generator: generateApprenticesFocus, clearedAny: [...ACT1] },
+    { generator: generateTheArcanist, clearedAny: [...ACT2] },
+    { generator: generateEternitysEdge, clearedAny: [...ACT3] },
   ],
-  assassin: [{ generator: generateShadowfang, clearedAny: MID_ACT2 }],
+  assassin: [{ generator: generateShadowfang, clearedAny: [...ACT2] }],
   necromancer: [
     { generator: generateGraveToll },
     { generator: generateBonechill, minLevel: 35 },
