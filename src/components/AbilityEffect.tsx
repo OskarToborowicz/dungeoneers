@@ -872,9 +872,8 @@ function SingleArrowFx() {
 function MultishotFx() {
   // Three arrows fan out from the archer and converge on the enemy.
   const arrows = [
-    { y: 44, delay: 0 },
-    { y: 60, delay: 0.05 },
-    { y: 76, delay: 0.1 },
+    { y: 66, delay: 0.1 },
+    { y: 58, delay: 0.1 },
   ];
   return (
     <g>
