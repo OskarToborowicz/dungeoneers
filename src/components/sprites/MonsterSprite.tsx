@@ -1,5 +1,5 @@
-import { motion } from "motion/react";
-import { useEffect, useId, useState } from "react";
+import { motion, useAnimationControls } from "motion/react";
+import { useEffect, useId } from "react";
 import type { ReactNode } from "react";
 import type { SpriteState } from "./CharacterSprite";
 import { MONSTER_ASSETS, MONSTER_IMG } from "./monsterAssets";
@@ -5869,10 +5869,9 @@ export function MonsterSprite({
   state = "idle",
   statusEffects = [],
 }: Props) {
-  const [animKey, setAnimKey] = useState(0);
-  useEffect(() => {
-    setAnimKey((k) => k + 1);
-  }, [state]);
+  // Replay the pose on state change without remounting the filtered <g> (which
+  // repainted the glow filter on every hit/attack — costly on phones).
+  const controls = useAnimationControls();
 
   const type = MONSTER_TYPES[name] ?? "fallen";
   const color = MONSTER_COLORS[type] ?? "#888888";
@@ -5881,6 +5880,11 @@ export function MonsterSprite({
   const assetUrl = MONSTER_ASSETS[type];
   const uid = useId();
   const glowId = `${uid}-mglow`;
+
+  useEffect(() => {
+    controls.start(getAnimate(state, type), getTransition(state, type));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state, type]);
 
   return (
     <svg
@@ -5897,7 +5901,7 @@ export function MonsterSprite({
           thin parts (legs, tail) blurred away into gaps. Here the glow is only
           ever behind the untouched source. */}
       <defs>
-        <filter id={glowId} x="-150%" y="-150%" width="400%" height="400%">
+        <filter id={glowId} x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b1" />
           <feFlood floodColor={color} floodOpacity="1" result="c1" />
           <feComposite in="c1" in2="b1" operator="in" result="g1" />
@@ -5913,9 +5917,7 @@ export function MonsterSprite({
         </filter>
       </defs>
       <motion.g
-        key={animKey}
-        animate={getAnimate(state, type)}
-        transition={getTransition(state, type)}
+        animate={controls}
         fill="#120e0a"
         stroke={color}
         strokeWidth="1.8"

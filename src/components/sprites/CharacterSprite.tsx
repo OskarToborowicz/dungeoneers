@@ -1,5 +1,5 @@
-import { motion } from "motion/react";
-import { useEffect, useId, useState } from "react";
+import { motion, useAnimationControls } from "motion/react";
+import { useEffect, useId } from "react";
 import type { ClassId } from "../../game/types";
 import * as barbarian from "./classes/barbarian";
 import * as necromancer from "./classes/necromancer";
@@ -57,8 +57,13 @@ function GlowFilterDef({
   color: string;
   intensity: number;
 }) {
+  // Two passes (wide soft halo + tight core) — the tight sd1 pass fills the area
+  // right against the strokes so thin parts don't show gaps ("prześwity"). The
+  // perf win comes from the tight 200% filter region (was 400% ≈ 16× the element
+  // area) plus no longer remounting the sprite each attack/hit; the glow itself
+  // is unchanged.
   return (
-    <filter id={id} x="-150%" y="-150%" width="400%" height="400%">
+    <filter id={id} x="-50%" y="-50%" width="200%" height="200%">
       <feDropShadow
         dx="0"
         dy="0"
@@ -136,9 +141,18 @@ export function CharacterSprite({
   statusEffects = [],
   animated = true,
 }: Props) {
-  const [animKey, setAnimKey] = useState(0);
+  // Replay the pose on each state change WITHOUT remounting the SVG. The old
+  // `key={animKey}` remount repainted all three glow-filtered groups on every
+  // attack/hit — expensive on phones. Driving motion via controls keeps the SVG
+  // (and its already-painted filters) mounted and just re-runs the transform.
+  const controls = useAnimationControls();
   useEffect(() => {
-    setAnimKey((k) => k + 1);
+    controls.start(
+      getAnimate(state, scale, classId),
+      getTransition(state, classId),
+    );
+    // scale is stable per mount; state is the real trigger.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
   const uid = useId();
   const bodyGlowId = `${uid}-body-glow`;
@@ -244,12 +258,7 @@ export function CharacterSprite({
   }
 
   return (
-    <motion.div
-      key={animKey}
-      animate={getAnimate(state, scale, classId)}
-      transition={getTransition(state, classId)}
-      style={{ display: "inline-block" }}
-    >
+    <motion.div animate={controls} style={{ display: "inline-block" }}>
       {svg}
     </motion.div>
   );
