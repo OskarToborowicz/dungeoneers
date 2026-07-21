@@ -5901,11 +5901,11 @@ export function MonsterSprite({
           thin parts (legs, tail) blurred away into gaps. Here the glow is only
           ever behind the untouched source. */}
       <defs>
-        <filter id={glowId} x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur in="SourceAlpha" stdDeviation="3" result="b1" />
+        <filter id={glowId} x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur in="SourceAlpha" stdDeviation="2" result="b1" />
           <feFlood floodColor={color} floodOpacity="1" result="c1" />
           <feComposite in="c1" in2="b1" operator="in" result="g1" />
-          <feGaussianBlur in="SourceAlpha" stdDeviation="1" result="b2" />
+          <feGaussianBlur in="SourceAlpha" stdDeviation=".075" result="b2" />
           <feFlood floodColor={color} floodOpacity="1" result="c2" />
           <feComposite in="c2" in2="b2" operator="in" result="g2" />
           <feMerge>
@@ -5923,10 +5923,9 @@ export function MonsterSprite({
         strokeWidth="1.8"
         strokeLinejoin="round"
         strokeLinecap="round"
-        filter={`url(#${glowId})`}
       >
         {assetUrl ? (
-          <image href={assetUrl} {...MONSTER_IMG} />
+          <image href={assetUrl} filter={`url(#${glowId})`} {...MONSTER_IMG} />
         ) : (
           (SPRITES[type] ?? SPRITES["fallen"])
         )}
