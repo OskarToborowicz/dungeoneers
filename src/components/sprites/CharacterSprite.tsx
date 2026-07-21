@@ -213,17 +213,11 @@ export function CharacterSprite({
           : sprite.weapon(weaponColor)}
       </g>
       {statusEffects.includes("burn") && (
-        <ellipse
-          cx="32"
-          cy="50"
-          rx="28"
-          ry="48"
-          fill="none"
-          stroke="#ff6600"
-          strokeWidth="2.5"
-          className="status-aura-burn"
-          strokeOpacity="0.7"
-        />
+        <>
+          <circle cx="20" cy="55" r="2.5" className="status-aura-burn " />
+          <circle cx="34" cy="48" r="2" className="status-aura-burn delay1" />
+          <circle cx="44" cy="58" r="3" className="status-aura-burn  delay2" />
+        </>
       )}
       {animated && statusEffects.includes("poison") && (
         <>
@@ -234,9 +228,27 @@ export function CharacterSprite({
       )}
       {statusEffects.includes("bleed") && (
         <g className="bleed bleeding">
-          <ellipse className="blood-drop drop-1" cx="30" cy="60" rx="1.5" ry="2" />
-          <ellipse className="blood-drop drop-2" cx="34" cy="62" rx="1.4" ry="1.8" />
-          <ellipse className="blood-drop drop-3" cx="28" cy="64" rx="1.2" ry="1.6" />
+          <ellipse
+            className="blood-drop drop-1"
+            cx="30"
+            cy="60"
+            rx="1.5"
+            ry="2"
+          />
+          <ellipse
+            className="blood-drop drop-2"
+            cx="34"
+            cy="62"
+            rx="1.4"
+            ry="1.8"
+          />
+          <ellipse
+            className="blood-drop drop-3"
+            cx="28"
+            cy="64"
+            rx="1.2"
+            ry="1.6"
+          />
         </g>
       )}
     </svg>
