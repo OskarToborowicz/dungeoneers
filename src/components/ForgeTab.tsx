@@ -2,7 +2,13 @@ import { useState } from "react";
 import { ItemTooltip, STAT_LABEL } from "./ItemTooltip";
 import { useItemHover } from "./useItemHover";
 import type { Character, Item, ItemAffix } from "../game/types";
-import { RARITY_COLORS, forgeRerollCap, forgeRerollsLeft } from "../game/data/items";
+import {
+  RARITY_COLORS,
+  forgeRerollCap,
+  forgeRerollsLeft,
+  canAddFourthAffix,
+  isForgeable,
+} from "../game/data/items";
 
 function formatAffix(affix: ItemAffix): string {
   const label = STAT_LABEL[affix.stat] ?? affix.stat;
@@ -22,7 +28,7 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
   const [selectedAffixIdx, setSelectedAffixIdx] = useState<number | null>(null);
   const { hovered, onMouseEnter, onMouseLeave, tooltipStyle } = useItemHover();
 
-  const rares = inventory.filter((i) => i.rarity === "rare");
+  const rares = inventory.filter(isForgeable);
   const forgeItem = forgeItemId ? inventory.find((i) => i.id === forgeItemId) : null;
 
   const alloys = character.frozenAlloys ?? 0;
@@ -49,6 +55,7 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
 
   const isThreeAffix = forgeItem?.affixes.length === 3;
   const isFourAffix = (forgeItem?.affixes.length ?? 0) >= 4;
+  const canAdd4 = forgeItem ? canAddFourthAffix(forgeItem) : false;
   const lockedIdx = forgeItem?.lockedAffixIndex;
   const rerollCap = forgeItem ? forgeRerollCap(forgeItem) : 0;
   const rerollsLeft = forgeItem ? forgeRerollsLeft(forgeItem) : 0;
@@ -66,7 +73,7 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
 
       <div className="forge-body">
         <div className="forge-slot-area">
-          <div className="forge-slot-label">Place a rare item</div>
+          <div className="forge-slot-label">Place a rare or very rare item</div>
           {forgeItem ? (
             <div className="forge-item-card">
               <div
@@ -108,10 +115,14 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
               {isThreeAffix && (
                 <button
                   className="forge-action-btn"
-                  disabled={!canAct}
+                  disabled={!canAct || !canAdd4}
                   onClick={() => onAddAffix(forgeItem.id)}
                 >
-                  {canAct ? "Add 4th Affix (1 ❄)" : "No Frozen Alloys"}
+                  {!canAct
+                    ? "No Frozen Alloys"
+                    : canAdd4
+                      ? "Add 4th Affix (1 ❄)"
+                      : "No new affix for this slot"}
                 </button>
               )}
               {isFourAffix && (
@@ -171,14 +182,16 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
         </div>
 
         <div className="forge-inventory">
-          <div className="forge-inv-label">Rare Items in Inventory</div>
+          <div className="forge-inv-label">Rare &amp; Very Rare Items in Inventory</div>
           {rares.length === 0 ? (
-            <p className="forge-no-rares">No rare items in inventory.</p>
+            <p className="forge-no-rares">No rare or very rare items in inventory.</p>
           ) : (
             <div className="forge-inv-grid">
               {rares.map((item) => {
                 const maxed =
-                  item.affixes.length >= 4 && forgeRerollsLeft(item) <= 0;
+                  item.affixes.length >= 4
+                    ? forgeRerollsLeft(item) <= 0
+                    : !canAddFourthAffix(item);
                 return (
                   <button
                     key={item.id}

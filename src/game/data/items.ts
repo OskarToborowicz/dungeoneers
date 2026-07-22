@@ -305,6 +305,36 @@ export function forgeRerollsLeft(item: Item): number {
   return forgeRerollCap(item) - (item.forgeRerolls ?? 0);
 }
 
+// Which rarities the Forge accepts. Rares can add a 4th affix and reroll; very
+// rares already carry 4 affixes so they can only reroll.
+export function isForgeable(item: Item): boolean {
+  return item.rarity === "rare" || item.rarity === "very rare";
+}
+
+// Can a 4th affix actually be added? Only if the slot's affix pool (at this item
+// level) still has a stat the item doesn't already carry. Otherwise addFourthAffix
+// is a no-op — the guard here stops the caller from spending a Frozen Alloy on it.
+export function canAddFourthAffix(item: Item): boolean {
+  if (item.rarity !== "rare" || item.affixes.length !== 3) return false;
+  const has = new Set(item.affixes.map((a) => a.stat));
+  return buildSlotPool(item.itemLevel, item.slot).some((a) => !has.has(a.stat));
+}
+
+// Can the given affix be rerolled? Needs rolls left AND at least one slot-eligible
+// stat that isn't taken by the OTHER affixes (the rerolled one may repeat its own
+// stat with a new value, so it's excluded from the exclusion set).
+export function canRerollAffix(item: Item, affixIndex: number): boolean {
+  if (!isForgeable(item)) return false;
+  if (affixIndex < 0 || affixIndex >= item.affixes.length) return false;
+  if (forgeRerollsLeft(item) < 1) return false;
+  const exclude = new Set(
+    item.affixes.filter((_, i) => i !== affixIndex).map((a) => a.stat),
+  );
+  return buildSlotPool(item.itemLevel, item.slot).some(
+    (a) => !exclude.has(a.stat),
+  );
+}
+
 export function addFourthAffix(item: Item): Item {
   if (item.rarity !== "rare" || item.affixes.length !== 3) return item;
   const excludeStats = new Set(item.affixes.map((a) => a.stat));
@@ -349,7 +379,7 @@ export function rerollLockedAffix(item: Item): Item {
 
 export function lockAndRerollAffix(item: Item, affixIndex: number): Item {
   if (
-    item.rarity !== "rare" ||
+    !isForgeable(item) ||
     affixIndex < 0 ||
     affixIndex >= item.affixes.length
   )
@@ -390,10 +420,10 @@ export function generateRandomItem(
   const baseAffixCount = isJewelry
     ? Math.max(1, effectiveRarityEntry.affixCount)
     : effectiveRarityEntry.affixCount;
-  const affixCount =
-    effectiveRarityEntry.rarity === "rare" && Math.random() < 0.5
-      ? baseAffixCount + 1
-      : baseAffixCount;
+  // Rares always roll exactly 3 affixes; the 4th affix is exclusively a Forge
+  // reward. Very rares carry 4 natively. (Rares used to have a 50% chance of a
+  // bonus 4th affix, which blurred the rare/very-rare line and undercut the Forge.)
+  const affixCount = baseAffixCount;
 
   const item: Item = {
     id,

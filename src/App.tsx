@@ -16,7 +16,8 @@ import { EMPTY_CONSUMABLES, getPotionCost } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
 import {
   addFourthAffix,
-  forgeRerollsLeft,
+  canAddFourthAffix,
+  canRerollAffix,
   buyValue,
   generateRandomItem,
   generateShopStock,
@@ -460,6 +461,9 @@ function App() {
 
   function handleForgeAddAffix(itemId: string) {
     if (!character || (character.frozenAlloys ?? 0) < 1) return;
+    const item = inventory.find((i) => i.id === itemId);
+    // No slot-eligible stat left to add → don't burn a Frozen Alloy on a no-op.
+    if (!item || !canAddFourthAffix(item)) return;
     setInventory((prev) =>
       prev.map((i) => (i.id === itemId ? addFourthAffix(i) : i)),
     );
@@ -472,8 +476,10 @@ function App() {
     if (!character || (character.frozenAlloys ?? 0) < 1) return;
     const item = inventory.find((i) => i.id === itemId);
     if (!item) return;
-    if (forgeRerollsLeft(item) < 1) return;
     const isLocked = item.lockedAffixIndex != null;
+    const idx = isLocked ? (item.lockedAffixIndex as number) : affixIndex;
+    // Guards rolls-left AND an available stat → never spend an alloy for nothing.
+    if (!canRerollAffix(item, idx)) return;
     setInventory((prev) =>
       prev.map((i) => {
         if (i.id !== itemId) return i;
