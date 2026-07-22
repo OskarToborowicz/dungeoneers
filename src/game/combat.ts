@@ -81,6 +81,17 @@ export interface RoundResult {
   damageDealt: number;
   monsterSpellCast?: string;
   trapDetonated?: boolean;
+  /**
+   * Index in `log` where the monster's phase begins — everything before it
+   * happened while the player was acting. The UI animates the two phases
+   * separately, so it must split here rather than by `entry.actor`: Monk's
+   * Counter Attack is an `actor: "player"` entry that fires *after* the
+   * monster, and an actor-based split would hoist it into the wrong phase.
+   * Absent when the round ended before the monster got to act.
+   */
+  playerPhaseLogCount?: number;
+  /** Resource level at that same boundary, so the bar can update in step. */
+  playerPhaseMana?: number;
 }
 
 const ALWAYS_MISS_CHANCE = 0.02; // All player abilities/attacks have a flat 2% miss chance
@@ -328,7 +339,13 @@ export function getAbilityPreview(
     return { label: `~${initial} + 3×${tick}`, type: "Poison" };
   }
   if (ability.kind === "multi") {
-    const hits = ability.hits ?? 2;
+    // Must mirror the hit count in the "multi" combat branch — Stormfist gives
+    // the Monk a 4th kick, and a preview that ignores it makes the unique look
+    // like it does nothing.
+    const hits =
+      character.classId === "monk" && stats.stormfistActive
+        ? 4
+        : (ability.hits ?? 3);
     const est = Math.round(avg * ability.power + bonus);
     return { label: `${hits}× ~${est}`, type: dmgType };
   }
@@ -1763,6 +1780,12 @@ export function resolveRound(
 
   let monsterSpellCastName: string | undefined;
 
+  // Everything logged so far belongs to the player's half of the turn. The UI
+  // splits on this index so late player-actor entries (Monk Counter Attack)
+  // stay in the monster half where they chronologically belong.
+  const playerPhaseLogCount = log.length;
+  const playerPhaseMana = playerMana;
+
   // ── Step 10: Monster action ────────────────────────────────────────────────────
   // Skipped entirely when stunned (Golem Defense), frozen (Freezing Shot), or blinded (Blinding Powder).
   // Stun takes priority over freeze which takes priority over blind in the skip log message.
@@ -2168,7 +2191,14 @@ export function resolveRound(
       monsterLife: Math.max(0, monsterLife),
     });
     if (monsterLife <= 0) {
-      return { state: makeState(), log, status: "victory", damageDealt };
+      return {
+        state: makeState(),
+        log,
+        status: "victory",
+        damageDealt,
+        playerPhaseLogCount,
+        playerPhaseMana,
+      };
     }
   }
 
@@ -2252,6 +2282,8 @@ export function resolveRound(
         status: "victory",
         damageDealt,
         trapDetonated,
+        playerPhaseLogCount,
+        playerPhaseMana,
       };
     }
   }
@@ -2278,5 +2310,7 @@ export function resolveRound(
     damageDealt,
     monsterSpellCast: monsterSpellCastName,
     trapDetonated,
+    playerPhaseLogCount,
+    playerPhaseMana,
   };
 }
