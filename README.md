@@ -35,13 +35,8 @@ Eight classes are available, each with a unique resource type, active ability, a
 | Necromancer | Mana | Scythe | Poison DoT with magic lifesteal and golem tank — 2 active abilities, 3 passives |
 | Sorceress | Mana | War Staff | Magic burst damage — 2 active abilities, 3 passives |
 | Huntress | Mana | Bow | Multi-hit ranged with crowd-control — 2 active abilities, 3 passives |
-<<<<<<< HEAD
-| Paladin | Mana | Mace | Tank/sustain with healing aura — 2 active abilities, 3 passives |
-| Druid | Mana | Whip | Forest bruiser — vine whip with bleed, Grove immunity, thorn/poison stacks — 2 active abilities, 3 passives |
-=======
 | Paladin | Mana | Sword | Tank/sustain with healing aura — 2 active abilities, 3 passives |
-| Druid | Mana | Totem | Forest bruiser — vine whip with bleed, bark-wall immunity, thorn/poison stacks — 2 active abilities, 3 passives |
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
+| Druid | Mana | Whip | Forest bruiser — vine whip with bleed, Grove immunity, thorn/poison stacks — 2 active abilities, 3 passives |
 | Assassin | Preparation | Claw | Shadow warrior who builds Preparation through combat and unleashes devastating strikes — 2 active abilities, 3 passives |
 | Monk | Chi | Katar | Fast multi-hit melee with self-sustain and counter-attack — 2 active abilities, 3 passives |
 
@@ -51,7 +46,7 @@ All classes start with **10 in every base stat** (Strength, Dexterity, Vitality,
 
 **Starting equipment.** Every new character begins with a Normal-quality version of their class weapon (item level 1, no affixes). The Paladin also starts with a Normal-quality Shield. These items occupy their slots immediately on character creation.
 
-**Shield restrictions.** Only the Paladin can equip shields. The Barbarian can equip a second Axe in the off-hand slot (see Dual-Wield below). The Assassin can equip a second Claw in the off-hand slot. All other classes leave the shield slot empty.
+**Shield restrictions.** Only the Paladin can equip shields. The Barbarian, Assassin, and Monk can instead place a second one-handed weapon (Axe / Claw / Katar respectively) in the off-hand slot (see Dual-Wielding below). All other classes leave the shield slot empty.
 
 ---
 
@@ -74,11 +69,7 @@ critChance    = min(0.60, 0.05 + dexterity × 0.001)
 ```
 Every 5 Dexterity adds +1 to both minimum and maximum weapon damage. Base crit chance is 5% and scales to a soft cap of 60%.
 
-<<<<<<< HEAD
 - Druid ability (Vine Whip): deals `dexterity × 1.0` flat bonus damage on top of `weaponDamage × 1.2`.
-=======
-- Druid ability (Vine Whip): deals `dexterity × 1.0` flat bonus damage on top of weapon damage (plus the weapon damage roll itself).
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
 
 ### Vitality
 Increases maximum life and defense.
@@ -143,7 +134,7 @@ result = round((base + magicDamageBonus) × magicDamageMult)
 ```
 
 ### Gold Find Bonus
-Accumulated from "of Greed" affixes on rings and belt. Applied multiplicatively to every gold drop:
+Accumulated from "of Greed" affixes on rings and belt. Every source is **summed** into one total, then applied once to the base gold drop — bonuses stack additively, never compounding with each other:
 ```
 finalGold = round(baseGold × (1 + totalGoldFind% / 100))
 ```
@@ -229,9 +220,10 @@ Combat is turn-based. The player chooses one action per round; the monster then 
 | Attack | `1` | Basic weapon hit, 98% hit rate, crit possible |
 | Ability | `2` | Class active skill (costs mana/fury/preparation, has cooldown) |
 | Ability 2 | `3` | Second active skill — available on Barbarian, Necromancer, Sorceress, Huntress, Paladin, Assassin, and Monk |
-| Health Potion | — | Restores 35–50% of max life (scales with act); 3-turn cooldown |
-| Mana Potion | — | Restores 35–50% of max mana/fury (scales with act); 3-turn cooldown |
+| Health Potion | — | Restores a flat 40% of max life; 3-turn cooldown |
 | Flee | — | Spends an Escape Token to end the dungeon run safely |
+
+> Mana Potions no longer exist — Health Potions are the only consumable.
 
 Press `Space` to continue after a victory or defeat screen.
 
@@ -269,9 +261,9 @@ After using an ability, its cooldown counter is set. It decrements by 1 at the e
 
 ### Potion Cooldown
 
-Potions share an individual cooldown per type. After drinking a Health or Mana Potion, that specific potion type cannot be used for **3 turns**. Both types count down independently. The remaining cooldown is shown on the button.
+After drinking a Health Potion it cannot be used again for **3 turns**. The remaining cooldown is shown beside the potion count on the button (the count stays visible; the cooldown appears as a separate pill next to it).
 
-Drinking does not play an attack animation — the sprite stays put and bubbles rise from above it instead: **red for Health, blue for Mana**.
+Drinking does not play an attack animation — the sprite stays put and red bubbles rise from above it instead.
 
 ### Poison (Necromancer)
 
@@ -503,18 +495,17 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Status display**: ◌ Vanish N pill on the player for each remaining immune turn
 
 ### Monk — Spinning Crane Kick
-- **Kind**: multi (physical — no magic bonus, 3 hits)
-- **Chi Cost**: 18
-- **Cooldown**: 1 turn
-- **Damage per hit**: `round(randomInRange(damage) × 0.45)` — each kick rolls hit and crit independently
+- **Kind**: multi (physical — no magic bonus, **3 hits**, or **4** with the Stormfist unique equipped)
+- **Chi Cost**: 50
+- **Cooldown**: 2 turns
+- **Damage per hit**: `round(randomInRange(damage) × 0.75)` — each kick rolls hit and crit independently
 - **Sweeping Wind proc**: each kick has an additional 30% chance to deal 25% bonus damage of that hit's value
 
 ### Monk — Serenity *(Ability 2)*
 - **Kind**: heal + cleanse + blind (no damage roll, `canMiss: false`)
-- **Chi Cost**: 40
-- **Cooldown**: 4 turns
+- **Chi Cost**: 75
+- **Cooldown**: 6 turns
 - **Heal**: `round(maxLife × 0.30)` — 30% of maximum life
-- **Chi restore**: `round(maxChi × 0.50)` — 50% of maximum chi
 - **Cleanse**: removes all player negative effects (poison ticks, burn ticks)
 - **Blind**: enemy **cannot act** this turn (single-turn only, no follow-up)
 
@@ -627,18 +618,26 @@ maxLife += round(maxMana × 0.15)
 | Slot | Description |
 |---|---|
 | weapon | Main-hand weapon |
-| shield | Off-hand (or second weapon for Barbarian/Assassin) |
+| shield | Off-hand (or a second one-handed weapon for Barbarian/Assassin/Monk) |
 | helm | Head armor |
 | armor | Body armor |
 | gloves | Hand armor |
 | boots | Foot armor |
-| belt | Waist armor |
+| belt | Grants **potion slots** (1–3), not defense — see Consumables |
 | amulet | Jewelry |
 | ring1 / ring2 | Two jewelry slots |
 
 ### Two-Handed Weapons
 
 War Staff (Necromancer/Sorceress), Bow (Huntress), and Whip (Druid) are two-handed. Equipping one unequips the shield slot.
+
+### Dual-Wielding & Off-Hand Uniques
+
+Barbarian, Assassin, and Monk may place a one-handed weapon in the off-hand (shield) slot. An off-hand weapon grants **half its average base damage** plus all of its affixes — and its **unique effect applies from either hand**, so a unique fist/sword/etc. works whether it's main- or off-hand.
+
+### Belts & Potion Slots
+
+Belts grant **no defense**. Their base stat is **potion slots**, rolled 1–3 (weights 50% / 33% / 17%), capped by rarity: Normal 1, Magic 2, Rare and above 3. Each slot is one extra Health Potion carried into a dungeon.
 
 ### Barbarian Dual-Wield
 
@@ -659,13 +658,8 @@ The Assassin can equip a Claw in the off-hand slot under the same rules as the B
 | Scythe | Necromancer | 3 | 8 | Yes |
 | War Staff | Sorceress | 2 | 8 | Yes |
 | Bow | Huntress | 3 | 7 | Yes |
-<<<<<<< HEAD
-| Mace | Paladin | 3 | 4 | No |
-| Whip | Druid | 2 | 6 | Yes |
-=======
 | Sword | Paladin | 3 | 4 | No |
-| Totem | Druid | 2 | 6 | Yes |
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
+| Whip | Druid | 2 | 6 | Yes |
 | Claw | Assassin | 2 | 5 | No |
 | Katar | Monk | 2 | 5 | No |
 
@@ -813,13 +807,20 @@ The **Forge** sub-tab appears inside the **Merchant** tab after clearing **The F
 ### Frozen Alloy
 
 - Shown as **❄ X/10** in the Hub sidebar (visible after The Frostforge is cleared).
-- Drops from bosses with a level above 40 (all bosses from Summit Peak onward).
-- Maximum stack: **10**.
+- Drops from bosses of level **40 or higher** (all bosses from Summit Peak onward), but only **after The Frostforge has been cleared**.
+- Clearing The Frostforge for the first time grants **3 Frozen Alloys** outright.
+- Maximum stack: **10** (all sources are capped here).
 
 | Boss level vs. player level | Drop Chance |
 |---|---|
-| Boss is within 6 levels of the player | 1.25% |
-| Boss is 7+ levels below the player | 0.25% |
+| Boss is at, above, or within 6 levels below the player | 6% |
+| Player out-levels the boss by 7 or more | 0.5% |
+
+Being *under*-levelled carries no bonus — it simply avoids the penalty. Only out-levelling a boss by 7+ reduces the rate.
+
+### Smelting Uniques for Alloys
+
+The Forge has two sub-tabs: **Reforge** (below) and **Smelt**. In **Smelt**, any **Unique** item of **item level 40 or higher** in your inventory can be smelted down into **1 Frozen Alloy**. This permanently destroys the item. Smelting is disabled while Frozen Alloys are already at the 10 cap.
 
 ### Crafting Rules
 
@@ -860,40 +861,24 @@ Unique items from gambling follow the same progression gates as dungeon drops. C
 
 The **Sort** button (next to the "Inventory" label) sorts all items in place by: **rarity** (Unique first) → **item level** (descending) → **slot**. Subsequent drops continue to appear at the top of the list regardless.
 
-<<<<<<< HEAD
 ### Game Modes
 
 Each character is created as **Hardcore** or **Softcore** (chosen at creation; a HC/SC badge shows on the character-select card). The mode is fixed for the character's life.
 
 - **Hardcore** — permadeath. On death the character is **permanently deleted**; a death summary shows final stats before returning to character selection. Fleeing costs one **Escape Token**.
-- **Softcore** — no permadeath. On death the character loses **10% of their gold and 10% of their current-level XP progress** (the level itself never drops), then drops **straight back to town** with no death-summary screen, keeping all gear and progress. Fleeing needs **no token** but costs **30% of current gold** (unlimited uses).
-=======
-### Death Penalty
-
-Two modes are chosen at character creation:
-
-- **Softcore**: on death, the character survives but loses all current XP (reset to 0 for the current level) and all gold. A death summary screen is shown.
-- **Hardcore**: on death, the character is **permanently deleted**. A death summary screen is shown before returning to character selection.
->>>>>>> 33c4c7b (XP 12% buff, 2x first clear, the forge, icon for uniques fix)
+- **Softcore** — no permadeath. On death the character loses **all gold and all current-level XP** (both reset to 0; the level itself never drops), then drops **straight back to town with no death-summary screen**, keeping all gear. Fleeing needs **no token** but costs **30% of current gold** (unlimited uses).
 
 ---
 
 ## Consumables
 
-Bought from the **Merchant** tab (Shop sub-tab).
+Health Potions are the only consumable — **Mana Potions no longer exist**, and potions are **not purchasable** (the Merchant has no potion section).
 
-Potion cost and potency scale with act progression. The restore rate upgrades after clearing Act I's endgame; the cost rises after each act endgame.
+Instead, entering a dungeon grants a fresh stock of **1 + your belt's potion slots** Health Potions (so 1 with no belt, up to 4). Leftovers do **not** carry between runs — each dungeon entry overwrites the stock.
 
-| Progression gate | Cost | HP/Mana restored |
-|---|---|---|
-| Before clearing Bandit's Town Hall | 20 gold | 35% of max |
-| After clearing Bandit's Town Hall (Act I endgame) | 100 gold | 50% of max |
-| After clearing The White Maw (Act II endgame) | 300 gold | 50% of max |
-| After clearing Sacrificial Altar (Act III endgame) | 600 gold | 50% of max |
-
-Both Health Potion and Mana Potion follow this same table. Cooldown is **3 turns** for both.
-
-**Stack cap**: each potion type is limited to **5 per character**.
+- **Restore amount**: a flat **40% of max life**, at every act (no act scaling).
+- **Cooldown**: **3 turns**.
+- Paladin's Defensive Aura (lv.20) adds a flat +10% max life to each drink on top.
 
 ---
 
