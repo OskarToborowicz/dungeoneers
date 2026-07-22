@@ -688,7 +688,7 @@ function App() {
       const bossLevel = monster.level;
       if (bossLevel >= 40) {
         const levelDiff = character.level - bossLevel;
-        const alloyChance = levelDiff >= 7 ? 0.005 : 0.025;
+        const alloyChance = levelDiff >= 7 ? 0.005 : 0.04;
         if (Math.random() < alloyChance) {
           setCharacter((prev) =>
             prev
