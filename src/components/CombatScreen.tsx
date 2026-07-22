@@ -304,10 +304,14 @@ export function CombatScreen({
       if (!isPotion) setPlayerAnim("attack");
       setTimeout(() => setPlayerAnim("dead"), 500);
     } else {
-      // Sequential animation: player first, then monster
-      // HP drops at the START of each animation
-      const playerEntries = result.log.filter((e) => e.actor === "player");
-      const monsterEntries = result.log.filter((e) => e.actor === "monster");
+      // Sequential animation: player first, then monster.
+      // HP drops at the START of each animation.
+      // Split on the engine's phase boundary, NOT on entry.actor — Monk's
+      // Counter Attack is a player-actor entry that fires after the monster,
+      // and an actor split would show it before the hit that provoked it.
+      const splitAt = result.playerPhaseLogCount ?? result.log.length;
+      const playerEntries = result.log.slice(0, splitAt);
+      const monsterEntries = result.log.slice(splitAt);
       const lastPlayer =
         playerEntries.length > 0
           ? playerEntries[playerEntries.length - 1]
@@ -344,13 +348,19 @@ export function CombatScreen({
           ...b,
           barkWallRounds: result.state.barkWallRounds,
         }));
-      // Monster HP drops immediately as player starts swinging
+      // Monster HP drops immediately as player starts swinging, and the
+      // resource bar moves with it — ability costs and attack gains are both
+      // spent by this point, so waiting for the end-of-turn commit made them
+      // land a full animation late.
       if (lastPlayer) {
         setBattle((b) => ({
           ...b,
           monsterLife: lastPlayer.monsterLife,
           playerLife: lastPlayer.playerLife,
+          playerMana: result.playerPhaseMana ?? b.playerMana,
         }));
+      } else if (result.playerPhaseMana != null) {
+        setBattle((b) => ({ ...b, playerMana: result.playerPhaseMana! }));
       }
 
       setTimeout(() => {
