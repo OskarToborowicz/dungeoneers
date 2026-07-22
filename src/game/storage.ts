@@ -135,8 +135,6 @@ export async function encodeSaveCode(save: SaveGame): Promise<string> {
 // Throws with a descriptive error if the code is malformed / not a hero.
 async function decodeToSave(code: string): Promise<SaveGame> {
   const trimmed = code.trim();
-  console.log(trimmed.slice(0, 60));
-  console.log(trimmed.slice(60, 120));
   if (!trimmed) throw new Error("empty code");
 
   let jsonBytes: Uint8Array;
