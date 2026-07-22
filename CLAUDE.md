@@ -205,9 +205,9 @@ Heartseeker fires after crits from both basic attack and each Multishot arrow.
 
 ### Monk abilities and passives
 
-**Spinning Crane Kick** (`kind: "multi"`, 3 hits, `power: 0.45`): Three rapid kicks, each rolling hit/crit independently. Chi cost: 18, cooldown: 1.
+**Spinning Crane Kick** (`kind: "multi"`, 3 hits, `power: 0.75`): Three rapid kicks, each rolling hit/crit independently. Chi cost: 50, cooldown: 1.
 
-**Serenity** (`kind: "serenity"`, `canMiss: false`): Heals 30% max life, restores 50% max chi, cleanses all player negative effects (poison + burn), and blinds the enemy for this turn only (no disorient follow-up). Chi cost: 40, cooldown: 4.
+**Serenity** (`kind: "serenity"`, `canMiss: false`): Heals 30% max life, restores 50% max chi, cleanses all player negative effects (poison + burn), and blinds the enemy for this turn only (no disorient follow-up). Chi cost: 75, cooldown: 6.
 
 **Combat Reflexes** (always active): 30% chance after basic attack → follow-up strike at 70% damage. Each Spinning Crane Kick hit also has 30% chance to deal 25% bonus damage of that specific kick (separate roll per kick, min 1 dmg).
 
