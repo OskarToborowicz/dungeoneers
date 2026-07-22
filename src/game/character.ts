@@ -270,6 +270,14 @@ export function getDerivedStats(
       ? Math.round(maxMana * 0.15)
       : 0;
 
+  // Barbarian / Assassin / Monk can dual-wield a one-handed weapon into the
+  // off-hand ("shield") slot, and its plain affixes already count via
+  // getEquipmentStatBonus. Unique *effects* must read both hands too, or the
+  // same item silently does nothing once moved off the main hand. (Two-handers
+  // can never be placed off-hand, so the extra check is a no-op for them.)
+  const wielded = (flag: keyof Item): boolean =>
+    equipment.weapon?.[flag] === true || equipment.shield?.[flag] === true;
+
   const potionSlots = equipment.belt?.potionSlots ?? 0;
   const igniteChance = equipment.belt?.demonsTail ? 20 : 0;
   const disorientOnAttackChance = equipment.helm?.reapersHood ? 20 : 0;
@@ -282,22 +290,20 @@ export function getDerivedStats(
   const blockChance = equipment.gloves?.boneweaveGloves ? 5 : 0;
   const aegisBlockChance = equipment.shield?.aegisOfTheFortress ? 15 : 0;
   const lowLifeDamageBonus = equipment.helm?.crownOfTheFallen ? 0.25 : 0;
-  const electrocuteOnHit = equipment.weapon?.stormstring === true;
-  const heartseekerBoost = equipment.weapon?.doomcrier === true;
-  const arcanistStaff = equipment.weapon?.arcanist === true;
-  const burstEchoChance = equipment.weapon?.eternitysEdge ? 0.3 : 0;
-  const shadowfangProc =
-    equipment.weapon?.shadowfang === true ||
-    equipment.shield?.shadowfang === true;
+  const electrocuteOnHit = wielded("stormstring");
+  const heartseekerBoost = wielded("doomcrier");
+  const arcanistStaff = wielded("arcanist");
+  const burstEchoChance = wielded("eternitysEdge") ? 0.3 : 0;
+  const shadowfangProc = wielded("shadowfang");
   const spellbladesMask = equipment.helm?.spellbladesMask === true;
   const shieldBlockChance = equipment.shield?.heavensWrath ? 12 : 0;
   const shieldBlockHealPct = equipment.shield?.heavensWrath ? 0.08 : 0;
   const physReflectPct = equipment.shield?.stoneguard ? 0.2 : 0;
   const counterOnHitChance = equipment.shield?.penitentsGuard ? 0.18 : 0;
-  const soulSiphonPct = equipment.weapon?.graveToll ? 0.2 : 0.15;
-  const bonechillActive = equipment.weapon?.bonechill === true;
-  const ebonreapActive = equipment.weapon?.ebonreap === true;
-  const stormfistActive = equipment.weapon?.stormfist === true;
+  const soulSiphonPct = wielded("graveToll") ? 0.2 : 0.15;
+  const bonechillActive = wielded("bonechill");
+  const ebonreapActive = wielded("ebonreap");
+  const stormfistActive = wielded("stormfist");
   const ironcladFlat = equipment.armor?.ironcladHauberk ? 5 : 0;
   const freezeOnHitChance = equip.freezeOnHitBonus;
   const igniteOnHitChance = equip.igniteOnHitBonus;
@@ -310,11 +316,11 @@ export function getDerivedStats(
     ? (equipment.belt.openerBonusPct ?? 20) / 100
     : 0;
   const dotVictimBonus = equipment.amulet?.forsakenSigil ? 0.15 : 0;
-  const tanglewhipActive = equipment.weapon?.tanglewhip === true;
-  const worldrootTotem = equipment.weapon?.worldrootTotem === true;
-  const verdantCoilActive = equipment.weapon?.verdantCoil === true;
-  const thornweaveEffigy = equipment.weapon?.thornweaveEffigy === true;
-  const bloodbriarActive = equipment.weapon?.bloodbriar === true;
+  const tanglewhipActive = wielded("tanglewhip");
+  const worldrootTotem = wielded("worldrootTotem");
+  const verdantCoilActive = wielded("verdantCoil");
+  const thornweaveEffigy = wielded("thornweaveEffigy");
+  const bloodbriarActive = wielded("bloodbriar");
   return {
     stats,
     maxLife: maxLife + mindOverMatterBonus,

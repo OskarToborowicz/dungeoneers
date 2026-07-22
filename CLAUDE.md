@@ -141,6 +141,20 @@ authoritative per-dungeon table** (monster levels + bosses for all four acts).
 
 **Log order rule:** ignite message always appears AFTER the attack/skill damage line that triggered it.
 
+### Unique effects and the off-hand
+
+Barbarian, Assassin and Monk may dual-wield a one-handed weapon into the
+off-hand (`shield`) slot — see `canPlaceInSlot` in `App.tsx`. An off-hand item's
+plain affixes and half its average base damage already apply via
+`getEquipmentStatBonus`, which loops over every slot.
+
+Unique **effect flags** must therefore be read from *both* hands. Use the
+`wielded(flag)` helper in `getDerivedStats` — never `equipment.weapon?.<flag>`
+alone, or the item silently loses its effect the moment it moves off the main
+hand. Shield-only uniques (`heavensWrath`, `stoneguard`, `penitentsGuard`,
+`aegisOfTheFortress`) correctly stay `equipment.shield`-only: a shield can never
+occupy the weapon slot.
+
 ### Unique item drop system
 
 All unique drop logic lives in `src/game/data/drops.ts` as `UNIQUE_DROP_TABLE: UniqueDropEntry[]`.
