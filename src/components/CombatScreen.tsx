@@ -148,6 +148,13 @@ export function CombatScreen({
   // its authored anchors (player 32 / monster 168) drift off the sprites as the
   // arena widens. Measure the real sprite positions, convert to viewBox units,
   // and feed them to AbilityEffect so effects always land on the sprites.
+  // Mirrors the hit count in resolveRound's "multi" branch and getAbilityPreview
+  // so the animation shows the same number of kicks the engine actually rolls.
+  const abilityHitCount =
+    character.classId === "monk" && derived.stormfistActive
+      ? 4
+      : (def.ability.hits ?? 3);
+
   const arenaRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
   const monsterRef = useRef<HTMLDivElement>(null);
@@ -541,6 +548,7 @@ export function CombatScreen({
             <AbilityEffect
               key={abilityEffect}
               classId={character.classId}
+              hitCount={abilityHitCount}
               launchX={fxAnchors.launchX}
               impactX={fxAnchors.impactX}
               onDone={() => setAbilityEffect(0)}

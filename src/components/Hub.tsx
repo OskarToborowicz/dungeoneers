@@ -79,6 +79,15 @@ interface Props {
   hasUnseenDrops?: boolean;
 }
 
+/**
+ * Id of the last drop the banner announced, at module scope on purpose.
+ * "Clear Again" nulls `dungeonRun`, so the Hub mounts and unmounts on every
+ * cycle — and because that unmount also cancels the 3s dismiss timer,
+ * `droppedItem` still holds the previous run's item. A component ref would
+ * reset with the remount and replay the sound for an item already announced.
+ */
+let lastAnnouncedDropId: string | null = null;
+
 export function Hub({
   character,
   derived,
@@ -146,11 +155,16 @@ export function Hub({
       showEndingMessage
     )
       return;
-    if (droppedItem.rarity === "unique" && !isSoundMuted()) {
+    if (
+      droppedItem.rarity === "unique" &&
+      droppedItem.id !== lastAnnouncedDropId &&
+      !isSoundMuted()
+    ) {
       const sfx = new Audio(import.meta.env.BASE_URL + "divine_drop.mp3");
       sfx.volume = 0.05;
       sfx.play().catch(() => {});
     }
+    lastAnnouncedDropId = droppedItem.id;
     const t = setTimeout(() => dismissRef.current?.(), 3000);
     return () => clearTimeout(t);
   }, [droppedItem, showPortalMessage]);

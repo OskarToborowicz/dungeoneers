@@ -339,7 +339,13 @@ export function getAbilityPreview(
     return { label: `~${initial} + 3×${tick}`, type: "Poison" };
   }
   if (ability.kind === "multi") {
-    const hits = ability.hits ?? 2;
+    // Must mirror the hit count in the "multi" combat branch — Stormfist gives
+    // the Monk a 4th kick, and a preview that ignores it makes the unique look
+    // like it does nothing.
+    const hits =
+      character.classId === "monk" && stats.stormfistActive
+        ? 4
+        : (ability.hits ?? 3);
     const est = Math.round(avg * ability.power + bonus);
     return { label: `${hits}× ~${est}`, type: dmgType };
   }

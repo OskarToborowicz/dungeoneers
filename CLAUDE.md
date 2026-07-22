@@ -207,6 +207,19 @@ Heartseeker fires after crits from both basic attack and each Multishot arrow.
 
 **Spinning Crane Kick** (`kind: "multi"`, 3 hits, `power: 0.75`): Three rapid kicks, each rolling hit/crit independently. Chi cost: 50, cooldown: 2.
 
+**Stormfist** (unique fist weapon) makes it hit **4** times. The hit count is
+computed in **three** places that must stay in sync:
+1. the `"multi"` branch of `resolveRound` (actual damage),
+2. the `"multi"` branch of `getAbilityPreview` (the `N× ~dmg` label),
+3. `abilityHitCount` in `CombatScreen`, passed to `AbilityEffect` as `hitCount`
+   and used by `SpinningCraneKickFx` to pick `KICK_IMPACTS_3` / `KICK_IMPACTS_4`.
+
+They have drifted before: the engine fired 4 kicks while the preview still read
+`3× ~X`, so the unique looked broken even though it worked. The 4-hit impact arc
+is authored separately from the 3-hit one so the default kick keeps its original
+spacing; flash delays are spread across the same 0.12–0.54s window at any count,
+keeping them inside the 0.95s cyclone.
+
 **Serenity** (`kind: "serenity"`, `canMiss: false`): Heals 30% max life, cleanses all player negative effects (poison + burn), and blinds the enemy for this turn only (no disorient follow-up). Chi cost: 75, cooldown: 6.
 
 **Sweeping Wind** (always active): 30% chance after basic attack → follow-up strike at 70% damage. Each Spinning Crane Kick hit also has 30% chance to deal 25% bonus damage of that specific kick (separate roll per kick, min 1 dmg).

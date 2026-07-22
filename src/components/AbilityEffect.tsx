@@ -14,6 +14,8 @@ interface Props {
   // Measured sprite positions in viewBox units (see LAUNCH_ANCHOR / IMPACT_ANCHOR).
   launchX?: number;
   impactX?: number;
+  /** Impact flashes for multi-hit abilities — Stormfist gives the Monk a 4th kick. */
+  hitCount?: number;
 }
 
 export const ATTACK_EFFECT_CLASSES = new Set<ClassId>([
@@ -46,6 +48,7 @@ export function AbilityEffect({
   travelDist = 136,
   launchX = LAUNCH_ANCHOR,
   impactX = IMPACT_ANCHOR,
+  hitCount = 3,
 }: Props) {
   useEffect(() => {
     const t = setTimeout(onDone, 1200);
@@ -135,7 +138,9 @@ export function AbilityEffect({
           {classId === "amazon" && useAbility2 && <FreezingArrowFx />}
           {classId === "druid" && useAttack && <DruidWhipFx />}
           {classId === "druid" && !useAbility2 && !useAttack && <VineWhipFx />}
-          {classId === "monk" && !useAbility2 && <SpinningCraneKickFx />}
+          {classId === "monk" && !useAbility2 && (
+            <SpinningCraneKickFx hitCount={hitCount} />
+          )}
           {classId === "assassin" && !useAbility2 && <EviscerateFx />}
           {classId === "assassin" && useAbility2 && <VanishFx />}
         </g>
@@ -1688,12 +1693,34 @@ function FrostShieldFx() {
   );
 }
 
-function SpinningCraneKickFx() {
-  // Monk ability1 (3 hits): the monk becomes a green cyclone, and three impact
-  // flashes land in sequence — one per hit of the multi-strike.
+// Impact positions are hand-placed arcs down the monster's left edge. The 4-hit
+// arc (Stormfist) is authored separately rather than appended to the 3-hit one,
+// so the default kick keeps its original spacing exactly.
+const KICK_IMPACTS_3 = [
+  { cx: 96, cy: 46 },
+  { cx: 100, cy: 62 },
+  { cx: 92, cy: 74 },
+];
+const KICK_IMPACTS_4 = [
+  { cx: 94, cy: 42 },
+  { cx: 101, cy: 56 },
+  { cx: 98, cy: 70 },
+  { cx: 88, cy: 79 },
+];
+
+function SpinningCraneKickFx({ hitCount = 3 }: { hitCount?: number }) {
+  // Monk ability1: the monk becomes a green cyclone, and one impact flash lands
+  // per hit of the multi-strike — 3 normally, 4 with Stormfist equipped.
   // Authored around (70,60); the outer transform shrinks it and moves the centre
   // onto the monster's left edge so the spin lands on the enemy, not mid-arena.
   const ORIGIN = "70px 60px";
+  const impacts = hitCount >= 4 ? KICK_IMPACTS_4 : KICK_IMPACTS_3;
+  // Spread the flashes across the same 0.12–0.54s window whatever the count, so
+  // the extra kick fits inside the 0.95s cyclone instead of trailing past it.
+  const kicks = impacts.map((p, i) => ({
+    ...p,
+    delay: 0.12 + (i * 0.42) / (impacts.length - 1),
+  }));
   return (
     <g transform="translate(150 60) scale(0.6) translate(-70 -60)">
       {/* Whirling cyclone — the wind ring genuinely rotates via motion */}
@@ -1777,12 +1804,8 @@ function SpinningCraneKickFx() {
         <circle cx="70" cy="60" r="4" fill="#54E396" opacity="0.6" />
       </motion.g>
 
-      {/* Three sequential kick-impact flashes — one per hit */}
-      {[
-        { cx: 96, cy: 46, delay: 0.12 },
-        { cx: 100, cy: 62, delay: 0.34 },
-        { cx: 92, cy: 74, delay: 0.54 },
-      ].map((k, i) => (
+      {/* Sequential kick-impact flashes — one per hit */}
+      {kicks.map((k, i) => (
         <motion.g
           key={i}
           style={{ transformOrigin: `${k.cx}px ${k.cy}px` }}
