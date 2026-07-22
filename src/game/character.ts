@@ -169,6 +169,7 @@ export interface DerivedStats {
   maxMana: number;
   damage: [number, number];
   defense: number;
+  potionSlots: number;
   critChance: number;
   critDamageBonus: number;
   magicDamageBonus: number;
@@ -269,6 +270,7 @@ export function getDerivedStats(
       ? Math.round(maxMana * 0.15)
       : 0;
 
+  const potionSlots = equipment.belt?.potionSlots ?? 0;
   const igniteChance = equipment.belt?.demonsTail ? 20 : 0;
   const disorientOnAttackChance = equipment.helm?.reapersHood ? 20 : 0;
   const poisonDamageMult = equipment.belt?.venomweaveWrap ? 1.1 : 1.0;
@@ -319,6 +321,7 @@ export function getDerivedStats(
     maxMana,
     damage,
     defense,
+    potionSlots,
     critChance,
     critDamageBonus: equip.critDamageBonus,
     magicDamageBonus,

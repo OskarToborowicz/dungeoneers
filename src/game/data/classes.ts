@@ -352,7 +352,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
       description: "Unleash three rapid spinning kicks, each dealing 75% weapon damage. Each kick rolls hit and crit independently.",
       short: "Three rapid kicks, each rolling hit and crit independently.",
       manaCost: 50,
-      cooldown: 1,
+      cooldown: 2,
       kind: "multi",
       canMiss: false,
       power: 0.75,
@@ -361,7 +361,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     },
     ability2: {
       name: "Serenity",
-      description: "Enter a moment of perfect calm, restoring 30% of your maximum life and cleansing all poison from your body.",
+      description: "Enter a moment of perfect calm, restoring 30% of your maximum life, cleansing poison and burn from your body, and blinding your enemy for the turn.",
       short: "Heal 30% of max life, cleanse all debuffs, blind enemy this turn.",
       manaCost: 75,
       cooldown: 6,

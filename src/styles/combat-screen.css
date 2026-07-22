@@ -428,11 +428,6 @@
   box-shadow: 0 0 6px rgba(255, 80, 70, 0.9);
 }
 
-.potion-bubbles.mana span {
-  background: #3f7fe0;
-  box-shadow: 0 0 6px rgba(90, 150, 255, 0.9);
-}
-
 .potion-bubbles span:nth-child(1) {
   left: 4px;
   animation-delay: 0s;
@@ -833,6 +828,21 @@
 .potion-compact.on-cooldown {
   border-color: #555;
   color: #888;
+}
+
+/* Turns remaining, shown beside the count — never replacing it. */
+.potion-cooldown {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 14px;
+  height: 14px;
+  padding: 0 3px;
+  border-radius: 7px;
+  background: #3a3a3a;
+  color: #cfcfcf;
+  font-size: 10px;
+  line-height: 1;
 }
 
 .mana-value {

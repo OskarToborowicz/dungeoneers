@@ -73,7 +73,8 @@ npm run sim -- --class=sorceress --verbose
 - **Gear (`rare` mode):** freshly rolled rares every run, so results average over
   gear RNG, not one lucky drop. No uniques, no over-item-levelling.
 - **Between fights in a dungeon:** life carries over, mana/resource resets to
-  full, potions refill to 5 — matching how a real dungeon run works.
+  full, and the potion stock (`1 + belt potion slots`, granted once at dungeon
+  entry) carries over — matching how a real dungeon run works.
 - **The AI** each turn: emergency health potion under 35% life → a situational
   `ability2` (defensive ones when hurt/boss, Whirlwind at high fury) → the main
   `ability` when affordable → basic attack. Assassin holds Eviscerate for max

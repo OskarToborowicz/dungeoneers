@@ -50,15 +50,6 @@
   border-color: #e04747;
 }
 
-.action-button.potion.mana {
-  background: linear-gradient(180deg, #19212c, #12171a);
-  border-color: #3a6fc2;
-}
-
-.action-button.potion.mana:hover:not(:disabled) {
-  border-color: #6f9fe0;
-}
-
 .action-button.run {
   background: linear-gradient(180deg, #2a1f14, #1a1410);
   border-color: #6b5a3e;
