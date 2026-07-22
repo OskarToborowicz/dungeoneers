@@ -89,3 +89,51 @@ export function createSave(save: SaveGame): string {
 export function deleteSave(id: string): void {
   writeSlots(readSlots().filter((s) => s.id !== id));
 }
+
+// ── Single-character transfer (export/import a code string) ──────────────────
+// A save is serialized to `DIABOLO1:<base64>` so a player can move ONE hero
+// between devices (phone ↔ PC) by copy-pasting the code. UTF-8 safe (hero names
+// may contain non-Latin1 characters), so btoa/atob go through TextEncoder.
+
+const SAVE_CODE_PREFIX = "DIABOLO1:";
+
+function toBase64(s: string): string {
+  const bytes = new TextEncoder().encode(s);
+  let bin = "";
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
+function fromBase64(b64: string): string {
+  const bin = atob(b64);
+  const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+
+export function encodeSaveCode(save: SaveGame): string {
+  return SAVE_CODE_PREFIX + toBase64(JSON.stringify({ v: 1, save }));
+}
+
+// Decodes a code back to a SaveGame, or null if it's malformed / not a hero.
+export function decodeSaveCode(code: string): SaveGame | null {
+  const trimmed = code.trim();
+  const body = trimmed.startsWith(SAVE_CODE_PREFIX)
+    ? trimmed.slice(SAVE_CODE_PREFIX.length)
+    : trimmed;
+  try {
+    const parsed = JSON.parse(fromBase64(body));
+    const save = (parsed?.save ?? parsed) as SaveGame;
+    if (!save?.character?.classId || !save?.character?.name) return null;
+    return save;
+  } catch {
+    return null;
+  }
+}
+
+// Imports a code as a NEW hero (fresh id, so it never overwrites an existing
+// save). Returns the new slot id, or null if the code is invalid.
+export function importSaveCode(code: string): string | null {
+  const save = decodeSaveCode(code);
+  if (!save) return null;
+  return createSave(save);
+}

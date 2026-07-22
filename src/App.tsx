@@ -34,8 +34,10 @@ import {
   writeSave,
   createSave,
   deleteSave,
+  importSaveCode,
 } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
+import { MAX_SAVE_SLOTS } from "./game/storage";
 import type { CombatResult } from "./game/combat";
 import type {
   BaseStats,
@@ -179,6 +181,7 @@ function App() {
           onSelect={handleSelectSlot}
           onDelete={handleDeleteSlot}
           onNew={() => setCreating(true)}
+          onImport={handleImportSlot}
         />
         <FullscreenButton />
       </>
@@ -284,6 +287,18 @@ function App() {
   function handleDeleteSlot(slotId: string) {
     deleteSave(slotId);
     setSlots(getAllSaves());
+  }
+
+  // Import a single hero from a transfer code. Returns an error string for the
+  // UI, or null on success.
+  function handleImportSlot(code: string): string | null {
+    if (slots.length >= MAX_SAVE_SLOTS) {
+      return `Hero limit reached (${MAX_SAVE_SLOTS}). Delete one first.`;
+    }
+    const id = importSaveCode(code);
+    if (!id) return "Invalid or corrupt hero code.";
+    setSlots(getAllSaves());
+    return null;
   }
 
   function handleAllocate(stat: keyof BaseStats) {
