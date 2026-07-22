@@ -1,5 +1,6 @@
 import type { Item, SaveGame } from "./types";
 import { rollPotionSlots } from "./data/items";
+import { gzip, ungzip } from "pako";
 
 const SAVES_KEY = "diabolo-saves";
 const LEGACY_KEY = "diabolo-save";
@@ -40,15 +41,11 @@ function readSlots(): SaveSlot[] {
     return [];
   }
 }
-
-// Belts predating the potion-slot rework carry `baseDefense` and no
-// `potionSlots`. Convert them so old belts aren't dead weight.
 function migrateBelt(item: Item): Item {
   if (item.slot !== "belt" || item.potionSlots != null) return item;
   const { baseDefense: _dropped, ...rest } = item;
   return { ...rest, potionSlots: rollPotionSlots(item.rarity) };
 }
-
 // Characters created before game modes existed were permadeath — default them
 // to hardcore so `character.mode` is always defined.
 function migrateSlot(slot: SaveSlot): SaveSlot {
@@ -65,7 +62,6 @@ function migrateSlot(slot: SaveSlot): SaveSlot {
   }
   return { ...slot, save };
 }
-
 function writeSlots(slots: SaveSlot[]): void {
   localStorage.setItem(SAVES_KEY, JSON.stringify(slots));
 }
