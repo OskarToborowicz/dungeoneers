@@ -1,31 +1,17 @@
 import { useState } from "react";
-import { CLASSES } from "../game/data/classes";
-import {
-  CONSUMABLE_LIST,
-  getPotionCost,
-  getPotionRestoreRate,
-} from "../game/data/consumables";
 import { buyValue, RARITY_COLORS, sellValue } from "../game/data/items";
 import { ItemIcon } from "./ItemIcon";
 import { ItemTooltip } from "./ItemTooltip";
 import { CompareGroup } from "./ComparePanel";
 import { CoinIcon } from "./CoinIcon";
 import { useItemHover } from "./useItemHover";
-import type {
-  Character,
-  ConsumableId,
-  EquipmentSlot,
-  Item,
-} from "../game/types";
+import type { Character, EquipmentSlot, Item } from "../game/types";
 
 interface Props {
   character: Character;
   equipment: Partial<Record<EquipmentSlot, Item>>;
-  consumables: Record<ConsumableId, number>;
   shopStock: Item[];
   inventory: Item[];
-  clearedDungeons: string[];
-  onBuyConsumable: (id: ConsumableId) => void;
   onBuyItem: (item: Item) => void;
   onRestock: () => void;
   restockFee: number;
@@ -39,11 +25,8 @@ interface Props {
 export function ShopTab({
   character,
   equipment,
-  consumables,
   shopStock,
   inventory,
-  clearedDungeons,
-  onBuyConsumable,
   onBuyItem,
   onRestock,
   restockFee,
@@ -68,55 +51,14 @@ export function ShopTab({
     tooltipRef,
     compareRef,
   } = useItemHover();
-  const classDef = CLASSES[character.classId];
-  const availableConsumables = CONSUMABLE_LIST.filter(
-    (c) => c.id !== "manaPotion" || classDef.resourceType === "mana",
-  );
   const totalSellValue = inventory.reduce(
     (sum, item) => sum + sellValue(item),
     0,
-  );
-  const potionCost = getPotionCost(clearedDungeons);
-  const potionRestorePct = Math.round(
-    getPotionRestoreRate(clearedDungeons) * 100,
   );
 
   return (
     <div className="tab-panel">
       <div className="shop-top-row">
-        <div className="shop-potions-wrap">
-          <h3 className="shop-potions-heading">Potions</h3>
-          <div className="shop-potions">
-            {availableConsumables.map((def) => (
-              <div className="shop-potion-card" key={def.id}>
-                <div className="shop-potion-name">{def.name}</div>
-                <p className="shop-potion-desc">
-                  {def.id === "healthPotion"
-                    ? `Restores ${potionRestorePct}% of max life instantly. 3-turn cooldown.`
-                    : `Restores ${potionRestorePct}% of max mana instantly. 3-turn cooldown.`}
-                </p>
-                <div className="shop-potion-stat">
-                  {potionRestorePct}%{" "}
-                  {def.id === "healthPotion" ? "HP" : "Mana"}
-                </div>
-                <div className="shop-potion-footer">
-                  <button
-                    className={`potion-buy-button potion-buy-button--${def.id === "healthPotion" ? "health" : "mana"}`}
-                    disabled={
-                      character.gold < potionCost || consumables[def.id] >= 5
-                    }
-                    onClick={() => onBuyConsumable(def.id)}
-                  >
-                    {consumables[def.id] >= 5
-                      ? `Full (5/5)`
-                      : `${consumables[def.id]}/5 · ${potionCost}g`}
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
         <div className="shop-merchant-col">
           <div className="shop-header-row shop-header-row--inline">
             <h3>Merchant's Wares</h3>

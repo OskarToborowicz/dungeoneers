@@ -213,62 +213,6 @@
     gap: 4px;
   }
 
-  .shop-potions-wrap {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    flex-shrink: 0;
-  }
-
-  .shop-potions-heading {
-    margin-bottom: 0;
-    font-size: 12px;
-  }
-
-  .shop-potions {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-bottom: 0;
-  }
-
-  .shop-potion-card {
-    padding: 5px 8px;
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-  }
-
-  .shop-potion-name {
-    font-size: 11px;
-    margin-bottom: 0;
-  }
-
-  .shop-potion-desc {
-    display: none;
-  }
-
-  .shop-potion-stat {
-    display: block;
-    font-size: 10px;
-    color: var(--text-dim);
-    margin: 2px 0;
-  }
-
-  .shop-potion-footer {
-    margin-top: 0;
-    justify-content: center;
-  }
-  .potion-buy-button {
-    font-size: 10px;
-    padding: 0;
-    width: 80%;
-  }
-  .shop-potion-footer .primary-button.small {
-    font-size: 11px;
-    padding: 3px 8px;
-  }
-
   .shop-inventory-section {
     display: flex;
     flex-direction: column;

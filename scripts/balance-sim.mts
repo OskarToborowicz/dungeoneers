@@ -21,6 +21,7 @@ import { createBattleState, resolveRound, canUseAbility, canUseAbility2, type Ba
 import { DUNGEONS } from "../src/game/data/dungeons";
 import { CLASSES } from "../src/game/data/classes";
 import { generateStartingEquipment, generateItemForSlot } from "../src/game/data/items";
+import { getPotionsForStage } from "../src/game/data/consumables";
 import type { Character, MonsterDefinition, EquipmentSlot, Item, ClassId } from "../src/game/types";
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
@@ -107,7 +108,7 @@ function playDungeon(classId: ClassId, d: typeof DUNGEONS[number]): { cleared: b
   const eq = loadout(classId, L);
   const derived = getDerivedStats(ch, eq);
   let life = derived.maxLife;
-  const pot = { hp: 5 };
+  const pot = { hp: getPotionsForStage(derived.potionSlots) };
   const fights = [...d.waves, d.boss];
   for (let i = 0; i < fights.length; i++) {
     const out = fight(ch, derived, fights[i], life, pot, i === fights.length - 1);

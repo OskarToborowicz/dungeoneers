@@ -1,5 +1,5 @@
 import { CLASSES } from "./data/classes";
-import { POTION_COOLDOWN, getPotionRestoreRate } from "./data/consumables";
+import { POTION_COOLDOWN, POTION_RESTORE_RATE } from "./data/consumables";
 import { CHI_PER_ATTACK, FURY_PER_ATTACK } from "./character";
 import type { DerivedStats } from "./character";
 import type { Character, MonsterDefinition } from "./types";
@@ -18,7 +18,6 @@ export interface BattleState {
   monsterLife: number;
   abilityCooldown: number; // Ability 1 turns remaining before it can be used again
   healthPotionCooldown: number;
-  manaPotionCooldown: number;
   poisonRounds: number; // Monster poison ticks remaining (Necromancer Poison Cloud / Assassin Venom)
   poisonDamage: number; // Damage per tick, fixed at cast time
   monsterSpellCooldown: number; // Turns until boss can cast its spell again
@@ -58,8 +57,7 @@ export type PlayerActionKind =
   | "attack"
   | "ability"
   | "ability2"
-  | "healthPotion"
-  | "manaPotion";
+  | "healthPotion";
 
 export type BattleStatus = "ongoing" | "victory" | "defeat";
 
@@ -123,7 +121,7 @@ const ASSASSIN_SHADOW_BOND_AUTO_BONUS = 0.5; // +50% next basic attack damage
 // Monk
 const MONK_SWEEPING_WIND_CHANCE = 0.3; // 30% bonus strike after basic attack
 const MONK_SWEEPING_WIND_DAMAGE = 0.7; // Follow-up hits at 70% damage
-const MONK_TRANSCENDENCE_REGEN = 0.07; // 7% max life regen per turn (lv.35)
+const MONK_TRANSCENDENCE_REGEN = 0.07; // 7% max life regen per turn (lv.20)
 const MONK_SERENITY_HEAL = 0.3; // Serenity heals 30% of max life
 const MONK_COUNTER_ATTACK_CHANCE = 0.12; // 12% chance to counter-attack after monster hits
 
@@ -199,7 +197,6 @@ export function createBattleState(
     monsterLife: monster.life,
     abilityCooldown: startingCooldown,
     healthPotionCooldown: 0,
-    manaPotionCooldown: 0,
     poisonRounds: 0,
     poisonDamage: 0,
     monsterSpellCooldown: 0,
@@ -418,7 +415,6 @@ export function resolveRound(
   monster: MonsterDefinition,
   state: BattleState,
   action: PlayerActionKind,
-  clearedDungeons: string[] = [],
 ): RoundResult {
   const def = CLASSES[character.classId];
   const log: CombatLogEntry[] = [];
@@ -436,7 +432,6 @@ export function resolveRound(
     monsterLife,
     abilityCooldown,
     healthPotionCooldown,
-    manaPotionCooldown,
     poisonRounds,
     poisonDamage,
     monsterSpellCooldown,
@@ -1500,11 +1495,11 @@ export function resolveRound(
       }
 
       // ── Health Potion ─────────────────────────────────────────────────────────
-      // Restores 35% (Act 1) or 50% (Act 2) of max life. Capped at maxLife (Blood Barrier excluded).
+      // Restores 40% of max life at every act. Capped at maxLife (Blood Barrier excluded).
       // Paladin Defensive Aura (lv.20) adds a flat +10% max life on top.
     } else if (action === "healthPotion" && healthPotionCooldown <= 0) {
       const before = playerLife;
-      const potionRate = getPotionRestoreRate(clearedDungeons);
+      const potionRate = POTION_RESTORE_RATE;
       const defensiveAuraPotionBonus =
         character.classId === "paladin" && character.level >= 20
           ? Math.round(stats.maxLife * 0.1)
@@ -1527,22 +1522,6 @@ export function resolveRound(
         monsterLife: Math.max(0, monsterLife),
       });
 
-      // ── Mana Potion ───────────────────────────────────────────────────────────
-      // Restores 35% (Act 1) or 50% (Act 2) of max mana/fury.
-    } else if (action === "manaPotion" && manaPotionCooldown <= 0) {
-      const before = playerMana;
-      playerMana = Math.min(
-        stats.maxMana,
-        playerMana +
-          Math.round(stats.maxMana * getPotionRestoreRate(clearedDungeons)),
-      );
-      manaPotionCooldown = POTION_COOLDOWN;
-      log.push({
-        actor: "player",
-        message: `You drink a Mana Potion, restoring ${Math.round(playerMana - before)} ${def.resourceName.toLowerCase()}.`,
-        playerLife: Math.max(0, playerLife),
-        monsterLife: Math.max(0, monsterLife),
-      });
     } else {
       doBasicAttack();
     }
@@ -1594,7 +1573,6 @@ export function resolveRound(
   if (abilityCooldown > 0) abilityCooldown -= 1;
   if (ability2Cooldown > 0) ability2Cooldown -= 1;
   if (healthPotionCooldown > 0) healthPotionCooldown -= 1;
-  if (manaPotionCooldown > 0) manaPotionCooldown -= 1;
 
   // Blood Fury duration
   if (bloodFuryRounds > 0) bloodFuryRounds -= 1;
@@ -1659,7 +1637,6 @@ export function resolveRound(
       monsterLife: Math.max(0, monsterLife),
       abilityCooldown,
       healthPotionCooldown,
-      manaPotionCooldown,
       poisonRounds,
       poisonDamage,
       monsterSpellCooldown,

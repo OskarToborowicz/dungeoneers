@@ -119,6 +119,7 @@ export interface Item {
   itemLevel: number;
   baseDamage?: [number, number];
   baseDefense?: number;
+  potionSlots?: number;
   twoHanded?: boolean;
   favorite?: boolean;
   weaponType?: string;
@@ -215,7 +216,7 @@ export interface DungeonDefinition {
   endgame?: boolean;
 }
 
-export type ConsumableId = "healthPotion" | "manaPotion";
+export type ConsumableId = "healthPotion";
 
 export interface ConsumableDefinition {
   id: ConsumableId;

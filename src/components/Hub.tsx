@@ -11,14 +11,13 @@ import { GamblerTab } from "./GamblerTab";
 import { ForgeTab } from "./ForgeTab";
 import { JournalTab } from "./JournalTab";
 import { ItemIcon } from "./ItemIcon";
-import { CLASSES } from "../game/data/classes";
 import { RARITY_COLORS } from "../game/data/items";
+import { getPotionsForStage } from "../game/data/consumables";
 import type { DerivedStats } from "../game/character";
 import { isSoundMuted } from "../game/sound";
 import type {
   BaseStats,
   Character,
-  ConsumableId,
   EquipmentSlot,
   Item,
 } from "../game/types";
@@ -32,7 +31,6 @@ interface Props {
   equipment: Partial<Record<EquipmentSlot, Item>>;
   inventory: Item[];
   clearedDungeons: string[];
-  consumables: Record<ConsumableId, number>;
   shopStock: Item[];
   onAllocate: (stat: keyof BaseStats) => void;
   onMoveItem: (
@@ -47,7 +45,6 @@ interface Props {
   onSellJunk: () => void;
   onStartDungeon: (dungeonId: string) => void;
   onQuitToMenu: () => void;
-  onBuyConsumable: (id: ConsumableId) => void;
   onBuyItem: (item: Item) => void;
   onRestockShop: () => void;
   restockFee: number;
@@ -88,7 +85,6 @@ export function Hub({
   equipment,
   inventory,
   clearedDungeons,
-  consumables,
   shopStock,
   onAllocate,
   onMoveItem,
@@ -99,7 +95,6 @@ export function Hub({
   onSellJunk,
   onStartDungeon,
   onQuitToMenu,
-  onBuyConsumable,
   onBuyItem,
   onRestockShop,
   restockFee,
@@ -416,16 +411,10 @@ export function Hub({
                 </div>
               )}
               <div className="potions-display">
-                <span>
+                <span title="Health potions carried into each stage (1 + belt potion slots)">
                   <PotionIcon type="health" size={18} />{" "}
-                  {consumables.healthPotion}
+                  {getPotionsForStage(derived.potionSlots)}
                 </span>
-                {CLASSES[character.classId].resourceType === "mana" && (
-                  <span>
-                    <PotionIcon type="mana" size={18} />{" "}
-                    {consumables.manaPotion}
-                  </span>
-                )}
               </div>
             </div>
           </div>
@@ -653,11 +642,8 @@ export function Hub({
             <ShopTab
               character={character}
               equipment={equipment}
-              consumables={consumables}
               shopStock={shopStock}
               inventory={inventory}
-              clearedDungeons={clearedDungeons}
-              onBuyConsumable={onBuyConsumable}
               onBuyItem={onBuyItem}
               onRestock={onRestockShop}
               restockFee={restockFee}
@@ -688,11 +674,8 @@ export function Hub({
                 <ShopTab
                   character={character}
                   equipment={equipment}
-                  consumables={consumables}
                   shopStock={shopStock}
                   inventory={inventory}
-                  clearedDungeons={clearedDungeons}
-                  onBuyConsumable={onBuyConsumable}
                   onBuyItem={onBuyItem}
                   onRestock={onRestockShop}
                   restockFee={restockFee}

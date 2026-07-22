@@ -84,8 +84,35 @@ const ARMOR_BASES: ItemBase[] = [
   { name: "Quilted Armor", slot: "armor", baseDefense: 10 },
   { name: "Leather Gloves", slot: "gloves", baseDefense: 3 },
   { name: "Boots", slot: "boots", baseDefense: 3 },
-  { name: "Sash", slot: "belt", baseDefense: 2 },
+  { name: "Sash", slot: "belt" },
 ];
+
+/**
+ * Belts grant no defense — their base stat is potion slots, rolled 1-3 at
+ * weights 50/33/17. Each slot is one extra health potion carried into a stage.
+ *
+ * Rarity caps the roll: normal 1, magic 2, everything above 3. The weights are
+ * renormalised over the allowed range rather than clamped, so a magic belt is
+ * 60/40 between 1 and 2 instead of piling the cut 17% onto its cap.
+ */
+const POTION_SLOT_WEIGHTS = [50, 33, 17];
+
+export function maxPotionSlots(rarity: ItemRarity): number {
+  if (rarity === "normal") return 1;
+  if (rarity === "magic") return 2;
+  return 3;
+}
+
+export function rollPotionSlots(rarity: ItemRarity): number {
+  const cap = maxPotionSlots(rarity);
+  const weights = POTION_SLOT_WEIGHTS.slice(0, cap);
+  let roll = Math.random() * weights.reduce((a, b) => a + b, 0);
+  for (let i = 0; i < weights.length; i++) {
+    if (roll < weights[i]) return i + 1;
+    roll -= weights[i];
+  }
+  return cap;
+}
 
 const JEWELRY_BASES: ItemBase[] = [
   { name: "Amulet", slot: "amulet" },
@@ -454,6 +481,7 @@ export function generateRandomItem(
       base.baseDefense * rarityEntry.multiplier + itemLevel * 0.25,
     );
   }
+  if (slot === "belt") item.potionSlots = rollPotionSlots(item.rarity);
 
   if (rarityEntry.rarity !== "normal" && item.affixes.length > 0) {
     const prefix = item.affixes[0].label.replace("of ", "");
@@ -502,6 +530,7 @@ function generateItemFromBase(base: ItemBase, itemLevel: number): Item {
   if (base.baseDefense) {
     item.baseDefense = Math.round(base.baseDefense + itemLevel * 0.25);
   }
+  if (slot === "belt") item.potionSlots = rollPotionSlots(item.rarity);
   return item;
 }
 
@@ -700,7 +729,7 @@ export function generateRagpickersSash(): Item {
     slot: "belt",
     rarity: "unique",
     itemLevel: 1,
-    baseDefense: 3,
+    potionSlots: rollPotionSlots("unique"),
     affixes: [
       { label: "", stat: "vitality", value: 5 },
       { label: "", stat: "goldFind", value: 20 },
@@ -783,7 +812,7 @@ export function generateVenomweaveWrap(): Item {
     slot: "belt",
     rarity: "unique",
     itemLevel: 15,
-    baseDefense: 7,
+    potionSlots: rollPotionSlots("unique"),
     affixes: [
       { label: "", stat: "dexterity", value: 20 },
       { label: "", stat: "magicDmgReduction", value: randInt(4, 8) },
@@ -800,7 +829,7 @@ export function generateDemonsTail(): Item {
     slot: "belt",
     rarity: "unique",
     itemLevel: 1,
-    baseDefense: 18,
+    potionSlots: rollPotionSlots("unique"),
     affixes: [],
     demonsTail: true,
   };
@@ -1363,7 +1392,7 @@ export function generateSoulvoidGirdle(): Item {
     slot: "belt",
     rarity: "unique",
     itemLevel: 68,
-    baseDefense: 12,
+    potionSlots: rollPotionSlots("unique"),
     affixes: [
       { label: "", stat: "vitality", value: randInt(40, 55) },
       { label: "", stat: "energy", value: randInt(30, 45) },
@@ -1547,6 +1576,7 @@ export function generateItemForSlot(
       base.baseDefense * rarityEntry.multiplier + itemLevel * 0.25,
     );
   }
+  if (slot === "belt") item.potionSlots = rollPotionSlots(item.rarity);
 
   if (affixes.length > 0) {
     const prefix = affixes[0].label.replace("of ", "");

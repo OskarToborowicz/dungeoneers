@@ -70,6 +70,9 @@ function ComparePanel({ item, label }: { item: Item; label: string }) {
           {item.twoHanded ? " (2H)" : ""}
         </div>
       )}
+      {item.potionSlots && (
+        <div className="item-line">Potion Slots: {item.potionSlots}</div>
+      )}
       {item.baseDefense && (
         <div className="item-line">Defense: {item.baseDefense}</div>
       )}

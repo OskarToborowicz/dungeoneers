@@ -54,7 +54,6 @@ interface Props {
   escapeTokens: number;
   xpCapped: boolean;
   xpMultiplier: number;
-  clearedDungeons: string[];
   isBossFight: boolean;
   itemsFoundThisRun: number;
   onRollDrops: (monsterLevel: number, isBoss: boolean) => void;
@@ -78,7 +77,6 @@ export function CombatScreen({
   escapeTokens,
   xpCapped,
   xpMultiplier,
-  clearedDungeons,
   isBossFight,
   itemsFoundThisRun,
   onRollDrops,
@@ -232,20 +230,14 @@ export function CombatScreen({
       (consumables.healthPotion <= 0 || battle.healthPotionCooldown > 0)
     )
       return;
-    if (
-      action === "manaPotion" &&
-      (consumables.manaPotion <= 0 || battle.manaPotionCooldown > 0)
-    )
-      return;
-
     const wasAbility = action === "ability" && canUseAbility(character, battle);
     const wasAbility2 =
       action === "ability2" && canUseAbility2(character, battle);
     // Drinking is not a swing — skip the lunge, show bubbles instead.
-    const isPotion = action === "healthPotion" || action === "manaPotion";
+    const isPotion = action === "healthPotion";
     if (isPotion) {
       setPotionFx((p) => ({
-        type: action === "healthPotion" ? "health" : "mana",
+        type: "health",
         key: (p?.key ?? 0) + 1,
       }));
       setTimeout(() => setPotionFx(null), 900);
@@ -256,7 +248,6 @@ export function CombatScreen({
       monster,
       battle,
       action,
-      clearedDungeons,
     );
 
     // These three are identical across all branches — could be hoisted here
@@ -397,7 +388,7 @@ export function CombatScreen({
       }, 550);
     }
 
-    if (action === "healthPotion" || action === "manaPotion") {
+    if (action === "healthPotion") {
       onUsePotion(action);
     }
   }
@@ -1038,37 +1029,13 @@ export function CombatScreen({
               }
             >
               <PotionIcon type="health" size={16} />
-              <span>
-                {battle.healthPotionCooldown > 0
-                  ? battle.healthPotionCooldown
-                  : consumables.healthPotion}
-                /5
-              </span>
-            </button>
-            {def.resourceType === "mana" && (
-              <button
-                className={`potion-compact mana${battle.manaPotionCooldown > 0 ? " on-cooldown" : ""}`}
-                disabled={
-                  isAnimating ||
-                  consumables.manaPotion <= 0 ||
-                  battle.manaPotionCooldown > 0
-                }
-                onClick={() => handleAction("manaPotion")}
-                title={
-                  battle.manaPotionCooldown > 0
-                    ? `Cooldown: ${battle.manaPotionCooldown}`
-                    : CONSUMABLES.manaPotion.description
-                }
-              >
-                <PotionIcon type="mana" size={16} />
-                <span>
-                  {battle.manaPotionCooldown > 0
-                    ? battle.manaPotionCooldown
-                    : consumables.manaPotion}
-                  /5
+              <span>{consumables.healthPotion}</span>
+              {battle.healthPotionCooldown > 0 && (
+                <span className="potion-cooldown">
+                  {battle.healthPotionCooldown}
                 </span>
-              </button>
-            )}
+              )}
+            </button>
           </div>
           {(battle.playerPoisonRounds > 0 ||
             battle.playerBurnRounds > 0 ||

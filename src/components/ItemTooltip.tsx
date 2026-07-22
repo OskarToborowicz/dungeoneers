@@ -260,6 +260,11 @@ export function ItemTooltip({ item }: { item: Item }) {
           {item.twoHanded ? " (Two-Handed)" : ""}
         </div>
       )}
+      {item.potionSlots && (
+        <div className="item-line">
+          Potion Slots: {item.potionSlots}
+        </div>
+      )}
       {item.baseDefense && (
         <div className="item-line">Defense: {item.baseDefense}</div>
       )}

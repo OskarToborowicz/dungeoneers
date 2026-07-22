@@ -1,43 +1,29 @@
 import type { ConsumableDefinition, ConsumableId } from "../types";
 
-export const POTION_RESTORE_RATE = 0.35;
-export const POTION_RESTORE_RATE_ACT2 = 0.50;
-export const POTION_COST_ACT2 = 250;
+// Flat at every act — clearing Act 1 no longer upgrades potency.
+export const POTION_RESTORE_RATE = 0.4;
 export const POTION_COOLDOWN = 3;
-
-export function getPotionRestoreRate(clearedDungeons: string[]): number {
-  return clearedDungeons.includes("bandits-town-hall") ? POTION_RESTORE_RATE_ACT2 : POTION_RESTORE_RATE;
-}
-
-export const POTION_COST_BASE = 20;
-
-export function getPotionCost(clearedDungeons: string[]): number {
-  if (clearedDungeons.includes("sacrificial-altar")) return 600;
-  if (clearedDungeons.includes("the-white-maw")) return 300;
-  if (clearedDungeons.includes("bandits-town-hall")) return 100;
-  return POTION_COST_BASE;
-}
 
 export const CONSUMABLES: Record<ConsumableId, ConsumableDefinition> = {
   healthPotion: {
     id: "healthPotion",
     name: "Health Potion",
-    description: `Restores 35% of max life instantly. ${POTION_COOLDOWN}-turn cooldown.`,
-    cost: POTION_COST_BASE,
-    restoreAmount: 0,
-  },
-  manaPotion: {
-    id: "manaPotion",
-    name: "Mana Potion",
-    description: `Restores 35% of max mana instantly. ${POTION_COOLDOWN}-turn cooldown.`,
-    cost: POTION_COST_BASE,
+    description: `Restores ${Math.round(POTION_RESTORE_RATE * 100)}% of max life instantly. ${POTION_COOLDOWN}-turn cooldown.`,
+    cost: 0,
     restoreAmount: 0,
   },
 };
-
-export const CONSUMABLE_LIST = Object.values(CONSUMABLES);
 
 export const EMPTY_CONSUMABLES: Record<ConsumableId, number> = {
   healthPotion: 0,
-  manaPotion: 0,
 };
+
+/**
+ * Potions carried into a stage: one guaranteed, plus one per belt potion slot.
+ * Potions are no longer purchasable, so this is the only source.
+ */
+export const BASE_POTIONS_PER_STAGE = 1;
+
+export function getPotionsForStage(beltPotionSlots: number): number {
+  return BASE_POTIONS_PER_STAGE + beltPotionSlots;
+}

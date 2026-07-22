@@ -205,11 +205,11 @@ Heartseeker fires after crits from both basic attack and each Multishot arrow.
 
 ### Monk abilities and passives
 
-**Spinning Crane Kick** (`kind: "multi"`, 3 hits, `power: 0.75`): Three rapid kicks, each rolling hit/crit independently. Chi cost: 50, cooldown: 1.
+**Spinning Crane Kick** (`kind: "multi"`, 3 hits, `power: 0.75`): Three rapid kicks, each rolling hit/crit independently. Chi cost: 50, cooldown: 2.
 
-**Serenity** (`kind: "serenity"`, `canMiss: false`): Heals 30% max life, restores 50% max chi, cleanses all player negative effects (poison + burn), and blinds the enemy for this turn only (no disorient follow-up). Chi cost: 75, cooldown: 6.
+**Serenity** (`kind: "serenity"`, `canMiss: false`): Heals 30% max life, cleanses all player negative effects (poison + burn), and blinds the enemy for this turn only (no disorient follow-up). Chi cost: 75, cooldown: 6.
 
-**Combat Reflexes** (always active): 30% chance after basic attack → follow-up strike at 70% damage. Each Spinning Crane Kick hit also has 30% chance to deal 25% bonus damage of that specific kick (separate roll per kick, min 1 dmg).
+**Sweeping Wind** (always active): 30% chance after basic attack → follow-up strike at 70% damage. Each Spinning Crane Kick hit also has 30% chance to deal 25% bonus damage of that specific kick (separate roll per kick, min 1 dmg).
 
 **Transcendence** (lv.20): Passively restores 7% of max life per turn. Constant: `MONK_TRANSCENDENCE_REGEN = 0.07`.
 
@@ -298,7 +298,7 @@ bubbles (`.poisoned` circles), **both after the model so they draw on top**.
 Wired in `CombatScreen`: player from `playerPoisonRounds` / `playerBurnRounds`,
 monster from `poisonRounds` / `burnStacks.length`.
 
-**Potion bubbles:** drinking sets `potionFx: { type: "health" | "mana"; key: number }`
+**Potion bubbles:** drinking sets `potionFx: { type: "health"; key: number }`
 in `CombatScreen`; the `key` counter forces a remount so the animation replays.
 Rendered as `.potion-bubbles` inside `.battle-side.player-side` (which needs
 `position: relative`). Potions must **not** set `playerAnim("attack")` — guard
@@ -355,13 +355,11 @@ Adding a monster with inline art still needs entries in all three records.
   - `.reset-button` (desktop sidebar) hidden; `.mobile-menu-button` (top-right) shown instead with inline "Exit? Yes/No" confirm — button uses a custom SVG arrow icon (13×13px, `fillRule="nonzero"`)
   - Combat log uses `flex: 1; min-height: 0; height: auto` so action buttons are never cut off on short screens (iPhone SE 375×667)
   - Inventory tab: page is scroll-locked (`.hub-content:has(.inventory-wrapper) { overflow: hidden }`); only `.inventory-dropzone` (the item grid) scrolls — paperdoll + stats stay fixed above it, same containment pattern as landscape
-  - Shop potion cards: `grid-template-columns: repeat(2, 1fr)` — both cards in one row
 - Hub landscape breakpoint at `@media (orientation: landscape) and (max-height: 500px) and (max-width: 960px)`:
   - Sidebar moves to left column (130px wide, vertical)
-  - Shop: potions + merchant wares in one flex row; only inventory items scroll
+  - Shop: merchant wares fill the row; only inventory items scroll
   - Inventory: paperdoll left (**32px** slots — reduced from default), `doll-shield` label uses `font-size: 0` + `::after { content: "OH" }` to fit "OFF HAND" in tight space; inventory-right column fills remaining space with fixed label + scrollable grid + fixed instruction
   - Scroll containment: `.hub-content .tab-panel:has(.inventory-wrapper) { overflow: hidden }` — only inventory tab gets `overflow: hidden`; other tabs (Character, Dungeons) use `overflow-y: auto` so they scroll normally
-  - Shop potion cards show compact `.shop-potion-stat` div (`35% HP` / `35% Mana`), hidden by default, shown in landscape
 - Character creation landscape breakpoint at `@media (orientation: landscape) and (max-height: 500px)` (`src/styles/responsive-creation-landscape.css`):
   - Title and subtitle hidden; padding reduced
   - Class buttons become a horizontal wrapping row
@@ -396,13 +394,45 @@ defense → damage → magicDamage → strength → dexterity → vitality → e
 ```
 This is render-only — it never mutates the stored `item.affixes` array.
 
-### Shop potion buttons
+### Potions
 
-`.potion-buy-button` is the base class for potion buy buttons. Two modifiers:
-- `.potion-buy-button--health` — red-tinted border/text (`var(--hp-color-bright)`), red glow on hover
-- `.potion-buy-button--mana` — blue-tinted border/text (`#4a7fc1`), blue glow on hover
+**Mana potions do not exist.** They were removed entirely — `ConsumableId` is
+`"healthPotion"` only, and there is no mana/chi restore item for any class.
 
-Button text: `"X/5 · Yg"` when under cap, `"Full (5/5)"` when capped.
+Health potions are **not purchasable** — the Merchant tab has no Potions section
+and `getPotionCost` is gone. The only source is the stage grant:
+`handleStartDungeon` in `App.tsx` sets `consumables` to
+`getPotionsForStage(derived.potionSlots)` = **1 + belt potion slots** (so 1 with
+no belt, up to 4). Leftovers never carry between runs — each dungeon entry
+overwrites the stock. Cooldown is unchanged (`POTION_COOLDOWN = 3`).
+
+**Heal amount is a flat `POTION_RESTORE_RATE = 0.4`** (40% of max life) at every
+act. The old Act-2 upgrade is gone — `POTION_RESTORE_RATE_ACT2` and
+`getPotionRestoreRate()` were deleted, and with them `resolveRound`'s
+`clearedDungeons` parameter, which existed only to feed that lookup. Paladin
+Defensive Aura (lv.20) still adds a flat +10% max life on top.
+
+In combat the potion button shows the **count and the cooldown side by side** —
+the count never gets replaced. The turns-remaining pill is `.potion-cooldown`,
+rendered only while `healthPotionCooldown > 0`.
+
+### Belts and potion slots
+
+Belts grant **no defense at all** — `baseDefense` is absent from the `Sash` base
+and from all four unique belts. Their base stat is `Item.potionSlots`, rolled by
+`rollPotionSlots(rarity)` in `items.ts` at **1 → 50%, 2 → 33%, 3 → 17%**.
+
+**Rarity caps the roll** via `maxPotionSlots()` — normal 1, magic 2, rare / very
+rare / unique 3. The weights are *renormalised* over the allowed range, not
+clamped, so a magic belt lands 60/40 between 1 and 2 rather than dumping the cut
+17% onto its cap. A normal belt is always exactly 1.
+
+The roll is applied in all three creation paths (`generateRandomItem`,
+`generateItemFromBase`, `generateItemForSlot`) plus each `generate*` unique belt,
+always keyed off that item's own rarity.
+
+`migrateBelt()` in `storage.ts` upgrades pre-rework saves on read: any belt with
+no `potionSlots` has its `baseDefense` stripped and a fresh roll assigned.
 
 ### Drop banner
 

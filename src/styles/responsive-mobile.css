@@ -58,25 +58,6 @@
     overflow: hidden;
   }
 
-  .shop-potions {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-  }
-
-  .shop-potion-card {
-    padding: 8px 10px;
-  }
-
-  .shop-potion-name {
-    font-size: 13px;
-    margin-bottom: 2px;
-  }
-
-  .shop-potion-desc {
-    font-size: 11px;
-    margin-bottom: 6px;
-  }
-
   /* Sprite + info row */
   .hub-sprite-wrap {
     display: flex;
@@ -445,22 +426,6 @@
   }
   .inv-stat-value {
     font-size: 9px;
-  }
-  .shop-potions {
-    gap: 6px;
-  }
-  .shop-potion-card {
-    padding: 6px 8px;
-  }
-  .shop-potion-name {
-    font-size: 12px;
-  }
-  .shop-potion-desc {
-    font-size: 10px;
-    margin-bottom: 4px;
-  }
-  .potion-buy-button {
-    font-size: 10px;
   }
   .restock-button,
   .sell-all-button,

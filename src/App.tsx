@@ -12,7 +12,10 @@ import {
   getStartingResource,
   grantXp,
 } from "./game/character";
-import { EMPTY_CONSUMABLES, getPotionCost } from "./game/data/consumables";
+import {
+  EMPTY_CONSUMABLES,
+  getPotionsForStage,
+} from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
 import {
   addFourthAffix,
@@ -202,7 +205,7 @@ function App() {
               equipment: startingEquipment,
               inventory: [],
               clearedDungeons: [],
-              consumables: { healthPotion: 1, manaPotion: 0 },
+              consumables: { healthPotion: 1 },
               shopStock: newShopStock,
             };
             const id = createSave(save);
@@ -212,7 +215,7 @@ function App() {
             setEquipment(startingEquipment);
             setInventory([]);
             setClearedDungeons([]);
-            setConsumables({ healthPotion: 1, manaPotion: 0 });
+            setConsumables({ healthPotion: 1 });
             setShopStock(newShopStock);
             setHubTab("dungeons");
             setShowSewersIntro(true);
@@ -423,17 +426,6 @@ function App() {
     );
   }
 
-  const POTION_STACK_LIMIT = 5;
-
-  function handleBuyConsumable(id: ConsumableId) {
-    if (!character) return;
-    if (consumables[id] >= POTION_STACK_LIMIT) return;
-    const cost = getPotionCost(clearedDungeons);
-    if (character.gold < cost) return;
-    setCharacter({ ...character, gold: character.gold - cost });
-    setConsumables({ ...consumables, [id]: consumables[id] + 1 });
-  }
-
   function handleUsePotion(id: ConsumableId) {
     setConsumables((prev) => ({ ...prev, [id]: Math.max(0, prev[id] - 1) }));
   }
@@ -514,13 +506,19 @@ function App() {
     setRunItemsFound(0); // fresh per-clear item counter
     const startingLife = derived.maxLife;
     const startingMana = getStartingResource(character, derived);
+    // Potions are not purchasable — every stage grants a fresh stock of
+    // 1 + belt potion slots, so leftovers never carry between runs.
+    const stagePotions = {
+      healthPotion: getPotionsForStage(derived.potionSlots),
+    };
+    setConsumables(stagePotions);
     if (activeSlotId) {
       writeSave(activeSlotId, {
         character,
         equipment,
         inventory,
         clearedDungeons,
-        consumables,
+        consumables: stagePotions,
         shopStock,
         inCombat: true,
         activeDungeonRun: {
@@ -813,7 +811,6 @@ function App() {
               ? XP_REWARD_MULT
               : XP_REWARD_MULT * FIRST_CLEAR_MULT
           }
-          clearedDungeons={clearedDungeons}
           isBossFight={dungeonRun.index === dungeonRun.queue.length - 1}
           itemsFoundThisRun={runItemsFound}
           onRollDrops={handleRollDrops}
@@ -834,7 +831,6 @@ function App() {
         equipment={equipment}
         inventory={inventory}
         clearedDungeons={clearedDungeons}
-        consumables={consumables}
         shopStock={shopStock}
         onAllocate={handleAllocate}
         onMoveItem={handleMoveItem}
@@ -845,7 +841,6 @@ function App() {
         onSellJunk={handleSellJunk}
         onStartDungeon={handleStartDungeon}
         onQuitToMenu={handleQuitToMenu}
-        onBuyConsumable={handleBuyConsumable}
         onBuyItem={handleBuyItem}
         onRestockShop={handleRestockShop}
         restockFee={restockFee(character.level)}
