@@ -22,7 +22,7 @@ interface Props {
   onSelect: (slotId: string) => void;
   onDelete: (slotId: string) => void;
   onNew: () => void;
-  onImport: (code: string) => string | null;
+  onImport: (code: string) => Promise<string | null>;
 }
 
 export function CharacterSelect({
@@ -50,8 +50,8 @@ export function CharacterSelect({
     }
   }
 
-  function handleImport() {
-    const err = onImport(importText);
+  async function handleImport() {
+    const err = await onImport(importText);
     if (err) {
       setImportError(err);
     } else {
@@ -133,10 +133,10 @@ export function CharacterSelect({
               <div className="hero-card-actions">
                 <button
                   className="export-button"
-                  onClick={(e) => {
+                  onClick={async (e) => {
                     e.stopPropagation();
-                    setExportCode(encodeSaveCode(slot.save));
                     setCopied(false);
+                    setExportCode(await encodeSaveCode(slot.save));
                   }}
                   title="Export hero (transfer code)"
                 >

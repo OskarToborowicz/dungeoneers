@@ -91,43 +91,74 @@ export function deleteSave(id: string): void {
 }
 
 // ── Single-character transfer (export/import a code string) ──────────────────
-// A save is serialized to `DIABOLO1:<base64>` so a player can move ONE hero
-// between devices (phone ↔ PC) by copy-pasting the code. UTF-8 safe (hero names
-// may contain non-Latin1 characters), so btoa/atob go through TextEncoder.
+// A save is gzip-compressed then base64url-encoded to `DIABOLO2:<code>` so a
+// player can move ONE hero between devices by copy-pasting. Compression matters:
+// a full inventory is ~15k chars raw base64, which mobile long-press "select
+// all" often copies only partially — the truncated paste then fails to decode.
+// gzip shrinks it ~5-10×, small enough to copy reliably. base64url (no `+ / =`)
+// survives mail/messenger mangling; whitespace is stripped on decode.
+//
+// Prefixes: `DIABOLO2:` = gzip, `DIABOLO1:` = legacy uncompressed (still read).
 
 const SAVE_CODE_PREFIX = "DIABOLO1:";
+const SAVE_CODE_PREFIX_GZ = "DIABOLO2:";
 
-function toBase64(s: string): string {
-  const bytes = new TextEncoder().encode(s);
+function bytesToB64url(bytes: Uint8Array): string {
   let bin = "";
   for (const b of bytes) bin += String.fromCharCode(b);
-  // base64url, no padding — survives copy through mail/messengers/URLs, which
-  // otherwise wrap long lines or mangle standard base64's `+` `/` `=`.
   return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
-function fromBase64(b64: string): string {
-  // Tolerate whitespace/line-wraps added in transit and accept both base64url
-  // (new codes) and standard base64 (older codes), then re-pad for atob.
-  let s = b64.replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/");
-  while (s.length % 4) s += "=";
-  const bin = atob(s);
-  const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
-  return new TextDecoder().decode(bytes);
+function b64urlToBytes(s: string): Uint8Array {
+  let t = s.replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/");
+  while (t.length % 4) t += "=";
+  const bin = atob(t);
+  return Uint8Array.from(bin, (c) => c.charCodeAt(0));
 }
 
-export function encodeSaveCode(save: SaveGame): string {
-  return SAVE_CODE_PREFIX + toBase64(JSON.stringify({ v: 1, save }));
+async function gzip(bytes: Uint8Array): Promise<Uint8Array> {
+  const stream = new Blob([bytes as BlobPart])
+    .stream()
+    .pipeThrough(new CompressionStream("gzip"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+async function gunzip(bytes: Uint8Array): Promise<Uint8Array> {
+  const stream = new Blob([bytes as BlobPart])
+    .stream()
+    .pipeThrough(new DecompressionStream("gzip"));
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+export async function encodeSaveCode(save: SaveGame): Promise<string> {
+  const json = JSON.stringify({ v: 1, save });
+  const bytes = new TextEncoder().encode(json);
+  if (typeof CompressionStream !== "undefined") {
+    try {
+      return SAVE_CODE_PREFIX_GZ + bytesToB64url(await gzip(bytes));
+    } catch {
+      /* fall back to uncompressed below */
+    }
+  }
+  return SAVE_CODE_PREFIX + bytesToB64url(bytes);
 }
 
 // Decodes a code back to a SaveGame, or null if it's malformed / not a hero.
-export function decodeSaveCode(code: string): SaveGame | null {
+export async function decodeSaveCode(code: string): Promise<SaveGame | null> {
   const trimmed = code.trim();
-  const body = trimmed.startsWith(SAVE_CODE_PREFIX)
-    ? trimmed.slice(SAVE_CODE_PREFIX.length)
-    : trimmed;
   try {
-    const parsed = JSON.parse(fromBase64(body));
+    let jsonBytes: Uint8Array;
+    if (trimmed.startsWith(SAVE_CODE_PREFIX_GZ)) {
+      jsonBytes = await gunzip(
+        b64urlToBytes(trimmed.slice(SAVE_CODE_PREFIX_GZ.length)),
+      );
+    } else {
+      const body = trimmed.startsWith(SAVE_CODE_PREFIX)
+        ? trimmed.slice(SAVE_CODE_PREFIX.length)
+        : trimmed;
+      jsonBytes = b64urlToBytes(body);
+    }
+    const parsed = JSON.parse(new TextDecoder().decode(jsonBytes));
     const save = (parsed?.save ?? parsed) as SaveGame;
     if (!save?.character?.classId || !save?.character?.name) return null;
     return save;
@@ -138,8 +169,8 @@ export function decodeSaveCode(code: string): SaveGame | null {
 
 // Imports a code as a NEW hero (fresh id, so it never overwrites an existing
 // save). Returns the new slot id, or null if the code is invalid.
-export function importSaveCode(code: string): string | null {
-  const save = decodeSaveCode(code);
+export async function importSaveCode(code: string): Promise<string | null> {
+  const save = await decodeSaveCode(code);
   if (!save) return null;
   return createSave(save);
 }

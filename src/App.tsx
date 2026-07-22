@@ -291,11 +291,11 @@ function App() {
 
   // Import a single hero from a transfer code. Returns an error string for the
   // UI, or null on success.
-  function handleImportSlot(code: string): string | null {
+  async function handleImportSlot(code: string): Promise<string | null> {
     if (slots.length >= MAX_SAVE_SLOTS) {
       return `Hero limit reached (${MAX_SAVE_SLOTS}). Delete one first.`;
     }
-    const id = importSaveCode(code);
+    const id = await importSaveCode(code);
     if (!id) return "Invalid or corrupt hero code.";
     setSlots(getAllSaves());
     return null;
