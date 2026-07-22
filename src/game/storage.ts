@@ -121,35 +121,23 @@ function bytesToB64url(bytes: Uint8Array): string {
 }
 
 function b64urlToBytes(s: string): Uint8Array {
-  let t = s.replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/");
+  // Drop anything outside the base64/base64url alphabet — copy-paste on mobile
+  // can smuggle in whitespace, NBSP, zero-width or formatting characters that
+  // make atob throw "invalid characters". Then normalise base64url → base64.
+  const cleaned = s.replace(/[^A-Za-z0-9+/=_-]/g, "");
+  let t = cleaned.replace(/-/g, "+").replace(/_/g, "/").replace(/=+$/, "");
   while (t.length % 4) t += "=";
   const bin = atob(t);
   return Uint8Array.from(bin, (c) => c.charCodeAt(0));
 }
 
-async function gzip(bytes: Uint8Array): Promise<Uint8Array> {
-  const stream = new Blob([bytes as BlobPart])
-    .stream()
-    .pipeThrough(new CompressionStream("gzip"));
-  return new Uint8Array(await new Response(stream).arrayBuffer());
-}
-
-async function gunzip(bytes: Uint8Array): Promise<Uint8Array> {
-  const stream = new Blob([bytes as BlobPart])
-    .stream()
-    .pipeThrough(new DecompressionStream("gzip"));
-  return new Uint8Array(await new Response(stream).arrayBuffer());
-}
-
 export async function encodeSaveCode(save: SaveGame): Promise<string> {
   const json = JSON.stringify({ v: 1, save });
   const bytes = new TextEncoder().encode(json);
-  if (typeof CompressionStream !== "undefined") {
-    try {
-      return SAVE_CODE_PREFIX_GZ + bytesToB64url(await gzip(bytes));
-    } catch {
-      /* fall back to uncompressed below */
-    }
+  try {
+    return SAVE_CODE_PREFIX_GZ + bytesToB64url(gzip(bytes));
+  } catch {
+    // fall back
   }
   return SAVE_CODE_PREFIX + bytesToB64url(bytes);
 }
@@ -157,17 +145,22 @@ export async function encodeSaveCode(save: SaveGame): Promise<string> {
 // Throws with a descriptive error if the code is malformed / not a hero.
 async function decodeToSave(code: string): Promise<SaveGame> {
   const trimmed = code.trim();
+  console.log(trimmed.slice(0, 60));
+  console.log(trimmed.slice(60, 120));
   if (!trimmed) throw new Error("empty code");
+
   let jsonBytes: Uint8Array;
-  if (trimmed.startsWith(SAVE_CODE_PREFIX_GZ)) {
-    jsonBytes = await gunzip(
-      b64urlToBytes(trimmed.slice(SAVE_CODE_PREFIX_GZ.length)),
-    );
-  } else {
-    const body = trimmed.startsWith(SAVE_CODE_PREFIX)
-      ? trimmed.slice(SAVE_CODE_PREFIX.length)
-      : trimmed;
+
+  const upper = trimmed.toUpperCase();
+
+  if (upper.startsWith(SAVE_CODE_PREFIX_GZ)) {
+    const body = trimmed.slice(trimmed.indexOf(":") + 1);
+    jsonBytes = ungzip(b64urlToBytes(body));
+  } else if (upper.startsWith(SAVE_CODE_PREFIX)) {
+    const body = trimmed.slice(trimmed.indexOf(":") + 1);
     jsonBytes = b64urlToBytes(body);
+  } else {
+    jsonBytes = b64urlToBytes(trimmed);
   }
   const parsed = JSON.parse(new TextDecoder().decode(jsonBytes));
   const save = (parsed?.save ?? parsed) as SaveGame;
@@ -194,6 +187,8 @@ export async function importSaveCode(
   try {
     return { id: createSave(await decodeToSave(code)) };
   } catch (e) {
-    return { error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) };
+    return {
+      error: e instanceof Error ? `${e.name}: ${e.message}` : String(e),
+    };
   }
 }

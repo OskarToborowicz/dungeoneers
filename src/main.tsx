@@ -3,7 +3,7 @@ import { createRoot } from "react-dom/client";
 import diabloFontUrl from "./assets/diablo.ttf?url";
 import "./index.css";
 import App from "./App.tsx";
-
+import eruda from "eruda";
 // Preload the heading font before first paint so `font-display: optional`
 // (see index.css) can apply it within its block period — the font shows on
 // first render without the swap-in reflow that causes layout shift (CLS).
@@ -29,7 +29,9 @@ function syncViewportHeight() {
 syncViewportHeight();
 window.addEventListener("resize", syncViewportHeight);
 window.visualViewport?.addEventListener("resize", syncViewportHeight);
-
+if (import.meta.env.DEV) {
+  eruda.init();
+}
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <App />
