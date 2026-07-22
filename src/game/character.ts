@@ -4,7 +4,12 @@ import type { BaseStats, Character, EquipmentSlot, Item } from "./types";
 export const FURY_MAX = 100;
 export const FURY_START = 20;
 export const FURY_PER_ATTACK = 10;
+export const FURY_DECAY_PER_FIGHT = 10; // Fury bleeds off between fights in a run
 export const MANA_MAX = 100;
+// Monk Chi is a fixed pool — it never scales with Energy or +mana gear.
+export const CHI_MAX = 100;
+export const CHI_START = 25;
+export const CHI_PER_ATTACK = 25;
 export const STARTING_STAT_POINTS = 10;
 
 export function xpToNextLevel(level: number): number {
@@ -237,9 +242,11 @@ export function getDerivedStats(
   const maxMana =
     def.resourceType === "fury"
       ? FURY_MAX
-      : MANA_MAX +
-        Math.floor(Math.max(0, stats.energy - 10) / 5) +
-        equip.manaBonus;
+      : character.classId === "monk"
+        ? CHI_MAX
+        : MANA_MAX +
+          Math.floor(Math.max(0, stats.energy - 10) / 5) +
+          equip.manaBonus;
 
   const weaponDamage = equip.weaponDamage ?? [1, 3];
   const flatPhysicalDamage = (stats.strength * 2 + stats.dexterity) / 5;
@@ -366,8 +373,15 @@ export function getStartingResource(
   previousEnding?: number,
 ): number {
   const def = CLASSES[character.classId];
-  if (def.resourceType === "fury") return FURY_START;
+  // Fury opens a dungeon at the base value, then carries between fights in the run
+  // minus a decay — the rage cools while walking to the next enemy.
+  if (def.resourceType === "fury") {
+    if (previousEnding === undefined) return FURY_START;
+    return Math.max(0, previousEnding - FURY_DECAY_PER_FIGHT);
+  }
   if (def.resourceType === "preparation") return 0; // Preparation always starts at 0 per dungeon
+  // Monk opens a dungeon on a quarter pool; Chi still carries between fights in the run.
+  if (character.classId === "monk") return previousEnding ?? CHI_START;
   return previousEnding ?? derived.maxMana;
 }
 

@@ -26,9 +26,11 @@ type Location = EquipmentSlot | "inventory";
 function InvStatsPanel({
   derived,
   className,
+  classId,
 }: {
   derived: DerivedStats;
   className: string;
+  classId: ClassId;
 }) {
   const crit = Math.round(derived.critChance * 100);
   return (
@@ -41,8 +43,12 @@ function InvStatsPanel({
           </span>
         </div>
         <div className="inv-stat-row">
-          <span className="inv-stat-label">🔵</span>
-          <span className="inv-stat-value inv-stat--mana">
+          <span className="inv-stat-label">
+            {classId === "monk" ? "🟢" : "🔵"}
+          </span>
+          <span
+            className={`inv-stat-value ${classId === "monk" ? "inv-stat--chi" : "inv-stat--mana"}`}
+          >
             {derived.maxMana}
           </span>
         </div>
@@ -534,6 +540,7 @@ export function InventoryTab({
             <InvStatsPanel
               derived={derived}
               className="inv-stats inv-stats--side"
+              classId={classId}
             />
           </div>{" "}
           {/* .inv-left-col */}
@@ -541,6 +548,7 @@ export function InventoryTab({
             <InvStatsPanel
               derived={derived}
               className="inv-stats inv-stats--top"
+              classId={classId}
             />
             <div className="inventory-label-row">
               <h3 className="inventory-label">

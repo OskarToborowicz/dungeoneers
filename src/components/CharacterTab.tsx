@@ -192,7 +192,8 @@ export function CharacterTab({ character, derived, onAllocate }: Props) {
           <div className="derived-grid">
             <div>❤️ Life: {derived.maxLife}</div>
             <div>
-              🔵 {def.resourceName}: {derived.maxMana}
+              {character.classId === "monk" ? "🟢" : "🔵"} {def.resourceName}:{" "}
+              {derived.maxMana}
             </div>
             <div>
               ⚔️ Damage: {derived.damage[0]}-{derived.damage[1]}

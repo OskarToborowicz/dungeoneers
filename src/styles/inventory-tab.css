@@ -180,6 +180,9 @@
 .inv-stat--mana {
   color: #5588e0;
 }
+.inv-stat--chi {
+  color: #54e396;
+}
 
 .slot-item,
 .inv-cell {

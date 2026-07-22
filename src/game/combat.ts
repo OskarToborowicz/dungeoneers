@@ -1,6 +1,6 @@
 import { CLASSES } from "./data/classes";
 import { POTION_COOLDOWN, getPotionRestoreRate } from "./data/consumables";
-import { FURY_PER_ATTACK } from "./character";
+import { CHI_PER_ATTACK, FURY_PER_ATTACK } from "./character";
 import type { DerivedStats } from "./character";
 import type { Character, MonsterDefinition } from "./types";
 
@@ -656,8 +656,8 @@ export function resolveRound(
       });
     }
 
-    // Fury generation on attack (Barbarian only)
-    if (def.resourceType === "fury") {
+    // Fury generation on attack (Barbarian only) — a miss builds nothing.
+    if (def.resourceType === "fury" && basicHitDmg > 0) {
       const madnessFuryBonus =
         character.classId === "barbarian" && character.level >= 35
           ? BARBARIAN_MADNESS_FURY_BONUS
@@ -666,6 +666,11 @@ export function resolveRound(
         stats.maxMana,
         playerMana + FURY_PER_ATTACK + madnessFuryBonus,
       );
+    }
+
+    // Chi generation on attack (Monk only) — a miss builds nothing.
+    if (character.classId === "monk" && basicHitDmg > 0) {
+      playerMana = Math.min(stats.maxMana, playerMana + CHI_PER_ATTACK);
     }
 
     // Heartseeker (Huntress lv.35): fires a follow-up arrow after any crit; cannot itself crit
@@ -1479,8 +1484,6 @@ export function resolveRound(
         playerBurnRounds = 0;
         playerBurnDamage = 0;
         serenityBlindThisTurn = true;
-        const chiRestore = Math.round(stats.maxMana * 0.5);
-        playerMana = Math.min(stats.maxMana, playerMana + chiRestore);
         const cleanseParts: string[] = [];
         if (cleansedPoison) cleanseParts.push("poison");
         if (cleansedBurn) cleanseParts.push("burn");
@@ -1490,7 +1493,7 @@ export function resolveRound(
             : "";
         log.push({
           actor: "player",
-          message: `Serenity washes over you, restoring ${healAmt} life and ${chiRestore} chi.${cleanseText} ${monster.name} is blinded!`,
+          message: `Serenity washes over you, restoring ${healAmt} life.${cleanseText} ${monster.name} is blinded!`,
           playerLife: Math.max(0, playerLife),
           monsterLife: Math.max(0, monsterLife),
         });
@@ -1621,8 +1624,13 @@ export function resolveRound(
 
   // ── Step 3: Mana regen ────────────────────────────────────────────────────────
   // Sorceress regenerates 10% per turn (Arcane Flow). All other mana classes regenerate 5%.
+  // Monk is excluded — Chi is built only by attacking, never by waiting.
   // manaRegenMult comes from gear; manaRegenBonus is flat from "of Clarity" affixes.
-  if (def.resourceType === "mana" && playerMana < stats.maxMana) {
+  if (
+    def.resourceType === "mana" &&
+    character.classId !== "monk" &&
+    playerMana < stats.maxMana
+  ) {
     const regenRate =
       character.classId === "sorceress"
         ? SORCERESS_MANA_REGEN_RATE

@@ -87,6 +87,9 @@ export function CombatScreen({
   onEscape,
 }: Props) {
   const def = CLASSES[character.classId];
+  // Monk shares the "mana" resourceType but paints its bar in Chi green.
+  const resourceClass =
+    character.classId === "monk" ? "chi" : def.resourceType;
   const logRef = useRef<HTMLDivElement | null>(null);
 
   const [battle, setBattle] = useState<BattleState>(() =>
@@ -932,9 +935,9 @@ export function CombatScreen({
               ))}
             </div>
           ) : (
-            <div className={`resource-bar ${def.resourceType}`}>
+            <div className={`resource-bar ${resourceClass}`}>
               <div
-                className={`resource-bar-fill ${def.resourceType}`}
+                className={`resource-bar-fill ${resourceClass}`}
                 style={{
                   width: `${Math.max(0, (battle.playerMana / derived.maxMana) * 100)}%`,
                 }}
@@ -969,8 +972,20 @@ export function CombatScreen({
               )}
             </span>
             {def.resourceType !== "preparation" && (
-              <span className={`combat-stat ${def.resourceType}`}>
-                {def.resourceType === "mana" ? (
+              <span className={`combat-stat ${resourceClass}`}>
+                {resourceClass === "chi" ? (
+                  <svg viewBox="0 0 10 10" width="10" height="10">
+                    <circle
+                      cx="5"
+                      cy="5"
+                      r="4"
+                      fill="none"
+                      stroke="#54e396"
+                      strokeWidth="1.6"
+                    />
+                    <circle cx="5" cy="5" r="1.5" fill="#54e396" />
+                  </svg>
+                ) : resourceClass === "mana" ? (
                   <svg viewBox="0 0 8 10" width="8" height="10">
                     <path
                       d="M4 1 C4 1 7 5 7 7a3 3 0 0 1-6 0c0-2 3-6 3-6z"

@@ -97,6 +97,10 @@
   background: linear-gradient(90deg, #aa2200, #ff5522);
 }
 
+.resource-bar-fill.chi {
+  background: linear-gradient(90deg, #1f8a55, #54e396);
+}
+
 .preparation-globes {
   display: flex;
   gap: 6px;
@@ -788,6 +792,9 @@
 }
 .combat-stat.mana {
   color: #6f8fff;
+}
+.combat-stat.chi {
+  color: #54e396;
 }
 .combat-stat.fury {
   color: var(--accent-red-bright);
