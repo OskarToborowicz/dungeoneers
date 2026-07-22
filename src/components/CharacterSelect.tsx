@@ -24,6 +24,7 @@ interface Props {
   onNew: () => void;
   onImport: (code: string) => Promise<string | null>;
   onOpenAuth: () => void;
+  authAvailable: boolean;
   userEmail: string | null;
   onSignOut: () => void;
 }
@@ -35,6 +36,7 @@ export function CharacterSelect({
   onNew,
   onImport,
   onOpenAuth,
+  authAvailable,
   userEmail,
   onSignOut,
 }: Props) {
@@ -252,7 +254,7 @@ export function CharacterSelect({
             Sign out
           </button>
         </div>
-      ) : (
+      ) : authAvailable ? (
         <button
           className="transfer-open-button"
           onClick={onOpenAuth}
@@ -260,7 +262,7 @@ export function CharacterSelect({
         >
           🔐 Sign In / Sign Up
         </button>
-      )}
+      ) : null}
 
       {exportCode && (
         <div className="transfer-overlay" onClick={() => setExportCode(null)}>

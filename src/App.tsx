@@ -43,6 +43,7 @@ import {
 import type { SaveSlot } from "./game/storage";
 import { MAX_SAVE_SLOTS } from "./game/storage";
 import type { Session } from "@supabase/supabase-js";
+import { isSupabaseConfigured } from "./lib/supabase";
 import { getSession, onAuthStateChange, signOut } from "./services/auths";
 import {
   fetchCloudSaves,
@@ -162,6 +163,7 @@ function App() {
 
   // Track the auth session; sync when a session appears (sign-in / page load).
   useEffect(() => {
+    if (!isSupabaseConfigured) return;
     let active = true;
     getSession().then(({ data }) => {
       if (!active) return;
@@ -293,6 +295,7 @@ function App() {
           onNew={() => setCreating(true)}
           onImport={handleImportSlot}
           onOpenAuth={() => setShowAuth(true)}
+          authAvailable={isSupabaseConfigured}
           userEmail={session?.user?.email ?? null}
           onSignOut={handleSignOut}
         />
