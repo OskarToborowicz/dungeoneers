@@ -178,8 +178,8 @@
 }
 
 .transfer-open-button {
-  width: 100%;
-  max-width: 480px;
+  width: fit-content;
+  max-width: fit-content;
   background: var(--bg-panel);
   border: 1px solid var(--border-gold);
   color: var(--text-heading);
@@ -295,4 +295,3 @@
   border-color: var(--border-gold-bright);
   color: var(--text-heading);
 }
-
