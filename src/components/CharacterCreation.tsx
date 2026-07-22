@@ -23,7 +23,8 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
   function resetZoom() {
     const vp = document.querySelector<HTMLMetaElement>('meta[name="viewport"]');
     if (!vp) return;
-    const original = vp.getAttribute("content") ?? "width=device-width, initial-scale=1";
+    const original =
+      vp.getAttribute("content") ?? "width=device-width, initial-scale=1";
     vp.setAttribute(
       "content",
       "width=device-width, initial-scale=1, maximum-scale=1",
@@ -174,10 +175,12 @@ export function CharacterCreation({ onCreate, onBack }: Props) {
           <button
             className={`mode-button${mode === "softcore" ? " selected" : ""}`}
             onClick={() => setMode("softcore")}
-            title="Death costs 10% gold & XP"
+            title="Lose all current gold and XP on death."
           >
             <span className="mode-name">♻ Softcore</span>
-            <div className="game-tooltip">Death costs 10% gold &amp; XP</div>
+            <div className="game-tooltip">
+              Lose all current gold and XP on death.
+            </div>
           </button>
         </div>
         <input

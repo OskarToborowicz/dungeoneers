@@ -875,7 +875,7 @@ export function CombatScreen({
               <p>
                 You are dead.{" "}
                 {softcoreMode
-                  ? "You lose all gold and current level xp on death"
+                  ? "You lost all gold and exp."
                   : "All progress will be lost."}
               </p>
             )}
