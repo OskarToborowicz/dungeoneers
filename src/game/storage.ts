@@ -13,6 +13,19 @@ export interface SaveSlot {
 
 export const MAX_SAVE_SLOTS = 6;
 
+// Optional cloud-sync hook. App registers a handler while the user is signed in;
+// every local write/delete fires it so cloud stays in step (incl. in-combat
+// autosaves). Kept as a plain callback so storage stays free of Supabase deps.
+export type SaveSyncEvent =
+  | { type: "upsert"; slot: SaveSlot }
+  | { type: "delete"; id: string };
+let syncHandler: ((e: SaveSyncEvent) => void) | null = null;
+export function setSaveSyncHandler(
+  fn: ((e: SaveSyncEvent) => void) | null,
+): void {
+  syncHandler = fn;
+}
+
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
 }
@@ -77,24 +90,37 @@ export function getSave(id: string): SaveGame | null {
 export function writeSave(id: string, save: SaveGame): void {
   const slots = readSlots();
   const idx = slots.findIndex((s) => s.id === id);
+  let slot: SaveSlot;
   if (idx >= 0) {
-    slots[idx] = { ...slots[idx], save, lastPlayedAt: Date.now() };
+    slot = { ...slots[idx], save, lastPlayedAt: Date.now() };
+    slots[idx] = slot;
   } else {
-    slots.push({ id, lastPlayedAt: Date.now(), save });
+    slot = { id, lastPlayedAt: Date.now(), save };
+    slots.push(slot);
   }
   writeSlots(slots);
+  syncHandler?.({ type: "upsert", slot });
 }
 
 export function createSave(save: SaveGame): string {
   const id = generateId();
   const slots = readSlots();
-  slots.push({ id, lastPlayedAt: Date.now(), save });
+  const slot: SaveSlot = { id, lastPlayedAt: Date.now(), save };
+  slots.push(slot);
   writeSlots(slots);
+  syncHandler?.({ type: "upsert", slot });
   return id;
 }
 
 export function deleteSave(id: string): void {
   writeSlots(readSlots().filter((s) => s.id !== id));
+  syncHandler?.({ type: "delete", id });
+}
+
+// Replace all local slots WITHOUT firing the sync handler — used when merged
+// cloud saves are pulled down, so the write-back doesn't echo straight back up.
+export function overwriteSaves(slots: SaveSlot[]): void {
+  writeSlots(slots);
 }
 
 // ── Single-character transfer (export/import a code string) ──────────────────

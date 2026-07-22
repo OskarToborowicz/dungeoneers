@@ -1,21 +1,20 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { CharacterCreation } from "./components/CharacterCreation";
 import { CharacterSelect } from "./components/CharacterSelect";
+import { AuthScreen } from "./components/AuthScreen";
 import { Hub } from "./components/Hub";
 import { sortInventory } from "./components/InventoryTab";
 import { CombatScreen } from "./components/CombatScreen";
 import { preloadMonsterAssets } from "./components/sprites/MonsterSprite";
 import { GameOverScreen } from "./components/GameOverScreen";
+
 import {
   createCharacter,
   getDerivedStats,
   getStartingResource,
   grantXp,
 } from "./game/character";
-import {
-  EMPTY_CONSUMABLES,
-  getPotionsForStage,
-} from "./game/data/consumables";
+import { EMPTY_CONSUMABLES, getPotionsForStage } from "./game/data/consumables";
 import { DUNGEONS, getXpCapLevel } from "./game/data/dungeons";
 import {
   addFourthAffix,
@@ -38,9 +37,18 @@ import {
   createSave,
   deleteSave,
   importSaveCode,
+  overwriteSaves,
+  setSaveSyncHandler,
 } from "./game/storage";
 import type { SaveSlot } from "./game/storage";
 import { MAX_SAVE_SLOTS } from "./game/storage";
+import type { Session } from "@supabase/supabase-js";
+import { getSession, onAuthStateChange, signOut } from "./services/auths";
+import {
+  fetchCloudSaves,
+  upsertCloudSave,
+  deleteCloudSave,
+} from "./services/cloudSaves";
 import type { CombatResult } from "./game/combat";
 import type {
   BaseStats,
@@ -80,6 +88,8 @@ interface DungeonRunState {
 
 function App() {
   const [slots, setSlots] = useState<SaveSlot[]>([]);
+  const [showAuth, setShowAuth] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
   const [activeSlotId, setActiveSlotId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [character, setCharacter] = useState<Character | null>(null);
@@ -118,6 +128,92 @@ function App() {
     setSlots(getAllSaves());
     setLoaded(true);
   }, []);
+
+  // Two-way merge: pull cloud saves, keep the newer of each hero by lastPlayedAt,
+  // write the union locally, then push anything local-newer/local-only back up.
+  async function syncWithCloud() {
+    try {
+      const cloud = await fetchCloudSaves();
+      const byId = new Map<string, SaveSlot>();
+      for (const s of cloud) byId.set(s.id, s);
+      const toPush: SaveSlot[] = [];
+      for (const s of getAllSaves()) {
+        const existing = byId.get(s.id);
+        if (!existing || s.lastPlayedAt > existing.lastPlayedAt) {
+          byId.set(s.id, s);
+          toPush.push(s);
+        }
+      }
+      overwriteSaves(
+        [...byId.values()].sort((a, b) => b.lastPlayedAt - a.lastPlayedAt),
+      );
+      setSlots(getAllSaves());
+      for (const s of toPush) {
+        try {
+          await upsertCloudSave(s);
+        } catch {
+          /* best effort */
+        }
+      }
+    } catch (e) {
+      console.warn("Cloud sync failed:", e);
+    }
+  }
+
+  // Track the auth session; sync when a session appears (sign-in / page load).
+  useEffect(() => {
+    let active = true;
+    getSession().then(({ data }) => {
+      if (!active) return;
+      setSession(data.session);
+      if (data.session) syncWithCloud();
+    });
+    const { data } = onAuthStateChange(async (event, s) => {
+      setSession(s);
+      if (event === "SIGNED_IN") await syncWithCloud();
+    });
+    return () => {
+      active = false;
+      data.subscription.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // While signed in, mirror every local write to the cloud (debounced/coalesced
+  // per hero so per-turn autosaves don't spam the network).
+  useEffect(() => {
+    if (!session) {
+      setSaveSyncHandler(null);
+      return;
+    }
+    const pending = new Map<string, SaveSlot>();
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const flush = () => {
+      timer = null;
+      const items = [...pending.values()];
+      pending.clear();
+      for (const slot of items) upsertCloudSave(slot).catch(() => {});
+    };
+    setSaveSyncHandler((e) => {
+      if (e.type === "upsert") {
+        pending.set(e.slot.id, e.slot);
+        if (!timer) timer = setTimeout(flush, 1500);
+      } else {
+        pending.delete(e.id);
+        deleteCloudSave(e.id).catch(() => {});
+      }
+    });
+    return () => {
+      if (timer) clearTimeout(timer);
+      flush();
+      setSaveSyncHandler(null);
+    };
+  }, [session]);
+
+  async function handleSignOut() {
+    await signOut();
+    setSession(null);
+  }
 
   useEffect(() => {
     if (!dungeonRun) return;
@@ -177,6 +273,17 @@ function App() {
   }
 
   if (!activeSlotId && !creating) {
+    if (showAuth) {
+      return (
+        <>
+          <AuthScreen
+            onAuthed={() => setShowAuth(false)}
+            onBack={() => setShowAuth(false)}
+          />
+          <FullscreenButton />
+        </>
+      );
+    }
     return (
       <>
         <CharacterSelect
@@ -185,6 +292,9 @@ function App() {
           onDelete={handleDeleteSlot}
           onNew={() => setCreating(true)}
           onImport={handleImportSlot}
+          onOpenAuth={() => setShowAuth(true)}
+          userEmail={session?.user?.email ?? null}
+          onSignOut={handleSignOut}
         />
         <FullscreenButton />
       </>
@@ -255,7 +365,12 @@ function App() {
         setConsumables(save.consumables ?? EMPTY_CONSUMABLES);
         setShopStock(
           save.shopStock ??
-            generateShopStock(save.character.level, save.character.classId, 4, save.clearedDungeons),
+            generateShopStock(
+              save.character.level,
+              save.character.classId,
+              4,
+              save.clearedDungeons,
+            ),
         );
         setSelectedAct(1);
         setDungeonRun({
@@ -463,7 +578,9 @@ function App() {
     const fee = restockFee(character.level);
     if (character.gold < fee) return;
     setCharacter({ ...character, gold: character.gold - fee });
-    setShopStock(generateShopStock(character.level, character.classId, 4, clearedDungeons));
+    setShopStock(
+      generateShopStock(character.level, character.classId, 4, clearedDungeons),
+    );
   }
 
   function handleForgeAddAffix(itemId: string) {
@@ -490,7 +607,9 @@ function App() {
     setInventory((prev) =>
       prev.map((i) => {
         if (i.id !== itemId) return i;
-        return isLocked ? rerollLockedAffix(i) : lockAndRerollAffix(i, affixIndex);
+        return isLocked
+          ? rerollLockedAffix(i)
+          : lockAndRerollAffix(i, affixIndex);
       }),
     );
     setCharacter((prev) =>
@@ -502,7 +621,10 @@ function App() {
     if (!character) return;
     const dungeon = DUNGEONS.find((d) => d.id === dungeonId);
     if (!dungeon) return;
-    preloadMonsterAssets([...dungeon.waves.map((m) => m.name), dungeon.boss.name]);
+    preloadMonsterAssets([
+      ...dungeon.waves.map((m) => m.name),
+      dungeon.boss.name,
+    ]);
     setRunItemsFound(0); // fresh per-clear item counter
     const startingLife = derived.maxLife;
     const startingMana = getStartingResource(character, derived);
@@ -601,7 +723,9 @@ function App() {
           continue;
         if (entry.minLevel && character.level < entry.minLevel) continue;
         if (!entry.dungeons && entry.maxLevel) {
-          const bossDef = DUNGEONS.find((d) => d.id === dungeonRun.dungeonId)?.boss;
+          const bossDef = DUNGEONS.find(
+            (d) => d.id === dungeonRun.dungeonId,
+          )?.boss;
           if (bossDef && bossDef.level > entry.maxLevel) continue;
         }
         if (entry.classId && entry.classId !== character.classId) continue;
@@ -692,7 +816,10 @@ function App() {
         if (Math.random() < alloyChance) {
           setCharacter((prev) =>
             prev
-              ? { ...prev, frozenAlloys: Math.min(10, (prev.frozenAlloys ?? 0) + 1) }
+              ? {
+                  ...prev,
+                  frozenAlloys: Math.min(10, (prev.frozenAlloys ?? 0) + 1),
+                }
               : prev,
           );
         }
@@ -714,7 +841,10 @@ function App() {
       if (wasNew && dungeonRun.dungeonId === "frostforge") {
         setCharacter((prev) =>
           prev
-            ? { ...prev, frozenAlloys: Math.min(10, (prev.frozenAlloys ?? 0) + 3) }
+            ? {
+                ...prev,
+                frozenAlloys: Math.min(10, (prev.frozenAlloys ?? 0) + 3),
+              }
             : prev,
         );
       }
@@ -871,9 +1001,21 @@ function App() {
         selectedAct={selectedAct}
         onSelectAct={setSelectedAct}
         selectedTab={hubTab}
-        onSelectTab={(t: "character" | "inventory" | "dungeons" | "merchant" | "gambler" | "journal") => {
+        onSelectTab={(
+          t:
+            | "character"
+            | "inventory"
+            | "dungeons"
+            | "merchant"
+            | "gambler"
+            | "journal",
+        ) => {
           if (t === "inventory") setHasUnseenDrops(false);
-          if (t === "dungeons" && !clearedDungeons.includes("sewers") && !hasShownSewersIntro) {
+          if (
+            t === "dungeons" &&
+            !clearedDungeons.includes("sewers") &&
+            !hasShownSewersIntro
+          ) {
             setShowSewersIntro(true);
             setHasShownSewersIntro(true);
           }

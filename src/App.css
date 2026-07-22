@@ -9,6 +9,7 @@
 @import "./styles/base.css";
 @import "./styles/character-creation.css";
 @import "./styles/character-select.css";
+@import "./styles/auth.css";
 @import "./styles/hub.css";
 @import "./styles/character-tab.css";
 @import "./styles/inventory-tab.css";

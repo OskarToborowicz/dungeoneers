@@ -1,0 +1,129 @@
+/* ── Auth (login / signup) ───────────────────────────────────────────────── */
+
+.auth-screen {
+  align-items: center;
+  text-align: center;
+}
+
+.auth-panel {
+  width: 100%;
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 6px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-gold);
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 8px;
+  background: none;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-dim);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.auth-tab.active {
+  background: rgba(227, 164, 84, 0.15);
+  color: var(--text-heading);
+}
+
+.auth-label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  text-align: left;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.auth-input {
+  background: var(--bg-dark, #1a140e);
+  border: 1px solid var(--border-gold);
+  border-radius: 4px;
+  color: var(--text-heading);
+  font-size: 15px;
+  padding: 10px 12px;
+  box-sizing: border-box;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--border-gold-bright);
+}
+
+.auth-error {
+  margin: 0;
+  color: var(--accent-red-bright);
+  font-size: 13px;
+  text-align: left;
+}
+
+.auth-info {
+  margin: 0;
+  color: var(--text-heading);
+  font-size: 13px;
+  text-align: left;
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--text-dim);
+  font-size: 12px;
+  margin: 2px 0;
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border-gold);
+  opacity: 0.5;
+}
+
+.auth-google-button {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-gold);
+  color: var(--text-heading);
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.auth-google-button:hover:not(:disabled) {
+  border-color: var(--border-gold-bright);
+}
+
+.auth-google-button:disabled,
+.auth-panel .primary-button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.auth-back-button {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 13px;
+  cursor: pointer;
+  margin-top: 2px;
+}
+
+.auth-back-button:hover {
+  color: var(--text-heading);
+}

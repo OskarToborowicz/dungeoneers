@@ -26,3 +26,4 @@ dist-ssr
 .aider*
 .claude
 .vscode
+.env

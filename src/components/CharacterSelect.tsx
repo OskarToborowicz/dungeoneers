@@ -23,6 +23,9 @@ interface Props {
   onDelete: (slotId: string) => void;
   onNew: () => void;
   onImport: (code: string) => Promise<string | null>;
+  onOpenAuth: () => void;
+  userEmail: string | null;
+  onSignOut: () => void;
 }
 
 export function CharacterSelect({
@@ -31,6 +34,9 @@ export function CharacterSelect({
   onDelete,
   onNew,
   onImport,
+  onOpenAuth,
+  userEmail,
+  onSignOut,
 }: Props) {
   const [confirmId, setConfirmId] = useState<string | null>(null);
   const [muted, setMuted] = useState(isSoundMuted());
@@ -237,6 +243,25 @@ export function CharacterSelect({
         📥 Import Hero
       </button>
 
+      {userEmail ? (
+        <div className="account-row">
+          <span className="account-email" title={userEmail}>
+            ☁ {userEmail}
+          </span>
+          <button className="account-signout" onClick={onSignOut}>
+            Sign out
+          </button>
+        </div>
+      ) : (
+        <button
+          className="transfer-open-button"
+          onClick={onOpenAuth}
+          style={{ marginTop: 10 }}
+        >
+          🔐 Sign In / Sign Up
+        </button>
+      )}
+
       {exportCode && (
         <div className="transfer-overlay" onClick={() => setExportCode(null)}>
           <div className="transfer-modal" onClick={(e) => e.stopPropagation()}>
@@ -275,8 +300,8 @@ export function CharacterSelect({
           <div className="transfer-modal" onClick={(e) => e.stopPropagation()}>
             <h3 className="transfer-title">Import Hero</h3>
             <p className="transfer-hint">
-              Load the exported file, or paste the code. It's added as a new hero
-              — your existing saves are untouched.
+              Load the exported file, or paste the code. It's added as a new
+              hero — your existing saves are untouched.
             </p>
             <label className="transfer-file-button">
               Load from file…
