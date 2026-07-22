@@ -26,8 +26,19 @@ export async function fetchCloudSaves(): Promise<SaveSlot[]> {
 }
 
 export async function upsertCloudSave(slot: SaveSlot): Promise<void> {
+  // Send user_id explicitly. Relying on the column's `default auth.uid()` is
+  // unreliable for PostgREST upserts (the ON CONFLICT target needs the value in
+  // the payload). RLS still enforces user_id = auth.uid(), so this can't be
+  // forged. getSession() reads the cached session locally (no network).
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const userId = session?.user?.id;
+  if (!userId) return; // not signed in — nothing to sync
+
   const { error } = await supabase.from(TABLE).upsert(
     {
+      user_id: userId,
       slot_id: slot.id,
       save: slot.save,
       last_played_at: slot.lastPlayedAt,

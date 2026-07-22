@@ -152,8 +152,8 @@ function App() {
       for (const s of toPush) {
         try {
           await upsertCloudSave(s);
-        } catch {
-          /* best effort */
+        } catch (e) {
+          console.warn("Cloud upsert failed for", s.id, e);
         }
       }
     } catch (e) {
@@ -194,7 +194,10 @@ function App() {
       timer = null;
       const items = [...pending.values()];
       pending.clear();
-      for (const slot of items) upsertCloudSave(slot).catch(() => {});
+      for (const slot of items)
+        upsertCloudSave(slot).catch((err) =>
+          console.warn("Cloud upsert failed for", slot.id, err),
+        );
     };
     setSaveSyncHandler((e) => {
       if (e.type === "upsert") {
@@ -202,7 +205,9 @@ function App() {
         if (!timer) timer = setTimeout(flush, 1500);
       } else {
         pending.delete(e.id);
-        deleteCloudSave(e.id).catch(() => {});
+        deleteCloudSave(e.id).catch((err) =>
+          console.warn("Cloud delete failed for", e.id, err),
+        );
       }
     });
     return () => {

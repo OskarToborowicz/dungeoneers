@@ -1,13 +1,16 @@
 -- ============================================================================
 -- Diabolo — Supabase Postgres schema
--- Paste into Supabase → SQL Editor and run. Idempotent-ish: safe to re-run
--- (uses IF NOT EXISTS / OR REPLACE where possible). Requires the built-in
--- `auth` schema (present in every Supabase project).
+-- Paste into Supabase → SQL Editor and run. Safe to re-run (IF NOT EXISTS /
+-- OR REPLACE / DROP ... IF EXISTS). Requires the built-in `auth` schema.
 --
 -- Design: a hero save is an opaque JSON blob (matches the client's SaveGame).
 -- The app never queries inside it server-side, so one jsonb column per hero is
--- the right model — simple, and the cloud-sync layer (src/services/cloudSaves.ts)
--- reads/writes whole saves. RLS scopes every row to its owner.
+-- the right model. RLS scopes every row to its owner. See src/services/cloudSaves.ts.
+--
+-- ORDER MATTERS: game_saves is created FIRST and standalone. The profiles block
+-- installs a trigger on auth.users, which is the only part that could fail on a
+-- locked-down project — keeping it last means a failure there can't stop the
+-- core saves table from being created.
 -- ============================================================================
 
 -- ── Helper: auto-touch updated_at on every UPDATE ───────────────────────────
@@ -22,8 +25,45 @@ end;
 $$;
 
 -- ============================================================================
+-- game_saves — one row per hero, per user. `save` is the full SaveGame blob.
+-- PK (user_id, slot_id): slot_id is the client-generated save id.
+-- last_played_at is the client's JS timestamp (ms) — sync uses it for
+-- last-write-wins conflict resolution.
+-- ============================================================================
+create table if not exists public.game_saves (
+  user_id        uuid   not null default auth.uid()
+                          references auth.users (id) on delete cascade,
+  slot_id        text   not null,
+  save           jsonb  not null,
+  last_played_at bigint not null,
+  created_at     timestamptz not null default now(),
+  updated_at     timestamptz not null default now(),
+  primary key (user_id, slot_id),
+  -- Cheap sanity guard: a valid save always carries a character object.
+  constraint game_saves_has_character check (save ? 'character')
+);
+
+-- Ordering saves newest-first per user (list screen, merge).
+create index if not exists game_saves_user_last_played_idx
+  on public.game_saves (user_id, last_played_at desc);
+
+alter table public.game_saves enable row level security;
+
+drop policy if exists "game_saves: owner full access" on public.game_saves;
+create policy "game_saves: owner full access"
+  on public.game_saves for all to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop trigger if exists game_saves_set_updated_at on public.game_saves;
+create trigger game_saves_set_updated_at
+  before update on public.game_saves
+  for each row execute function public.set_updated_at();
+
+-- ============================================================================
 -- profiles — one row per auth user (app-facing account data). Auto-created on
 -- signup. Extend later with display_name, avatar, stats, etc.
+-- (Kept last: the auth.users trigger is the only permission-sensitive bit.)
 -- ============================================================================
 create table if not exists public.profiles (
   id           uuid primary key references auth.users (id) on delete cascade,
@@ -78,39 +118,3 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
-
--- ============================================================================
--- game_saves — one row per hero, per user. `save` is the full SaveGame blob.
--- Primary key (user_id, slot_id): slot_id is the client-generated save id.
--- last_played_at is the client's JS timestamp (ms) — the sync layer uses it to
--- resolve which side is newer (last-write-wins).
--- ============================================================================
-create table if not exists public.game_saves (
-  user_id        uuid   not null default auth.uid()
-                          references auth.users (id) on delete cascade,
-  slot_id        text   not null,
-  save           jsonb  not null,
-  last_played_at bigint not null,
-  created_at     timestamptz not null default now(),
-  updated_at     timestamptz not null default now(),
-  primary key (user_id, slot_id),
-  -- Cheap sanity guard: a valid save always carries a character object.
-  constraint game_saves_has_character check (save ? 'character')
-);
-
--- Ordering saves newest-first per user (list screen, merge).
-create index if not exists game_saves_user_last_played_idx
-  on public.game_saves (user_id, last_played_at desc);
-
-alter table public.game_saves enable row level security;
-
-drop policy if exists "game_saves: owner full access" on public.game_saves;
-create policy "game_saves: owner full access"
-  on public.game_saves for all to authenticated
-  using (auth.uid() = user_id)
-  with check (auth.uid() = user_id);
-
-drop trigger if exists game_saves_set_updated_at on public.game_saves;
-create trigger game_saves_set_updated_at
-  before update on public.game_saves
-  for each row execute function public.set_updated_at();
