@@ -101,11 +101,17 @@ function toBase64(s: string): string {
   const bytes = new TextEncoder().encode(s);
   let bin = "";
   for (const b of bytes) bin += String.fromCharCode(b);
-  return btoa(bin);
+  // base64url, no padding — survives copy through mail/messengers/URLs, which
+  // otherwise wrap long lines or mangle standard base64's `+` `/` `=`.
+  return btoa(bin).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 }
 
 function fromBase64(b64: string): string {
-  const bin = atob(b64);
+  // Tolerate whitespace/line-wraps added in transit and accept both base64url
+  // (new codes) and standard base64 (older codes), then re-pad for atob.
+  let s = b64.replace(/\s+/g, "").replace(/-/g, "+").replace(/_/g, "/");
+  while (s.length % 4) s += "=";
+  const bin = atob(s);
   const bytes = Uint8Array.from(bin, (c) => c.charCodeAt(0));
   return new TextDecoder().decode(bytes);
 }

@@ -88,8 +88,7 @@ export function CombatScreen({
 }: Props) {
   const def = CLASSES[character.classId];
   // Monk shares the "mana" resourceType but paints its bar in Chi green.
-  const resourceClass =
-    character.classId === "monk" ? "chi" : def.resourceType;
+  const resourceClass = character.classId === "monk" ? "chi" : def.resourceType;
   const logRef = useRef<HTMLDivElement | null>(null);
 
   const [battle, setBattle] = useState<BattleState>(() =>
@@ -165,7 +164,8 @@ export function CombatScreen({
       const scale = Math.min(arena.width / 200, arena.height / 120);
       if (scale === 0) return;
       const offsetX = (arena.width - 200 * scale) / 2;
-      const toSvgX = (clientX: number) => (clientX - arena.left - offsetX) / scale;
+      const toSvgX = (clientX: number) =>
+        (clientX - arena.left - offsetX) / scale;
       const launchX = toSvgX((player.left + player.right) / 2); // player sprite centre
       const impactX = toSvgX((monster.left + monster.right) / 2); // monster sprite centre
       setFxAnchors((prev) =>
@@ -445,22 +445,33 @@ export function CombatScreen({
   const monsterStatusPills = (
     <>
       {battle.poisonRounds > 0 && (
-        <span className="status-pill poison">☠ Poison {battle.poisonRounds}</span>
+        <span className="status-pill poison">
+          ☠ Poison {battle.poisonRounds}
+        </span>
       )}
       {battle.stunnedRounds > 0 && (
-        <span className="status-pill stunned">💫 Stunned {battle.stunnedRounds}</span>
+        <span className="status-pill stunned">
+          💫 Stunned {battle.stunnedRounds}
+        </span>
       )}
       {battle.frozenRounds > 0 && (
-        <span className="status-pill frozen">❄ Frozen {battle.frozenRounds}</span>
+        <span className="status-pill frozen">
+          ❄ Frozen {battle.frozenRounds}
+        </span>
       )}
       {battle.blindRounds > 0 && (
         <span className="status-pill blind">◉ Blind {battle.blindRounds}</span>
       )}
       {battle.disorientRounds > 0 && (
-        <span className="status-pill disorient">◌ Disorient {battle.disorientRounds}</span>
+        <span className="status-pill disorient">
+          ◌ Disorient {battle.disorientRounds}
+        </span>
       )}
       {battle.thornStacks > 0 && (
-        <span className="status-pill poison" title="Bramble — erupts at 3 stacks">
+        <span
+          className="status-pill poison"
+          title="Bramble — erupts at 3 stacks"
+        >
           🌿 Thorns {battle.thornStacks}/3
         </span>
       )}
@@ -483,7 +494,9 @@ export function CombatScreen({
         );
       })}
       {battle.electrocuteRounds > 0 && (
-        <span className="status-pill electrocute">⚡ Electrocute {battle.electrocuteRounds}</span>
+        <span className="status-pill electrocute">
+          ⚡ Electrocute {battle.electrocuteRounds}
+        </span>
       )}
     </>
   );
@@ -862,7 +875,7 @@ export function CombatScreen({
               <p>
                 You are dead.{" "}
                 {softcoreMode
-                  ? "You lose 10% of your gold and XP."
+                  ? "You lose all gold and current level xp on death"
                   : "All progress will be lost."}
               </p>
             )}
