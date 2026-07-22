@@ -143,34 +143,46 @@ export async function encodeSaveCode(save: SaveGame): Promise<string> {
   return SAVE_CODE_PREFIX + bytesToB64url(bytes);
 }
 
+// Throws with a descriptive error if the code is malformed / not a hero.
+async function decodeToSave(code: string): Promise<SaveGame> {
+  const trimmed = code.trim();
+  if (!trimmed) throw new Error("empty code");
+  let jsonBytes: Uint8Array;
+  if (trimmed.startsWith(SAVE_CODE_PREFIX_GZ)) {
+    jsonBytes = await gunzip(
+      b64urlToBytes(trimmed.slice(SAVE_CODE_PREFIX_GZ.length)),
+    );
+  } else {
+    const body = trimmed.startsWith(SAVE_CODE_PREFIX)
+      ? trimmed.slice(SAVE_CODE_PREFIX.length)
+      : trimmed;
+    jsonBytes = b64urlToBytes(body);
+  }
+  const parsed = JSON.parse(new TextDecoder().decode(jsonBytes));
+  const save = (parsed?.save ?? parsed) as SaveGame;
+  if (!save?.character?.classId || !save?.character?.name) {
+    throw new Error("not a hero save");
+  }
+  return save;
+}
+
 // Decodes a code back to a SaveGame, or null if it's malformed / not a hero.
 export async function decodeSaveCode(code: string): Promise<SaveGame | null> {
-  const trimmed = code.trim();
   try {
-    let jsonBytes: Uint8Array;
-    if (trimmed.startsWith(SAVE_CODE_PREFIX_GZ)) {
-      jsonBytes = await gunzip(
-        b64urlToBytes(trimmed.slice(SAVE_CODE_PREFIX_GZ.length)),
-      );
-    } else {
-      const body = trimmed.startsWith(SAVE_CODE_PREFIX)
-        ? trimmed.slice(SAVE_CODE_PREFIX.length)
-        : trimmed;
-      jsonBytes = b64urlToBytes(body);
-    }
-    const parsed = JSON.parse(new TextDecoder().decode(jsonBytes));
-    const save = (parsed?.save ?? parsed) as SaveGame;
-    if (!save?.character?.classId || !save?.character?.name) return null;
-    return save;
+    return await decodeToSave(code);
   } catch {
     return null;
   }
 }
 
 // Imports a code as a NEW hero (fresh id, so it never overwrites an existing
-// save). Returns the new slot id, or null if the code is invalid.
-export async function importSaveCode(code: string): Promise<string | null> {
-  const save = await decodeSaveCode(code);
-  if (!save) return null;
-  return createSave(save);
+// save). Returns the new slot id, or a descriptive error message.
+export async function importSaveCode(
+  code: string,
+): Promise<{ id: string } | { error: string }> {
+  try {
+    return { id: createSave(await decodeToSave(code)) };
+  } catch (e) {
+    return { error: e instanceof Error ? `${e.name}: ${e.message}` : String(e) };
+  }
 }

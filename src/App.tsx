@@ -295,8 +295,8 @@ function App() {
     if (slots.length >= MAX_SAVE_SLOTS) {
       return `Hero limit reached (${MAX_SAVE_SLOTS}). Delete one first.`;
     }
-    const id = await importSaveCode(code);
-    if (!id) return "Invalid or corrupt hero code.";
+    const res = await importSaveCode(code);
+    if ("error" in res) return `Import failed — ${res.error}`;
     setSlots(getAllSaves());
     return null;
   }

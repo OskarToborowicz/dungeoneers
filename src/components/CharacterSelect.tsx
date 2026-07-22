@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ClassIcon } from "./ClassIcon";
 import { CharacterSprite } from "./sprites/CharacterSprite";
 import type { SaveSlot } from "../game/storage";
@@ -39,25 +39,73 @@ export function CharacterSelect({
   const [importOpen, setImportOpen] = useState(false);
   const [importText, setImportText] = useState("");
   const [importError, setImportError] = useState<string | null>(null);
+  const [exportName, setExportName] = useState("");
+  const exportTextareaRef = useRef<HTMLTextAreaElement>(null);
 
   async function handleCopy() {
     if (!exportCode) return;
+    // Modern clipboard API only works in a secure context (https/localhost).
+    // Over a LAN dev address or in an in-app webview it's blocked, so fall back
+    // to selecting the textarea + execCommand, which works on plain http/mobile.
     try {
-      await navigator.clipboard.writeText(exportCode);
-      setCopied(true);
+      if (window.isSecureContext && navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(exportCode);
+        setCopied(true);
+        return;
+      }
     } catch {
-      setCopied(false);
+      /* fall through to legacy copy */
     }
+    const ta = exportTextareaRef.current;
+    if (ta) {
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, ta.value.length);
+      try {
+        setCopied(document.execCommand("copy"));
+        return;
+      } catch {
+        /* nothing more we can do */
+      }
+    }
+    setCopied(false);
   }
 
-  async function handleImport() {
-    const err = await onImport(importText);
+  async function handleImport(codeArg?: string) {
+    const code = codeArg ?? importText;
+    const err = await onImport(code);
     if (err) {
       setImportError(err);
+      if (codeArg) setImportText(codeArg);
     } else {
       setImportOpen(false);
       setImportText("");
     }
+  }
+
+  // File transfer — the reliable path on mobile, where programmatic clipboard is
+  // blocked or silently no-ops. Export downloads the code as a .txt; import
+  // reads a chosen file and imports its contents directly.
+  function handleDownload() {
+    if (!exportCode) return;
+    const blob = new Blob([exportCode], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${(exportName || "hero").replace(/[^\w-]+/g, "_")}-diabolo.txt`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function handleImportFile(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // let the same file be picked again after an error
+    if (!file) return;
+    const text = await file.text();
+    setImportText(text);
+    await handleImport(text);
   }
 
   function handleDeleteClick(e: React.MouseEvent, id: string) {
@@ -136,6 +184,7 @@ export function CharacterSelect({
                   onClick={async (e) => {
                     e.stopPropagation();
                     setCopied(false);
+                    setExportName(character.name);
                     setExportCode(await encodeSaveCode(slot.save));
                   }}
                   title="Export hero (transfer code)"
@@ -193,17 +242,22 @@ export function CharacterSelect({
           <div className="transfer-modal" onClick={(e) => e.stopPropagation()}>
             <h3 className="transfer-title">Export Hero</h3>
             <p className="transfer-hint">
-              Copy this code and paste it on your other device via “Import Hero”.
+              Save the file (most reliable on phones) or copy the code, then use
+              “Import Hero” on the other device.
             </p>
             <textarea
+              ref={exportTextareaRef}
               className="transfer-textarea"
               readOnly
               value={exportCode}
               onFocus={(e) => e.currentTarget.select()}
             />
             <div className="transfer-actions">
-              <button className="primary-button" onClick={handleCopy}>
-                {copied ? "Copied!" : "Copy"}
+              <button className="primary-button" onClick={handleDownload}>
+                Download file
+              </button>
+              <button className="transfer-cancel-button" onClick={handleCopy}>
+                {copied ? "Copied!" : "Copy code"}
               </button>
               <button
                 className="transfer-cancel-button"
@@ -221,13 +275,22 @@ export function CharacterSelect({
           <div className="transfer-modal" onClick={(e) => e.stopPropagation()}>
             <h3 className="transfer-title">Import Hero</h3>
             <p className="transfer-hint">
-              Paste a hero code exported from another device. It's added as a new
-              hero — your existing saves are untouched.
+              Load the exported file, or paste the code. It's added as a new hero
+              — your existing saves are untouched.
             </p>
+            <label className="transfer-file-button">
+              Load from file…
+              <input
+                type="file"
+                accept=".txt,text/plain"
+                onChange={handleImportFile}
+                style={{ display: "none" }}
+              />
+            </label>
             <textarea
               className="transfer-textarea"
               value={importText}
-              placeholder="DIABOLO1:…"
+              placeholder="…or paste code (DIABOLO2:…)"
               onChange={(e) => {
                 setImportText(e.target.value);
                 setImportError(null);
@@ -238,7 +301,7 @@ export function CharacterSelect({
               <button
                 className="primary-button"
                 disabled={!importText.trim()}
-                onClick={handleImport}
+                onClick={() => handleImport()}
               >
                 Import
               </button>
