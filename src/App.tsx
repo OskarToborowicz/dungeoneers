@@ -625,6 +625,20 @@ function App() {
     );
   }
 
+  function handleForgeSmeltUnique(itemId: string) {
+    if (!character) return;
+    // Alloys cap at 10 everywhere; don't consume a unique for nothing.
+    if ((character.frozenAlloys ?? 0) >= 10) return;
+    const item = inventory.find((i) => i.id === itemId);
+    if (!item || item.rarity !== "unique" || item.itemLevel < 40) return;
+    setInventory((prev) => prev.filter((i) => i.id !== itemId));
+    setCharacter((prev) =>
+      prev
+        ? { ...prev, frozenAlloys: Math.min(10, (prev.frozenAlloys ?? 0) + 1) }
+        : prev,
+    );
+  }
+
   function handleStartDungeon(dungeonId: string) {
     if (!character) return;
     const dungeon = DUNGEONS.find((d) => d.id === dungeonId);
@@ -820,7 +834,7 @@ function App() {
       const bossLevel = monster.level;
       if (bossLevel >= 40) {
         const levelDiff = character.level - bossLevel;
-        const alloyChance = levelDiff >= 7 ? 0.005 : 0.04;
+        const alloyChance = levelDiff >= 7 ? 0.005 : 0.06;
         if (Math.random() < alloyChance) {
           setCharacter((prev) =>
             prev
@@ -1004,6 +1018,7 @@ function App() {
         frostforgeCleared={clearedDungeons.includes("frostforge")}
         onForgeAddAffix={handleForgeAddAffix}
         onForgeRerollAffix={handleForgeRerollAffix}
+        onForgeSmeltUnique={handleForgeSmeltUnique}
         droppedItem={droppedItem}
         onDismissDroppedItem={() => setDroppedItem(null)}
         selectedAct={selectedAct}

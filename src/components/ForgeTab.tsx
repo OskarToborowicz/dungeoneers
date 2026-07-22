@@ -16,23 +16,38 @@ function formatAffix(affix: ItemAffix): string {
   return `+${val} ${label}`;
 }
 
+const ALLOY_CAP = 10;
+const SMELT_MIN_ILVL = 40;
+
 interface Props {
   character: Character;
   inventory: Item[];
   onAddAffix: (itemId: string) => void;
   onRerollAffix: (itemId: string, affixIndex: number) => void;
+  onSmeltUnique: (itemId: string) => void;
 }
 
-export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Props) {
+export function ForgeTab({
+  character,
+  inventory,
+  onAddAffix,
+  onRerollAffix,
+  onSmeltUnique,
+}: Props) {
+  const [mode, setMode] = useState<"reforge" | "smelt">("reforge");
   const [forgeItemId, setForgeItemId] = useState<string | null>(null);
   const [selectedAffixIdx, setSelectedAffixIdx] = useState<number | null>(null);
   const { hovered, onMouseEnter, onMouseLeave, tooltipStyle } = useItemHover();
 
   const rares = inventory.filter(isForgeable);
+  const smeltables = inventory.filter(
+    (i) => i.rarity === "unique" && i.itemLevel >= SMELT_MIN_ILVL,
+  );
   const forgeItem = forgeItemId ? inventory.find((i) => i.id === forgeItemId) : null;
 
   const alloys = character.frozenAlloys ?? 0;
   const canAct = alloys > 0;
+  const alloysFull = alloys >= ALLOY_CAP;
 
   function handlePlaceItem(item: Item) {
     setForgeItemId(item.id);
@@ -67,10 +82,62 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
         <h2 className="forge-title">The Forge</h2>
         <div className="forge-alloy-count">
           <span className="alloy-icon">❄</span>
-          {alloys}/10 Frozen Alloys
+          {alloys}/{ALLOY_CAP} Frozen Alloys
         </div>
       </div>
 
+      <div className="act-selector forge-mode-selector">
+        <button
+          className={`act-tab${mode === "reforge" ? " active" : ""}`}
+          onClick={() => setMode("reforge")}
+        >
+          Reforge
+        </button>
+        <button
+          className={`act-tab${mode === "smelt" ? " active" : ""}`}
+          onClick={() => setMode("smelt")}
+        >
+          Smelt
+        </button>
+      </div>
+
+      {mode === "smelt" ? (
+        <div className="forge-smelt">
+          <p className="forge-smelt-intro">
+            Smelt a unique item (ilvl {SMELT_MIN_ILVL}+) down into{" "}
+            <span className="alloy-icon">❄</span> 1 Frozen Alloy. This destroys
+            the item.
+          </p>
+          {alloysFull && (
+            <p className="forge-hint">
+              Frozen Alloys are full ({ALLOY_CAP}/{ALLOY_CAP}).
+            </p>
+          )}
+          {smeltables.length === 0 ? (
+            <p className="forge-no-rares">
+              No unique items of ilvl {SMELT_MIN_ILVL}+ in inventory.
+            </p>
+          ) : (
+            <div className="forge-inv-grid">
+              {smeltables.map((item) => (
+                <button
+                  key={item.id}
+                  className="forge-inv-cell forge-smelt-cell"
+                  style={{ color: RARITY_COLORS[item.rarity] }}
+                  disabled={alloysFull}
+                  onClick={() => onSmeltUnique(item.id)}
+                  onMouseEnter={(e) => onMouseEnter(item, e)}
+                  onMouseLeave={onMouseLeave}
+                >
+                  {item.name}
+                  <span className="forge-inv-affixes">ilvl {item.itemLevel}</span>
+                  <span className="forge-smelt-yield">→ 1 ❄</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
       <div className="forge-body">
         <div className="forge-slot-area">
           <div className="forge-slot-label">Place a rare or very rare item</div>
@@ -215,6 +282,7 @@ export function ForgeTab({ character, inventory, onAddAffix, onRerollAffix }: Pr
           )}
         </div>
       </div>
+      )}
 
       {hovered && tooltipStyle() && (
         <div style={tooltipStyle()!} className="item-tooltip-portal">

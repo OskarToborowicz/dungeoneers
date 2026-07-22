@@ -377,6 +377,47 @@
   color: #7ecfee;
 }
 
+/* ── Smelt sub-tab ─────────────────────────────────────────────────────────── */
+.forge-mode-selector {
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+
+.forge-smelt {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+}
+
+.forge-smelt-intro {
+  font-size: 13px;
+  color: var(--text-dim);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.forge-smelt-cell {
+  position: relative;
+}
+
+.forge-smelt-cell:not(:disabled):hover {
+  border-color: #7ecfee;
+  background: rgba(126, 207, 238, 0.08);
+}
+
+.forge-smelt-cell:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.forge-smelt-yield {
+  font-size: 11px;
+  color: #7ecfee;
+  font-weight: 600;
+}
+
 /* Item has used all its Forge re-rolls — dim it and badge it so the player can
    tell at a glance without a number (the count lives in the Forge panel only). */
 .forge-inv-maxed {

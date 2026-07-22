@@ -70,6 +70,7 @@ interface Props {
   frostforgeCleared?: boolean;
   onForgeAddAffix?: (itemId: string) => void;
   onForgeRerollAffix?: (itemId: string, affixIndex: number) => void;
+  onForgeSmeltUnique?: (itemId: string) => void;
   droppedItem?: Item | null;
   onDismissDroppedItem?: () => void;
   selectedAct: 1 | 2 | 3 | 4;
@@ -129,6 +130,7 @@ export function Hub({
   frostforgeCleared = false,
   onForgeAddAffix,
   onForgeRerollAffix,
+  onForgeSmeltUnique,
   droppedItem,
   onDismissDroppedItem,
   selectedAct,
@@ -705,6 +707,7 @@ export function Hub({
                   inventory={inventory}
                   onAddAffix={onForgeAddAffix ?? (() => {})}
                   onRerollAffix={onForgeRerollAffix ?? (() => {})}
+                  onSmeltUnique={onForgeSmeltUnique ?? (() => {})}
                 />
               )}
             </div>
