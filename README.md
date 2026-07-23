@@ -20,8 +20,9 @@ A browser-based Diablo-style dungeon crawler built with React + TypeScript.
 12. [The Forge](#the-forge)
 13. [Consumables](#consumables)
 14. [Dungeons](#dungeons)
-15. [Journal](#journal)
-16. [Save System](#save-system)
+15. [The Eternal Spire](#the-eternal-spire)
+16. [Journal](#journal)
+17. [Save System](#save-system)
 
 ---
 
@@ -284,7 +285,7 @@ Vanish hurls a metal powder burst for `0.75×` weapon damage, then grants immuni
 
 ### Status Effects
 
-Active status effects are shown as colored pills below each combatant's HP bar, and on the sprites themselves. **Both the player and the monster** show the same visuals: poison as rising green bubbles, burn as a flickering orange aura. Both draw on top of the model. The **monster's sprite aura settles in ~1 second after** the status is applied, so it doesn't pop mid-swing (the pill updates immediately; only the on-sprite aura is delayed).
+Active status effects are shown as compact colored pills below each combatant's HP bar (just the **icon + remaining rounds** — tap a pill to reveal its name), and on the sprites themselves. **Both the player and the monster** show the same visuals: poison as rising green bubbles, burn as a flickering orange aura. Both draw on top of the model. The **monster's sprite aura settles in ~1 second after** the status is applied, so it doesn't pop mid-swing (the pill updates immediately; only the on-sprite aura is delayed).
 
 **On the monster:**
 
@@ -964,6 +965,38 @@ Unlocked after clearing Sacrificial Altar.
 - Regular wave kill: **35% chance** to drop one item.
 - Boss kill: **100% chance** to drop one item + independent rolls from `UNIQUE_DROP_TABLE`.
 - Dropped item level equals the monster's level.
+
+---
+
+## The Eternal Spire
+
+An endless scaling tower — endgame content unlocked at **character level 50**. Entered from a card at the top of the Dungeons tab.
+
+### Structure
+
+- **One monster per floor.** Difficulty scales **linearly** with floor number; the displayed monster level is `50 + floor`.
+- **A Warden guards every 5th floor** (5, 10, 15…) — tougher (~2.5× life), hits harder, and casts a spell.
+- After **every** floor kill the player chooses: **Descend** (next floor) or **Leave the Spire** (bank everything and return to the Hub). There is no forced advance.
+
+### Loot & reward cards
+
+- **Loot drops only from Wardens.** Regular floors drop nothing. A Warden drops items (including a chance at uniques).
+- Clearing a **Warden also presents 2 reward cards** — pick one:
+
+| Card | Reward |
+|---|---|
+| ❄ Frozen Alloy | +1 alloy (capped at 10) |
+| 💰 Gold Hoard | a large gold pile (scales with floor) |
+| 💪 Ascension | +5 stat points (like a level's worth, without leveling) |
+| 🗡 Unique Relic | a random unique (item level = 50 + floor) |
+
+The pool is small for now and will grow. XP inside the Spire respects the normal XP cap (the Spire is post-cap content — power comes from the cards and loot, not XP).
+
+### Death, resume, records
+
+- **Death is as final as anywhere** — Hardcore permadeath, Softcore loses gold + current-level XP and exits. Fleeing works as in dungeons.
+- The run **auto-saves per floor** and resumes on reload. Clearing a floor immediately banks progress to the **next** floor, so leaving (or reloading) never forces a re-fight — the Dungeons card offers **Resume — Floor (highest cleared + 1)**.
+- Each hero records its **highest floor cleared**. A **leaderboard** shows the single top record for **Hardcore** and **Softcore** (requires the app to be signed in to submit; anyone can view). The record is submitted the moment a new best floor is cleared — before any death.
 
 ---
 

@@ -44,7 +44,10 @@ a weak class could reflect a weak policy rather than weak tuning. Sustain classe
 | `src/services/auths.ts` / `cloudSaves.ts` | Supabase auth wrappers + cloud save table (`game_saves`) access |
 | `src/components/AuthScreen.tsx` | Login/signup UI (email + Google) |
 | `src/components/skillAssets.ts` | Per-class skill-art SVG loader — `skillAsset()` / `skillAssets()` |
-| `supabase/schema.sql` | Postgres schema (`game_saves`, `profiles`, RLS) — run in Supabase SQL Editor |
+| `src/game/data/spire.ts` | Eternal Spire — floor/warden/card generators (`generateSpireFloor`, `rollRewardCards`) |
+| `src/components/SpireRewards.tsx` | Spire between-floor screen (reward cards + Descend/Leave) |
+| `src/services/spireLeaderboard.ts` | Spire leaderboard (`spire_scores` table) submit/fetch |
+| `supabase/schema.sql` | Postgres schema (`game_saves`, `profiles`, `spire_scores`, RLS) — run in Supabase SQL Editor |
 | `src/App.tsx` | Root state, routing between screens |
 | `src/App.css` | Aggregator only — `@import`s every file in `src/styles/` in cascade order. Never add rules directly here. |
 | `src/styles/*.css` | One file per section (e.g. `combat-screen.css`, `responsive-mobile.css`, `responsive-hub-landscape.css`, `responsive-gameover-landscape.css`). **Import order in `App.css` is load-bearing** — several responsive rules rely on later-in-cascade wins between equal-specificity selectors across files (e.g. `responsive-tablet-touch.css` must stay after `responsive-hub-landscape.css`). Adding a new file requires adding its `@import` line in the correct position, not just alphabetically. |
@@ -66,6 +69,7 @@ App
 │   ├── DungeonsTab
 │   └── GamblerTab
 ├── CombatScreen
+├── SpireRewards        (Eternal Spire between-floor screen)
 └── GameOverScreen
 ```
 
@@ -733,3 +737,61 @@ Optional — the game runs fully offline without it.
   gitignored. The anon key is public by design (inlined into the bundle) — real
   protection is **RLS**. Google OAuth uses `redirectTo: origin + BASE_URL`, which
   must be allow-listed in Supabase → Auth → URL Configuration.
+
+### The Eternal Spire (endless tower)
+
+Endgame content, unlocked at level 50. **Kept fully isolated from the dungeon
+run** so it can't trip dungeon-only branches (Clear Again / mark-cleared /
+pendingRestart).
+
+- **Data:** `src/game/data/spire.ts` — `generateSpireFloor(floor)` (one
+  `MonsterDefinition`; Warden every `WARDEN_INTERVAL=5`, ~2.5× life + a spell;
+  **linear** scaling, displayed level = `50 + floor`), `isWardenFloor`,
+  `checkpointForFloor`, `rollRewardCards` (`SpireCard` = alloy | gold | stats |
+  unique; **2 cards** for now).
+- **App state:** `spireRun` (floor + resource state) + `spireIntermission`
+  (`{ clearedFloor, result, cards, picked }`) — separate from `dungeonRun`, own
+  `handleSpireFinished` / `advanceSpire` / `handleSpireContinue` /
+  `handleSpireLeave` / `handlePickSpireCard`. SaveGame gets `activeSpireRun`
+  (resume), Character gets `spireHighestFloor`. Hub autosave + beforeunload guards
+  were extended with `spireRun`.
+- **Flow:** every floor kill → `spireIntermission` screen (`SpireRewards.tsx`):
+  Wardens show the 2 cards first (pick → reward applied), then **Descend / Leave**.
+  **Victory advances the run to the next floor immediately** (`advanceSpire` runs
+  before the intermission) so leaving/reloading resumes PAST the cleared floor,
+  never re-fighting it; Descend just re-persists (settled char + card reward) and
+  closes the intermission. The Dungeons card's Resume = `spireHighestFloor + 1`.
+- **Loot ONLY from Wardens** — `handleSpireRollDrops` early-returns on regular
+  floors. `isBossFight={false}` for the CombatScreen (no Clear Again); the handler
+  derives Warden status from `spireRun.floor`.
+- **Leaderboard:** `supabase/schema.sql` table `spire_scores` (PK
+  `(user_id, mode)`, **public read**, owner write). `services/spireLeaderboard.ts`
+  (`submitSpireScore` / `fetchTopSpireScores`). App submits the new best **on the
+  winning floor, before any death** (HC-safe), shows top-1 per HC/SC in the
+  Dungeons spire card. Top-1 only for now.
+- **Balance:** `npm run sim -- --spire --level=90` climbs floor 1→death per class
+  (avg/median/range of highest floor). Flags `--level`, `--gear`, `--class`, `--runs`.
+
+### Compact status pills
+
+`StatusPill` (in `CombatScreen.tsx`) renders every status as **icon + remaining
+rounds only**; tapping reveals the name inline (desktop also gets the full detail
+via native `title`). Inline-reveal, not a floating tooltip, because the landscape
+combat columns are `overflow: hidden` and would clip a popover. Keeps pills tiny
+so they don't push the landscape action buttons.
+
+### Landscape combat: stable action buttons
+
+In `responsive-combat-landscape.css` the `.combat-spells` buttons are
+`flex: none; height: 52px` and the column is `justify-content: flex-end` — pinned
+to the fixed bottom edge. The `bars` row above is `auto` and grows when a status
+pill appears; anchoring the buttons means that growth eats empty space instead of
+shrinking/shifting them (which caused mis-taps — attack fired instead of ability).
+
+### Journal on mobile
+
+`.journal-panel` **is** the `.tab-panel` (flex-column + overflow-hidden with an
+inner `.journal-scroll`). Portrait needs
+`.hub-content:has(.journal-panel) { overflow: hidden }` (in
+`responsive-mobile.css`) — same containment as inventory — or the panel overflows
+the hub on iOS instead of scrolling internally.

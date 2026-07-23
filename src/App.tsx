@@ -117,7 +117,6 @@ interface SpireRunState {
 // floors first present reward cards to pick (`cards` set, `picked` false).
 interface SpireIntermissionState {
   clearedFloor: number;
-  result: CombatResult;
   cards: SpireCard[] | null;
   picked: boolean;
 }
@@ -968,8 +967,7 @@ function App() {
       return;
     }
 
-    // Victory: gold + (cap-respecting) XP + record the floor. Do NOT advance —
-    // the player decides at the intermission whether to descend or leave.
+    // Victory: gold + (cap-respecting) XP + record the floor.
     const xpCap = getXpCapLevel(clearedDungeons);
     setCharacter((prev) => {
       if (!prev) return prev;
@@ -998,9 +996,13 @@ function App() {
         .catch((e) => console.warn("Spire score submit failed:", e));
     }
 
+    // Advance the run (and its resume save) to the NEXT floor immediately, so
+    // leaving or reloading from the reward screen resumes past the cleared floor
+    // rather than re-fighting it. The player still decides descend/leave at the
+    // intermission; Descend just closes it.
+    advanceSpire(floor, result);
     setSpireIntermission({
       clearedFloor: floor,
-      result,
       cards: isWardenFloor(floor)
         ? rollRewardCards({ floor, currentAlloys: character.frozenAlloys ?? 0 })
         : null,
@@ -1009,8 +1011,29 @@ function App() {
   }
 
   function handleSpireContinue() {
-    if (!spireIntermission) return;
-    advanceSpire(spireIntermission.clearedFloor, spireIntermission.result);
+    if (!spireRun || !character) return;
+    // Re-persist with the now-settled character (this floor's gold/XP + any card
+    // reward) at the already-advanced floor, then drop into the next fight.
+    if (activeSlotId) {
+      writeSave(activeSlotId, {
+        character,
+        equipment,
+        inventory,
+        clearedDungeons,
+        consumables,
+        shopStock,
+        inCombat: true,
+        activeSpireRun: {
+          floor: spireRun.floor,
+          currentLife: spireRun.currentLife,
+          currentMana: spireRun.currentMana,
+          currentCooldown: spireRun.currentCooldown,
+          currentCooldown2: spireRun.currentCooldown2,
+          currentPreparation: spireRun.currentPreparation,
+          currentHolyLightCharges: spireRun.currentHolyLightCharges,
+        },
+      });
+    }
     setSpireIntermission(null);
   }
 

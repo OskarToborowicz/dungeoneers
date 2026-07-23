@@ -1,9 +1,5 @@
 import { DUNGEONS } from "../game/data/dungeons";
-import {
-  SPIRE_UNLOCK_LEVEL,
-  WARDEN_INTERVAL,
-  checkpointForFloor,
-} from "../game/data/spire";
+import { SPIRE_UNLOCK_LEVEL, WARDEN_INTERVAL } from "../game/data/spire";
 import type { GameMode } from "../game/types";
 import type { SpireScore } from "../services/spireLeaderboard";
 
@@ -28,7 +24,9 @@ export function DungeonsTab({
   onStartSpire,
   spireTop,
 }: Props) {
-  const spireResumeFloor = checkpointForFloor(spireHighestFloor);
+  // Resume continues from the floor after the highest one cleared — leaving the
+  // Spire never forces a re-fight of a floor you already beat.
+  const spireResumeFloor = spireHighestFloor + 1;
   const act1Regular = DUNGEONS.filter((d) => d.act === 1 && !d.endgame);
   const act1Endgame = DUNGEONS.filter((d) => d.act === 1 && d.endgame);
   const act2Regular = DUNGEONS.filter((d) => d.act === 2 && !d.endgame);
@@ -125,7 +123,7 @@ export function DungeonsTab({
             <button className="spire-enter-btn" onClick={() => onStartSpire(1)}>
               Enter — Floor 1
             </button>
-            {spireResumeFloor >= WARDEN_INTERVAL && (
+            {spireHighestFloor >= 1 && (
               <button
                 className="spire-enter-btn"
                 onClick={() => onStartSpire(spireResumeFloor)}
