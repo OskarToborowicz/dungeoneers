@@ -552,7 +552,7 @@ reduction = floor(missingLifePct / 5) × 2%
 - The Frost Bolt button glows and reads "Comet ready!" when the next cast will drop the comet.
 
 ### Sorceress — Time Anomaly *(unlocks at level 35)*
-- The **first time life drops below 35%** during a stage, instantly restore **25% of maximum mana and 25% of maximum life**. Fires **once per dungeon run / Eternal Spire floor**.
+- The **first time life drops below 35%** during a stage, instantly restore **health and mana to full**. Fires **once per dungeon run / Eternal Spire floor**.
 - While **below 35% life**, take **10% less damage** from all sources.
 
 ### Huntress — Dodge *(always active)*

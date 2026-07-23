@@ -112,8 +112,8 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     },
     passive3: {
       name: "Time Anomaly",
-      description: "The first time your life drops below 35% each stage, instantly restore 25% of your maximum mana and life. While below 35% life, take 10% less damage.",
-      short: "Restore mana and life once when you first drop below 35% life; take less damage while low.",
+      description: "The first time your life drops below 35% each stage, instantly restore your health and mana to full. While below 35% life, take 10% less damage.",
+      short: "Fully restore health and mana once when you first drop below 35% life; take less damage while low.",
       levelRequirement: 35,
     },
     ability: {

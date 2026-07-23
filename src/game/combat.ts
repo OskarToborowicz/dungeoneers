@@ -124,7 +124,6 @@ const SORCERESS_HIGH_MANA_MAGIC_BONUS = 0.05; // Mind over Matter: +5% magic dmg
 const SORCERESS_FROSTFIRE_COMET_MULT = 1.25; // Frostfire comet deals 125% of Frost Bolt damage (lv.20)
 const SORCERESS_FROSTFIRE_IGNITE = 0.25; // Comet ignites 25% of its damage / turn for 2 turns (lv.20)
 const SORCERESS_FROSTFIRE_STACKS = 2; // Comet fires on the cast after this many stacks (lv.20)
-const SORCERESS_TIME_ANOMALY_RESTORE = 0.25; // Time Anomaly restores 25% max mana + 25% max life (lv.35)
 const SORCERESS_TIME_ANOMALY_DMG_REDUCTION = 0.1; // Time Anomaly: 10% less damage while life < 35% (lv.35)
 const SORCERESS_TIME_ANOMALY_LIFE_THRESHOLD = 0.35; // Time Anomaly trigger + damage-reduction low-life threshold (lv.35)
 const SORCERESS_LOW_MANA_THRESHOLD = 0.5; // Mind over Matter half-mana threshold (+5% magic)
@@ -1726,8 +1725,8 @@ export function resolveRound(
   }
 
   // Sorceress Time Anomaly (lv.35): the first time life drops below 35% during a
-  // stage, restore 25% max mana + 25% max life. `rewindUsed` persists across
-  // waves, so it fires at most once per dungeon run / Spire floor.
+  // stage, fully restore health and mana. `rewindUsed` persists across waves, so
+  // it fires at most once per dungeon run / Spire floor.
   const maybeTimeAnomaly = () => {
     if (
       character.classId !== "sorceress" ||
@@ -1738,13 +1737,11 @@ export function resolveRound(
     )
       return;
     rewindUsed = true;
-    const manaBack = Math.round(stats.maxMana * SORCERESS_TIME_ANOMALY_RESTORE);
-    const lifeBack = Math.round(stats.maxLife * SORCERESS_TIME_ANOMALY_RESTORE);
-    playerMana = Math.min(stats.maxMana, playerMana + manaBack);
-    applyHeal(lifeBack);
+    playerLife = stats.maxLife;
+    playerMana = stats.maxMana;
     log.push({
       actor: "player",
-      message: `Time Anomaly rewinds your wounds — restoring ${manaBack} mana and ${lifeBack} life!`,
+      message: `Time Anomaly rewinds your wounds — fully restoring your health and mana!`,
       playerLife: Math.max(0, playerLife),
       monsterLife: Math.max(0, monsterLife),
     });

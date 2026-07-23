@@ -999,7 +999,7 @@ export function CombatScreen({
                   }}
                 />
                 <span className="bar-num">
-                  {Math.min(battle.playerLife, derived.maxLife)}/
+                  {Math.round(Math.min(battle.playerLife, derived.maxLife))}/
                   {derived.maxLife}
                 </span>
               </div>
@@ -1023,7 +1023,7 @@ export function CombatScreen({
                 }}
               />
               <span className="bar-num">
-                {battle.playerMana}/{derived.maxMana}
+                {Math.round(battle.playerMana)}/{derived.maxMana}
               </span>
             </div>
           )}
@@ -1046,7 +1046,7 @@ export function CombatScreen({
                   fill="#cc3333"
                 />
               </svg>
-              {Math.min(battle.playerLife, derived.maxLife)}/{derived.maxLife}
+              {Math.round(Math.min(battle.playerLife, derived.maxLife))}/{derived.maxLife}
               {battle.absorbShield > 0 && (
                 <span className="overheal-badge">+{battle.absorbShield}</span>
               )}
@@ -1077,7 +1077,7 @@ export function CombatScreen({
                     <path d="M5 1 L9 5 L5 9 L1 5 Z" fill="#cc3300" />
                   </svg>
                 )}
-                {battle.playerMana}/{derived.maxMana}
+                {Math.round(battle.playerMana)}/{derived.maxMana}
               </span>
             )}
             {def.resourceType === "preparation" && (
