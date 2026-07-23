@@ -163,6 +163,8 @@ export function CombatScreen({
   const [attackEffect, setAttackEffect] = useState(0);
   const [trapDetonateEffect, setTrapDetonateEffect] = useState(false);
   const [cometEffect, setCometEffect] = useState(0);
+  const [timeAnomalyFlash, setTimeAnomalyFlash] = useState(0);
+  const [timeAnomalyBlur, setTimeAnomalyBlur] = useState(false);
   const [monsterSpellEffect, setMonsterSpellEffect] = useState<string | null>(
     null,
   );
@@ -306,6 +308,17 @@ export function CombatScreen({
 
     // Frostfire comet FX fires alongside the Frost Bolt regardless of outcome.
     if (result.cometFired) setCometEffect((n) => n + 1);
+
+    // Time Anomaly (Sorceress lv.35): fast white flash when the once-per-stage
+    // rewind procs. It happens during the monster phase, so delay the flash to
+    // land with it instead of at the round's start.
+    if (result.log.some((e) => e.message.includes("Time Anomaly"))) {
+      setTimeout(() => {
+        setTimeAnomalyFlash((n) => n + 1);
+        setTimeAnomalyBlur(true);
+        setTimeout(() => setTimeAnomalyBlur(false), 450);
+      }, 500);
+    }
 
     // These three are identical across all branches — could be hoisted here
     // if (wasAbility) setAbilityEffect(n => n + 1);
@@ -637,6 +650,12 @@ export function CombatScreen({
               onDone={() => setCometEffect(0)}
             />
           )}
+          {timeAnomalyFlash > 0 && (
+            <div
+              key={`time-flash-${timeAnomalyFlash}`}
+              className="time-anomaly-flash"
+            />
+          )}
           {battle.golemRounds > 0 && (
             <div className="golem-on-field">
               <svg viewBox="0 0 60 76" overflow="visible">
@@ -851,7 +870,7 @@ export function CombatScreen({
           )}
           <div
             ref={playerRef}
-            className={`battle-side player-side${battle.bloodFuryRounds > 0 ? " blood-fury-active" : ""}${battle.holyLightCharges > 0 ? " holy-light-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}`}
+            className={`battle-side player-side${battle.bloodFuryRounds > 0 ? " blood-fury-active" : ""}${battle.holyLightCharges > 0 ? " holy-light-active" : ""}${battle.frostShieldRounds > 0 ? " frost-shield-active" : ""}${critFlash ? " crit-flash" : ""}${timeAnomalyBlur ? " time-anomaly-blur" : ""}`}
           >
             {potionFx && (
               <div

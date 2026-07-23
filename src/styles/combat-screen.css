@@ -328,6 +328,45 @@
   }
 }
 
+/* Time Anomaly (Sorceress lv.35): fast full-arena white flash on proc */
+.time-anomaly-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+  z-index: 60;
+  opacity: 0;
+  border-radius: inherit;
+  animation: time-anomaly-flash 0.4s ease-out forwards;
+}
+@keyframes time-anomaly-flash {
+  0% {
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.92;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Time Anomaly: the character model blurs as the rewind flashes */
+.player-side.time-anomaly-blur svg {
+  animation: time-anomaly-blur 0.45s ease-out;
+}
+@keyframes time-anomaly-blur {
+  0% {
+    filter: blur(0);
+  }
+  35% {
+    filter: blur(4px);
+  }
+  100% {
+    filter: blur(0);
+  }
+}
+
 /* Frost Shield status pill */
 .status-pill.frost-shield {
   background: rgba(30, 80, 140, 0.25);
