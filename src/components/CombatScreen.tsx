@@ -203,7 +203,7 @@ export function CombatScreen({
     character.classId === "monk" && derived.stormfistActive
       ? 4
       : (def.ability.hits ?? 3);
-
+  const clearAgainButtonRef = useRef<HTMLButtonElement>(null);
   const arenaRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<HTMLDivElement>(null);
   const monsterRef = useRef<HTMLDivElement>(null);
@@ -274,7 +274,8 @@ export function CombatScreen({
         handleAction("attack");
       else if (e.key === "2" && abilityUsable) handleAction("ability");
       else if (e.key === "3" && ability2Usable) handleAction("ability2");
-      else if (e.key === "c" && status === "victory") handleContinue(true);
+      else if (e.key === "c" && status === "victory")
+        clearAgainButtonRef.current?.click();
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -1002,6 +1003,7 @@ export function CombatScreen({
             </button>
             {status === "victory" && isBossFight && (
               <button
+                ref={clearAgainButtonRef}
                 className="primary-button clear-again-button"
                 onClick={() => handleContinue(true)}
               >
