@@ -311,7 +311,7 @@ export function getDerivedStats(
   const shockOnHitChance = equip.shockOnHitBonus;
   const disorientOnHitChance = equipment.helm?.voidgaze ? 15 : 0;
   const lowLifePhysDmgReduction = equipment.armor?.bastionsRemnant ? 12 : 0;
-  const critHealPct = equipment.gloves?.bloodfist ? 0.05 : 0;
+  const critHealPct = equipment.gloves?.bloodfist ? 0.04 : 0;
   const openerDamageBonus = equipment.belt?.soulvoidGirdle
     ? (equipment.belt.openerBonusPct ?? 20) / 100
     : 0;

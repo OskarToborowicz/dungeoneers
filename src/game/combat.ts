@@ -582,6 +582,14 @@ export function resolveRound(
           attackMsg += ` Life Leech restores ${leeched} life.`;
         }
       }
+      // Bloodfist unique gloves: basic-attack crits restore % max life
+      if (isCrit && stats.critHealPct > 0) {
+        const critHeal = Math.round(stats.maxLife * stats.critHealPct);
+        if (critHeal > 0) {
+          applyHeal(critHeal);
+          attackMsg += ` Bloodfist restores ${critHeal} life.`;
+        }
+      }
       // Holy Light (Paladin ability2): each empowered attack heals 12% max life
       if (character.classId === "paladin" && holyLightCharges > 0) {
         const holyHeal = Math.round(stats.maxLife * 0.12);

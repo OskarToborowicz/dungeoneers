@@ -1001,11 +1001,15 @@ function App() {
     // rather than re-fighting it. The player still decides descend/leave at the
     // intermission; Descend just closes it.
     advanceSpire(floor, result);
+    // Reward cards only for Wardens on a floor not previously cleared — replaying
+    // an already-beaten floor (e.g. via "Enter — Floor 1") grants no reward cards.
+    const isNewFloor = floor > (character.spireHighestFloor ?? 0);
     setSpireIntermission({
       clearedFloor: floor,
-      cards: isWardenFloor(floor)
-        ? rollRewardCards({ floor, currentAlloys: character.frozenAlloys ?? 0 })
-        : null,
+      cards:
+        isWardenFloor(floor) && isNewFloor
+          ? rollRewardCards({ floor, currentAlloys: character.frozenAlloys ?? 0 })
+          : null,
       picked: false,
     });
   }
@@ -1076,11 +1080,15 @@ function App() {
         break;
       case "unique": {
         if (character) {
+          // Eligible uniques range from item level 40 up to the slain Warden's
+          // level (card.itemLevel), gated by class.
+          const SPIRE_UNIQUE_MIN_LEVEL = 40;
           const eligible = UNIQUE_DROP_TABLE.filter(
             (e) =>
-              (!e.minLevel || character.level >= e.minLevel) &&
-              (!e.classId || e.classId === character.classId) &&
-              (!e.maxLevel || card.itemLevel <= e.maxLevel),
+              e.minLevel !== undefined &&
+              e.minLevel >= SPIRE_UNIQUE_MIN_LEVEL &&
+              card.itemLevel >= e.minLevel &&
+              (!e.classId || e.classId === character.classId),
           );
           if (eligible.length) {
             const item =

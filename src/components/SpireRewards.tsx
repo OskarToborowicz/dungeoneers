@@ -26,7 +26,7 @@ function cardFace(card: SpireCard): { icon: string; title: string; sub: string }
       return {
         icon: "🗡",
         title: "Unique Relic",
-        sub: `Random unique (ilvl ${card.itemLevel})`,
+        sub: `Random unique item`,
       };
   }
 }

@@ -202,7 +202,7 @@ export function UniqueEffectLines({ item }: { item: Item }) {
       )}
       {item.bloodfist && (
         <div className="item-line mirror-flavor">
-          <em>Critical hits restore 5% of max life</em>
+          <em>Basic attack critical hits restore 4% maximum health</em>
         </div>
       )}
       {item.soulvoidGirdle && (
