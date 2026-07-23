@@ -51,6 +51,8 @@ export interface BattleState {
   bonechillTurns: number; // Bonechill scythe: remaining turns of doubled Soul Siphon
   ebonreapCounter: number; // Ebonreap scythe: basic attack counter (proc at 3)
   openerBonusUsed: boolean; // Soulvoid Girdle: first ability use bonus already fired
+  frostfireStacks: number; // Sorceress Frostfire: Frost Bolt casts toward the next comet (0–2). Persists across waves.
+  rewindUsed: boolean; // Sorceress Time Anomaly: the once-per-stage restore has fired. Persists across waves.
 }
 
 export type PlayerActionKind =
@@ -71,6 +73,8 @@ export interface CombatResult {
   endingCooldown: number;
   endingCooldown2: number;
   endingHolyLightCharges: number;
+  endingFrostfireStacks: number;
+  endingRewindUsed: boolean;
   damageDealt: number;
 }
 
@@ -92,6 +96,8 @@ export interface RoundResult {
   playerPhaseLogCount?: number;
   /** Resource level at that same boundary, so the bar can update in step. */
   playerPhaseMana?: number;
+  /** Sorceress Frostfire: a fire comet crashed down this round (drives the FX). */
+  cometFired?: boolean;
 }
 
 const ALWAYS_MISS_CHANCE = 0.02; // All player abilities/attacks have a flat 2% miss chance
@@ -112,7 +118,16 @@ const BARBARIAN_MADNESS_FURY_BONUS = 5; // +5 extra Fury per basic attack (lv.35
 const BARBARIAN_MADNESS_FURY_THRESHOLD = 30;
 
 // Sorceress
-const SORCERESS_MANA_REGEN_RATE = 0.1; // 10% mana per turn via Arcane Flow (lv.1)
+const SORCERESS_MANA_REGEN_RATE = 0.1; // 10% mana per turn via Mind over Matter (lv.1)
+const SORCERESS_MANA_SHIELD = 0.35; // Mind over Matter: 35% of damage taken drains mana first (lv.1)
+const SORCERESS_HIGH_MANA_MAGIC_BONUS = 0.05; // Mind over Matter: +5% magic dmg while mana > 50% (lv.1)
+const SORCERESS_FROSTFIRE_COMET_MULT = 1.25; // Frostfire comet deals 125% of Frost Bolt damage (lv.20)
+const SORCERESS_FROSTFIRE_IGNITE = 0.25; // Comet ignites 25% of its damage / turn for 2 turns (lv.20)
+const SORCERESS_FROSTFIRE_STACKS = 2; // Comet fires on the cast after this many stacks (lv.20)
+const SORCERESS_TIME_ANOMALY_RESTORE = 0.25; // Time Anomaly restores 25% max mana + 25% max life (lv.35)
+const SORCERESS_TIME_ANOMALY_DMG_REDUCTION = 0.1; // Time Anomaly: 10% less damage while life < 35% (lv.35)
+const SORCERESS_TIME_ANOMALY_LIFE_THRESHOLD = 0.35; // Time Anomaly trigger + damage-reduction low-life threshold (lv.35)
+const SORCERESS_LOW_MANA_THRESHOLD = 0.5; // Mind over Matter half-mana threshold (+5% magic)
 
 // Paladin
 const PALADIN_DAMAGE_TAKEN_HEAL = 0.15; // Divine Retribution: 15% of damage taken → life
@@ -178,7 +193,7 @@ function randomInRange([min, max]: [number, number]): number {
 }
 
 // Base formula for burst/dot/multi/heal abilities.
-// magic abilities add flat magicDamageBonus (scaled by magicPower) and apply magicDamageMult.
+// magic abilities add flat magicDamageBonus (scaled by magicPower).
 function rollAbilityDamage(
   stats: DerivedStats,
   power: number,
@@ -186,11 +201,7 @@ function rollAbilityDamage(
   magicPower = 1,
 ): number {
   const base = Math.round(randomInRange(stats.damage) * power);
-  return magic
-    ? Math.round(
-        (base + stats.magicDamageBonus * magicPower) * stats.magicDamageMult,
-      )
-    : base;
+  return magic ? base + stats.magicDamageBonus * magicPower : base;
 }
 
 export function createBattleState(
@@ -201,6 +212,8 @@ export function createBattleState(
   startingCooldown2 = 0,
   startingPreparation = 0,
   startingHolyLightCharges = 0,
+  startingFrostfireStacks = 0,
+  startingRewindUsed = false,
 ): BattleState {
   return {
     playerLife: startingLife,
@@ -236,6 +249,8 @@ export function createBattleState(
     bonechillTurns: 3,
     ebonreapCounter: 0,
     openerBonusUsed: false,
+    frostfireStacks: startingFrostfireStacks,
+    rewindUsed: startingRewindUsed,
   };
 }
 
@@ -327,10 +342,7 @@ export function getAbilityPreview(
     return { label: "—", type: "Buff" };
   }
   if (ability.kind === "burst") {
-    const est = Math.round(
-      (avg * ability.power + bonus * (ability.magicPower ?? 1)) *
-        stats.magicDamageMult,
-    );
+    const est = Math.round(avg * ability.power + bonus * (ability.magicPower ?? 1));
     return { label: `~${est}`, type: dmgType };
   }
   if (ability.kind === "dot") {
@@ -476,6 +488,9 @@ export function resolveRound(
   let bonechillTurns = state.bonechillTurns ?? 3;
   let ebonreapCounter = state.ebonreapCounter ?? 0;
   let openerBonusUsed = state.openerBonusUsed ?? false;
+  let frostfireStacks = state.frostfireStacks ?? 0;
+  let rewindUsed = state.rewindUsed ?? false;
+  let cometFired = false;
   let absorbShield = 0; // Resets every round — overheal from last turn does not carry over
   let burnStacks = state.burnStacks.map((s) => ({ ...s }));
   let serenityBlindThisTurn = false;
@@ -767,8 +782,7 @@ export function resolveRound(
       const magicDmg = Math.max(
         1,
         Math.round(
-          (basicHitDmg * 0.1 + stats.magicDamageBonus * 0.1) *
-            stats.magicDamageMult,
+          basicHitDmg * 0.1 + stats.magicDamageBonus * 0.1,
         ),
       );
       monsterLife -= magicDmg;
@@ -806,7 +820,7 @@ export function resolveRound(
         ebonreapCounter = 0;
         const spectralDmg = Math.max(
           1,
-          Math.round(randomInRange(stats.damage) * 0.8 * stats.magicDamageMult),
+          Math.round(randomInRange(stats.damage) * 0.8),
         );
         monsterLife -= spectralDmg;
         damageDealt += spectralDmg;
@@ -996,6 +1010,12 @@ export function resolveRound(
         const isCrit = Math.random() < critChance;
         const arcanistMult =
           stats.arcanistStaff && frostShieldRounds > 0 ? 1.4 : 1.0;
+        // Mind over Matter (lv.1): +5% magic damage while mana is above half.
+        const highManaMagicMult =
+          character.classId === "sorceress" &&
+          playerMana > stats.maxMana * SORCERESS_LOW_MANA_THRESHOLD
+            ? 1 + SORCERESS_HIGH_MANA_MAGIC_BONUS
+            : 1.0;
         let dmg = Math.round(
           rollAbilityDamage(
             stats,
@@ -1005,7 +1025,8 @@ export function resolveRound(
           ) *
             lowLifeMult *
             electrocuteMult *
-            arcanistMult,
+            arcanistMult *
+            highManaMagicMult,
         );
         if (isCrit) dmg = Math.round(dmg * critMultiplier);
         monsterLife -= dmg;
@@ -1043,6 +1064,66 @@ export function resolveRound(
             playerLife: Math.max(0, playerLife),
             monsterLife: Math.max(0, monsterLife),
           });
+        }
+
+        // ── Frostfire (Sorceress lv.20) ───────────────────────────────────────
+        // Every 3rd Frost Bolt (2 stacks built, fired on the next cast) drops a
+        // fire comet for 125% of the bolt's damage. Can crit; ignites 25%/turn
+        // for 2 turns. Stacks persist across waves (reset per stage).
+        if (character.classId === "sorceress" && character.level >= 20) {
+          if (frostfireStacks >= SORCERESS_FROSTFIRE_STACKS) {
+            if (monsterLife > 0) {
+              frostfireStacks = 0;
+              cometFired = true;
+              const cometCrit = Math.random() < critChance;
+              let cometDmg = Math.round(
+                rollAbilityDamage(
+                  stats,
+                  def.ability.power,
+                  def.ability.magic,
+                  def.ability.magicPower,
+                ) *
+                  lowLifeMult *
+                  electrocuteMult *
+                  arcanistMult *
+                  highManaMagicMult *
+                  SORCERESS_FROSTFIRE_COMET_MULT,
+              );
+              if (cometCrit) cometDmg = Math.round(cometDmg * critMultiplier);
+              monsterLife -= cometDmg;
+              damageDealt += cometDmg;
+              log.push({
+                actor: "player",
+                message: cometCrit
+                  ? `Critical hit! A Frostfire comet crashes down for ${cometDmg} damage!`
+                  : `A Frostfire comet crashes down for ${cometDmg} damage!`,
+                playerLife: Math.max(0, playerLife),
+                monsterLife: Math.max(0, monsterLife),
+              });
+              if (monsterLife > 0) {
+                const igniteDmg = Math.max(
+                  1,
+                  Math.round(cometDmg * SORCERESS_FROSTFIRE_IGNITE),
+                );
+                burnStacks.push({
+                  rounds: 2,
+                  damage: igniteDmg,
+                  source: "Frostfire",
+                  kind: "burn",
+                });
+                log.push({
+                  actor: "player",
+                  message: `Frostfire ignites the enemy — ${igniteDmg} fire per turn for 2 turns!`,
+                  playerLife: Math.max(0, playerLife),
+                  monsterLife: Math.max(0, monsterLife),
+                });
+              }
+            }
+            // Monster already dead: keep the stacks so the comet is still
+            // primed on the next wave.
+          } else {
+            frostfireStacks += 1;
+          }
         }
 
         // ── Poison Cloud (Necromancer) ────────────────────────────────────────
@@ -1626,7 +1707,7 @@ export function resolveRound(
   }
 
   // ── Step 3: Mana regen ────────────────────────────────────────────────────────
-  // Sorceress regenerates 10% per turn (Arcane Flow). All other mana classes regenerate 5%.
+  // Sorceress regenerates 10% per turn (Mind over Matter). All other mana classes regenerate 5%.
   // Monk is excluded — Chi is built only by attacking, never by waiting.
   // manaRegenMult comes from gear; manaRegenBonus is flat from "of Clarity" affixes.
   if (
@@ -1644,14 +1725,62 @@ export function resolveRound(
     );
   }
 
-  // Damage absorption helper — shield takes the hit first, remainder goes to playerLife
+  // Sorceress Time Anomaly (lv.35): the first time life drops below 35% during a
+  // stage, restore 25% max mana + 25% max life. `rewindUsed` persists across
+  // waves, so it fires at most once per dungeon run / Spire floor.
+  const maybeTimeAnomaly = () => {
+    if (
+      character.classId !== "sorceress" ||
+      character.level < 35 ||
+      rewindUsed ||
+      playerLife <= 0 ||
+      playerLife >= stats.maxLife * SORCERESS_TIME_ANOMALY_LIFE_THRESHOLD
+    )
+      return;
+    rewindUsed = true;
+    const manaBack = Math.round(stats.maxMana * SORCERESS_TIME_ANOMALY_RESTORE);
+    const lifeBack = Math.round(stats.maxLife * SORCERESS_TIME_ANOMALY_RESTORE);
+    playerMana = Math.min(stats.maxMana, playerMana + manaBack);
+    applyHeal(lifeBack);
+    log.push({
+      actor: "player",
+      message: `Time Anomaly rewinds your wounds — restoring ${manaBack} mana and ${lifeBack} life!`,
+      playerLife: Math.max(0, playerLife),
+      monsterLife: Math.max(0, monsterLife),
+    });
+  };
+
+  // Damage absorption helper and the single sink for ALL damage the player
+  // takes — physical hits, spell bursts, drains, and every DoT tick (poison /
+  // fire / bleed) route through here, so the Sorceress mechanics below apply to
+  // all of them, not just physical. Time Anomaly shaves 10% while life is under
+  // 35%; Mind over Matter then drains 35% of the remaining hit from mana before
+  // life. The drain is capped at the mana available (`Math.min`), so when mana is
+  // low or 0 only what mana can cover is absorbed and the rest falls through to life.
   const takeDamage = (amount: number) => {
+    const isSorc = character.classId === "sorceress";
+    if (
+      isSorc &&
+      character.level >= 35 &&
+      playerLife < stats.maxLife * SORCERESS_TIME_ANOMALY_LIFE_THRESHOLD
+    ) {
+      amount = Math.round(amount * (1 - SORCERESS_TIME_ANOMALY_DMG_REDUCTION));
+    }
+    if (isSorc && amount > 0) {
+      const fromMana = Math.min(
+        playerMana,
+        Math.round(amount * SORCERESS_MANA_SHIELD),
+      );
+      playerMana -= fromMana;
+      amount -= fromMana;
+    }
     if (absorbShield > 0) {
       const blocked = Math.min(absorbShield, amount);
       absorbShield -= blocked;
       amount -= blocked;
     }
     playerLife -= amount;
+    maybeTimeAnomaly();
   };
 
   // Snapshot state into a plain object for the round result
@@ -1690,12 +1819,14 @@ export function resolveRound(
       bonechillTurns,
       ebonreapCounter,
       openerBonusUsed,
+      frostfireStacks,
+      rewindUsed,
     };
   }
 
   // ── Step 4: Early victory check ───────────────────────────────────────────────
   if (monsterLife <= 0) {
-    return { state: makeState(), log, status: "victory", damageDealt };
+    return { state: makeState(), log, status: "victory", damageDealt, cometFired };
   }
 
   // ── Step 5: Player DoT ticks (monster-sourced) ────────────────────────────────
@@ -1749,7 +1880,7 @@ export function resolveRound(
       monsterLife: Math.max(0, monsterLife),
     });
     if (monsterLife <= 0) {
-      return { state: makeState(), log, status: "victory", damageDealt };
+      return { state: makeState(), log, status: "victory", damageDealt, cometFired };
     }
   }
 
@@ -1773,7 +1904,7 @@ export function resolveRound(
       });
       if (monsterLife <= 0) {
         burnStacks = burnStacks.filter((s) => s.rounds > 0);
-        return { state: makeState(), log, status: "victory", damageDealt };
+        return { state: makeState(), log, status: "victory", damageDealt, cometFired };
       }
     }
   }
@@ -2138,9 +2269,7 @@ export function resolveRound(
           monsterLife > 0 &&
           Math.random() < stats.counterOnHitChance
         ) {
-          const retDmg = Math.round(
-            randomInRange(stats.damage) * stats.magicDamageMult,
-          );
+          const retDmg = Math.round(randomInRange(stats.damage));
           monsterLife -= retDmg;
           damageDealt += retDmg;
           log.push({
@@ -2206,6 +2335,7 @@ export function resolveRound(
         damageDealt,
         playerPhaseLogCount,
         playerPhaseMana,
+        cometFired,
       };
     }
   }
@@ -2292,6 +2422,7 @@ export function resolveRound(
         trapDetonated,
         playerPhaseLogCount,
         playerPhaseMana,
+        cometFired,
       };
     }
   }
@@ -2320,5 +2451,6 @@ export function resolveRound(
     trapDetonated,
     playerPhaseLogCount,
     playerPhaseMana,
+    cometFired,
   };
 }

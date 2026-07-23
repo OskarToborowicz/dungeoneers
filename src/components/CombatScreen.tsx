@@ -28,7 +28,11 @@ import type {
 } from "../game/types";
 import { CharacterSprite, type SpriteState } from "./sprites/CharacterSprite";
 import { MonsterSprite } from "./sprites/MonsterSprite";
-import { AbilityEffect, ATTACK_EFFECT_CLASSES } from "./AbilityEffect";
+import {
+  AbilityEffect,
+  ATTACK_EFFECT_CLASSES,
+  FireCometFx,
+} from "./AbilityEffect";
 import { MonsterSpellEffect } from "./MonsterSpellEffect";
 import { PotionIcon } from "./PotionIcon";
 import druidGroveUrl from "../assets/classes/druid/skill_2.svg";
@@ -86,6 +90,8 @@ interface Props {
   startingCooldown2: number;
   startingPreparation?: number;
   startingHolyLightCharges?: number;
+  startingFrostfireStacks?: number;
+  startingRewindUsed?: boolean;
   consumables: Record<ConsumableId, number>;
   escapeTokens: number;
   xpCapped: boolean;
@@ -109,6 +115,8 @@ export function CombatScreen({
   startingCooldown2,
   startingPreparation = 0,
   startingHolyLightCharges = 0,
+  startingFrostfireStacks = 0,
+  startingRewindUsed = false,
   consumables,
   escapeTokens,
   xpCapped,
@@ -134,6 +142,8 @@ export function CombatScreen({
       startingCooldown2,
       startingPreparation,
       startingHolyLightCharges,
+      startingFrostfireStacks,
+      startingRewindUsed,
     ),
   );
   const [log, setLog] = useState<CombatLogEntry[]>([]);
@@ -152,6 +162,7 @@ export function CombatScreen({
   const [ability2Effect, setAbility2Effect] = useState(0);
   const [attackEffect, setAttackEffect] = useState(0);
   const [trapDetonateEffect, setTrapDetonateEffect] = useState(false);
+  const [cometEffect, setCometEffect] = useState(0);
   const [monsterSpellEffect, setMonsterSpellEffect] = useState<string | null>(
     null,
   );
@@ -292,6 +303,9 @@ export function CombatScreen({
       battle,
       action,
     );
+
+    // Frostfire comet FX fires alongside the Frost Bolt regardless of outcome.
+    if (result.cometFired) setCometEffect((n) => n + 1);
 
     // These three are identical across all branches — could be hoisted here
     // if (wasAbility) setAbilityEffect(n => n + 1);
@@ -458,6 +472,8 @@ export function CombatScreen({
         endingCooldown: battle.abilityCooldown,
         endingCooldown2: battle.ability2Cooldown,
         endingHolyLightCharges: battle.holyLightCharges,
+        endingFrostfireStacks: battle.frostfireStacks,
+        endingRewindUsed: battle.rewindUsed,
         damageDealt: totalDamageDealt,
       },
       clearAgain,
@@ -473,6 +489,10 @@ export function CombatScreen({
   const ability2Preview = getAbility2Preview(character, derived);
   const softcoreMode = character.mode === "softcore";
   const canFlee = !isAnimating && (softcoreMode || escapeTokens > 0);
+  // Sorceress Frostfire: the Frost Bolt button glows when the next cast drops a comet.
+  const frostfireActive =
+    character.classId === "sorceress" && character.level >= 20;
+  const cometReady = frostfireActive && battle.frostfireStacks >= 2;
 
   // Monster status pills — rendered in the bars column (portrait/desktop) and
   // duplicated in the flee column for landscape, where the monster's HP lives.
@@ -605,6 +625,13 @@ export function CombatScreen({
               launchX={fxAnchors.launchX}
               impactX={fxAnchors.impactX}
               onDone={() => setTrapDetonateEffect(false)}
+            />
+          )}
+          {cometEffect > 0 && (
+            <FireCometFx
+              key={`comet-${cometEffect}`}
+              impactX={fxAnchors.impactX}
+              onDone={() => setCometEffect(0)}
             />
           )}
           {battle.golemRounds > 0 && (
@@ -1162,7 +1189,7 @@ export function CombatScreen({
               <span className="action-dmg-type">{attackPreview.type}</span>
             </button>
             <button
-              className="action-button ability"
+              className={`action-button ability${cometReady ? " frostfire-ready" : ""}`}
               disabled={!abilityUsable}
               onClick={() => handleAction("ability")}
               title={def.ability.description}
@@ -1176,7 +1203,13 @@ export function CombatScreen({
                     ? `Active: ${battle.bloodFuryRounds} turns`
                     : battle.abilityCooldown > 0
                       ? `Cooldown: ${battle.abilityCooldown}`
-                      : `${def.ability.manaCost} ${def.resourceName.toLowerCase()}`}
+                      : frostfireActive
+                        ? cometReady
+                          ? "Comet ready!"
+                          : `Frostfire ${battle.frostfireStacks}/2`
+                        : def.ability.manaCost > 0
+                          ? `${def.ability.manaCost} ${def.resourceName.toLowerCase()}`
+                          : "Ready"}
               </span>
               <span className="action-dmg-type">
                 {abilityPreview.label} · {abilityPreview.type}
@@ -1202,7 +1235,9 @@ export function CombatScreen({
                         ? `Golem Guard: ${battle.golemRounds} turns`
                         : battle.ability2Cooldown > 0
                           ? `Cooldown: ${battle.ability2Cooldown}`
-                          : `${def.ability2.manaCost} ${def.resourceName.toLowerCase()}`}
+                          : def.ability2.manaCost > 0
+                            ? `${def.ability2.manaCost} ${def.resourceName.toLowerCase()}`
+                            : "Ready"}
                 </span>
                 <span className="action-dmg-type">
                   {ability2Preview.label} · {ability2Preview.type}

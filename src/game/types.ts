@@ -254,6 +254,8 @@ export interface SaveGame {
     currentCooldown2: number;
     currentPreparation?: number;
     currentHolyLightCharges?: number;
+    currentFrostfireStacks?: number;
+    currentRewindUsed?: boolean;
   };
   /** In-progress Eternal Spire run — resumes at the start of `floor`. */
   activeSpireRun?: {

@@ -99,6 +99,8 @@ interface DungeonRunState {
   currentCooldown2: number;
   currentPreparation: number;
   currentHolyLightCharges: number;
+  currentFrostfireStacks: number;
+  currentRewindUsed: boolean;
 }
 
 // Eternal Spire is an isolated run: no fixed queue (each floor is generated on
@@ -444,6 +446,8 @@ function App() {
           currentCooldown2: run.currentCooldown2,
           currentPreparation: run.currentPreparation ?? 0,
           currentHolyLightCharges: run.currentHolyLightCharges ?? 0,
+          currentFrostfireStacks: run.currentFrostfireStacks ?? 0,
+          currentRewindUsed: run.currentRewindUsed ?? false,
         });
         return;
       }
@@ -756,6 +760,8 @@ function App() {
           currentCooldown2: 0,
           currentPreparation: 0,
           currentHolyLightCharges: 0,
+          currentFrostfireStacks: 0,
+          currentRewindUsed: false,
         },
       });
     }
@@ -769,6 +775,8 @@ function App() {
       currentCooldown2: 0,
       currentPreparation: 0,
       currentHolyLightCharges: 0,
+      currentFrostfireStacks: 0,
+      currentRewindUsed: false,
     });
   }
 
@@ -1344,6 +1352,9 @@ function App() {
       currentCooldown2: result.endingCooldown2,
       currentPreparation: result.endingPreparation ?? 0,
       currentHolyLightCharges: result.endingHolyLightCharges ?? 0,
+      // Frostfire stacks and the Rewind flag persist across waves within a stage.
+      currentFrostfireStacks: result.endingFrostfireStacks ?? 0,
+      currentRewindUsed: result.endingRewindUsed ?? false,
     };
     if (activeSlotId) {
       writeSave(activeSlotId, {
@@ -1363,6 +1374,8 @@ function App() {
           currentCooldown2: nextRunState.currentCooldown2,
           currentPreparation: nextRunState.currentPreparation,
           currentHolyLightCharges: nextRunState.currentHolyLightCharges,
+          currentFrostfireStacks: nextRunState.currentFrostfireStacks,
+          currentRewindUsed: nextRunState.currentRewindUsed,
         },
       });
     }
@@ -1385,6 +1398,8 @@ function App() {
           startingCooldown2={dungeonRun.currentCooldown2}
           startingPreparation={dungeonRun.currentPreparation}
           startingHolyLightCharges={dungeonRun.currentHolyLightCharges}
+          startingFrostfireStacks={dungeonRun.currentFrostfireStacks}
+          startingRewindUsed={dungeonRun.currentRewindUsed}
           consumables={consumables}
           escapeTokens={character.escapeTokens ?? 0}
           xpCapped={

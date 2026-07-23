@@ -173,7 +173,6 @@ export interface DerivedStats {
   critChance: number;
   critDamageBonus: number;
   magicDamageBonus: number;
-  magicDamageMult: number;
   goldFindBonus: number;
   lifeLeechBonus: number;
   magicDmgReduction: number;
@@ -263,12 +262,6 @@ export function getDerivedStats(
   );
   const magicDamageBonus =
     Math.floor(stats.energy / 2) + equip.magicDamageBonus;
-  const magicDamageMult =
-    character.classId === "sorceress" && character.level >= 20 ? 1.2 : 1.0;
-  const mindOverMatterBonus =
-    character.classId === "sorceress" && character.level >= 35
-      ? Math.round(maxMana * 0.15)
-      : 0;
 
   // Barbarian / Assassin / Monk can dual-wield a one-handed weapon into the
   // off-hand ("shield") slot, and its plain affixes already count via
@@ -323,7 +316,7 @@ export function getDerivedStats(
   const bloodbriarActive = wielded("bloodbriar");
   return {
     stats,
-    maxLife: maxLife + mindOverMatterBonus,
+    maxLife,
     maxMana,
     damage,
     defense,
@@ -331,7 +324,6 @@ export function getDerivedStats(
     critChance,
     critDamageBonus: equip.critDamageBonus,
     magicDamageBonus,
-    magicDamageMult,
     goldFindBonus: equip.goldFindBonus,
     lifeLeechBonus: equip.lifeLeechBonus,
     magicDmgReduction: equip.magicDmgReduction,

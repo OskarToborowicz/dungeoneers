@@ -828,6 +828,98 @@ function FrostBoltFx({ launchX, impactX }: ProjectileProps) {
   );
 }
 
+// Frostfire comet (Sorceress passive) — a fiery meteor streaks down onto the
+// monster and bursts on impact. Rendered as its own overlay alongside the Frost
+// Bolt FX, positioned by the measured monster anchor (impactX).
+export function FireCometFx({
+  impactX = IMPACT_ANCHOR,
+  onDone,
+}: {
+  impactX?: number;
+  onDone: () => void;
+}) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 1100);
+    return () => clearTimeout(t);
+  }, [onDone]);
+  const mx = 168;
+  const my = 58;
+  const sparks = [0, 60, 120, 180, 240, 300];
+  return (
+    <div className="ability-effect-overlay">
+      <svg viewBox="0 0 200 120" className="ability-effect-svg" overflow="visible">
+        <g transform={`translate(${impactX - mx} 0)`}>
+          {/* Falling comet: streaks in from the upper-left, fades as it lands. */}
+          <motion.g
+            initial={{ x: -46, y: -96, opacity: 0 }}
+            animate={{ x: [-46, 0, 0], y: [-96, 0, 0], opacity: [0, 1, 0] }}
+            transition={{ duration: 0.5, times: [0, 0.86, 1], ease: "easeIn" }}
+          >
+            {/* fiery trail */}
+            <path
+              d={`M ${mx} ${my} L ${mx - 26} ${my - 40}`}
+              stroke="#ffb347"
+              strokeWidth="6"
+              strokeLinecap="round"
+              opacity="0.7"
+            />
+            <path
+              d={`M ${mx} ${my} L ${mx - 16} ${my - 26}`}
+              stroke="#ffe08a"
+              strokeWidth="3"
+              strokeLinecap="round"
+              opacity="0.9"
+            />
+            <circle cx={mx} cy={my} r="9" fill="#ff5a1f" />
+            <circle cx={mx} cy={my} r="5.5" fill="#ffd24a" />
+          </motion.g>
+          {/* Impact burst — expanding fireball + radiating sparks. */}
+          <motion.circle
+            cx={mx}
+            cy={my}
+            r="16"
+            fill="#ff7a1f"
+            style={{ transformOrigin: `${mx}px ${my}px` }}
+            initial={{ scale: 0.2, opacity: 0 }}
+            animate={{ scale: [0.2, 1.1, 1.8], opacity: [0, 0.9, 0] }}
+            transition={{ duration: 0.5, delay: 0.46, times: [0, 0.3, 1], ease: "easeOut" }}
+          />
+          <motion.circle
+            cx={mx}
+            cy={my}
+            r="9"
+            fill="#ffe08a"
+            style={{ transformOrigin: `${mx}px ${my}px` }}
+            initial={{ scale: 0.2, opacity: 0 }}
+            animate={{ scale: [0.2, 1, 1.4], opacity: [0, 1, 0] }}
+            transition={{ duration: 0.45, delay: 0.46, times: [0, 0.3, 1], ease: "easeOut" }}
+          />
+          {sparks.map((deg, i) => (
+            <motion.g
+              key={deg}
+              transform={`translate(${mx},${my}) rotate(${deg})`}
+              style={{ transformBox: "fill-box", transformOrigin: "center" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: [0, 1, 0] }}
+              transition={{ duration: 0.4, delay: 0.48 + i * 0.01, ease: "easeOut" }}
+            >
+              <motion.circle
+                cx="0"
+                cy="0"
+                r="2.6"
+                fill="#ffb347"
+                initial={{ x: 0 }}
+                animate={{ x: [0, 26] }}
+                transition={{ duration: 0.4, delay: 0.48 + i * 0.01, ease: "easeOut" }}
+              />
+            </motion.g>
+          ))}
+        </g>
+      </svg>
+    </div>
+  );
+}
+
 // Amazon arrow — shaft, arrowhead and feather fletching, drawn tip-forward from
 // the origin so the whole group can just translate across the arena.
 function Arrow({
