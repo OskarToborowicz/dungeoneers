@@ -274,6 +274,7 @@ export function CombatScreen({
         handleAction("attack");
       else if (e.key === "2" && abilityUsable) handleAction("ability");
       else if (e.key === "3" && ability2Usable) handleAction("ability2");
+      else if (e.key === "c" && status === "victory") handleContinue(true);
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -298,13 +299,7 @@ export function CombatScreen({
       }));
       setTimeout(() => setPotionFx(null), 900);
     }
-    const result = resolveRound(
-      character,
-      derived,
-      monster,
-      battle,
-      action,
-    );
+    const result = resolveRound(character, derived, monster, battle, action);
 
     // Frostfire comet FX fires alongside the Frost Bolt regardless of outcome.
     if (result.cometFired) setCometEffect((n) => n + 1);
@@ -525,19 +520,44 @@ export function CombatScreen({
   const monsterStatusPills = (
     <>
       {battle.poisonRounds > 0 && (
-        <StatusPill className="poison" icon="☠" name="Poison" count={battle.poisonRounds} />
+        <StatusPill
+          className="poison"
+          icon="☠"
+          name="Poison"
+          count={battle.poisonRounds}
+        />
       )}
       {battle.stunnedRounds > 0 && (
-        <StatusPill className="stunned" icon="💫" name="Stunned" count={battle.stunnedRounds} />
+        <StatusPill
+          className="stunned"
+          icon="💫"
+          name="Stunned"
+          count={battle.stunnedRounds}
+        />
       )}
       {battle.frozenRounds > 0 && (
-        <StatusPill className="frozen" icon="❄" name="Frozen" count={battle.frozenRounds} />
+        <StatusPill
+          className="frozen"
+          icon="❄"
+          name="Frozen"
+          count={battle.frozenRounds}
+        />
       )}
       {battle.blindRounds > 0 && (
-        <StatusPill className="blind" icon="◉" name="Blind" count={battle.blindRounds} />
+        <StatusPill
+          className="blind"
+          icon="◉"
+          name="Blind"
+          count={battle.blindRounds}
+        />
       )}
       {battle.disorientRounds > 0 && (
-        <StatusPill className="disorient" icon="◌" name="Disorient" count={battle.disorientRounds} />
+        <StatusPill
+          className="disorient"
+          icon="◌"
+          name="Disorient"
+          count={battle.disorientRounds}
+        />
       )}
       {battle.thornStacks > 0 && (
         <StatusPill
@@ -568,7 +588,12 @@ export function CombatScreen({
         );
       })}
       {battle.electrocuteRounds > 0 && (
-        <StatusPill className="electrocute" icon="⚡" name="Electrocute" count={battle.electrocuteRounds} />
+        <StatusPill
+          className="electrocute"
+          icon="⚡"
+          name="Electrocute"
+          count={battle.electrocuteRounds}
+        />
       )}
     </>
   );
@@ -1065,7 +1090,8 @@ export function CombatScreen({
                   fill="#cc3333"
                 />
               </svg>
-              {Math.round(Math.min(battle.playerLife, derived.maxLife))}/{derived.maxLife}
+              {Math.round(Math.min(battle.playerLife, derived.maxLife))}/
+              {derived.maxLife}
               {battle.absorbShield > 0 && (
                 <span className="overheal-badge">+{battle.absorbShield}</span>
               )}
@@ -1141,25 +1167,60 @@ export function CombatScreen({
             battle.vanishRounds > 0) && (
             <div className="status-effects">
               {battle.vanishRounds > 0 && (
-                <StatusPill className="vanish" icon="◌" name="Vanish" count={battle.vanishRounds} />
+                <StatusPill
+                  className="vanish"
+                  icon="◌"
+                  name="Vanish"
+                  count={battle.vanishRounds}
+                />
               )}
               {battle.bloodFuryRounds > 0 && (
-                <StatusPill className="blood-fury" icon="💢" name="Blood Fury" count={battle.bloodFuryRounds} />
+                <StatusPill
+                  className="blood-fury"
+                  icon="💢"
+                  name="Blood Fury"
+                  count={battle.bloodFuryRounds}
+                />
               )}
               {battle.holyLightCharges > 0 && (
-                <StatusPill className="holy-light" icon="✦" name="Holy Light" count={`×${battle.holyLightCharges}`} />
+                <StatusPill
+                  className="holy-light"
+                  icon="✦"
+                  name="Holy Light"
+                  count={`×${battle.holyLightCharges}`}
+                />
               )}
               {battle.frostShieldRounds > 0 && (
-                <StatusPill className="frost-shield" icon="❄" name="Frost Shield" count={battle.frostShieldRounds} />
+                <StatusPill
+                  className="frost-shield"
+                  icon="❄"
+                  name="Frost Shield"
+                  count={battle.frostShieldRounds}
+                />
               )}
               {battle.barkWallRounds > 0 && (
-                <StatusPill className="bark-wall" icon="🌳" name="Grove" count={battle.barkWallRounds} />
+                <StatusPill
+                  className="bark-wall"
+                  icon="🌳"
+                  name="Grove"
+                  count={battle.barkWallRounds}
+                />
               )}
               {battle.playerPoisonRounds > 0 && (
-                <StatusPill className="poison" icon="☠" name="Poison" count={battle.playerPoisonRounds} />
+                <StatusPill
+                  className="poison"
+                  icon="☠"
+                  name="Poison"
+                  count={battle.playerPoisonRounds}
+                />
               )}
               {battle.playerBurnRounds > 0 && (
-                <StatusPill className="burn" icon="🔥" name="Burn" count={battle.playerBurnRounds} />
+                <StatusPill
+                  className="burn"
+                  icon="🔥"
+                  name="Burn"
+                  count={battle.playerBurnRounds}
+                />
               )}
             </div>
           )}
@@ -1321,6 +1382,7 @@ export function CombatScreen({
               onClick={() => handleContinue(true)}
             >
               Clear Again
+              <span className="hotkey-badge">C</span>
             </button>
           )}
           <button

@@ -48,52 +48,78 @@ export function DungeonsTab({
   const act3Unlocked = act2Endgame.every((d) => clearedDungeons.includes(d.id));
   const act4Unlocked = act3Endgame.every((d) => clearedDungeons.includes(d.id));
 
-  const allAct1RegularCleared = act1Regular.every((d) => clearedDungeons.includes(d.id));
-  const allAct2RegularCleared = act2Regular.every((d) => clearedDungeons.includes(d.id));
-  const allAct3RegularCleared = act3Regular.every((d) => clearedDungeons.includes(d.id));
-  const allAct4RegularCleared = act4Regular.every((d) => clearedDungeons.includes(d.id));
+  const allAct1RegularCleared = act1Regular.every((d) =>
+    clearedDungeons.includes(d.id),
+  );
+  const allAct2RegularCleared = act2Regular.every((d) =>
+    clearedDungeons.includes(d.id),
+  );
+  const allAct3RegularCleared = act3Regular.every((d) =>
+    clearedDungeons.includes(d.id),
+  );
+  const allAct4RegularCleared = act4Regular.every((d) =>
+    clearedDungeons.includes(d.id),
+  );
 
   const act = selectedAct;
 
   const regularDungeons =
-    act === 1 ? act1Regular :
-    act === 2 ? act2Regular :
-    act === 3 ? act3Regular :
-    act4Regular;
+    act === 1
+      ? act1Regular
+      : act === 2
+        ? act2Regular
+        : act === 3
+          ? act3Regular
+          : act4Regular;
 
   const endgameDungeons =
-    act === 1 ? act1Endgame :
-    act === 2 ? act2Endgame :
-    act === 3 ? act3Endgame :
-    act4Endgame;
+    act === 1
+      ? act1Endgame
+      : act === 2
+        ? act2Endgame
+        : act === 3
+          ? act3Endgame
+          : act4Endgame;
 
   const allRegularCleared =
-    act === 1 ? allAct1RegularCleared :
-    act === 2 ? allAct2RegularCleared :
-    act === 3 ? allAct3RegularCleared :
-    allAct4RegularCleared;
+    act === 1
+      ? allAct1RegularCleared
+      : act === 2
+        ? allAct2RegularCleared
+        : act === 3
+          ? allAct3RegularCleared
+          : allAct4RegularCleared;
 
   const remainingRegular = regularDungeons.filter(
     (d) => !clearedDungeons.includes(d.id),
   ).length;
 
   const endgameLabel =
-    act === 1 ? "STORM THE TOWN HALL" :
-    act === 2 ? "FACE SIKKTHARKK" :
-    act === 3 ? "FACE ZAM'KORO" :
-    "FACE RELITH";
+    act === 1
+      ? "STORM THE TOWN HALL"
+      : act === 2
+        ? "FACE SIKKTHARKK"
+        : act === 3
+          ? "FACE ZAM'KORO"
+          : "FACE RELITH";
 
   const lockedHintName =
-    act === 1 ? "??? — Bandit's Town Hall" :
-    act === 2 ? "??? — The White Maw" :
-    act === 3 ? "??? — Sacrificial Altar" :
-    "??? — Throne of Endless Night";
+    act === 1
+      ? "??? — Bandit's Town Hall"
+      : act === 2
+        ? "??? — The White Maw"
+        : act === 3
+          ? "??? — Sacrificial Altar"
+          : "??? — Throne of Endless Night";
 
   const lockedHintDesc =
-    act === 1 ? "Clear all dungeons to reveal what lies beyond." :
-    act === 2 ? "Clear all dungeons to face the Great Frozen Dragon." :
-    act === 3 ? "Clear all dungeons to face Zam'Koro, the Loa of Endless Night." :
-    "Clear all dungeons to face Relith, the Void Devourer.";
+    act === 1
+      ? "Clear all dungeons to reveal what lies beyond."
+      : act === 2
+        ? "Clear all dungeons to face the Great Frozen Dragon."
+        : act === 3
+          ? "Clear all dungeons to face Zam'Koro, the Loa of Endless Night."
+          : "Clear all dungeons to face Relith, the Void Devourer.";
 
   return (
     <div className="tab-panel">
@@ -107,12 +133,12 @@ export function DungeonsTab({
           </div>
           <p className="spire-entry-desc">
             Endless floors of ever-stronger foes. A Warden guards every{" "}
-            {WARDEN_INTERVAL}th floor and offers a choice of spoils. Death here is
-            as final as anywhere.
+            {WARDEN_INTERVAL}th floor and offers a choice of spoils. Death here
+            is as final as anywhere.
           </p>
           {spireTop && (spireTop.hardcore || spireTop.softcore) && (
             <div className="spire-leaderboard">
-              <span className="spire-lb-title">🏆 World Record</span>
+              <span className="spire-lb-title">🏆 Spire Leaderboard</span>
               {spireTop.hardcore && (
                 <span className="spire-lb-row">
                   HC · Floor {spireTop.hardcore.floor} —{" "}
@@ -258,7 +284,8 @@ export function DungeonsTab({
           <div className="dungeon-card locked endgame-locked-hint">
             <div className="dungeon-name">??? — Act II</div>
             <p className="dungeon-desc">
-              Defeat the Bandit Chieftain to escape into the mountains and unlock Act II.
+              Defeat the Bandit Chieftain to escape into the mountains and
+              unlock Act II.
             </p>
           </div>
         )}
@@ -276,7 +303,8 @@ export function DungeonsTab({
           <div className="dungeon-card locked endgame-locked-hint">
             <div className="dungeon-name">??? — Act IV</div>
             <p className="dungeon-desc">
-              Defeat Zam'Koro to tear the veil and unlock Act IV: Realm of the Endless Night.
+              Defeat Zam'Koro to tear the veil and unlock Act IV: Realm of the
+              Endless Night.
             </p>
           </div>
         )}
