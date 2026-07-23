@@ -133,7 +133,7 @@ export function rollRewardCards({
   currentAlloys,
 }: RewardCardOptions): SpireCard[] {
   const pool: SpireCard[] = [
-    { kind: "gold", amount: Math.round(600 + floor * 320) },
+    { kind: "gold", amount: Math.round((600 + floor * 320) * 3) },
     { kind: "stats", amount: 5 },
     { kind: "unique", itemLevel: SPIRE_BASE_LEVEL + floor },
     { kind: "rareWeapon", itemLevel: SPIRE_BASE_LEVEL + floor },

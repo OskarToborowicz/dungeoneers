@@ -32,13 +32,13 @@ function cardFace(card: SpireCard): { icon: string; title: string; sub: string }
       return {
         icon: "⚔",
         title: "Rare Weapon",
-        sub: `Class weapon, 4 affixes (ilvl ${card.itemLevel})`,
+        sub: `Class weapon, 4 affixes`,
       };
     case "rareJewelry":
       return {
         icon: "💍",
         title: "Rare Jewelry",
-        sub: `Ring or amulet, 4 affixes (ilvl ${card.itemLevel})`,
+        sub: `Ring or amulet, 4 affixes`,
       };
   }
 }
