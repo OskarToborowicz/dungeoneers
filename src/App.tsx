@@ -35,6 +35,7 @@ import {
   generateSpireFloor,
   isWardenFloor,
   rollRewardCards,
+  spireSeed,
   type SpireCard,
 } from "./game/data/spire";
 import { SpireRewards } from "./components/SpireRewards";
@@ -845,7 +846,7 @@ function App() {
   function handleStartSpire(fromFloor: number) {
     if (!character) return;
     const floor = Math.max(1, fromFloor);
-    preloadMonsterAssets([generateSpireFloor(floor).name]);
+    preloadMonsterAssets([generateSpireFloor(floor, spireSeed(character)).name]);
     setRunItemsFound(0);
     const startingLife = derived.maxLife;
     const startingMana = getStartingResource(character, derived);
@@ -885,8 +886,9 @@ function App() {
     });
   }
 
-  // Advance to floor+1, carrying life and refilling per-floor potions.
-  function advanceSpire(fromFloor: number, result: CombatResult) {
+  // Advance to floor+1. Each floor is a separate stage fight: life, resources,
+  // cooldowns and potions all reset to a fresh start (nothing carries over).
+  function advanceSpire(fromFloor: number) {
     if (!character) return;
     const stagePotions = {
       healthPotion: getPotionsForStage(derived.potionSlots),
@@ -894,12 +896,12 @@ function App() {
     setConsumables(stagePotions);
     const next: SpireRunState = {
       floor: fromFloor + 1,
-      currentLife: result.endingLife,
-      currentMana: getStartingResource(character, derived, result.endingMana),
-      currentCooldown: result.endingCooldown,
-      currentCooldown2: result.endingCooldown2,
-      currentPreparation: result.endingPreparation ?? 0,
-      currentHolyLightCharges: result.endingHolyLightCharges ?? 0,
+      currentLife: derived.maxLife,
+      currentMana: getStartingResource(character, derived),
+      currentCooldown: 0,
+      currentCooldown2: 0,
+      currentPreparation: 0,
+      currentHolyLightCharges: 0,
     };
     if (activeSlotId) {
       writeSave(activeSlotId, {
@@ -1001,7 +1003,7 @@ function App() {
     // leaving or reloading from the reward screen resumes past the cleared floor
     // rather than re-fighting it. The player still decides descend/leave at the
     // intermission; Descend just closes it.
-    advanceSpire(floor, result);
+    advanceSpire(floor);
     // Reward cards only for Wardens on a floor not previously cleared — replaying
     // an already-beaten floor (e.g. via "Enter — Floor 1") grants no reward cards.
     const isNewFloor = floor > (character.spireHighestFloor ?? 0);
@@ -1423,7 +1425,10 @@ function App() {
         </>
       );
     }
-    const monster = generateSpireFloor(spireRun.floor);
+    const monster = generateSpireFloor(
+      spireRun.floor,
+      character ? spireSeed(character) : "",
+    );
     return (
       <>
         <CombatScreen

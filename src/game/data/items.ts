@@ -301,11 +301,22 @@ function rollAffixEntry(chosen: AffixEntry, itemLevel: number): ItemAffix {
       : itemLevel;
   const rate = chosen.scaleRate ?? 0.08;
   const scale = chosen.noScale ? 1 : 1 + effectiveLevel * rate;
-  const rolled =
-    (chosen.min + Math.random() * (chosen.max - chosen.min)) * scale;
+
+  let rollMin = chosen.min * scale;
+  let rollMax = chosen.max * scale;
+  // A cap limits the TOP of the roll range, never pins the value to it: once
+  // both endpoints scaled past the cap the affix used to always land on the cap
+  // (a guaranteed max roll). Instead compress the whole range proportionally so
+  // a real roll always happens — min keeps the same fraction of max as the base
+  // range, exactly like the uncapped affixes (e.g. Life).
+  if (chosen.cap != null && rollMax > chosen.cap) {
+    rollMin *= chosen.cap / rollMax;
+    rollMax = chosen.cap;
+  }
+
+  const rolled = rollMin + Math.random() * (rollMax - rollMin);
   const factor = chosen.decimals ? Math.pow(10, chosen.decimals) : 1;
-  const rawValue = Math.round(rolled * factor) / factor;
-  const value = chosen.cap != null ? Math.min(rawValue, chosen.cap) : rawValue;
+  const value = Math.round(rolled * factor) / factor;
   return { label: chosen.label, stat: chosen.stat, value };
 }
 

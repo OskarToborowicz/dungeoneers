@@ -1,4 +1,5 @@
-import type { MonsterDefinition, MonsterSpell } from "../types";
+import type { Character, MonsterDefinition, MonsterSpell } from "../types";
+import { DUNGEONS } from "./dungeons";
 
 // ── The Eternal Spire ────────────────────────────────────────────────────────
 // Endless scaling tower unlocked at level 50. One monster per floor; every 5th
@@ -6,8 +7,11 @@ import type { MonsterDefinition, MonsterSpell } from "../types";
 // Stats scale LINEARLY with floor for now — easy to tune, and `npm run sim` can
 // validate the curve. Displayed monster level = SPIRE_BASE_LEVEL + floor.
 //
-// Names are pulled from the Act 4 (void/undead) roster so existing sprite art
-// is reused — MonsterSprite maps by name, so these MUST match MONSTER_TYPES.
+// The monster (regular floors) and boss (Warden floors) rosters are pulled from
+// EVERY dungeon across all four acts, so the whole bestiary can appear. The
+// lineup is seeded per character (name + class + mode), so each hero gets its
+// own randomly generated tower that stays stable across renders and resumes.
+// Names come straight from the dungeon data, so they already match MONSTER_TYPES.
 
 export const SPIRE_UNLOCK_LEVEL = 50;
 export const SPIRE_BASE_LEVEL = 50;
@@ -22,37 +26,49 @@ export function checkpointForFloor(floor: number): number {
   return Math.floor(floor / WARDEN_INTERVAL) * WARDEN_INTERVAL;
 }
 
-const REGULAR_NAMES = [
-  "Veil Wraith",
-  "Hollow Specter",
-  "Tomb Knight",
-  "Void Cultist",
-  "Bone Herald",
-  "Shadow Stalker",
-  "Drowned Revenant",
-  "Wailing Banshee",
-  "Phantom Crossbowman",
-  "Nightmare Gargoyle",
-  "Void Sentinel",
-  "Lost Soul",
-];
+// Full rosters drawn from every dungeon in every act. Regular floors pull a wave
+// monster name; Warden floors pull a boss (name + its own spell). Deduped by name
+// so repeats across dungeons don't skew the odds.
+const SPIRE_MONSTER_NAMES: string[] = Array.from(
+  new Set(DUNGEONS.flatMap((d) => d.waves.map((m) => m.name))),
+);
 
-const WARDEN_NAMES = [
-  "The Gatekeeper",
-  "Prince Valdris the Damned",
-  "The Pale Huntress",
-  "General Morrath",
-  "High Inquisitor Varek",
-  "The Dreaming Horror",
-  "Seraphel the Undying",
-];
+const SPIRE_BOSSES: { name: string; spell?: MonsterSpell }[] = (() => {
+  const seen = new Set<string>();
+  const bosses: { name: string; spell?: MonsterSpell }[] = [];
+  for (const d of DUNGEONS) {
+    if (seen.has(d.boss.name)) continue;
+    seen.add(d.boss.name);
+    bosses.push({ name: d.boss.name, spell: d.boss.spell });
+  }
+  return bosses;
+})();
 
-const WARDEN_SPELLS: Omit<MonsterSpell, "cooldown">[] = [
-  { name: "Void Lance", kind: "burst", power: 1.7, chance: 0.4 },
-  { name: "Withering Curse", kind: "dot", power: 1.4, chance: 0.4 },
-  { name: "Soul Drain", kind: "drain", power: 1.5, chance: 0.4 },
-  { name: "Hellfire", kind: "burn", power: 1.5, chance: 0.4 },
-];
+// Deterministic per-character seed so a hero's tower is fixed for that hero but
+// differs between heroes. Name is chosen at creation and never changes.
+export function spireSeed(character: Character): string {
+  return `${character.name}|${character.classId}|${character.mode}`;
+}
+
+function hashString(s: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+// mulberry32 — small, fast, deterministic PRNG. One draw per (seed, floor).
+function seededPick(seed: string, floor: number, length: number): number {
+  let a = hashString(`${seed}#${floor}`);
+  a |= 0;
+  a = (a + 0x6d2b79f5) | 0;
+  let t = Math.imul(a ^ (a >>> 15), 1 | a);
+  t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+  const rand = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  return Math.floor(rand * length);
+}
 
 // Final stats (no monster() helper) so the curve is fully explicit here.
 function baseStats(floor: number) {
@@ -73,16 +89,19 @@ function baseStats(floor: number) {
 }
 
 /** The single monster for a given floor. Warden floors are ~2.5× tankier, hit
- *  harder, and carry a spell. */
-export function generateSpireFloor(floor: number): MonsterDefinition {
+ *  harder, and carry a spell. The name/boss is picked from the full cross-act
+ *  roster, seeded per character so the tower is fixed for that hero. */
+export function generateSpireFloor(
+  floor: number,
+  seed = "",
+): MonsterDefinition {
   const s = baseStats(floor);
   const level = SPIRE_BASE_LEVEL + floor;
 
   if (isWardenFloor(floor)) {
-    const wardenIdx = floor / WARDEN_INTERVAL - 1;
-    const spell = WARDEN_SPELLS[wardenIdx % WARDEN_SPELLS.length];
+    const boss = SPIRE_BOSSES[seededPick(seed, floor, SPIRE_BOSSES.length)];
     return {
-      name: WARDEN_NAMES[wardenIdx % WARDEN_NAMES.length],
+      name: boss.name,
       level,
       life: Math.round(s.life * 2.5),
       damage: [Math.round(s.damage[0] * 1.4), Math.round(s.damage[1] * 1.4)],
@@ -93,12 +112,14 @@ export function generateSpireFloor(floor: number): MonsterDefinition {
         Math.round(s.goldReward[0] * 3),
         Math.round(s.goldReward[1] * 3),
       ],
-      spell: { ...spell, cooldown: 4 },
+      spell: boss.spell ? { ...boss.spell, cooldown: 4 } : undefined,
     };
   }
 
   return {
-    name: REGULAR_NAMES[(floor - 1) % REGULAR_NAMES.length],
+    name: SPIRE_MONSTER_NAMES[
+      seededPick(seed, floor, SPIRE_MONSTER_NAMES.length)
+    ],
     level,
     life: s.life,
     damage: s.damage,
@@ -133,7 +154,7 @@ export function rollRewardCards({
   currentAlloys,
 }: RewardCardOptions): SpireCard[] {
   const pool: SpireCard[] = [
-    { kind: "gold", amount: Math.round((600 + floor * 320) * 3) },
+    { kind: "gold", amount: Math.round((600 + floor * 320) * 9) },
     { kind: "stats", amount: 5 },
     { kind: "unique", itemLevel: SPIRE_BASE_LEVEL + floor },
     { kind: "rareWeapon", itemLevel: SPIRE_BASE_LEVEL + floor },
