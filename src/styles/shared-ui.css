@@ -47,7 +47,7 @@
 .compare-label {
   font-size: 10px;
   color: var(--text-dim);
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.5px;
   margin-bottom: 5px;
 }

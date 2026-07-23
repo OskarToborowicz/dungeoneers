@@ -51,7 +51,7 @@
   font-family: var(--heading-font);
   font-size: 11px;
   letter-spacing: 0.12em;
-  text-transform: uppercase;
+  text-transform: capitalize;
   color: var(--act-accent, var(--border-gold-bright));
   padding-bottom: 6px;
   border-bottom: 1px solid color-mix(in srgb, var(--act-accent, #c9932a) 30%, transparent);

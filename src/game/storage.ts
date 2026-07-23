@@ -11,7 +11,7 @@ export interface SaveSlot {
   save: SaveGame;
 }
 
-export const MAX_SAVE_SLOTS = 6;
+export const MAX_SAVE_SLOTS = 10;
 
 // Optional cloud-sync hook. App registers a handler while the user is signed in;
 // every local write/delete fires it so cloud stays in step (incl. in-combat

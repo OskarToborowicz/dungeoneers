@@ -112,7 +112,7 @@
 
 .doll-slot-label {
   font-size: 9px;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.5px;
   text-align: center;
   pointer-events: none;
@@ -162,7 +162,7 @@
 .inv-stat-label {
   font-size: 10px;
   color: #7a6a50;
-  text-transform: uppercase;
+  text-transform: capitalize;
   letter-spacing: 0.5px;
   white-space: nowrap;
 }

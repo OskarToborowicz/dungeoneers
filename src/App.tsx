@@ -184,32 +184,16 @@ function App() {
       .catch((e) => console.warn("Spire leaderboard fetch failed:", e));
   }, []);
 
-  // Two-way merge: pull cloud saves, keep the newer of each hero by lastPlayedAt,
-  // write the union locally, then push anything local-newer/local-only back up.
+  // The account is the source of truth: on sign-in / load, replace the local
+  // slots with exactly what's stored on the account. No merge with whatever is
+  // sitting in localStorage, and nothing local-only gets pushed up here.
   async function syncWithCloud() {
     try {
       const cloud = await fetchCloudSaves();
-      const byId = new Map<string, SaveSlot>();
-      for (const s of cloud) byId.set(s.id, s);
-      const toPush: SaveSlot[] = [];
-      for (const s of getAllSaves()) {
-        const existing = byId.get(s.id);
-        if (!existing || s.lastPlayedAt > existing.lastPlayedAt) {
-          byId.set(s.id, s);
-          toPush.push(s);
-        }
-      }
       overwriteSaves(
-        [...byId.values()].sort((a, b) => b.lastPlayedAt - a.lastPlayedAt),
+        [...cloud].sort((a, b) => b.lastPlayedAt - a.lastPlayedAt),
       );
       setSlots(getAllSaves());
-      for (const s of toPush) {
-        try {
-          await upsertCloudSave(s);
-        } catch (e) {
-          console.warn("Cloud upsert failed for", s.id, e);
-        }
-      }
     } catch (e) {
       console.warn("Cloud sync failed:", e);
     }
@@ -286,7 +270,8 @@ function App() {
   }, [dungeonRun, spireRun]);
 
   useEffect(() => {
-    if (!loaded || !activeSlotId || !character || dungeonRun || spireRun) return;
+    if (!loaded || !activeSlotId || !character || dungeonRun || spireRun)
+      return;
     const save: SaveGame = {
       character,
       equipment,
@@ -854,7 +839,9 @@ function App() {
   function handleStartSpire(fromFloor: number) {
     if (!character) return;
     const floor = Math.max(1, fromFloor);
-    preloadMonsterAssets([generateSpireFloor(floor, spireSeed(character)).name]);
+    preloadMonsterAssets([
+      generateSpireFloor(floor, spireSeed(character)).name,
+    ]);
     setRunItemsFound(0);
     const startingLife = derived.maxLife;
     const startingMana = getStartingResource(character, derived);
@@ -1019,7 +1006,10 @@ function App() {
       clearedFloor: floor,
       cards:
         isWardenFloor(floor) && isNewFloor
-          ? rollRewardCards({ floor, currentAlloys: character.frozenAlloys ?? 0 })
+          ? rollRewardCards({
+              floor,
+              currentAlloys: character.frozenAlloys ?? 0,
+            })
           : null,
       picked: false,
     });

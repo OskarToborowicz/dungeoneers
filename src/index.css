@@ -1,16 +1,3 @@
-@font-face {
-  font-family: "Diablo";
-  src: url("./assets/diablo.ttf") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-  /* `optional`, not `swap`: swap re-lays out every heading + the big combat
-     numbers when the font arrives, which is the main source of CLS. `optional`
-     never swaps mid-load — combined with the preload injected in main.tsx the
-     font is almost always ready within the short block period, so it still
-     applies on first paint without shifting the layout. */
-  font-display: optional;
-}
-
 :root {
   --bg-darkest: #0b0908;
   --bg-panel: #1a1512;
@@ -27,8 +14,9 @@
   --mana-color: #1c3f7a;
 
   --serif: Georgia, "Times New Roman", serif;
-  --sans: system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading-font: "Diablo", Georgia, "Times New Roman", serif;
+  --sans: "Noto Sans", system-ui, "Segoe UI", Roboto, sans-serif;
+  --body-font: "Noto Sans", system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading-font: "Almendra SC", serif;
 
   font: 17px/145% var(--sans);
   color-scheme: dark;
@@ -110,7 +98,7 @@ h3 {
   color: var(--text-heading);
   margin: 0 0 8px;
   letter-spacing: 0.5px;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 p {
