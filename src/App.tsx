@@ -57,6 +57,11 @@ import {
   upsertCloudSave,
   deleteCloudSave,
 } from "./services/cloudSaves";
+import {
+  submitSpireScore,
+  fetchTopSpireScores,
+  type SpireScore,
+} from "./services/spireLeaderboard";
 import type { CombatResult } from "./game/combat";
 import type {
   BaseStats,
@@ -136,6 +141,10 @@ function App() {
   const [spireRun, setSpireRun] = useState<SpireRunState | null>(null);
   const [spireIntermission, setSpireIntermission] =
     useState<SpireIntermissionState | null>(null);
+  const [spireTop, setSpireTop] = useState<Record<
+    GameMode,
+    SpireScore | null
+  > | null>(null);
   const [selectedAct, setSelectedAct] = useState<1 | 2 | 3 | 4>(1);
   const [hubTab, setHubTab] = useState<
     "character" | "inventory" | "dungeons" | "merchant" | "gambler" | "journal"
@@ -161,6 +170,15 @@ function App() {
   useEffect(() => {
     setSlots(getAllSaves());
     setLoaded(true);
+  }, []);
+
+  // Spire leaderboard is public-read — fetch the record holders on load even
+  // when signed out (no-op if Supabase isn't configured).
+  useEffect(() => {
+    if (!isSupabaseConfigured) return;
+    fetchTopSpireScores()
+      .then(setSpireTop)
+      .catch((e) => console.warn("Spire leaderboard fetch failed:", e));
   }, []);
 
   // Two-way merge: pull cloud saves, keep the newer of each hero by lastPlayedAt,
@@ -967,6 +985,19 @@ function App() {
       return withXp;
     });
 
+    // New personal best → push to the leaderboard now (before any later death,
+    // which for hardcore deletes the save). Public-read, owner-write.
+    if (floor > (character.spireHighestFloor ?? 0) && isSupabaseConfigured) {
+      submitSpireScore({
+        mode: character.mode,
+        floor,
+        hero_name: character.name,
+        class_id: character.classId,
+      })
+        .then(() => fetchTopSpireScores().then(setSpireTop))
+        .catch((e) => console.warn("Spire score submit failed:", e));
+    }
+
     setSpireIntermission({
       clearedFloor: floor,
       result,
@@ -1378,6 +1409,7 @@ function App() {
         onSellJunk={handleSellJunk}
         onStartDungeon={handleStartDungeon}
         onStartSpire={handleStartSpire}
+        spireTop={spireTop}
         onQuitToMenu={handleQuitToMenu}
         onBuyItem={handleBuyItem}
         onRestockShop={handleRestockShop}

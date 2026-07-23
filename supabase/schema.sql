@@ -61,6 +61,42 @@ create trigger game_saves_set_updated_at
   for each row execute function public.set_updated_at();
 
 -- ============================================================================
+-- spire_scores — Eternal Spire leaderboard. One row per user per mode (their
+-- best floor). PUBLIC read (it's a leaderboard), owner-only write.
+-- ============================================================================
+create table if not exists public.spire_scores (
+  user_id    uuid not null default auth.uid()
+                    references auth.users (id) on delete cascade,
+  mode       text not null check (mode in ('hardcore', 'softcore')),
+  floor      int  not null,
+  hero_name  text not null,
+  class_id   text not null,
+  updated_at timestamptz not null default now(),
+  primary key (user_id, mode)
+);
+
+alter table public.spire_scores enable row level security;
+
+drop policy if exists "spire_scores: public read"  on public.spire_scores;
+drop policy if exists "spire_scores: owner writes" on public.spire_scores;
+
+-- Anyone (including anon) may read the leaderboard.
+create policy "spire_scores: public read"
+  on public.spire_scores for select
+  using (true);
+
+-- Only the owner may insert/update/delete their own row.
+create policy "spire_scores: owner writes"
+  on public.spire_scores for all to authenticated
+  using (auth.uid() = user_id)
+  with check (auth.uid() = user_id);
+
+drop trigger if exists spire_scores_set_updated_at on public.spire_scores;
+create trigger spire_scores_set_updated_at
+  before update on public.spire_scores
+  for each row execute function public.set_updated_at();
+
+-- ============================================================================
 -- profiles — one row per auth user (app-facing account data). Auto-created on
 -- signup. Extend later with display_name, avatar, stats, etc.
 -- (Kept last: the auth.users trigger is the only permission-sensitive bit.)

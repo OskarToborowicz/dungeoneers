@@ -45,6 +45,10 @@ interface Props {
   onSellJunk: () => void;
   onStartDungeon: (dungeonId: string) => void;
   onStartSpire: (fromFloor: number) => void;
+  spireTop: Record<
+    import("../game/types").GameMode,
+    import("../services/spireLeaderboard").SpireScore | null
+  > | null;
   onQuitToMenu: () => void;
   onBuyItem: (item: Item) => void;
   onRestockShop: () => void;
@@ -106,6 +110,7 @@ export function Hub({
   onSellJunk,
   onStartDungeon,
   onStartSpire,
+  spireTop,
   onQuitToMenu,
   onBuyItem,
   onRestockShop,
@@ -723,6 +728,7 @@ export function Hub({
               characterLevel={character.level}
               spireHighestFloor={character.spireHighestFloor ?? 0}
               onStartSpire={onStartSpire}
+              spireTop={spireTop}
             />
           )}
           {tab === "gambler" && (

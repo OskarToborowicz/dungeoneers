@@ -22,6 +22,7 @@ import { DUNGEONS } from "../src/game/data/dungeons";
 import { CLASSES } from "../src/game/data/classes";
 import { generateStartingEquipment, generateItemForSlot } from "../src/game/data/items";
 import { getPotionsForStage } from "../src/game/data/consumables";
+import { generateSpireFloor, isWardenFloor } from "../src/game/data/spire";
 import type { Character, MonsterDefinition, EquipmentSlot, Item, ClassId } from "../src/game/types";
 
 // ── CLI ──────────────────────────────────────────────────────────────────────
@@ -37,6 +38,12 @@ const gearMode: "start" | "rare" = args.gear === "start" ? "start" : "rare";
 const actFilter = args.act && args.act !== "all" ? Number(args.act) : null;
 const RUNS = args.runs ? Number(args.runs) : 200;
 const verbose = args.verbose === "true";
+// Spire mode: climb the Eternal Spire from floor 1 until death; report the
+// highest floor reached per class. `--level` sets the hero level (gear ilvl
+// tracks it). e.g. `npm run sim -- --spire --level=90 --runs=500`
+const spireMode = args.spire === "true" || args.mode === "spire";
+const spireLevel = args.level ? Number(args.level) : 90;
+const SPIRE_MAX_FLOOR = 300;
 
 // ── per-class build: 60% primary stat, 40% vitality ──────────────────────────
 const PRIMARY: Record<ClassId, "strength" | "dexterity" | "energy"> = {
@@ -116,6 +123,43 @@ function playDungeon(classId: ClassId, d: typeof DUNGEONS[number]): { cleared: b
     life = out.endLife;
   }
   return { cleared: true, diedVs: null, bossLifePct: life / derived.maxLife };
+}
+
+// ── one spire climb: floor 1 upward until death → highest floor cleared ───────
+function playSpire(classId: ClassId, level: number): number {
+  const ch = buildChar(classId, level);
+  const eq = loadout(classId, level);
+  const derived = getDerivedStats(ch, eq);
+  let life = derived.maxLife;
+  for (let floor = 1; floor <= SPIRE_MAX_FLOOR; floor++) {
+    const pot = { hp: getPotionsForStage(derived.potionSlots) }; // refilled per floor
+    const m = generateSpireFloor(floor);
+    const out = fight(ch, derived, m, life, pot, isWardenFloor(floor));
+    if (!out.win) return floor - 1;
+    life = out.endLife;
+  }
+  return SPIRE_MAX_FLOOR;
+}
+
+if (spireMode) {
+  console.log(
+    `\nSpire sim — gear=${gearMode}, level=${spireLevel}, ${RUNS} climbs/class\n`,
+  );
+  for (const classId of classes) {
+    const floors: number[] = [];
+    for (let i = 0; i < RUNS; i++) floors.push(playSpire(classId, spireLevel));
+    floors.sort((a, b) => a - b);
+    const avg = floors.reduce((s, f) => s + f, 0) / floors.length;
+    const median = floors[Math.floor(floors.length / 2)];
+    const min = floors[0];
+    const max = floors[floors.length - 1];
+    const capped = max >= SPIRE_MAX_FLOOR ? "+" : "";
+    console.log(
+      `${classId.toUpperCase().padEnd(12)} avg floor ${avg.toFixed(1).padStart(6)}   median ${String(median).padStart(3)}   range ${min}–${max}${capped}`,
+    );
+  }
+  console.log();
+  process.exit(0);
 }
 
 // ── run ───────────────────────────────────────────────────────────────────────

@@ -4,6 +4,8 @@ import {
   WARDEN_INTERVAL,
   checkpointForFloor,
 } from "../game/data/spire";
+import type { GameMode } from "../game/types";
+import type { SpireScore } from "../services/spireLeaderboard";
 
 interface Props {
   clearedDungeons: string[];
@@ -13,6 +15,7 @@ interface Props {
   characterLevel: number;
   spireHighestFloor: number;
   onStartSpire: (fromFloor: number) => void;
+  spireTop: Record<GameMode, SpireScore | null> | null;
 }
 
 export function DungeonsTab({
@@ -23,6 +26,7 @@ export function DungeonsTab({
   characterLevel,
   spireHighestFloor,
   onStartSpire,
+  spireTop,
 }: Props) {
   const spireResumeFloor = checkpointForFloor(spireHighestFloor);
   const act1Regular = DUNGEONS.filter((d) => d.act === 1 && !d.endgame);
@@ -100,6 +104,23 @@ export function DungeonsTab({
             {WARDEN_INTERVAL}th floor and offers a choice of spoils. Death here is
             as final as anywhere.
           </p>
+          {spireTop && (spireTop.hardcore || spireTop.softcore) && (
+            <div className="spire-leaderboard">
+              <span className="spire-lb-title">🏆 World Record</span>
+              {spireTop.hardcore && (
+                <span className="spire-lb-row">
+                  HC · Floor {spireTop.hardcore.floor} —{" "}
+                  {spireTop.hardcore.hero_name}
+                </span>
+              )}
+              {spireTop.softcore && (
+                <span className="spire-lb-row">
+                  SC · Floor {spireTop.softcore.floor} —{" "}
+                  {spireTop.softcore.hero_name}
+                </span>
+              )}
+            </div>
+          )}
           <div className="spire-entry-actions">
             <button className="spire-enter-btn" onClick={() => onStartSpire(1)}>
               Enter — Floor 1
