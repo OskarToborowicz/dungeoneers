@@ -302,6 +302,13 @@
     flex-direction: column;
     overflow: hidden;
   }
+  /* Journal: same containment. `.journal-panel` IS the `.tab-panel` (already
+     flex-column + overflow:hidden with an inner `.journal-scroll`), so only the
+     page needs locking — otherwise on iOS the panel overflows the hub instead of
+     scrolling internally. */
+  .hub-content:has(.journal-panel) {
+    overflow: hidden;
+  }
   .inventory-wrapper {
     display: flex;
     flex-direction: column;

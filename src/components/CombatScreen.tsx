@@ -39,6 +39,42 @@ import druidGroveUrl from "../assets/classes/druid/skill_2.svg";
 // is why frames got heavier the longer combat ran. Cap to the recent tail.
 const MAX_LOG = 60;
 
+// Compact status pill: shows just the icon + remaining-rounds number. Tapping it
+// reveals the effect's name inline for a moment (desktop also gets the full
+// detail via the native `title` tooltip). Keeps the combat UI tight — especially
+// in landscape, where status pills share the column with the action buttons.
+function StatusPill({
+  className,
+  icon,
+  count,
+  name,
+  tip,
+}: {
+  className: string;
+  icon: string;
+  count: string | number;
+  name: string;
+  tip?: string;
+}) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    if (!open) return;
+    const t = setTimeout(() => setOpen(false), 1800);
+    return () => clearTimeout(t);
+  }, [open]);
+  return (
+    <span
+      className={`status-pill ${className}`}
+      title={tip ?? name}
+      onClick={() => setOpen((o) => !o)}
+    >
+      <span className="status-pill-icon">{icon}</span>
+      {open && <span className="status-pill-name">{name}</span>}
+      <span className="status-pill-count">{count}</span>
+    </span>
+  );
+}
+
 interface Props {
   character: Character;
   derived: DerivedStats;
@@ -453,35 +489,28 @@ export function CombatScreen({
   const monsterStatusPills = (
     <>
       {battle.poisonRounds > 0 && (
-        <span className="status-pill poison">
-          ☠ Poison {battle.poisonRounds}
-        </span>
+        <StatusPill className="poison" icon="☠" name="Poison" count={battle.poisonRounds} />
       )}
       {battle.stunnedRounds > 0 && (
-        <span className="status-pill stunned">
-          💫 Stunned {battle.stunnedRounds}
-        </span>
+        <StatusPill className="stunned" icon="💫" name="Stunned" count={battle.stunnedRounds} />
       )}
       {battle.frozenRounds > 0 && (
-        <span className="status-pill frozen">
-          ❄ Frozen {battle.frozenRounds}
-        </span>
+        <StatusPill className="frozen" icon="❄" name="Frozen" count={battle.frozenRounds} />
       )}
       {battle.blindRounds > 0 && (
-        <span className="status-pill blind">◉ Blind {battle.blindRounds}</span>
+        <StatusPill className="blind" icon="◉" name="Blind" count={battle.blindRounds} />
       )}
       {battle.disorientRounds > 0 && (
-        <span className="status-pill disorient">
-          ◌ Disorient {battle.disorientRounds}
-        </span>
+        <StatusPill className="disorient" icon="◌" name="Disorient" count={battle.disorientRounds} />
       )}
       {battle.thornStacks > 0 && (
-        <span
-          className="status-pill poison"
-          title="Bramble — erupts at 3 stacks"
-        >
-          🌿 Thorns {battle.thornStacks}/3
-        </span>
+        <StatusPill
+          className="poison"
+          icon="🌿"
+          name="Thorns"
+          count={`${battle.thornStacks}/3`}
+          tip="Bramble — erupts at 3 stacks"
+        />
       )}
       {battle.burnStacks.map((s, i) => {
         if (s.rounds <= 0) return null;
@@ -492,19 +521,18 @@ export function CombatScreen({
               ? { cls: "bleed", icon: "🩸", label: "Bleed", unit: "bleed" }
               : { cls: "burn", icon: "🔥", label: "Burn", unit: "fire" };
         return (
-          <span
+          <StatusPill
             key={i}
-            className={`status-pill ${dot.cls}`}
-            title={`${s.source}: ${s.damage} ${dot.unit}/turn · ${s.rounds} turn${s.rounds !== 1 ? "s" : ""} remaining`}
-          >
-            {dot.icon} {dot.label} {s.rounds}
-          </span>
+            className={dot.cls}
+            icon={dot.icon}
+            name={dot.label}
+            count={s.rounds}
+            tip={`${s.source}: ${s.damage} ${dot.unit}/turn · ${s.rounds} turn${s.rounds !== 1 ? "s" : ""} remaining`}
+          />
         );
       })}
       {battle.electrocuteRounds > 0 && (
-        <span className="status-pill electrocute">
-          ⚡ Electrocute {battle.electrocuteRounds}
-        </span>
+        <StatusPill className="electrocute" icon="⚡" name="Electrocute" count={battle.electrocuteRounds} />
       )}
     </>
   );
@@ -1064,39 +1092,25 @@ export function CombatScreen({
             battle.vanishRounds > 0) && (
             <div className="status-effects">
               {battle.vanishRounds > 0 && (
-                <span className="status-pill vanish">
-                  ◌ Vanish {battle.vanishRounds}
-                </span>
+                <StatusPill className="vanish" icon="◌" name="Vanish" count={battle.vanishRounds} />
               )}
               {battle.bloodFuryRounds > 0 && (
-                <span className="status-pill blood-fury">
-                  Blood Fury {battle.bloodFuryRounds}
-                </span>
+                <StatusPill className="blood-fury" icon="💢" name="Blood Fury" count={battle.bloodFuryRounds} />
               )}
               {battle.holyLightCharges > 0 && (
-                <span className="status-pill holy-light">
-                  ✦ Holy Light ×{battle.holyLightCharges}
-                </span>
+                <StatusPill className="holy-light" icon="✦" name="Holy Light" count={`×${battle.holyLightCharges}`} />
               )}
               {battle.frostShieldRounds > 0 && (
-                <span className="status-pill frost-shield">
-                  ❄ Frost Shield {battle.frostShieldRounds}
-                </span>
+                <StatusPill className="frost-shield" icon="❄" name="Frost Shield" count={battle.frostShieldRounds} />
               )}
               {battle.barkWallRounds > 0 && (
-                <span className="status-pill bark-wall">
-                  🌳 Grove {battle.barkWallRounds}
-                </span>
+                <StatusPill className="bark-wall" icon="🌳" name="Grove" count={battle.barkWallRounds} />
               )}
               {battle.playerPoisonRounds > 0 && (
-                <span className="status-pill poison">
-                  ☠ Poison {battle.playerPoisonRounds}
-                </span>
+                <StatusPill className="poison" icon="☠" name="Poison" count={battle.playerPoisonRounds} />
               )}
               {battle.playerBurnRounds > 0 && (
-                <span className="status-pill burn">
-                  🔥 Burn {battle.playerBurnRounds}
-                </span>
+                <StatusPill className="burn" icon="🔥" name="Burn" count={battle.playerBurnRounds} />
               )}
             </div>
           )}

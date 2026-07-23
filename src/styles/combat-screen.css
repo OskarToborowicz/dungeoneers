@@ -177,11 +177,23 @@
 }
 
 .status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
   font-size: 10px;
   padding: 1px 6px;
   border-radius: 10px;
   font-weight: bold;
   letter-spacing: 0.02em;
+  cursor: pointer;
+  user-select: none;
+}
+
+/* The name is hidden by default; tapping a pill reveals it inline (see
+   StatusPill in CombatScreen). Icon + remaining-rounds count stay compact. */
+.status-pill-icon,
+.status-pill-count {
+  line-height: 1;
 }
 
 .status-pill.poison {

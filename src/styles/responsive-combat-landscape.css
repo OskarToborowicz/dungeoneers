@@ -212,11 +212,18 @@
     order: 0;
     display: flex;
     flex-direction: column;
+    /* Pin the action buttons to the bottom of the left column. The `bars` row
+       above is `auto`, so it grows when a status pill appears — anchoring the
+       buttons to the (fixed) bottom edge means that growth eats the empty space
+       above them instead of shrinking/shifting the buttons. Combined with the
+       fixed height below, the same tap always lands on the same button. */
+    justify-content: flex-end;
     gap: 6px;
   }
 
   .combat-spells .action-button {
-    flex: 1;
+    flex: none;
+    height: 52px;
     font-size: 11px;
     padding: 6px 8px;
   }
