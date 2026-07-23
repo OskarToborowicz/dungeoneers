@@ -184,6 +184,8 @@ export interface Character {
   escapeTokens: number;
   runStats: RunStats;
   frozenAlloys?: number;
+  /** Highest Eternal Spire floor this hero has cleared (local record). */
+  spireHighestFloor?: number;
 }
 
 export interface MonsterSpell {
@@ -246,6 +248,16 @@ export interface SaveGame {
   activeDungeonRun?: {
     dungeonId: string;
     index: number;
+    currentLife: number;
+    currentMana: number;
+    currentCooldown: number;
+    currentCooldown2: number;
+    currentPreparation?: number;
+    currentHolyLightCharges?: number;
+  };
+  /** In-progress Eternal Spire run — resumes at the start of `floor`. */
+  activeSpireRun?: {
+    floor: number;
     currentLife: number;
     currentMana: number;
     currentCooldown: number;

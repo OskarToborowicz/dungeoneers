@@ -1,0 +1,173 @@
+/* ── The Eternal Spire ───────────────────────────────────────────────────── */
+
+/* Entry card in the Dungeons tab */
+.spire-entry {
+  border: 1px solid #6a4fb0;
+  border-radius: 8px;
+  background: linear-gradient(
+    180deg,
+    rgba(90, 60, 160, 0.18),
+    rgba(30, 20, 50, 0.35)
+  );
+  padding: 14px 16px;
+  margin-bottom: 16px;
+}
+
+.spire-entry-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.spire-entry-head h3 {
+  margin: 0;
+  color: #c8b3ff;
+  font-family: var(--heading-font);
+}
+
+.spire-entry-record {
+  font-size: 12px;
+  color: #a892d8;
+  white-space: nowrap;
+}
+
+.spire-entry-desc {
+  margin: 6px 0 12px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--text-dim);
+}
+
+.spire-entry-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.spire-enter-btn {
+  background: rgba(120, 90, 200, 0.25);
+  border: 1px solid #7a5fc0;
+  color: #d8c8ff;
+  padding: 8px 14px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.spire-enter-btn:hover {
+  border-color: #a888ff;
+  background: rgba(140, 105, 230, 0.35);
+}
+
+/* Reward-card screen (after a Warden) */
+.spire-reward-screen {
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.spire-reward-title {
+  margin: 0;
+  color: #c8b3ff;
+  font-family: var(--heading-font);
+  font-size: 24px;
+}
+
+.spire-reward-sub {
+  margin: 0 0 18px;
+  color: var(--text-dim);
+  font-size: 13px;
+}
+
+.spire-reward-cards {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  max-width: 520px;
+}
+
+.spire-card {
+  width: 150px;
+  min-height: 170px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 1px solid #6a4fb0;
+  border-radius: 10px;
+  background: linear-gradient(
+    180deg,
+    rgba(90, 60, 160, 0.22),
+    rgba(25, 18, 45, 0.5)
+  );
+  color: var(--text-heading);
+  padding: 16px 12px;
+  cursor: pointer;
+  transition:
+    transform 0.12s ease,
+    border-color 0.12s ease;
+}
+
+.spire-card:hover {
+  transform: translateY(-4px);
+  border-color: #a888ff;
+}
+
+.spire-card-icon {
+  font-size: 34px;
+  line-height: 1;
+}
+
+.spire-card-name {
+  font-family: var(--heading-font);
+  font-size: 15px;
+  color: #d8c8ff;
+}
+
+.spire-card-sub {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.spire-intermission-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.spire-leave-btn {
+  background: none;
+  border: 1px solid var(--border-gold);
+  color: var(--text-dim);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.spire-leave-btn:hover {
+  border-color: var(--border-gold-bright);
+  color: var(--text-heading);
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  .spire-card {
+    width: 130px;
+    min-height: 120px;
+    padding: 10px;
+  }
+  .spire-card-icon {
+    font-size: 26px;
+  }
+  .spire-reward-title {
+    font-size: 18px;
+  }
+}

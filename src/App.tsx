@@ -31,6 +31,13 @@ import {
 import { rollGambleItem, type GambleOffer } from "./game/data/gambler";
 import { UNIQUE_DROP_TABLE } from "./game/data/drops";
 import {
+  generateSpireFloor,
+  isWardenFloor,
+  rollRewardCards,
+  type SpireCard,
+} from "./game/data/spire";
+import { SpireRewards } from "./components/SpireRewards";
+import {
   getAllSaves,
   getSave,
   writeSave,
@@ -87,6 +94,29 @@ interface DungeonRunState {
   currentHolyLightCharges: number;
 }
 
+// Eternal Spire is an isolated run: no fixed queue (each floor is generated on
+// the fly), no `clearedDungeons` interaction, its own finisher. Kept separate
+// from DungeonRunState so it can't trip the dungeon-only branches (Clear Again,
+// mark-cleared, pendingRestart).
+interface SpireRunState {
+  floor: number;
+  currentLife: number;
+  currentMana: number;
+  currentCooldown: number;
+  currentCooldown2: number;
+  currentPreparation: number;
+  currentHolyLightCharges: number;
+}
+
+// Shown after each floor's kill: the player decides to descend or leave. Warden
+// floors first present reward cards to pick (`cards` set, `picked` false).
+interface SpireIntermissionState {
+  clearedFloor: number;
+  result: CombatResult;
+  cards: SpireCard[] | null;
+  picked: boolean;
+}
+
 function App() {
   const [slots, setSlots] = useState<SaveSlot[]>([]);
   const [showAuth, setShowAuth] = useState(false);
@@ -103,6 +133,9 @@ function App() {
     useState<Record<ConsumableId, number>>(EMPTY_CONSUMABLES);
   const [shopStock, setShopStock] = useState<Item[]>([]);
   const [dungeonRun, setDungeonRun] = useState<DungeonRunState | null>(null);
+  const [spireRun, setSpireRun] = useState<SpireRunState | null>(null);
+  const [spireIntermission, setSpireIntermission] =
+    useState<SpireIntermissionState | null>(null);
   const [selectedAct, setSelectedAct] = useState<1 | 2 | 3 | 4>(1);
   const [hubTab, setHubTab] = useState<
     "character" | "inventory" | "dungeons" | "merchant" | "gambler" | "journal"
@@ -223,16 +256,16 @@ function App() {
   }
 
   useEffect(() => {
-    if (!dungeonRun) return;
+    if (!dungeonRun && !spireRun) return;
     function onBeforeUnload(e: BeforeUnloadEvent) {
       e.preventDefault();
     }
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
-  }, [dungeonRun]);
+  }, [dungeonRun, spireRun]);
 
   useEffect(() => {
-    if (!loaded || !activeSlotId || !character || dungeonRun) return;
+    if (!loaded || !activeSlotId || !character || dungeonRun || spireRun) return;
     const save: SaveGame = {
       character,
       equipment,
@@ -253,6 +286,7 @@ function App() {
     consumables,
     shopStock,
     dungeonRun,
+    spireRun,
   ]);
 
   // "Clear Again": restart the same dungeon once the boss-reward state has
@@ -394,6 +428,35 @@ function App() {
         });
         return;
       }
+    }
+    if (save.inCombat && save.activeSpireRun) {
+      const run = save.activeSpireRun;
+      setActiveSlotId(slotId);
+      setCharacter(loadedCharacter);
+      setEquipment(save.equipment);
+      setInventory(save.inventory);
+      setClearedDungeons(save.clearedDungeons);
+      setConsumables(save.consumables ?? EMPTY_CONSUMABLES);
+      setShopStock(
+        save.shopStock ??
+          generateShopStock(
+            save.character.level,
+            save.character.classId,
+            4,
+            save.clearedDungeons,
+          ),
+      );
+      setSelectedAct(1);
+      setSpireRun({
+        floor: run.floor,
+        currentLife: run.currentLife,
+        currentMana: run.currentMana,
+        currentCooldown: run.currentCooldown,
+        currentCooldown2: run.currentCooldown2,
+        currentPreparation: run.currentPreparation ?? 0,
+        currentHolyLightCharges: run.currentHolyLightCharges ?? 0,
+      });
+      return;
     }
     setActiveSlotId(slotId);
     setCharacter(loadedCharacter);
@@ -760,6 +823,280 @@ function App() {
     if (found > 0) setRunItemsFound((n) => n + found);
   }
 
+  // ── Eternal Spire (isolated run) ───────────────────────────────────────────
+  function handleStartSpire(fromFloor: number) {
+    if (!character) return;
+    const floor = Math.max(1, fromFloor);
+    preloadMonsterAssets([generateSpireFloor(floor).name]);
+    setRunItemsFound(0);
+    const startingLife = derived.maxLife;
+    const startingMana = getStartingResource(character, derived);
+    const stagePotions = {
+      healthPotion: getPotionsForStage(derived.potionSlots),
+    };
+    setConsumables(stagePotions);
+    if (activeSlotId) {
+      writeSave(activeSlotId, {
+        character,
+        equipment,
+        inventory,
+        clearedDungeons,
+        consumables: stagePotions,
+        shopStock,
+        inCombat: true,
+        activeSpireRun: {
+          floor,
+          currentLife: startingLife,
+          currentMana: startingMana,
+          currentCooldown: 0,
+          currentCooldown2: 0,
+          currentPreparation: 0,
+          currentHolyLightCharges: 0,
+        },
+      });
+    }
+    setSpireIntermission(null);
+    setSpireRun({
+      floor,
+      currentLife: startingLife,
+      currentMana: startingMana,
+      currentCooldown: 0,
+      currentCooldown2: 0,
+      currentPreparation: 0,
+      currentHolyLightCharges: 0,
+    });
+  }
+
+  // Advance to floor+1, carrying life and refilling per-floor potions.
+  function advanceSpire(fromFloor: number, result: CombatResult) {
+    if (!character) return;
+    const stagePotions = {
+      healthPotion: getPotionsForStage(derived.potionSlots),
+    };
+    setConsumables(stagePotions);
+    const next: SpireRunState = {
+      floor: fromFloor + 1,
+      currentLife: result.endingLife,
+      currentMana: getStartingResource(character, derived, result.endingMana),
+      currentCooldown: result.endingCooldown,
+      currentCooldown2: result.endingCooldown2,
+      currentPreparation: result.endingPreparation ?? 0,
+      currentHolyLightCharges: result.endingHolyLightCharges ?? 0,
+    };
+    if (activeSlotId) {
+      writeSave(activeSlotId, {
+        character,
+        equipment,
+        inventory,
+        clearedDungeons,
+        consumables: stagePotions,
+        shopStock,
+        inCombat: true,
+        activeSpireRun: {
+          floor: next.floor,
+          currentLife: next.currentLife,
+          currentMana: next.currentMana,
+          currentCooldown: next.currentCooldown,
+          currentCooldown2: next.currentCooldown2,
+          currentPreparation: next.currentPreparation,
+          currentHolyLightCharges: next.currentHolyLightCharges,
+        },
+      });
+    }
+    setSpireRun(next);
+  }
+
+  function handleSpireFinished(result: CombatResult) {
+    if (!spireRun || !character) return;
+    const floor = spireRun.floor;
+    const updatedRunStats: RunStats = {
+      damageDealt: character.runStats.damageDealt + result.damageDealt,
+      goldEarned: character.runStats.goldEarned + result.goldReward,
+      kills: character.runStats.kills + (result.victory ? 1 : 0),
+    };
+
+    if (!result.victory) {
+      if (character.mode === "softcore") {
+        setCharacter({
+          ...character,
+          gold: 0,
+          xp: 0,
+          runStats: updatedRunStats,
+        });
+        setSpireIntermission(null);
+        setSpireRun(null);
+        return;
+      }
+      // Hardcore: permadeath.
+      if (activeSlotId) deleteSave(activeSlotId);
+      setDeathSummary({
+        characterName: character.name,
+        classId: character.classId,
+        level: character.level,
+        damageDealt: updatedRunStats.damageDealt,
+        goldEarned: updatedRunStats.goldEarned,
+        kills: updatedRunStats.kills,
+      });
+      setActiveSlotId(null);
+      setCharacter(null);
+      setEquipment({});
+      setInventory([]);
+      setClearedDungeons([]);
+      setConsumables(EMPTY_CONSUMABLES);
+      setShopStock([]);
+      setSpireIntermission(null);
+      setSpireRun(null);
+      setSlots(getAllSaves());
+      return;
+    }
+
+    // Victory: gold + (cap-respecting) XP + record the floor. Do NOT advance —
+    // the player decides at the intermission whether to descend or leave.
+    const xpCap = getXpCapLevel(clearedDungeons);
+    setCharacter((prev) => {
+      if (!prev) return prev;
+      const withGold = {
+        ...prev,
+        gold: prev.gold + result.goldReward,
+        runStats: updatedRunStats,
+        spireHighestFloor: Math.max(prev.spireHighestFloor ?? 0, floor),
+      };
+      const cappedXp =
+        prev.level >= xpCap ? 0 : Math.round(result.xpReward * XP_REWARD_MULT);
+      const { character: withXp } = grantXp(withGold, cappedXp);
+      return withXp;
+    });
+
+    setSpireIntermission({
+      clearedFloor: floor,
+      result,
+      cards: isWardenFloor(floor)
+        ? rollRewardCards({ floor, currentAlloys: character.frozenAlloys ?? 0 })
+        : null,
+      picked: false,
+    });
+  }
+
+  function handleSpireContinue() {
+    if (!spireIntermission) return;
+    advanceSpire(spireIntermission.clearedFloor, spireIntermission.result);
+    setSpireIntermission(null);
+  }
+
+  // Leave with spoils banked. Clearing spireRun lets the hub autosave fire and
+  // drop `activeSpireRun`, so there's no lingering resume state.
+  function handleSpireLeave() {
+    setSpireIntermission(null);
+    setSpireRun(null);
+  }
+
+  function handlePickSpireCard(card: SpireCard) {
+    switch (card.kind) {
+      case "alloy":
+        setCharacter((prev) =>
+          prev
+            ? {
+                ...prev,
+                frozenAlloys: Math.min(
+                  10,
+                  (prev.frozenAlloys ?? 0) + card.amount,
+                ),
+              }
+            : prev,
+        );
+        break;
+      case "gold":
+        setCharacter((prev) =>
+          prev ? { ...prev, gold: prev.gold + card.amount } : prev,
+        );
+        break;
+      case "stats":
+        setCharacter((prev) =>
+          prev
+            ? {
+                ...prev,
+                unspentStatPoints: prev.unspentStatPoints + card.amount,
+              }
+            : prev,
+        );
+        break;
+      case "unique": {
+        if (character) {
+          const eligible = UNIQUE_DROP_TABLE.filter(
+            (e) =>
+              (!e.minLevel || character.level >= e.minLevel) &&
+              (!e.classId || e.classId === character.classId) &&
+              (!e.maxLevel || card.itemLevel <= e.maxLevel),
+          );
+          if (eligible.length) {
+            const item =
+              eligible[Math.floor(Math.random() * eligible.length)].generator();
+            setInventory((prev) => [item, ...prev]);
+            setDroppedItem(item);
+            setHasUnseenDrops(true);
+          }
+        }
+        break;
+      }
+    }
+    // Reward applied — keep the intermission open, now showing descend/leave.
+    setSpireIntermission((prev) =>
+      prev ? { ...prev, cards: null, picked: true } : prev,
+    );
+  }
+
+  function handleSpireEscape() {
+    setCharacter((prev) => {
+      if (!prev) return prev;
+      if (prev.mode === "softcore") {
+        return { ...prev, gold: prev.gold - Math.floor(prev.gold * 0.3) };
+      }
+      return { ...prev, escapeTokens: Math.max(0, prev.escapeTokens - 1) };
+    });
+    setSpireIntermission(null);
+    setSpireRun(null);
+  }
+
+  // Loot drops ONLY from Wardens (every 5th floor). Regular floors give nothing.
+  function handleSpireRollDrops(monsterLevel: number) {
+    if (!character || !spireRun) return;
+    const isWarden = isWardenFloor(spireRun.floor);
+    if (!isWarden) return;
+    const rarityOrder: ItemRarity[] = [
+      "normal",
+      "magic",
+      "rare",
+      "very rare",
+      "unique",
+    ];
+    let found = 0;
+    const bank = (item: Item) => {
+      setInventory((prev) => [item, ...prev]);
+      setDroppedItem((prev) =>
+        prev === null ||
+        rarityOrder.indexOf(item.rarity) >= rarityOrder.indexOf(prev.rarity)
+          ? item
+          : prev,
+      );
+      if (["rare", "very rare", "unique"].includes(item.rarity))
+        setHasUnseenDrops(true);
+      found += 1;
+    };
+    if (isWarden) {
+      for (const entry of UNIQUE_DROP_TABLE) {
+        if (entry.dungeons) continue; // spire is not a dungeon
+        if (entry.minLevel && character.level < entry.minLevel) continue;
+        if (entry.maxLevel && monsterLevel > entry.maxLevel) continue;
+        if (entry.classId && entry.classId !== character.classId) continue;
+        if (Math.random() >= entry.chance) continue;
+        bank(entry.generator());
+      }
+    }
+    if (Math.random() < (isWarden ? 1 : 0.35))
+      bank(generateRandomItem(monsterLevel, character.classId));
+    if (found > 0) setRunItemsFound((n) => n + found);
+  }
+
   function handleFightFinished(result: CombatResult, clearAgain = false) {
     if (!dungeonRun || !character) return;
     const monster = dungeonRun.queue[dungeonRun.index];
@@ -975,6 +1312,54 @@ function App() {
     );
   }
 
+  if (spireRun) {
+    if (spireIntermission) {
+      return (
+        <>
+          <SpireRewards
+            clearedFloor={spireIntermission.clearedFloor}
+            isWarden={isWardenFloor(spireIntermission.clearedFloor)}
+            cards={spireIntermission.cards}
+            picked={spireIntermission.picked}
+            onPick={handlePickSpireCard}
+            onContinue={handleSpireContinue}
+            onLeave={handleSpireLeave}
+          />
+          <FullscreenButton />
+        </>
+      );
+    }
+    const monster = generateSpireFloor(spireRun.floor);
+    return (
+      <>
+        <CombatScreen
+          key={`spire-${spireRun.floor}`}
+          character={character}
+          derived={derived}
+          equipment={equipment}
+          monster={monster}
+          startingLife={spireRun.currentLife}
+          startingMana={spireRun.currentMana}
+          startingCooldown={spireRun.currentCooldown}
+          startingCooldown2={spireRun.currentCooldown2}
+          startingPreparation={spireRun.currentPreparation}
+          startingHolyLightCharges={spireRun.currentHolyLightCharges}
+          consumables={consumables}
+          escapeTokens={character.escapeTokens ?? 0}
+          xpCapped={character.level >= getXpCapLevel(clearedDungeons)}
+          xpMultiplier={XP_REWARD_MULT}
+          isBossFight={false}
+          itemsFoundThisRun={runItemsFound}
+          onRollDrops={handleSpireRollDrops}
+          onUsePotion={handleUsePotion}
+          onFinished={handleSpireFinished}
+          onEscape={handleSpireEscape}
+        />
+        <FullscreenButton />
+      </>
+    );
+  }
+
   return (
     <>
       <Hub
@@ -992,6 +1377,7 @@ function App() {
         onSellAll={handleSellAll}
         onSellJunk={handleSellJunk}
         onStartDungeon={handleStartDungeon}
+        onStartSpire={handleStartSpire}
         onQuitToMenu={handleQuitToMenu}
         onBuyItem={handleBuyItem}
         onRestockShop={handleRestockShop}

@@ -44,6 +44,7 @@ interface Props {
   onSellAll: () => void;
   onSellJunk: () => void;
   onStartDungeon: (dungeonId: string) => void;
+  onStartSpire: (fromFloor: number) => void;
   onQuitToMenu: () => void;
   onBuyItem: (item: Item) => void;
   onRestockShop: () => void;
@@ -104,6 +105,7 @@ export function Hub({
   onSellAll,
   onSellJunk,
   onStartDungeon,
+  onStartSpire,
   onQuitToMenu,
   onBuyItem,
   onRestockShop,
@@ -718,6 +720,9 @@ export function Hub({
               onStart={onStartDungeon}
               selectedAct={selectedAct}
               onSelectAct={onSelectAct}
+              characterLevel={character.level}
+              spireHighestFloor={character.spireHighestFloor ?? 0}
+              onStartSpire={onStartSpire}
             />
           )}
           {tab === "gambler" && (

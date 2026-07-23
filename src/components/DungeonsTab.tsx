@@ -1,10 +1,18 @@
 import { DUNGEONS } from "../game/data/dungeons";
+import {
+  SPIRE_UNLOCK_LEVEL,
+  WARDEN_INTERVAL,
+  checkpointForFloor,
+} from "../game/data/spire";
 
 interface Props {
   clearedDungeons: string[];
   onStart: (dungeonId: string) => void;
   selectedAct: 1 | 2 | 3 | 4;
   onSelectAct: (act: 1 | 2 | 3 | 4) => void;
+  characterLevel: number;
+  spireHighestFloor: number;
+  onStartSpire: (fromFloor: number) => void;
 }
 
 export function DungeonsTab({
@@ -12,7 +20,11 @@ export function DungeonsTab({
   onStart,
   selectedAct,
   onSelectAct,
+  characterLevel,
+  spireHighestFloor,
+  onStartSpire,
 }: Props) {
+  const spireResumeFloor = checkpointForFloor(spireHighestFloor);
   const act1Regular = DUNGEONS.filter((d) => d.act === 1 && !d.endgame);
   const act1Endgame = DUNGEONS.filter((d) => d.act === 1 && d.endgame);
   const act2Regular = DUNGEONS.filter((d) => d.act === 2 && !d.endgame);
@@ -75,6 +87,34 @@ export function DungeonsTab({
 
   return (
     <div className="tab-panel">
+      {characterLevel >= SPIRE_UNLOCK_LEVEL && (
+        <div className="spire-entry">
+          <div className="spire-entry-head">
+            <h3>The Eternal Spire</h3>
+            <span className="spire-entry-record">
+              Best: Floor {spireHighestFloor || 0}
+            </span>
+          </div>
+          <p className="spire-entry-desc">
+            Endless floors of ever-stronger foes. A Warden guards every{" "}
+            {WARDEN_INTERVAL}th floor and offers a choice of spoils. Death here is
+            as final as anywhere.
+          </p>
+          <div className="spire-entry-actions">
+            <button className="spire-enter-btn" onClick={() => onStartSpire(1)}>
+              Enter — Floor 1
+            </button>
+            {spireResumeFloor >= WARDEN_INTERVAL && (
+              <button
+                className="spire-enter-btn"
+                onClick={() => onStartSpire(spireResumeFloor)}
+              >
+                Resume — Floor {spireResumeFloor}
+              </button>
+            )}
+          </div>
+        </div>
+      )}
       <div className="dungeons-header">
         <h3>Dungeons</h3>
         {act2Unlocked && (
