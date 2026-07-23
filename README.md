@@ -284,7 +284,7 @@ Vanish hurls a metal powder burst for `0.75×` weapon damage, then grants immuni
 
 ### Status Effects
 
-Active status effects are shown as colored pills below each combatant's HP bar, and on the sprites themselves. **Both the player and the monster** show the same visuals: poison as rising green bubbles, burn as a flickering orange aura. Both draw on top of the model.
+Active status effects are shown as colored pills below each combatant's HP bar, and on the sprites themselves. **Both the player and the monster** show the same visuals: poison as rising green bubbles, burn as a flickering orange aura. Both draw on top of the model. The **monster's sprite aura settles in ~1 second after** the status is applied, so it doesn't pop mid-swing (the pill updates immediately; only the on-sprite aura is delayed).
 
 **On the monster:**
 
@@ -337,17 +337,18 @@ Taking a hit shakes the sprite horizontally; death drops and fades it.
 
 ### Basic Attack Animations
 
-Most classes show only the sprite reaction on a basic attack. Three have a dedicated SVG effect:
+Most classes show only the sprite reaction on a basic attack. Four have a dedicated SVG effect (all `motion`-driven):
 
 | Class | Basic attack animation |
 |---|---|
 | Barbarian | Heavy axe cleave — a thick orange-red arc sweeping down, slower than the paladin's slash |
-| Huntress | Single green arrow flying toward the enemy |
+| Huntress | Single small green arrow (with feather fletching) flying toward the enemy, rolling slightly on its axis |
 | Paladin | Gold sword slash with a blurred light trail |
+| Druid | Quick tan/brown leather-whip crack |
 
 ### Ability Animations
 
-Each class ability triggers a short SVG overlay animation over the battle arena when used:
+Each class ability triggers a short SVG overlay animation over the battle arena when used. All effects are **`motion`-driven** (no CSS keyframes):
 
 | Class | Ability | Animation |
 |---|---|---|
@@ -355,18 +356,20 @@ Each class ability triggers a short SVG overlay animation over the battle arena 
 | Barbarian | Whirlwind | Red spinning vortex that expands across the arena |
 | Necromancer | Poison Cloud | Green toxic cloud flies toward the enemy and billows on impact |
 | Necromancer | Golem Defense | Stone boulder rolls in with dust trails; golem stands guard next to the Necromancer |
-| Sorceress | Frost Bolt | Icy bolt that shatters into shards on impact |
-| Huntress | Multishot | Two green arrows flying toward the enemy |
+| Sorceress | Frost Bolt | Hand-painted icy bolt (loaded from a skill-art SVG) that flies over and shatters into frost shards on impact |
+| Huntress | Multishot | Three green arrows fanning out toward the enemy |
 | Huntress | Freezing Shot | Icy blue arrow flying toward the enemy + frost explosion on impact |
-| Paladin | Holy Bolt | Golden holy cross with radiant pulse |
+| Paladin | Holy Bolt | Golden holy nova on impact — twin crossing light beams, expanding rings, gilded spokes, and scattering motes |
 | Paladin | Regenerating Nova | Green healing rings expand from the player with rising sparkles |
-| Druid | Vine Whip | *(SVG pending)* |
-| Druid | Grove | Standing summoned model, fades after 2 turns *(SVG pending)* |
+| Druid | Vine Whip | Green vine lashes out (with flicking leaves) and cracks against the enemy, triggering the bleed |
+| Druid | Grove | Standing summoned tree model — **appears the instant the skill is pressed**, fades after 2 turns |
 | Assassin | Eviscerate | Red diagonal slash + impact burst + poison drip at the enemy |
 | Assassin | Vanish | Smoke burst at the player + metal shards scatter at the enemy |
 | Sorceress | Frost Shield | Expanding frost rings with ice crystal shards radiating from the player |
-| Monk | Spinning Crane Kick | Green wind rings spinning around the player |
-| Monk | Serenity | Expanding green healing rings with rising sparkles around the player |
+| Monk | Spinning Crane Kick | Green cyclone spinning on the enemy's left flank + three sequential kick-impact bursts (one per hit) |
+| Monk | Serenity | Blooming green lotus — calm rings, unfolding petals, and rising motes around the player |
+
+> Class abilities can carry hand-painted SVG art (dropped into `src/assets/skills/<class>/<slot>/`); if art is present it's shown, otherwise the drawn effect is used. The Frost Bolt is the current reference.
 
 ### Monster Spells
 
@@ -709,8 +712,10 @@ finalValue = round(baseRoll × scale)
 |---|---|---|---|
 | Normal | 55% | 0 | ×1.00 |
 | Magic | 30% | 1 | ×1.15 |
-| Rare | 12% | 3 or 4 (50/50) | ×1.30 |
-| Unique | 3% | 4 | ×1.50 |
+| Rare | 12% | 3 | ×1.30 |
+| Very Rare | 3% | 4 | ×1.50 |
+
+**Rare items always roll exactly 3 affixes.** A 4th affix is exclusively a **Forge** reward. **Very Rare** items (named "… of the Ancients") drop with 4 affixes natively. **Unique** items are separate — fixed stats from `UNIQUE_DROP_TABLE`, not part of this rarity roll.
 
 **Shop rarity is level-gated:**
 
@@ -824,24 +829,28 @@ The Forge has two sub-tabs: **Reforge** (below) and **Smelt**. In **Smelt**, any
 
 ### Crafting Rules
 
-Place any **Rare** item in the Forge slot. Two operations are available depending on the item's affix count:
+Place any **Rare** or **Very Rare** item in the Forge slot. Which operations are available depends on the item's affix count:
 
 **3-affix rare → Add 4th Affix**
 - Costs 1 Frozen Alloy.
 - A random 4th affix is added that does not duplicate any existing affix on the item.
 - The new affix is **locked** as the slot that can be re-rolled going forward.
 - Only the added (locked) affix may be re-rolled after this point.
+- If the item's slot has **no eligible stat left** to add (every possible affix for that slot/item level is already present), the button is disabled ("No new affix for this slot") and **no alloy is spent**.
 
-**4-affix rare → Re-roll an Affix**
+**4-affix item (rare or very rare) → Re-roll an Affix**
 - Costs 1 Frozen Alloy.
-- For items with 4 affixes as their **base roll**: click any of the four affixes to select it, then confirm with **Yes / No**. That affix becomes permanently locked as the re-rollable slot.
-- For items upgraded via the Forge (lock already set): shows "Re-roll again?" with **Yes / No** — re-rolls only the locked slot.
-- The new roll cannot duplicate other affixes currently on the item.
+- Click any of the four affixes to select it, then confirm with **Yes / No**. That affix becomes permanently locked as the re-rollable slot; further re-rolls show "Re-roll again?".
+- The re-roll draws from the whole slot pool **excluding the item's other affixes**. The selected affix's **own stat stays in the pool**, so a re-roll can land the same stat with a fresh (hopefully higher) value — i.e. it doubles as a **value re-roll** for a weak roll — or swap to a different stat.
+- Re-rolls are capped (5 per item, or 3 once a 4th affix was Forge-added). No alloy is spent once the cap is reached.
+
+**Very Rare** items already carry 4 affixes, so they only ever **re-roll** — the "Add 4th Affix" step doesn't apply to them.
 
 ### Visual Indicators
 
 - **Forge-crafted / re-rolled affixes** appear in **light blue** in the item tooltip.
 - Items with 4 affixes show a light blue "4 affixes" label in the Forge's inventory list.
+- Items that can't be improved any further (rare with no eligible stat to add, or any item out of re-rolls) are marked **depleted** in the inventory list.
 
 ### Gheedon the Gambler
 
@@ -985,4 +994,21 @@ Each save slot stores:
 - Current shop stock
 - Active dungeon run state (current life, mana/fury/preparation, cooldowns) — allows resuming an interrupted run on reload
 
-The game **auto-saves after every action**. Death permanently deletes the slot.
+The game **auto-saves after every action**. Death permanently deletes the slot (Hardcore).
+
+### Hero Transfer (export / import)
+
+Any single hero can be moved between devices from the character-select screen:
+
+- **Export** (📤 on a hero card) produces a short transfer code (`DIABOLO2:…` — the save is gzip-compressed then base64url-encoded) or lets you **download it as a `.txt` file**.
+- **Import** (📥 **Import Hero**) accepts a pasted code **or a loaded file**, and adds it as a **new** hero (existing saves are untouched).
+
+The file path is the most reliable on phones, where programmatic clipboard access is often blocked. Compression keeps the code short enough to copy in one piece.
+
+### Cloud Accounts & Sync (optional)
+
+Signing in (email/password or Google, via Supabase) links your heroes to an account:
+
+- On sign-in, local and cloud heroes are **merged** — nothing is deleted; for a hero present in both, the one with the newer last-played time wins.
+- While signed in, every save (including in-combat autosaves) is mirrored to the cloud, so heroes follow you across devices.
+- **No account is required** — offline play on `localStorage` works exactly as before; the sign-in button only appears when the app is configured with Supabase.

@@ -39,7 +39,12 @@ a weak class could reflect a weak policy rather than weak tuning. Sustain classe
 | `src/game/data/drops.ts` | `UNIQUE_DROP_TABLE` — declarative unique drop entries, looped in `App.tsx` on boss kill |
 | `src/game/data/gambler.ts` | `rollGambleItem()`, `UNIQUE_POOL`, `CLASS_WEAPON_POOL`, `gamblePrice()` — Gheedon gambling logic |
 | `src/components/GamblerTab.tsx` | Gambler UI — 8/9 slot offer cards + inline inventory |
-| `src/game/storage.ts` | localStorage read/write (`SaveSlot[]` array — NOT an object) |
+| `src/game/storage.ts` | localStorage read/write (`SaveSlot[]` array — NOT an object); hero transfer codes (`encodeSaveCode`/`importSaveCode`) + cloud-sync hook (`setSaveSyncHandler`/`overwriteSaves`) |
+| `src/lib/supabase.ts` | Supabase client + `isSupabaseConfigured` (auth/cloud are optional; no throw when unconfigured) |
+| `src/services/auths.ts` / `cloudSaves.ts` | Supabase auth wrappers + cloud save table (`game_saves`) access |
+| `src/components/AuthScreen.tsx` | Login/signup UI (email + Google) |
+| `src/components/skillAssets.ts` | Per-class skill-art SVG loader — `skillAsset()` / `skillAssets()` |
+| `supabase/schema.sql` | Postgres schema (`game_saves`, `profiles`, RLS) — run in Supabase SQL Editor |
 | `src/App.tsx` | Root state, routing between screens |
 | `src/App.css` | Aggregator only — `@import`s every file in `src/styles/` in cascade order. Never add rules directly here. |
 | `src/styles/*.css` | One file per section (e.g. `combat-screen.css`, `responsive-mobile.css`, `responsive-hub-landscape.css`, `responsive-gameover-landscape.css`). **Import order in `App.css` is load-bearing** — several responsive rules rely on later-in-cascade wins between equal-specificity selectors across files (e.g. `responsive-tablet-touch.css` must stay after `responsive-hub-landscape.css`). Adding a new file requires adding its `@import` line in the correct position, not just alphabetically. |
@@ -52,6 +57,7 @@ a weak class could reflect a weak policy rather than weak tuning. Sustain classe
 ```
 App
 ├── CharacterSelect
+├── AuthScreen
 ├── CharacterCreation
 ├── Hub
 │   ├── CharacterTab
@@ -319,6 +325,18 @@ recoil `x: [0, -8*scale, 0]` on the `attack` state instead of the default
 forward hop `y: [0, -12*scale, 5*scale, 0]`. Character sprites face right (only
 `MonsterSprite` has `scaleX(-1)`), so backwards is **negative x**.
 
+**Mobile perf — no remount, tight glow.** Both `CharacterSprite` and
+`MonsterSprite` replay the pose via `useAnimationControls` (an effect on
+`[state]` calls `controls.start(getAnimate(...), getTransition(...))`), NOT the
+old `key={animKey}` remount. Remounting repainted every glow-filtered `<g>` on
+each attack/hit — the dominant cost on phones (the transform animation itself is
+compositor-cheap). The glow filter region is also tightened to `x=-50%
+width=200%` (was `400%` ≈ 16× the element area) to shrink the offscreen blur
+buffer. **CharacterSprite keeps TWO stacked `feDropShadow` passes** (wide soft +
+tight core) — dropping the tight one leaves see-through gaps ("prześwity") in
+thin parts. On `<image>`-backed monsters the SVG filter can still re-raster per
+frame on iOS Safari — a known limit, not fixable without dropping the glow.
+
 Both `CharacterSprite` and `MonsterSprite` accept `statusEffects?: Array<"poison" | "burn">`
 and render identically — burn aura (`.status-aura-burn` ellipse) then poison
 bubbles (`.poisoned` circles), **both after the model so they draw on top**.
@@ -344,7 +362,23 @@ one type on purpose (`Fallen One`, `Devilkin`, `Dark One` → `fallen`). Each ty
 `src/assets/monsters/*.svg` eagerly at build time and keys them by filename.
 Dropping `<type>.svg` into that folder makes `MonsterSprite` render it as an
 `<image>` — **no code change**. Types without a file fall back to `SPRITES`, so
-both styles coexist and migration can go one monster at a time.
+both styles coexist and migration can go one monster at a time. The **27 inline
+`SPRITES` entries that already had asset files were removed** — those types are
+asset-only now; the `SPRITES` fallback (incl. `"fallen"`) remains for types with
+no file yet.
+
+**Asset viewBox must be ~2:3.** `MONSTER_IMG` maps the file into a strict `96×144`
+(2:3) box with `xMidYMax meet`. A file whose viewBox is a different aspect
+letterboxes and can push content out of the visible arena — the goblin family
+shipped with an A4 `0 0 210 297` viewBox (0.71) and its art overflowed
+(`boss_goblin` reached x≈211 > 210), so it clipped. Crop the artboard tight to
+the silhouette at ~2:3 (like `skeleton.svg` = `153×230`).
+
+**`<image>` never inherits fill.** It shows the file's own colors; the engine
+only adds the colored glow (flood of the silhouette **alpha**). So a **line-art
+file with a hollow interior** lets the glow bleed through the middle and read
+patchy at thin strokes ("prześwity") — give the body a solid fill, or keep it a
+single closed silhouette, so the glow only haloes the outer edge.
 
 Unlike class sprites, monster art is **one flat file per type — silhouette only,
 no body/weapon/offhand split**, because monsters have no gear. Art spec (artboard
@@ -609,3 +643,93 @@ vector paths, never a placed/traced bitmap) → wire it in the relevant FX via
 ### Paladin starting equipment
 
 `generateStartingEquipment()` in `items.ts` returns `{ weapon, shield }` for Paladin (and `{ weapon }` for all other classes). The shield is a Normal-quality item generated from the first `ARMOR_BASES` entry with `slot === "shield"`.
+
+### Forge (reforge) rules
+
+`ForgeTab.tsx` + `handleForgeAddAffix` / `handleForgeRerollAffix` in `App.tsx`,
+logic in `items.ts`.
+
+- **Rare rolls exactly 3 affixes.** The old 50%-chance-of-a-4th-affix roll was
+  removed (`affixCount = baseAffixCount`) — a 4th affix is *only* a Forge reward.
+  **Very rare** rolls 4 natively (named "… of the Ancients").
+- **What the Forge accepts:** `isForgeable(item)` = `rare || "very rare"`. The
+  inventory filter and the reroll guards use it. Rares can add-4th + reroll; very
+  rares (already 4 affixes) can only reroll.
+- **Pool comes from `buildSlotPool(itemLevel, slot)`** filtered by slot + item
+  level. `addFourthAffix` excludes **all** existing stats (new stat). Reroll
+  (`rerollLockedAffix` / `lockAndRerollAffix`) excludes only the **other** affixes
+  — the rerolled slot's own stat stays in the pool, so a reroll can keep the stat
+  with a fresh value (value-reroll) or swap it.
+- **Never waste an alloy on a no-op.** When the pool is exhausted these functions
+  return the item unchanged. Guards `canAddFourthAffix(item)` /
+  `canRerollAffix(item, idx)` gate both the handlers (no alloy spent) and the UI
+  (button disabled + "depleted" marker). This is the "some rares can't be forged"
+  dependency: slot pool + item level + already-present affixes.
+- Reroll cap: `forgeRerollCap` = 5, or 3 once `forgeAffixAdded`.
+
+### CombatScreen timing quirks
+
+- **Summoned models pop on cast, not on turn-resolve.** The full `result.state`
+  (with `barkWallRounds`, etc.) is committed inside the ~550ms–1.1s animation
+  `setTimeout`. So in the continue branch, when `wasAbility2`, `barkWallRounds` is
+  committed **immediately** (`setBattle((b) => ({ ...b, barkWallRounds: result.state.barkWallRounds }))`)
+  so the Druid **Grove** model appears the instant the skill is pressed. (The
+  Grove model uses `druidGroveUrl` = `assets/classes/druid/skill_2.svg`.)
+- **Monster status auras are delayed ~1s.** `monsterStatusFx` mirrors the live
+  poison/burn/bleed flags into a state that's updated on a 1000ms `setTimeout`, so
+  the on-sprite aura settles in after the hit rather than popping mid-swing. The
+  status **pills** still update immediately.
+
+### Hero transfer (export / import one hero)
+
+Single-character move between devices, in `storage.ts`:
+
+- `encodeSaveCode(save)` → `Promise<string>` — **gzip** (`CompressionStream`) then
+  **base64url**, prefixed `DIABOLO2:`. Falls back to uncompressed `DIABOLO1:` if
+  `CompressionStream` is unavailable. Compression matters: a full save is ~15k raw
+  base64, which mobile "select all" copies only partially → truncated paste fails
+  to decode; gzip cuts it to ~1–3k.
+- `decodeSaveCode` / `importSaveCode` (async) — `b64urlToBytes` **strips anything
+  outside the base64url alphabet** (mobile paste smuggles whitespace/NBSP/zero-width
+  chars) and accepts both prefixes. `importSaveCode` returns
+  `{ id } | { error }` (surfaced in the UI) and creates a **new** slot (never
+  overwrites).
+- UI in `CharacterSelect.tsx` (📤 export / 📥 import modals). **File transfer is
+  the primary path** (`Download file` / `Load from file`) — programmatic clipboard
+  is blocked or silently no-ops in mobile webviews (`execCommand('copy')` returns
+  true but copies nothing), so `Copy` is best-effort only.
+
+### Accounts, auth & cloud save sync (Supabase)
+
+Optional — the game runs fully offline without it.
+
+- **Config:** `src/lib/supabase.ts` reads `VITE_SUPABASE_URL` /
+  `VITE_SUPABASE_ANON_KEY`, exports `supabase` + **`isSupabaseConfigured`**. It
+  **does not throw** when unconfigured (would white-screen the whole app, since App
+  imports the auth chain at module load) — it warns and the app hides all auth UI /
+  skips every Supabase call via `isSupabaseConfigured`.
+- **Services:** `services/auths.ts` (signUp/signIn/Google/signOut/getSession/
+  onAuthStateChange), `services/cloudSaves.ts` (`fetchCloudSaves` /
+  `upsertCloudSave` / `deleteCloudSave` on table `game_saves`). Upsert **sends
+  `user_id` explicitly** (from the local session) — relying on the column's
+  `default auth.uid()` is unreliable for PostgREST upserts. RLS still enforces
+  `user_id = auth.uid()`.
+- **UI:** `AuthScreen.tsx` (login/signup tabs + Google). Sign-in button + account
+  row live in `CharacterSelect` (gated on `authAvailable = isSupabaseConfigured`).
+- **Sync (App.tsx):** on session appear (`getSession` at load + `onAuthStateChange`
+  `SIGNED_IN`) → `syncWithCloud()` does a **two-way merge** by `slot_id`, newer
+  `lastPlayedAt` wins, writes the union locally (`overwriteSaves` — bypasses the
+  sync hook to avoid an echo), pushes local-newer/local-only up. While signed in a
+  `[session]` effect registers `setSaveSyncHandler` (in `storage.ts`) — every
+  `writeSave`/`createSave`/`deleteSave` fires it, and App **debounces upserts
+  (1.5s, coalesced per hero)** so per-turn autosaves don't spam the network.
+- **DB schema:** `supabase/schema.sql` (run in Supabase SQL Editor) — `game_saves`
+  (PK `(user_id, slot_id)`, `save jsonb`, `last_played_at bigint`, RLS owner-only,
+  `user_id default auth.uid()`) + a `profiles` table auto-populated by an
+  `auth.users` trigger. `game_saves` is created **first/standalone** so a failure
+  in the permission-sensitive `auth.users` trigger can't block it.
+- **Deploy (GitHub Pages):** `.github/workflows/main.yml` build step passes
+  `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` from **repo secrets**. `.env` is
+  gitignored. The anon key is public by design (inlined into the bundle) — real
+  protection is **RLS**. Google OAuth uses `redirectTo: origin + BASE_URL`, which
+  must be allow-listed in Supabase → Auth → URL Configuration.
