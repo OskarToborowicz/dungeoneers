@@ -117,7 +117,9 @@ export type SpireCard =
   | { kind: "alloy"; amount: number }
   | { kind: "gold"; amount: number }
   | { kind: "stats"; amount: number }
-  | { kind: "unique"; itemLevel: number };
+  | { kind: "unique"; itemLevel: number }
+  | { kind: "rareWeapon"; itemLevel: number }
+  | { kind: "rareJewelry"; itemLevel: number };
 
 export interface RewardCardOptions {
   floor: number;
@@ -134,6 +136,8 @@ export function rollRewardCards({
     { kind: "gold", amount: Math.round(600 + floor * 320) },
     { kind: "stats", amount: 5 },
     { kind: "unique", itemLevel: SPIRE_BASE_LEVEL + floor },
+    { kind: "rareWeapon", itemLevel: SPIRE_BASE_LEVEL + floor },
+    { kind: "rareJewelry", itemLevel: SPIRE_BASE_LEVEL + floor },
   ];
   if (currentAlloys < 10) pool.push({ kind: "alloy", amount: 1 });
 

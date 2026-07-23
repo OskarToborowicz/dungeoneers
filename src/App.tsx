@@ -21,6 +21,7 @@ import {
   canAddFourthAffix,
   canRerollAffix,
   buyValue,
+  generateItemForSlot,
   generateRandomItem,
   generateShopStock,
   generateStartingEquipment,
@@ -1097,6 +1098,37 @@ function App() {
             setDroppedItem(item);
             setHasUnseenDrops(true);
           }
+        }
+        break;
+      }
+      case "rareWeapon": {
+        if (character) {
+          const item = generateItemForSlot(
+            "weapon",
+            card.itemLevel,
+            character.classId,
+            "rare",
+            4,
+          );
+          setInventory((prev) => [item, ...prev]);
+          setDroppedItem(item);
+          setHasUnseenDrops(true);
+        }
+        break;
+      }
+      case "rareJewelry": {
+        if (character) {
+          const slot = Math.random() < 0.5 ? "amulet" : "ring1";
+          const item = generateItemForSlot(
+            slot,
+            card.itemLevel,
+            character.classId,
+            "rare",
+            4,
+          );
+          setInventory((prev) => [item, ...prev]);
+          setDroppedItem(item);
+          setHasUnseenDrops(true);
         }
         break;
       }
