@@ -127,23 +127,10 @@ magicDamageBonus = floor(energy / 2) + gear magicDamage bonuses
 ```
 Added as flat damage to the final result of every magic ability hit (after the power multiplier).
 
-### Magic Damage Multiplier
-The Sorceress passive **Ancient Wisdom** (unlocks at level 20) applies a multiplicative bonus to all magic ability damage:
-```
-magicDamageMult = sorceress && level ≥ 20 ? 1.20 : 1.0
-result = round((base + magicDamageBonus) × magicDamageMult)
-```
-
 ### Gold Find Bonus
 Accumulated from "of Greed" affixes on rings and belt. Every source is **summed** into one total, then applied once to the base gold drop — bonuses stack additively, never compounding with each other:
 ```
 finalGold = round(baseGold × (1 + totalGoldFind% / 100))
-```
-
-### Mind over Matter (Sorceress, level 35)
-Adds bonus maximum life equal to **15% of maximum mana** after all other life calculations:
-```
-maxLife += round(maxMana × 0.15)
 ```
 
 ---
@@ -246,11 +233,11 @@ Monsters always have at least a 15% chance to hit regardless of the player's def
 | Player (base) | 5% + dex×0.001 (cap 60%) | ×1.50 |
 | Monster | 10% | ×1.75 |
 
-Basic attacks always roll for crits. The following abilities also crit on their direct-damage roll: **Frost Bolt** (Sorceress), **Holy Bolt** damage (Paladin), **Poison Cloud initial hit** (Necromancer), **Golem Defense detonation** (Necromancer), **Eviscerate** (Assassin), and **Vanish** initial hit (Assassin). DoT ticks and burn stacks never crit independently.
+Basic attacks always roll for crits. The following abilities also crit on their direct-damage roll: **Frost Bolt** (Sorceress), the **Frostfire comet** (Sorceress), **Holy Bolt** damage (Paladin), **Poison Cloud initial hit** (Necromancer), **Golem Defense detonation** (Necromancer), **Eviscerate** (Assassin), and **Vanish** initial hit (Assassin). DoT ticks and burn stacks never crit independently.
 
 ### Mana Regeneration
 
-Every round, mana classes regenerate **5% of max mana** regardless of the action taken. The Sorceress has a higher passive regen rate: **10% of max mana every turn** via the **Arcane Flow** passive.
+Every round, mana classes regenerate **5% of max mana** regardless of the action taken. The Sorceress has a higher passive regen rate: **10% of max mana every turn** via the **Mind over Matter** passive. Her two abilities cost **no mana** — only their cooldowns gate them.
 
 Fury never regenerates. It starts at 20 per fight and builds by +10 per basic attack (+15 at level 35 with the Madness passive).
 
@@ -426,15 +413,16 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Display**: Golem appears on the player side of the arena as an SVG with a round countdown badge; cannot be re-summoned while active
 
 ### Sorceress — Frost Bolt
-- **Kind**: burst (magic — gains `magicDamageBonus` and `magicDamageMult`)
-- **Mana Cost**: 30
+- **Kind**: burst (magic — gains `magicDamageBonus`)
+- **Mana Cost**: 0
 - **Cooldown**: 0 (can cast every turn)
-- **Damage**: `round((randomInRange(damage) × 1.0 + magicDamageBonus × 2) × magicDamageMult)` — **can crit**
+- **Damage**: `round(randomInRange(damage) × 1.0 + magicDamageBonus × 2)` — **can crit** (plus +5% while mana is above 50%, from Mind over Matter)
+- Every **3rd** cast also drops a **Frostfire comet** at level 20+ — see the Frostfire passive.
 
 ### Sorceress — Frost Shield *(Ability 2)*
 - **Kind**: buff (no damage)
-- **Mana Cost**: 75
-- **Cooldown**: 8 turns — starts immediately on cast
+- **Mana Cost**: 0
+- **Cooldown**: 9 turns — starts immediately on cast
 - **Duration**: 3 turns
 - **Effect**: Reduces all incoming damage (physical and spell) by **60%** for the duration
 - **Damage formula while shielded**: `dmg = max(1, round(dmg × 0.40))`
@@ -453,10 +441,10 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 - **Freeze**: on hit, sets `frozenRounds = 2` — the monster skips its action entirely for 2 turns
 
 ### Paladin — Holy Bolt
-- **Kind**: heal (magic — gains `magicDamageBonus` and `magicDamageMult`)
+- **Kind**: heal (magic — gains `magicDamageBonus`)
 - **Mana Cost**: 20
 - **Cooldown**: 3 turns
-- **Damage**: `round((round(randomInRange(damage) × 1.2) + magicDamageBonus × 1.5) × magicDamageMult)` — **can crit**
+- **Damage**: `round(round(randomInRange(damage) × 1.2) + magicDamageBonus × 1.5)` — **can crit**
 - **Heal**: `round(damage × 0.35)` life restored — derived from the final damage value, so a crit naturally increases the heal
 
 ### Paladin — Regenerating Nova *(Ability 2)*
@@ -518,7 +506,7 @@ Each character starts with **1 Escape Token**. Using the **Flee** action in comb
 For `burst`, `dot`, `multi`, and `heal` kinds:
 ```
 base   = round(randomInRange(damage) × power)
-result = magic ? round((base + magicDamageBonus × magicPower) × magicDamageMult) : base
+result = magic ? base + magicDamageBonus × magicPower : base
 ```
 
 ---
@@ -551,17 +539,21 @@ reduction = floor(missingLifePct / 5) × 2%
 - Soul Siphon heals and life steal can overheal up to **25% of maximum life**.
 - Overheal is shown as a **blue glow** on the HP bar and a **+X** badge next to the HP display.
 
-### Sorceress — Arcane Flow *(always active)*
+### Sorceress — Mind over Matter *(always active)*
 - Passively regenerates **10% of max mana every turn**, regardless of the action taken.
+- **35% of all damage taken is drained from mana before life** — applies to every damage source (physical hits, spell bursts, drains, and poison/fire/bleed DoT ticks). The drain is capped at the mana available, so when mana is low or 0 only what mana can cover is absorbed and the rest falls through to life.
+- While **mana is above 50%**, deal **5% more magic damage** (applies to Frost Bolt and the Frostfire comet).
 
-### Sorceress — Ancient Wisdom *(unlocks at level 20)*
-- Increases all **Magic Damage by 20%** via a multiplicative multiplier.
+### Sorceress — Frostfire *(unlocks at level 20)*
+- Every **3rd Frost Bolt** calls down a **fire comet**. The cast builds a stack (up to 2); the next Frost Bolt after 2 stacks fires the comet and resets the counter.
+- **Comet damage** = `Frost Bolt damage × 1.25` — rolls its **own crit** independently.
+- The comet **ignites** the enemy for **25% of its damage per turn for 2 turns** (a burn DoT stack).
+- Stacks **persist between waves** within a stage, and **reset on entering a new dungeon and on each Eternal Spire floor**.
+- The Frost Bolt button glows and reads "Comet ready!" when the next cast will drop the comet.
 
-### Sorceress — Mind over Matter *(unlocks at level 35)*
-- **Maximum life is increased by 15% of maximum mana**:
-```
-maxLife += round(maxMana × 0.15)
-```
+### Sorceress — Time Anomaly *(unlocks at level 35)*
+- The **first time life drops below 35%** during a stage, instantly restore **25% of maximum mana and 25% of maximum life**. Fires **once per dungeon run / Eternal Spire floor**.
+- While **below 35% life**, take **10% less damage** from all sources.
 
 ### Huntress — Dodge *(always active)*
 - **15% chance** to completely avoid any incoming attack or spell.
@@ -704,6 +696,8 @@ Warding / Fortitude use item-level scaling starting from item level 25:
 scale = 1 + (itemLevel − 25) × 0.04
 finalValue = round(baseRoll × scale)
 ```
+
+**Capped affixes never roll a guaranteed maximum.** Some affixes have a hard ceiling (e.g. Gold Find 125%, crit-damage +20%, crit-chance 6%, Warding / Fortitude 12%). Rather than clamping the final value to the cap — which at high item levels would pin every roll to exactly the cap — the whole roll **range is compressed proportionally** so the top of the range equals the cap and the minimum keeps the same fraction of the max as the base range. The cap is reachable only on a near-perfect roll, and there is always a real spread (the same behavior as an uncapped affix like "of Life").
 
 ---
 
@@ -975,22 +969,26 @@ An endless scaling tower — endgame content unlocked at **character level 50**.
 ### Structure
 
 - **One monster per floor.** Difficulty scales **linearly** with floor number; the displayed monster level is `50 + floor`.
+- **The roster is drawn from every dungeon across all four acts.** Regular floors pull a random wave monster; Warden floors pull a random boss (inheriting that boss's own spell). The lineup is **seeded per character** (name + class + mode), so each hero gets its own fixed tower that stays consistent across re-renders and resumes, and differs between heroes.
 - **A Warden guards every 5th floor** (5, 10, 15…) — tougher (~2.5× life), hits harder, and casts a spell.
 - After **every** floor kill the player chooses: **Descend** (next floor) or **Leave the Spire** (bank everything and return to the Hub). There is no forced advance.
+- **Each floor is a separate stage fight.** Descending resets life, mana, cooldowns and potions to a fresh start — nothing carries over between floors.
 
 ### Loot & reward cards
 
 - **Loot drops only from Wardens.** Regular floors drop nothing. A Warden drops items (including a chance at uniques).
-- Clearing a **Warden also presents 2 reward cards** — pick one:
+- Clearing a **Warden on a floor not previously cleared** also presents **2 reward cards** (drawn at random from the pool below) — pick one. Re-killing a Warden on a floor you've already cleared (e.g. re-entering at Floor 1 with a higher best) grants **no reward cards** — only its gold and XP.
 
 | Card | Reward |
 |---|---|
 | ❄ Frozen Alloy | +1 alloy (capped at 10) |
 | 💰 Gold Hoard | a large gold pile (scales with floor) |
 | 💪 Ascension | +5 stat points (like a level's worth, without leveling) |
-| 🗡 Unique Relic | a random unique (item level = 50 + floor) |
+| 🗡 Unique Relic | a random unique with item level from **40 up to the slain Warden's level** |
+| ⚔ Rare Weapon | a class-restricted **rare** weapon with **4 affixes** at the Warden's item level |
+| 💍 Rare Jewelry | a **rare** ring or amulet with **4 affixes** at the Warden's item level |
 
-The pool is small for now and will grow. XP inside the Spire respects the normal XP cap (the Spire is post-cap content — power comes from the cards and loot, not XP).
+XP inside the Spire respects the normal XP cap (the Spire is post-cap content — power comes from the cards and loot, not XP).
 
 ### Death, resume, records
 
