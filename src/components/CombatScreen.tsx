@@ -429,12 +429,15 @@ export function CombatScreen({
           if (result.monsterSpellCast)
             setMonsterSpellEffect(result.monsterSpellCast);
           if (result.trapDetonated) setTrapDetonateEffect(true);
-          // Player HP drops as monster starts attacking
+          // Player HP drops as monster starts attacking — and mana moves with it,
+          // so the Sorceress's mana-shield drain (and any Time Anomaly restore)
+          // shows in step with the hit instead of lagging to the end-of-round commit.
           if (lastMonster) {
             setBattle((b) => ({
               ...b,
               playerLife: lastMonster.playerLife,
               monsterLife: lastMonster.monsterLife,
+              playerMana: result.state.playerMana,
             }));
           }
           setTimeout(() => {
