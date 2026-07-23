@@ -237,7 +237,7 @@ Basic attacks always roll for crits. The following abilities also crit on their 
 
 ### Mana Regeneration
 
-Every round, mana classes regenerate **5% of max mana** regardless of the action taken. The Sorceress has a higher passive regen rate: **10% of max mana every turn** via the **Mind over Matter** passive. Her two abilities cost **no mana** — only their cooldowns gate them.
+Every round, mana classes regenerate **5% of max mana** regardless of the action taken — **except the Sorceress**, who receives **no baseline regen**. Her only mana regeneration is **3% of max mana every turn** from the **Mind over Matter** passive (her mana doubles as a damage buffer, so it refills slowly). Her two abilities also cost **no mana** — only their cooldowns gate them.
 
 Fury never regenerates. It starts at 20 per fight and builds by +10 per basic attack (+15 at level 35 with the Madness passive).
 
@@ -540,7 +540,7 @@ reduction = floor(missingLifePct / 5) × 2%
 - Overheal is shown as a **blue glow** on the HP bar and a **+X** badge next to the HP display.
 
 ### Sorceress — Mind over Matter *(always active)*
-- Passively regenerates **10% of max mana every turn**, regardless of the action taken.
+- Passively regenerates **3% of max mana every turn**, regardless of the action taken.
 - **35% of all damage taken is drained from mana before life** — applies to every damage source (physical hits, spell bursts, drains, and poison/fire/bleed DoT ticks). The drain is capped at the mana available, so when mana is low or 0 only what mana can cover is absorbed and the rest falls through to life.
 - While **mana is above 50%**, deal **5% more magic damage** (applies to Frost Bolt and the Frostfire comet).
 

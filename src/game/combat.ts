@@ -103,7 +103,6 @@ export interface RoundResult {
 const ALWAYS_MISS_CHANCE = 0.02; // All player abilities/attacks have a flat 2% miss chance
 const MONSTER_CRIT_CHANCE = 0.1;
 const DEFAULT_CRIT_MULTIPLIER = 1.5;
-const MANA_REGEN_RATE = 0.05; // 5% of max mana per turn (all mana classes except Sorceress)
 
 // ─── Class passive constants ────────────────────────────────────────────────
 
@@ -118,7 +117,8 @@ const BARBARIAN_MADNESS_FURY_BONUS = 5; // +5 extra Fury per basic attack (lv.35
 const BARBARIAN_MADNESS_FURY_THRESHOLD = 30;
 
 // Sorceress
-const SORCERESS_MANA_REGEN_RATE = 0.1; // 10% mana per turn via Mind over Matter (lv.1)
+const MANA_REGEN_RATE = 0.05; // 5% of max mana per turn — baseline for every mana class except the Sorceress
+const SORCERESS_MANA_REGEN_RATE = 0.03; // 3% mana per turn via Mind over Matter (lv.1) — the Sorceress's ONLY regen; she gets no baseline
 const SORCERESS_MANA_SHIELD = 0.35; // Mind over Matter: 35% of damage taken drains mana first (lv.1)
 const SORCERESS_HIGH_MANA_MAGIC_BONUS = 0.05; // Mind over Matter: +5% magic dmg while mana > 50% (lv.1)
 const SORCERESS_FROSTFIRE_COMET_MULT = 1.25; // Frostfire comet deals 125% of Frost Bolt damage (lv.20)
@@ -1707,9 +1707,9 @@ export function resolveRound(
   }
 
   // ── Step 3: Mana regen ────────────────────────────────────────────────────────
-  // Sorceress regenerates 10% per turn (Mind over Matter). All other mana classes regenerate 5%.
+  // Mana classes regenerate 5% of max mana per turn — EXCEPT the Sorceress, who
+  // gets no baseline: her only regen is the 3% from the Mind over Matter passive.
   // Monk is excluded — Chi is built only by attacking, never by waiting.
-  // manaRegenMult comes from gear; manaRegenBonus is flat from "of Clarity" affixes.
   if (
     def.resourceType === "mana" &&
     character.classId !== "monk" &&

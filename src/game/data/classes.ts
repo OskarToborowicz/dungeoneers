@@ -101,7 +101,7 @@ export const CLASSES: Record<ClassId, ClassDefinition> = {
     resourceType: "mana",
     passive: {
       name: "Mind over Matter",
-      description: "Regenerate 10% of your maximum mana each turn. 35% of all damage taken is drained from mana before life (overflowing to life when mana runs low). While your mana is above 50%, deal 5% more Magic Damage.",
+      description: "Regenerate 3% of your maximum mana each turn. 35% of all damage taken is drained from mana before life (overflowing to life when mana runs low). While your mana is above 50%, deal 5% more Magic Damage.",
       short: "Regenerate mana; soak damage with mana; more Magic Damage while mana is high.",
     },
     passive2: {
