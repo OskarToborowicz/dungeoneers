@@ -1,7 +1,15 @@
 import { DUNGEONS } from "../game/data/dungeons";
 import { SPIRE_UNLOCK_LEVEL, WARDEN_INTERVAL } from "../game/data/spire";
-import type { GameMode } from "../game/types";
+import { CLASSES } from "../game/data/classes";
+import type { GameMode, ClassId } from "../game/types";
 import type { SpireScore } from "../services/spireLeaderboard";
+
+// class_id in the leaderboard is a raw ClassId string ("amazon", "monk", …).
+// Map it to the class's display name ("Huntress", "Monk", …); fall back to the
+// raw id if it's somehow unknown (e.g. a class removed in a future version).
+function classLabel(classId: string): string {
+  return CLASSES[classId as ClassId]?.name ?? classId;
+}
 
 interface Props {
   clearedDungeons: string[];
@@ -108,13 +116,15 @@ export function DungeonsTab({
               {spireTop.hardcore && (
                 <span className="spire-lb-row">
                   HC · Floor {spireTop.hardcore.floor} —{" "}
-                  {spireTop.hardcore.hero_name}
+                  {spireTop.hardcore.hero_name} (
+                  {classLabel(spireTop.hardcore.class_id)})
                 </span>
               )}
               {spireTop.softcore && (
                 <span className="spire-lb-row">
                   SC · Floor {spireTop.softcore.floor} —{" "}
-                  {spireTop.softcore.hero_name}
+                  {spireTop.softcore.hero_name} (
+                  {classLabel(spireTop.softcore.class_id)})
                 </span>
               )}
             </div>

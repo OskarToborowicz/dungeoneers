@@ -96,6 +96,11 @@ create trigger spire_scores_set_updated_at
   before update on public.spire_scores
   for each row execute function public.set_updated_at();
 
+-- Table-level privileges: RLS decides WHICH rows, but the PostgREST roles still
+-- need the base grants. The leaderboard is public-read, owner-write.
+grant select on public.spire_scores to anon, authenticated;
+grant insert, update, delete on public.spire_scores to authenticated;
+
 -- ============================================================================
 -- profiles — one row per auth user (app-facing account data). Auto-created on
 -- signup. Extend later with display_name, avatar, stats, etc.
