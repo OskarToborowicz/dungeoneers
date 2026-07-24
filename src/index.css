@@ -14,9 +14,9 @@
   --mana-color: #1c3f7a;
 
   --serif: Georgia, "Times New Roman", serif;
-  --sans: "Noto Sans", system-ui, "Segoe UI", Roboto, sans-serif;
-  --body-font: "Noto Sans", system-ui, "Segoe UI", Roboto, sans-serif;
-  --heading-font: "Almendra SC", serif;
+  --sans: "Elms Sans", system-ui, "Segoe UI", Roboto, sans-serif;
+  --body-font: "Elms Sans", system-ui, "Segoe UI", Roboto, sans-serif;
+  --heading-font: "Rakkas", serif;
 
   font: 17px/145% var(--sans);
   color-scheme: dark;

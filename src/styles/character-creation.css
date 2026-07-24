@@ -7,12 +7,13 @@
 }
 
 .game-title {
-  font-family: var(--heading-font);
+  font-family: "Cinzel Decorative", serif;
   text-transform: capitalize;
-  font-size: 52px;
+  font-size: 33px;
   letter-spacing: 6px;
   text-shadow: 0 0 18px rgba(201, 162, 75, 0.5);
   margin-bottom: 4px;
+  font-weight: 900;
 }
 
 .subtitle {
@@ -250,4 +251,3 @@
   font-size: 13px;
   margin-top: 8px;
 }
-
